@@ -1,0 +1,431 @@
+<template>
+  <div class="page-layout">
+    <!-- Header Text -->
+    <div
+      class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-4"
+    >
+      <h1 class="text-2xl text-gray-100">
+        {{ title }}
+      </h1>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2">
+        <PrintButton>
+          <div class="p-8">
+            <h1 class="text-2xl font-bold mb-4 text-center text-emerald-900">
+              {{ title }}
+            </h1>
+            <div class="mb-4 text-sm text-stone-600">
+              Kategori: {{ selectedTable }} | Total:
+              {{ sortedData.length }} data
+            </div>
+            <table class="w-full border-collapse border border-stone-300">
+              <thead>
+                <tr class="bg-stone-100">
+                  <th class="border border-stone-300 p-2 text-left">No</th>
+                  <th class="border border-stone-300 p-2 text-left">Nama</th>
+                  <th class="border border-stone-300 p-2 text-left">
+                    Username
+                  </th>
+                  <th class="border border-stone-300 p-2 text-left">
+                    Password
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, index) in sortedData" :key="index">
+                  <td class="border border-stone-300 p-2">{{ index + 1 }}</td>
+                  <td class="border border-stone-300 p-2">{{ item.nama }}</td>
+                  <td class="border border-stone-300 p-2 font-mono">
+                    {{ item.username }}
+                  </td>
+                  <td class="border border-stone-300 p-2 font-mono">
+                    {{ item.password }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </PrintButton>
+
+        <BaseButton
+          text="Excel"
+          @click="exportToExcel"
+          class="shadow-sm bg-zinc-800 border-emerald-600 text-emerald-400 hover:bg-zinc-700"
+        >
+          <template #icon>
+            <FileSpreadsheet class="w-4 h-4" />
+          </template>
+        </BaseButton>
+      </div>
+    </div>
+
+    <!-- Search and Dropdown -->
+    <div class="w-full flex flex-col sm:flex-row gap-3 sm:gap-4 mb-2">
+      <!-- Dropdown Select (Inlined) -->
+      <div v-if="dropdownOptions" class="w-full sm:w-1/2">
+        <select
+          v-model="selectedTable"
+          @change="handleDropdownUpdated(selectedTable)"
+          class="w-full rounded-lg border py-2 px-4 text-sm leading-5 h-[38px] transition-all duration-300 ease-in-out cursor-pointer focus:outline-none focus:ring-1 focus:ring-opacity-50 bg-zinc-800/50 text-zinc-100 border-zinc-700 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+        >
+          <option
+            v-for="option in dropdownOptions"
+            :key="option.value"
+            :value="option.value"
+            class="bg-zinc-800 text-zinc-100"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Search Component -->
+      <div :class="dropdownOptions ? 'w-full sm:w-1/2' : 'w-full'">
+        <Search @searchUpdated="handleSearch" class="w-full" />
+      </div>
+    </div>
+
+    <!-- Content area -->
+    <div class="flex-grow max-w-7xl mx-auto mt-2">
+      <div>
+        <div
+          v-if="isLoading"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
+          <!-- Skeleton Card -->
+          <div
+            v-for="i in 6"
+            :key="i"
+            class="rounded-lg border bg-zinc-800/40 border-zinc-700/60 p-4 animate-pulse"
+          >
+            <!-- Header -->
+            <div class="flex items-center gap-3 mb-4">
+              <div class="flex-shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-zinc-700/80"></div>
+              </div>
+              <div class="h-4 bg-zinc-700/80 rounded w-2/3"></div>
+            </div>
+
+            <!-- Account Info -->
+            <div class="space-y-3 mb-5">
+              <div class="flex items-center gap-2">
+                <div class="h-3 bg-zinc-700/60 rounded w-8 flex-shrink-0"></div>
+                <div class="h-4 bg-zinc-700/60 rounded flex-1"></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="h-3 bg-zinc-700/60 rounded w-8 flex-shrink-0"></div>
+                <div class="h-4 bg-zinc-700/60 rounded flex-1"></div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+              <div class="flex-1 h-9 rounded bg-zinc-700/80"></div>
+              <div class="flex-1 h-9 rounded bg-zinc-700/80"></div>
+            </div>
+          </div>
+        </div>
+        <div
+          v-else-if="sortedData.length === 0"
+          class="text-center text-stone-500 py-10"
+        >
+          <div class="space-y-2">
+            <p>Tidak ada data yang ditemukan.</p>
+            <p v-if="showEmptyStateDetails" class="text-sm">
+              <span v-if="!hasLocalData"
+                >Data belum tersedia di penyimpanan lokal.
+              </span>
+              <span
+                >Silakan gunakan tombol "Update All Data" di menu utama untuk
+                memperbarui data.</span
+              >
+            </p>
+          </div>
+        </div>
+        <div
+          v-else
+          id="accountCards"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
+          <!-- Account Card (Inlined) -->
+          <div
+            v-for="(akun, index) in visibleData"
+            :key="index"
+            class="rounded-lg border transition-colors bg-zinc-800 border-zinc-700"
+          >
+            <div class="p-4">
+              <!-- Header -->
+              <div class="flex items-center gap-3 mb-4">
+                <div class="flex-shrink-0">
+                  <UserCircle
+                    aria-hidden="true"
+                    class="w-8 h-8 p-1.5 rounded-lg text-emerald-400 bg-zinc-700"
+                  />
+                </div>
+                <h3
+                  class="font-semibold text-base truncate flex-1 text-gray-200"
+                >
+                  {{ akun.nama }}
+                </h3>
+              </div>
+
+              <!-- Account Info -->
+              <div class="space-y-2 mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs w-8 flex-shrink-0 text-gray-400"
+                    >User</span
+                  >
+                  <p
+                    class="text-sm font-mono truncate flex-1 select-all cursor-pointer text-gray-300 hover:text-white"
+                    @click="copyToClipboard(akun.username)"
+                    title="Klik untuk menyalin username"
+                  >
+                    {{ akun.username }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs w-8 flex-shrink-0 text-gray-400"
+                    >Pass</span
+                  >
+                  <p
+                    class="text-sm font-mono truncate flex-1 select-all cursor-pointer text-gray-300 hover:text-white"
+                    @click="copyToClipboard(akun.password)"
+                    title="Klik untuk menyalin password"
+                  >
+                    {{ akun.password }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex gap-1">
+                <button
+                  class="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded text-xs font-medium bg-zinc-700 text-gray-300 hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  :class="{ 'opacity-50': sharingCardId === index }"
+                  @click="handleShareAccount(akun, index)"
+                  :disabled="sharingCardId === index"
+                  title="Share Account"
+                  type="button"
+                >
+                  <Send class="w-4 h-4 flex-shrink-0" />
+                  <span class="hidden sm:inline">Share</span>
+                </button>
+
+                <a
+                  :href="akun.link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded text-xs font-medium no-underline bg-emerald-600 text-white hover:bg-emerald-500"
+                  title="Login"
+                  @click="handleLinkClick($event, akun)"
+                >
+                  <LogIn class="w-4 h-4 flex-shrink-0" />
+                  <span class="hidden sm:inline">Login</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <Pagination
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          @pageChanged="handlePageChange"
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { FileSpreadsheet, Send, LogIn, UserCircle } from "lucide-vue-next";
+import { ref, computed, onMounted, onUnmounted, provide, watch } from "vue";
+import Search from "~/components/ui/Search.vue";
+import Pagination from "~/components/ui/Pagination.vue";
+import { useTableData } from "~/composables/data/useTableData";
+import { useExportExcel } from "~/composables/data/useExcel";
+import PrintButton from "~/components/ui/PrintButton.vue";
+import BaseButton from "~/components/ui/BaseButton.vue";
+import { useNotiflix } from "~/composables/ui/useFeedback";
+
+const props = defineProps({
+  title: {
+    type: String,
+    required: true,
+  },
+  initialTable: {
+    type: String,
+    required: true,
+  },
+  dropdownOptions: {
+    type: Array,
+    default: null,
+  },
+  showEmptyStateDetails: {
+    type: Boolean,
+    default: false,
+  },
+  pageSize: {
+    type: Number,
+    default: 12,
+  },
+});
+
+const { cardData, isLoading, loadData } = useTableData();
+const { exportToCSV } = useExportExcel();
+const { Notify } = useNotiflix();
+
+const selectedTable = ref(props.initialTable);
+const searchQuery = ref("");
+const currentPage = ref(1);
+const sharingCardId = ref(null);
+
+// Provide selectedTable for child elements
+provide("selectedTable", selectedTable);
+
+const sortedData = computed(() => {
+  if (!cardData.value || !Array.isArray(cardData.value)) {
+    return [];
+  }
+
+  return cardData.value
+    .filter((item) => {
+      return (
+        item &&
+        item.nama &&
+        item.nama.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
+    })
+    .sort((a, b) => {
+      if (!a.nama || !b.nama) return 0;
+      return a.nama.localeCompare(b.nama);
+    });
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(sortedData.value.length / props.pageSize);
+});
+
+const visibleData = computed(() => {
+  const start = (currentPage.value - 1) * props.pageSize;
+  const end = start + props.pageSize;
+  return sortedData.value.slice(start, end);
+});
+
+const hasLocalData = computed(() => {
+  return cardData.value && cardData.value.length > 0;
+});
+
+const handleDropdownUpdated = (newValue) => {
+  selectedTable.value = newValue;
+  loadData(newValue);
+};
+
+const handleSearch = (query) => {
+  searchQuery.value = query;
+};
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+// Function to Export to Excel (CSV) using composable
+const exportToExcel = () => {
+  const headers = ["No", "Nama", "Username", "Password", "Link Login"];
+  const data = sortedData.value.map((item, index) => ({
+    no: index + 1,
+    nama: item.nama,
+    username: item.username,
+    password: item.password,
+    link: item.link,
+  }));
+
+  exportToCSV(data, headers, `${props.title}_${selectedTable.value}`);
+};
+
+// Clipboard copy helper
+const copyToClipboard = async (text) => {
+  try {
+    if (!navigator.clipboard) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        document.execCommand("copy");
+        Notify.success(`Disalin: ${text.substring(0, 15)}...`);
+      } finally {
+        document.body.removeChild(textArea);
+      }
+      return;
+    }
+
+    await navigator.clipboard.writeText(text);
+    Notify.success(`Disalin: ${text.substring(0, 15)}...`);
+  } catch {
+    Notify.failure("Gagal menyalin!");
+  }
+};
+
+// Sharing handler
+const handleShareAccount = async (akun, index) => {
+  if (sharingCardId.value !== null) return;
+
+  sharingCardId.value = index;
+
+  const tableName = selectedTable.value || "Tidak Diketahui";
+  const message = `====DOKUMEN.MADRASAH====\n\nJenis Akun: ${tableName}\nNama: ${akun.nama}\n\nUser: ${akun.username}\nPass: ${akun.password}\n\nLink masuk ${tableName}:\n${akun.link}\nLogin SopokDate:\nhttps://sopokdate.netlify.app/\n\n=====SANGAT.RAHASIA=====`;
+
+  try {
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ text: message })
+    ) {
+      await navigator.share({
+        title: "Detail Akun",
+        text: message,
+      });
+    } else {
+      await copyToClipboard(message);
+      Notify.success("Detail akun disalin!");
+    }
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      try {
+        await copyToClipboard(message);
+      } catch {
+        Notify.failure("Gagal menyalin!");
+      }
+    }
+  } finally {
+    setTimeout(() => {
+      sharingCardId.value = null;
+    }, 2000);
+  }
+};
+
+const handleLinkClick = (event, akun) => {
+  if (!akun.link) {
+    event.preventDefault();
+    Notify.failure("Link tidak tersedia!");
+  }
+};
+
+// Reset page when search, table or data changes
+watch([searchQuery, selectedTable, sortedData], () => {
+  currentPage.value = 1;
+});
+
+onMounted(() => {
+  loadData(selectedTable.value);
+});
+</script>

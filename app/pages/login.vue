@@ -1,0 +1,367 @@
+<template>
+  <section
+    class="min-h-screen flex items-center justify-center bg-zinc-950 relative overflow-hidden"
+  >
+    <!-- Decorative background elements -->
+    <div
+      class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"
+    ></div>
+    <div
+      class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-80 h-80 rounded-full bg-teal-500/10 blur-3xl pointer-events-none"
+    ></div>
+
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="max-w-[360px] w-full mx-auto group">
+        <!-- Glow wrapper -->
+        <div
+          class="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-emerald-500/30 to-teal-500/30 opacity-75 blur-xl group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
+        ></div>
+
+        <div
+          class="card rounded-2xl p-6 sm:p-8 border bg-zinc-900 border-zinc-800/80 shadow-2xl transition-all duration-300 relative overflow-hidden"
+        >
+          <div class="flex flex-col items-stretch gap-6">
+            <div class="text-center sm:text-left">
+              <h1
+                class="text-2xl sm:text-3xl font-semibold tracking-tight text-white flex items-baseline justify-center sm:justify-start"
+              >
+                {{ appName }}
+              </h1>
+            </div>
+
+            <!-- Login Form -->
+            <form
+              @submit.prevent="handleLogin"
+              class="w-full flex flex-col gap-4"
+              id="loginForm"
+            >
+              <!-- Username (floating label) -->
+              <div class="relative">
+                <input
+                  type="email"
+                  id="email"
+                  v-model="email"
+                  placeholder=" "
+                  required
+                  class="peer w-full h-11 px-3.5 pt-4 pb-1 rounded-lg border bg-zinc-800/20 text-white placeholder-transparent border-zinc-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all duration-300 text-sm"
+                />
+                <label
+                  for="email"
+                  class="absolute left-3.5 top-2 text-sm text-zinc-500 pointer-events-none transition-all duration-200 origin-left -translate-y-4 scale-75 z-10 px-1 bg-zinc-900 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-zinc-500 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-emerald-400"
+                >
+                  Username
+                </label>
+              </div>
+
+              <!-- Password (floating label + visibility) -->
+              <div class="relative">
+                <input
+                  :type="showPassword ? 'text' : 'password'"
+                  id="password"
+                  v-model="password"
+                  placeholder=" "
+                  required
+                  class="peer w-full h-11 px-3.5 pt-4 pb-1 pr-10 rounded-lg border bg-zinc-800/20 text-white placeholder-transparent border-zinc-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all duration-300 text-sm"
+                />
+                <label
+                  for="password"
+                  class="absolute left-3.5 top-2 text-sm text-zinc-500 pointer-events-none transition-all duration-200 origin-left -translate-y-4 scale-75 z-10 px-1 bg-zinc-900 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-zinc-500 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-emerald-400"
+                >
+                  Password
+                </label>
+
+                <button
+                  type="button"
+                  class="absolute inset-y-0 right-0 flex items-center pr-3.5 focus:outline-none group/btn"
+                  @click="togglePasswordVisibility"
+                >
+                  <IconEye
+                    v-if="!showPassword"
+                    class="h-4 w-4 text-zinc-400 hover:text-emerald-400 peer-focus:text-emerald-400 transition-colors duration-300"
+                  />
+                  <IconEyeSlash
+                    v-else
+                    class="h-4 w-4 text-zinc-400 hover:text-emerald-400 peer-focus:text-emerald-400 transition-colors duration-300"
+                  />
+                </button>
+              </div>
+
+              <!-- Error Message -->
+              <div
+                v-if="errorMessage"
+                class="p-3 rounded-lg bg-red-950/40 border border-red-800/60 transition-all duration-300"
+              >
+                <p class="text-red-400 text-sm font-medium flex items-center">
+                  <CircleX class="w-4 h-4 mr-2 shrink-0" />
+                  {{ errorMessage }}
+                </p>
+              </div>
+
+              <!-- Submit -->
+              <div class="mt-2">
+                <button
+                  type="submit"
+                  :disabled="isLoading"
+                  class="w-full h-11 rounded-lg px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer flex items-center justify-center shadow-lg shadow-emerald-950/20"
+                >
+                  <span
+                    v-if="isLoading"
+                    class="flex items-center justify-center"
+                  >
+                    <Loader2
+                      class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    />
+                    Memproses...
+                  </span>
+                  <span v-else class="flex items-center justify-center">
+                    <LogIn class="w-4 h-4 mr-2" stroke-width="2" />
+                    Masuk ke Sistem
+                  </span>
+                </button>
+              </div>
+
+              <!-- Divider -->
+              <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-zinc-800/80"></div>
+                <span
+                  class="flex-shrink mx-3 text-zinc-600 text-[10px] uppercase font-bold tracking-wider"
+                  >Atau</span
+                >
+                <div class="flex-grow border-t border-zinc-800/80"></div>
+              </div>
+
+              <!-- Barcode Login Trigger -->
+              <div>
+                <button
+                  type="button"
+                  @click="openScanModal"
+                  class="w-full h-11 rounded-lg border border-zinc-800/80 hover:border-zinc-700 bg-zinc-900 hover:bg-zinc-850 text-sm font-semibold text-zinc-300 hover:text-white transition-all duration-300 flex items-center justify-center cursor-pointer gap-2"
+                >
+                  <ScanBarcode class="w-4 h-4 text-emerald-400" />
+                  Scan Barcode / QR
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barcode Scanner Modal -->
+    <div
+      v-if="showScanModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+    >
+      <div
+        class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]"
+      >
+        <!-- Modal Header -->
+        <div
+          class="flex items-center justify-between p-4 border-b border-zinc-800/80"
+        >
+          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+            <ScanBarcode class="w-4 h-4 text-emerald-400" />
+            Masuk dengan Barcode / QR
+          </h3>
+          <button
+            type="button"
+            @click="closeScanModal"
+            class="text-zinc-400 hover:text-white focus:outline-none cursor-pointer"
+          >
+            <X class="w-4 h-4" />
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-5 flex flex-col gap-4 items-center justify-center">
+          <div
+            class="relative w-full max-w-[280px] aspect-square overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950"
+          >
+            <div id="reader" class="w-full h-full"></div>
+          </div>
+          <p class="text-[11px] text-zinc-500 text-center px-2">
+            Posisikan QR code / barcode di depan kamera.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script setup>
+import { ref, nextTick, onBeforeUnmount } from "vue";
+import { useNotiflix } from "~/composables/ui/useFeedback";
+import { useAuth } from "~/composables/auth/useAuth";
+import {
+  Eye as IconEye,
+  EyeOff as IconEyeSlash,
+  Loader2,
+  LogIn,
+  CircleX,
+  ScanBarcode,
+  X,
+} from "lucide-vue-next";
+
+definePageMeta({
+  layout: "auth",
+  requiresAuth: false,
+});
+
+// Inject tema dari runtimeConfig
+const config = useRuntimeConfig();
+const appName = config.public.appName;
+
+// Membuat instance notiflix
+const notiflixInstance = useNotiflix();
+
+// Router instance
+const router = useRouter();
+
+// Menggunakan composable useAuth
+const { login, isLoading, errorMessage } = useAuth();
+
+// Form data
+const email = ref("");
+const password = ref("");
+const showPassword = ref(false);
+
+// Scanner states
+const showScanModal = ref(false);
+let html5QrcodeInstance = null;
+
+// Toggle visibilitas password
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
+
+// Handle login form submission
+const handleLogin = async () => {
+  try {
+    await login(email.value, password.value, router, notiflixInstance.Notify);
+
+    // Reset form setelah login sukses
+    email.value = "";
+    password.value = "";
+  } catch {
+    if (notiflixInstance && notiflixInstance.Notify) {
+      notiflixInstance.Notify.failure("Terjadi kesalahan saat login");
+    }
+  }
+};
+
+// Scanner methods
+const openScanModal = () => {
+  showScanModal.value = true;
+  nextTick(() => {
+    startCameraScanner();
+  });
+};
+
+const closeScanModal = () => {
+  stopCameraScanner();
+  showScanModal.value = false;
+};
+
+const startCameraScanner = async () => {
+  try {
+    const { Html5Qrcode } = await import("html5-qrcode");
+
+    if (!html5QrcodeInstance) {
+      html5QrcodeInstance = new Html5Qrcode("reader");
+    }
+
+    if (html5QrcodeInstance.isScanning) {
+      return;
+    }
+
+    await html5QrcodeInstance.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: (width, height) => {
+          return {
+            width: Math.min(width * 0.8, 240),
+            height: Math.min(height * 0.8, 240),
+          };
+        },
+      },
+      (decodedText) => {
+        handleScanSuccess(decodedText);
+      },
+      () => {
+        // Quiet scanner verbose logs
+      },
+    );
+  } catch (err) {
+    console.error("Gagal memulai kamera scanner:", err);
+    if (notiflixInstance && notiflixInstance.Notify) {
+      notiflixInstance.Notify.failure("Gagal mengakses kamera");
+    }
+  }
+};
+
+const stopCameraScanner = async () => {
+  if (html5QrcodeInstance && html5QrcodeInstance.isScanning) {
+    try {
+      await html5QrcodeInstance.stop();
+    } catch (err) {
+      console.error("Gagal menghentikan kamera scanner:", err);
+    }
+  }
+};
+
+const handleScanSuccess = async (decodedText) => {
+  closeScanModal();
+
+  let parsedEmail = "";
+  let parsedPassword = "";
+
+  try {
+    const textTrimmed = decodedText.trim();
+    if (textTrimmed.startsWith("{") && textTrimmed.endsWith("}")) {
+      const data = JSON.parse(textTrimmed);
+      parsedEmail = data.email || data.username || "";
+      parsedPassword = data.password || "";
+    } else {
+      const separators = ["|", ":", ";", ","];
+      let parts = [textTrimmed];
+
+      for (const sep of separators) {
+        if (textTrimmed.includes(sep)) {
+          parts = textTrimmed.split(sep);
+          break;
+        }
+      }
+
+      if (parts.length >= 2) {
+        parsedEmail = parts[0].trim();
+        parsedPassword = parts[1].trim();
+      }
+    }
+  } catch (e) {
+    console.error("Gagal memproses barcode data:", e);
+  }
+
+  if (parsedEmail && parsedPassword) {
+    email.value = parsedEmail;
+    password.value = parsedPassword;
+
+    if (notiflixInstance && notiflixInstance.Notify) {
+      notiflixInstance.Notify.success(
+        "Barcode berhasil terbaca, memproses login...",
+      );
+    }
+
+    await handleLogin();
+  } else {
+    if (notiflixInstance && notiflixInstance.Notify) {
+      notiflixInstance.Notify.failure("Format barcode tidak valid");
+    }
+  }
+};
+
+// Clean up scanner on unmount
+onBeforeUnmount(() => {
+  stopCameraScanner();
+});
+</script>

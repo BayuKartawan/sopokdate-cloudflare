@@ -1,0 +1,26 @@
+# Nuxt 3 / Node
+node_modules/
+.nuxt/
+.output/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Cloudflare Wrangler
+.wrangler/
+cloudflare/seed.sql
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+.dev.vars
+cloudflare/.dev.vars
+
+# Backup & Database Seed (Berisi data sensitif NIK, Password, dll.)
+app-script/SopokDateDB-Main.json
+app-script/SopokDateDB-Surat.json
+*.sql
+*.json.bak

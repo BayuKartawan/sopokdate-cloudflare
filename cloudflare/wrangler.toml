@@ -1,0 +1,11 @@
+name = "sopokdate-api"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Setelah menjalankan `wrangler d1 create sopokdate-db`,
+# salin database_id yang dihasilkan ke sini.
+[[d1_databases]]
+binding = "DB"
+database_name = "sopokdate-db"
+database_id = "69393a59-4a24-4035-aff3-3cea05d5f9f9"

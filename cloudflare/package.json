@@ -1,0 +1,19 @@
+{
+  "name": "sopokdate-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy",
+    "db:create": "npx wrangler d1 create sopokdate-db",
+    "db:schema": "npx wrangler d1 execute sopokdate-db --file=schema.sql --remote",
+    "db:schema:local": "npx wrangler d1 execute sopokdate-db --file=schema.sql --local",
+    "db:seed": "npx wrangler d1 execute sopokdate-db --file=seed.sql --remote",
+    "db:seed:local": "npx wrangler d1 execute sopokdate-db --file=seed.sql --local",
+    "migrate": "node migrate.js"
+  },
+  "devDependencies": {
+    "wrangler": "^3.100.0"
+  }
+}
