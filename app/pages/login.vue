@@ -38,7 +38,7 @@
               <!-- Username (floating label) -->
               <div class="relative">
                 <input
-                  type="email"
+                  type="text"
                   id="email"
                   v-model="email"
                   placeholder=" "

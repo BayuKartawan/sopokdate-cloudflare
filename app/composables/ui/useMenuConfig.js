@@ -6,6 +6,7 @@ import {
   Users,
   Banknote,
   GraduationCap,
+  KeyRound,
 } from "lucide-vue-next";
 
 export const useMenuConfig = () => {
@@ -14,13 +15,14 @@ export const useMenuConfig = () => {
       to: "/",
       label: "Beranda",
       icon: markRaw(Home),
-      roles: ["admin", "user"],
+      roles: ["admin", "guru"],
     },
     {
       label: "Akun",
       icon: markRaw(Users),
       roles: ["admin"],
       children: [
+        { to: "/akun/gtk/kelola", label: "Kelola Akun Guru", icon: markRaw(KeyRound), roles: ["admin"] },
         { to: "/akun/gtk/emis", label: "EMIS 4.0", roles: ["admin"] },
         { to: "/akun/gtk/email", label: "Email Madrasah", roles: ["admin"] },
         { to: "/akun/gtk/rdm", label: "RDM", roles: ["admin"] },
@@ -32,60 +34,60 @@ export const useMenuConfig = () => {
     {
       label: "Akademik",
       icon: markRaw(GraduationCap),
-      roles: ["admin", "user"],
+      roles: ["admin", "guru"],
       children: [
-        { to: "/akademik/siswa", label: "Siswa", roles: ["admin", "user"] },
+        { to: "/akademik/siswa", label: "Siswa", roles: ["admin", "guru"] },
         { to: "/akademik/gtk", label: "Guru Tendik", roles: ["admin"] },
         {
           to: "/akademik/kelas",
           label: "Rombel",
-          roles: ["admin", "user"],
+          roles: ["admin", "guru"],
         },
       ],
     },
     {
       label: "Madrasah",
       icon: markRaw(Building2),
-      roles: ["admin", "user"],
+      roles: ["admin", "guru"],
       children: [
         {
           to: "/madrasah/data",
           label: "Data Madrasah",
-          roles: ["admin", "user"],
+          roles: ["admin", "guru"],
         },
         {
           to: "/madrasah/berkas",
           label: "Berkas Madrasah",
-          roles: ["admin", "user"],
+          roles: ["admin", "guru"],
         },
         {
           to: "/madrasah/aplikasi",
           label: "Aplikasi Madrasah",
-          roles: ["admin", "user"],
+          roles: ["admin", "guru"],
         },
       ],
     },
     {
       label: "Buat Dokumen",
       icon: markRaw(FileText),
-      roles: ["admin", "user"],
+      roles: ["admin", "guru"],
       children: [
-        { to: "/dokumen/surat", label: "Surat", roles: ["admin", "user"] },
+        { to: "/dokumen/surat", label: "Surat", roles: ["admin", "guru"] },
         {
           to: "/dokumen/sertifikat",
           label: "Sertifikat",
-          roles: ["admin", "user"],
+          roles: ["admin", "guru"],
         },
-        { to: "/dokumen/sampul", label: "Sampul", roles: ["admin", "user"] },
+        { to: "/dokumen/sampul", label: "Sampul", roles: ["admin", "guru"] },
         {
           to: "/dokumen/daftar-siswa",
           label: "Daftar Siswa",
-          roles: ["admin", "user"],
+          roles: ["admin", "guru"],
         },
         {
           to: "/dokumen/pas-foto",
           label: "Cetak Pas Foto",
-          roles: ["admin", "user"],
+          roles: ["admin", "guru"],
         },
       ],
     },

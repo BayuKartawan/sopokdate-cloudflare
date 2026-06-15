@@ -20,8 +20,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // URL AppScript jika ingin fallback ke fetch remote
-const APPSCRIPT_URL_UTAMA = "";
-const APPSCRIPT_URL_SURAT = "";
+const APPSCRIPT_URL_UTAMA = "https://script.google.com/macros/s/AKfycbz_fYnqNmlbxCJqAKUtf0MmSO7nTYQK75u39AKziFSYgqEqQw5A7vIQz4IE-pKsh3vd/exec";
+const APPSCRIPT_URL_SURAT = "https://script.google.com/macros/s/AKfycbwzcEmzA5zLTfjbWrAvVTSwigvFK9T91nYPWxYs6E-YOD62Z2pSIaCD-g3VpUiy7AdgyA/exec";
 
 // Daftar seluruh tabel dari DB Utama
 const TABLES_TO_MIGRATE = [
@@ -376,12 +376,34 @@ async function generateSeedFile() {
   const suratJsonPath = findLocalFile("SopokDateDB-Surat.json");
 
   // --- MIGRASI DB UTAMA ---
-  if (mainJsonPath) {
+  let dataMain = {};
+  if (APPSCRIPT_URL_UTAMA) {
+    console.log("\n📦 Mengambil data dari AppScript DB Utama (Remote)...\n");
+    for (const table of TABLES_TO_MIGRATE) {
+      try {
+        console.log(`  📋 Tabel: ${table}`);
+        const data = await fetchFromAppScript(APPSCRIPT_URL_UTAMA, table);
+
+        if (Array.isArray(data) && data.length > 0) {
+          dataMain[table] = data;
+          const d1Table = D1_TABLE_MAP[table];
+          const mappedRows = data.map((row) => mapRow(row, table)).filter(Boolean);
+          sql += generateInsertSQL(d1Table, mappedRows);
+          console.log(`     ✅ ${mappedRows.length} baris berhasil di-generate`);
+        } else {
+          console.log(`     ⚠️  Tidak ada data atau format tidak sesuai`);
+        }
+      } catch (err) {
+        console.error(`     ❌ Error: ${err.message}`);
+      }
+    }
+  } else if (mainJsonPath) {
     console.log(`\n📂 Membaca database utama dari file lokal: ${mainJsonPath}`);
     try {
-      const dataMain = readLocalMainData(mainJsonPath);
+      const localData = readLocalMainData(mainJsonPath);
+      dataMain = localData;
       for (const table of TABLES_TO_MIGRATE) {
-        const rows = dataMain[table];
+        const rows = localData[table];
         if (Array.isArray(rows) && rows.length > 0) {
           const d1Table = D1_TABLE_MAP[table];
           const mappedRows = rows.map((row) => mapRow(row, table)).filter(Boolean);
@@ -396,43 +418,12 @@ async function generateSeedFile() {
     } catch (err) {
       console.error(`  ❌ Gagal membaca ${path.basename(mainJsonPath)}: ${err.message}`);
     }
-  } else if (APPSCRIPT_URL_UTAMA) {
-    console.log("\n📦 Mengambil data dari AppScript DB Utama (Remote)...\n");
-    for (const table of TABLES_TO_MIGRATE) {
-      try {
-        console.log(`  📋 Tabel: ${table}`);
-        const data = await fetchFromAppScript(APPSCRIPT_URL_UTAMA, table);
-
-        if (Array.isArray(data) && data.length > 0) {
-          const d1Table = D1_TABLE_MAP[table];
-          const mappedRows = data.map((row) => mapRow(row, table)).filter(Boolean);
-          sql += generateInsertSQL(d1Table, mappedRows);
-          console.log(`     ✅ ${mappedRows.length} baris berhasil di-generate`);
-        } else {
-          console.log(`     ⚠️  Tidak ada data atau format tidak sesuai`);
-        }
-      } catch (err) {
-        console.error(`     ❌ Error: ${err.message}`);
-      }
-    }
   } else {
     console.log("\n⚠️  Tidak ditemukan file SopokDateDB-Main.json dan APPSCRIPT_URL_UTAMA kosong.");
   }
 
   // --- MIGRASI DB SURAT ---
-  if (suratJsonPath) {
-    console.log(`\n📂 Membaca data surat dari file lokal: ${suratJsonPath}`);
-    try {
-      const dataSurat = JSON.parse(fs.readFileSync(suratJsonPath, "utf-8"));
-      const templateMap = transformLocalSuratData(dataSurat);
-      if (Object.keys(templateMap).length > 0) {
-        sql += generateSuratSQL(templateMap);
-        console.log(`  ✅ Template Surat: ${Object.keys(templateMap).length} template di-generate`);
-      }
-    } catch (err) {
-      console.error(`  ❌ Gagal membaca ${path.basename(suratJsonPath)}: ${err.message}`);
-    }
-  } else if (APPSCRIPT_URL_SURAT) {
+  if (APPSCRIPT_URL_SURAT) {
     console.log("\n📦 Mengambil data dari AppScript DB Surat (Remote)...\n");
     try {
       const templateMap = await fetchFromAppScript(APPSCRIPT_URL_SURAT);
@@ -445,8 +436,72 @@ async function generateSeedFile() {
     } catch (err) {
       console.error(`  ❌ Error: ${err.message}`);
     }
+  } else if (suratJsonPath) {
+    console.log(`\n📂 Membaca data surat dari file lokal: ${suratJsonPath}`);
+    try {
+      const dataSurat = JSON.parse(fs.readFileSync(suratJsonPath, "utf-8"));
+      const templateMap = transformLocalSuratData(dataSurat);
+      if (Object.keys(templateMap).length > 0) {
+        sql += generateSuratSQL(templateMap);
+        console.log(`  ✅ Template Surat: ${Object.keys(templateMap).length} template di-generate`);
+      }
+    } catch (err) {
+      console.error(`  ❌ Gagal membaca ${path.basename(suratJsonPath)}: ${err.message}`);
+    }
   } else {
     console.log("\n⚠️  Tidak ditemukan file SopokDateDB-Surat.json dan APPSCRIPT_URL_SURAT kosong.");
+  }
+
+  // --- MIGRASI AKUN USERS ---
+  console.log(`\n🔑 Membuat akun users (admin + guru dari data_gtk)...`);
+  sql += "-- ============================================================================\n";
+  sql += "-- Akun Users (Admin + Guru)\n";
+  sql += "-- ============================================================================\n\n";
+  sql += "DELETE FROM users;\n\n";
+
+  // Admin account (hardcoded, sama dengan yang sebelumnya)
+  sql += `-- Admin Account\n`;
+  sql += `INSERT INTO users (username, password, role, display_name, gtk_id, is_active) VALUES ('bayu2kali@my.my', 'bayU*Saya', 'admin', 'Bayu Administrator', NULL, 1);\n\n`;
+  console.log(`  ✅ Akun admin (bayu2kali@my.my) di-generate`);
+
+  // Guru accounts dari data_gtk (jika ada data migrasi)
+  const gtkRows = dataMain["DataGtk"];
+  if (Array.isArray(gtkRows) && gtkRows.length > 0) {
+    try {
+      let guruCount = 0;
+
+      sql += `-- Guru Accounts (auto-generated dari DataGtk)\n`;
+
+      for (let i = 0; i < gtkRows.length; i++) {
+        const row = gtkRows[i];
+        const mapped = mapRow(row, "DataGtk");
+        if (!mapped) continue;
+
+        const pegId = mapped.peg_id;
+        if (!pegId || String(pegId).trim() === "") continue;
+
+        // Generate random password
+        const chars = "abcdefghjkmnpqrstuvwxyz23456789";
+        let password = "";
+        for (let c = 0; c < 8; c++) {
+          password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        const displayName = mapped.nama_lengkap || pegId;
+        // gtk_id = i + 1 karena AUTOINCREMENT mulai dari 1
+        const gtkId = i + 1;
+
+        sql += `INSERT INTO users (username, password, role, display_name, gtk_id, is_active) VALUES (${escapeSql(pegId)}, ${escapeSql(password)}, 'guru', ${escapeSql(displayName)}, ${gtkId}, 1);\n`;
+        guruCount++;
+      }
+
+      sql += "\n";
+      console.log(`  ✅ ${guruCount} akun guru di-generate dari DataGtk`);
+    } catch (err) {
+      console.error(`  ❌ Gagal membuat akun guru: ${err.message}`);
+    }
+  } else {
+    console.log(`  ⚠️  Tidak ada data GTK untuk membuat akun guru.`);
   }
 
   // Tulis ke file

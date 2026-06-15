@@ -38,6 +38,23 @@ function validateMockJWT(token: string): boolean {
   }
 }
 
+/**
+ * Decode token JWT tiruan untuk mendapatkan payload (role, gtk_id, dll)
+ */
+function decodeMockJWT(token: string): any {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const payloadRaw = Buffer.from(base64, "base64").toString("utf-8");
+    return JSON.parse(payloadRaw);
+  } catch {
+    return null;
+  }
+}
+
 export default defineEventHandler(async (event) => {
   // 1. Validasi Token Authorization
   const authHeader = getHeader(event, "authorization");
@@ -90,6 +107,13 @@ export default defineEventHandler(async (event) => {
     if (query.filter_val) {
       searchParams.append("filter_val", query.filter_val as string);
     }
+
+    // Jika role guru dan tabel DataGtk, filter hanya data miliknya
+    const jwtPayload = decodeMockJWT(token);
+    if (jwtPayload && jwtPayload.role === "guru" && jwtPayload.gtk_id && table === "DataGtk") {
+      searchParams.append("gtk_id", String(jwtPayload.gtk_id));
+    }
+
     const qs = searchParams.toString();
     url = `${cleanWorkerUrl}/api/data${qs ? "?" + qs : ""}`;
   } else if (type === "surat") {

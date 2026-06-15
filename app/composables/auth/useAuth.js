@@ -3,20 +3,6 @@ import { clearUserAndRole } from "~/middleware/auth.global";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { clearSessionCache } from "~/composables/data/useTableData";
 
-// Kredensial pengguna lokal (menggantikan database user di Cloudflare Worker)
-const USERS = {
-  "bayu2kali@my.my": {
-    password: "bayU*Saya",
-    role: "admin",
-    displayName: "Bayu Administrator",
-  },
-  "guru@haha.wkwk": {
-    password: "haha_haha",
-    role: "user",
-    displayName: "Guru Madrasah",
-  },
-};
-
 /**
  * Membuat token JWT tiruan di client-side agar tetap kompatibel dengan middleware dan helper decodeJWT
  */
@@ -44,7 +30,7 @@ export function useAuth() {
 
   const userDataCache = ref(new Map());
 
-  // API Configuration â€” via runtimeConfig
+  // API Configuration — via runtimeConfig
   const getApiBaseUrl = () => {
     try {
       const config = useRuntimeConfig();
@@ -81,7 +67,7 @@ export function useAuth() {
     return payload !== null;
   };
 
-  const saveUserToStorage = ({ email, token, role, displayName }) => {
+  const saveUserToStorage = ({ email, token, role, displayName, gtkId, userId }) => {
     const finalDisplayName = displayName || email;
 
     localStorage.setItem("user-token", token);
@@ -91,11 +77,21 @@ export function useAuth() {
         email,
         displayName: finalDisplayName,
         role,
+        gtkId: gtkId || null,
+        userId: userId || null,
         loginTime: Date.now(),
       }),
     );
     localStorage.setItem("user-role", role);
     localStorage.setItem("user-displayName", finalDisplayName);
+
+    // Simpan gtk_id terpisah untuk akses cepat
+    if (gtkId) {
+      localStorage.setItem("user-gtk-id", String(gtkId));
+    }
+    if (userId) {
+      localStorage.setItem("user-id", String(userId));
+    }
 
     const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
     const expiryTime = Date.now() + sevenDaysInMs;
@@ -111,6 +107,8 @@ export function useAuth() {
       "user-data",
       "user-role",
       "user-displayName",
+      "user-gtk-id",
+      "user-id",
       "sessionExpiry",
     ];
 
@@ -132,18 +130,20 @@ export function useAuth() {
     if (error?.message) {
       const msg = error.message.toLowerCase();
 
-      if (msg.includes("email atau password salah")) {
-        errorMsg = "Email atau password salah.";
+      if (msg.includes("email atau password salah") || msg.includes("username atau password salah")) {
+        errorMsg = "Username atau password salah.";
       } else if (msg.includes("verifikasi keamanan gagal")) {
         errorMsg = "Verifikasi keamanan gagal. Silakan coba lagi.";
       } else if (msg.includes("unauthorized") || msg.includes("login gagal")) {
-        errorMsg = "Email atau password salah.";
+        errorMsg = "Username atau password salah.";
       } else if (msg.includes("network") || msg.includes("fetch")) {
         errorMsg = "Koneksi gagal. Periksa internet Anda.";
       } else if (msg.includes("jwt invalid") || msg.includes("token")) {
         errorMsg = "Sesi tidak valid. Silakan login kembali.";
       } else if (msg.includes("timeout")) {
         errorMsg = "Waktu request habis. Coba lagi.";
+      } else if (msg.includes("tidak aktif")) {
+        errorMsg = "Akun tidak aktif. Hubungi admin.";
       } else {
         errorMsg = error.message;
       }
@@ -160,43 +160,68 @@ export function useAuth() {
     }
   };
 
-  const login = async (email, password, router, Notify) => {
+  /**
+   * Login — verifikasi credential via server proxy ke Cloudflare Worker D1
+   */
+  const login = async (username, password, router, Notify) => {
     isLoading.value = true;
     errorMessage.value = "";
 
     try {
-      if (!email || !password) {
-        throw new Error("Email dan password diperlukan");
+      if (!username || !password) {
+        throw new Error("Username dan password diperlukan");
       }
 
-      // Simulasi delay jaringan agar terasa natural
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      // Kirim ke auth proxy → Cloudflare Worker → D1
+      const response = await fetch("/api/auth-proxy", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "login",
+          username,
+          password,
+        }),
+      });
 
-      const user = USERS[email];
-
-      if (!user || user.password !== password) {
-        throw new Error("Email atau password salah.");
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(
+          errData.statusMessage || errData.error || "Username atau password salah."
+        );
       }
 
-      const role = user.role || "user";
-      const displayName = user.displayName || email;
+      const result = await response.json();
 
-      // Generate mock JWT token
+      if (!result.success || !result.user) {
+        throw new Error("Login gagal. Silakan coba lagi.");
+      }
+
+      const user = result.user;
+      const role = user.role || "guru";
+      const displayName = user.display_name || username;
+
+      // Generate mock JWT token (dengan gtk_id dan user_id)
       const token = signMockJWT({
-        sub: email,
+        sub: username,
         role: role,
         name: displayName,
+        gtk_id: user.gtk_id || null,
+        user_id: user.id,
         exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 hari
       });
 
       saveUserToStorage({
-        email,
+        email: username,
         token,
         role,
         displayName,
+        gtkId: user.gtk_id,
+        userId: user.id,
       });
 
-      userDataCache.value.set(email, { role, displayName });
+      userDataCache.value.set(username, { role, displayName });
 
       Notify?.success?.(`Login berhasil, selamat datang ${displayName}!`, {
         timeout: 3000,
@@ -209,7 +234,7 @@ export function useAuth() {
       return true;
     } catch (err) {
       userDataCache.value.clear();
-      const msg = err.message || "Gagal login. Silakan coba lagi.";
+      const msg = getErrorMessage(err);
       errorMessage.value = msg;
       Notify?.failure?.(msg, {
         timeout: 4000,
@@ -303,6 +328,10 @@ export function useAuth() {
     }
   };
 
+  const getGtkId = () => {
+    return localStorage.getItem("user-gtk-id");
+  };
+
   const getToken = () => {
     return localStorage.getItem("user-token");
   };
@@ -334,6 +363,7 @@ export function useAuth() {
     logoutDirect,
     getUserRole,
     getUserData,
+    getGtkId,
     getToken,
     saveUserToStorage,
     clearUserStorage,

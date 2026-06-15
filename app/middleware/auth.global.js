@@ -107,6 +107,8 @@ function getCurrentUser() {
   return {
     email: payload.sub,
     role: payload.role,
+    gtkId: payload.gtk_id || null,
+    userId: payload.user_id || null,
   };
 }
 
@@ -143,5 +145,7 @@ export function clearUserAndRole() {
   localStorage.removeItem("user-token");
   localStorage.removeItem("user-data");
   localStorage.removeItem("user-displayName");
+  localStorage.removeItem("user-gtk-id");
+  localStorage.removeItem("user-id");
   localStorage.removeItem("sessionExpiry");
 }
