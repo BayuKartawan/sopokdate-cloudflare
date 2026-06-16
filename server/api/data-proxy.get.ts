@@ -108,10 +108,15 @@ export default defineEventHandler(async (event) => {
       searchParams.append("filter_val", query.filter_val as string);
     }
 
-    // Jika role guru dan tabel DataGtk, filter hanya data miliknya
+    // Jika role guru dan tabel DataGtk / Akun, filter hanya data miliknya
     const jwtPayload = decodeMockJWT(token);
-    if (jwtPayload && jwtPayload.role === "guru" && jwtPayload.gtk_id && table === "DataGtk") {
-      searchParams.append("gtk_id", String(jwtPayload.gtk_id));
+    if (jwtPayload && jwtPayload.role === "guru" && jwtPayload.gtk_id) {
+      if (
+        table === "DataGtk" ||
+        ["AkunEmis", "AkunEmail", "AkunSimpatika", "AkunEmisGTK", "AkunRdm"].includes(table)
+      ) {
+        searchParams.append("gtk_id", String(jwtPayload.gtk_id));
+      }
     }
 
     const qs = searchParams.toString();

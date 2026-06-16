@@ -19,6 +19,18 @@
 
             <!-- Export Buttons -->
             <div class="flex items-center gap-2">
+              <!-- Tambah Button (Admin Only) -->
+              <BaseButton
+                v-if="isAdmin"
+                text="Tambah"
+                @click="openCreateModal"
+                class="!bg-emerald-600 !text-white hover:!bg-emerald-500"
+              >
+                <template #icon>
+                  <Plus class="w-4 h-4" />
+                </template>
+              </BaseButton>
+
               <PrintButton>
                 <div class="p-8">
                   <h1
@@ -127,30 +139,53 @@
           <template v-for="(item, index) in visibleData" :key="index">
             <slot name="card" :item="item" :index="index">
               <li>
-                <a
-                  :href="item.link"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <div
                   class="block rounded-lg border p-4 transition-colors duration-150 bg-zinc-800/30 border-zinc-700/50 hover:bg-zinc-700/50"
                 >
                   <div class="flex items-center justify-between gap-3">
-                    <div class="flex-1 min-w-0">
+                    <a
+                      :href="item.link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="flex-1 min-w-0 no-underline"
+                    >
                       <h3 class="font-medium text-base mb-1 text-zinc-100">
                         {{ item.title }}
                       </h3>
                       <p class="text-sm truncate text-zinc-400">
                         {{ item.description || item.link }}
                       </p>
+                    </a>
+
+                    <div class="flex items-center gap-1 shrink-0">
+                      <!-- Admin Edit/Delete -->
+                      <template v-if="isAdmin">
+                        <button
+                          @click.stop="openEditModal(item)"
+                          class="p-1.5 rounded-lg transition-colors hover:bg-zinc-700/50 text-zinc-400 hover:text-amber-400"
+                          title="Edit"
+                        >
+                          <PencilIcon class="w-4 h-4" />
+                        </button>
+                        <button
+                          @click.stop="handleDelete(item)"
+                          class="p-1.5 rounded-lg transition-colors hover:bg-zinc-700/50 text-zinc-400 hover:text-red-400"
+                          title="Hapus"
+                        >
+                          <Trash2 class="w-4 h-4" />
+                        </button>
+                      </template>
+
+                      <button
+                        @click.prevent="copyLink(item.link)"
+                        class="p-1.5 rounded-lg transition-colors hover:bg-zinc-700/50 text-zinc-400 hover:text-emerald-400"
+                        title="Salin Link"
+                      >
+                        <ExternalLink class="w-4 h-4" />
+                      </button>
                     </div>
-                    <button
-                      @click.prevent="copyLink(item.link)"
-                      class="p-1.5 rounded-lg transition-colors hover:bg-zinc-700/50 text-zinc-400 hover:text-emerald-400"
-                      title="Salin Link"
-                    >
-                      <ExternalLink class="w-4 h-4" />
-                    </button>
                   </div>
-                </a>
+                </div>
               </li>
             </slot>
           </template>
@@ -163,11 +198,23 @@
         />
       </div>
     </div>
+
+    <!-- CRUD Modal -->
+    <CrudModal
+      :show="showCrudModal"
+      :mode="modalMode"
+      :title="modalMode === 'create' ? `Tambah ${title}` : `Edit ${title}`"
+      :fields="resourceFields"
+      :initialData="editingItem"
+      :isSaving="crudSaving"
+      @submit="handleFormSubmit"
+      @close="showCrudModal = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { FileSpreadsheet, ExternalLink } from "lucide-vue-next";
+import { FileSpreadsheet, ExternalLink, Plus, Pencil as PencilIcon, Trash2 } from "lucide-vue-next";
 
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import Search from "~/components/ui/Search.vue";
@@ -175,9 +222,11 @@ import { useTableData } from "~/composables/data/useTableData";
 import Pagination from "~/components/ui/Pagination.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import CrudModal from "~/components/ui/CrudModal.vue";
 
 import { useExportExcel } from "~/composables/data/useExcel";
 import { useNotiflix } from "~/composables/ui/useFeedback";
+import { useCrud } from "~/composables/data/useCrud";
 
 const props = defineProps({
   title: {
@@ -219,11 +268,92 @@ const props = defineProps({
   },
 });
 
-const { cardData, isLoading, loadData } = useTableData();
+const { cardData, isLoading, loadData, refreshData } = useTableData();
 const { exportToCSV } = useExportExcel();
-const { Notify } = useNotiflix();
+const { Notify, Confirm } = useNotiflix();
+const { isAdmin } = useCrud(props.localStorageKey, () => refreshData(props.localStorageKey));
+
 const searchQuery = ref("");
 const currentPage = ref(1);
+
+// CRUD Modal state
+const showCrudModal = ref(false);
+const modalMode = ref("create");
+const editingItem = ref({});
+const crudSaving = ref(false);
+
+// Field configuration for resource (berkas/aplikasi)
+const resourceFields = [
+  { key: "title", label: "Judul", required: true },
+  { key: "link", label: "Link URL", required: true },
+];
+
+const openCreateModal = () => {
+  modalMode.value = "create";
+  editingItem.value = {};
+  showCrudModal.value = true;
+};
+
+const openEditModal = (item) => {
+  modalMode.value = "edit";
+  editingItem.value = {
+    _id: item.id || item._id,
+    title: item.title || "",
+    link: item.link || "",
+  };
+  showCrudModal.value = true;
+};
+
+const handleFormSubmit = async (formData) => {
+  const tableName = props.localStorageKey;
+  const { postToApi, putToApi } = await import("~/utils/api");
+  let success = false;
+
+  crudSaving.value = true;
+  try {
+    if (modalMode.value === "create") {
+      await postToApi(tableName, formData);
+      Notify?.success?.("Data berhasil ditambahkan");
+    } else {
+      const id = editingItem.value._id;
+      await putToApi(tableName, id, formData);
+      Notify?.success?.("Data berhasil diperbarui");
+    }
+    refreshData(tableName);
+    success = true;
+  } catch (err) {
+    Notify?.failure?.(err.message || "Gagal menyimpan data");
+  } finally {
+    crudSaving.value = false;
+  }
+
+  if (success) {
+    showCrudModal.value = false;
+  }
+};
+
+const handleDelete = (item) => {
+  const id = item.id || item._id;
+  const tableName = props.localStorageKey;
+
+  Confirm?.show(
+    "Hapus Data",
+    `Apakah Anda yakin ingin menghapus "${item.title}"? Tindakan ini tidak dapat dibatalkan.`,
+    "Ya, Hapus",
+    "Batal",
+    async () => {
+      try {
+        const { deleteFromApi } = await import("~/utils/api");
+        await deleteFromApi(tableName, id);
+        Notify?.success?.("Data berhasil dihapus");
+        refreshData(tableName);
+      } catch (err) {
+        Notify?.failure?.(err.message || "Gagal menghapus data");
+      }
+    },
+    () => {}
+  );
+};
 
 const copyLink = async (link) => {
   try {

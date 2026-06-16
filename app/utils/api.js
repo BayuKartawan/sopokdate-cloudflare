@@ -230,3 +230,75 @@ export const postToApi = async (table, data) => {
 
   return response.json();
 };
+
+/**
+ * Fungsi untuk mengupdate data di API utama melalui proxy lokal Nuxt (PUT)
+ */
+export const putToApi = async (table, id, data) => {
+  const token = getAuthToken();
+
+  if (!token) {
+    handleUnauthorized();
+    throw new Error("No authentication token found");
+  }
+
+  const payload = decodeJWT(token);
+  if (!payload) {
+    handleUnauthorized();
+    throw new Error("Token expired or invalid");
+  }
+
+  const url = "/api/data-proxy";
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ table, id, data }),
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.statusMessage || `Failed to update data in table ${table}`);
+  }
+
+  return response.json();
+};
+
+/**
+ * Fungsi untuk menghapus data di API utama melalui proxy lokal Nuxt (DELETE)
+ */
+export const deleteFromApi = async (table, id) => {
+  const token = getAuthToken();
+
+  if (!token) {
+    handleUnauthorized();
+    throw new Error("No authentication token found");
+  }
+
+  const payload = decodeJWT(token);
+  if (!payload) {
+    handleUnauthorized();
+    throw new Error("Token expired or invalid");
+  }
+
+  const url = "/api/data-proxy";
+
+  const response = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ table, id }),
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.statusMessage || `Failed to delete data from table ${table}`);
+  }
+
+  return response.json();
+};

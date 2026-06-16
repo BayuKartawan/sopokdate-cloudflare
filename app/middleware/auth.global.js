@@ -43,8 +43,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
       if (requiredRole) {
         const userRole = getUserRole(currentUser.email);
 
-        // Jika role tidak sesuai
-        if (userRole !== requiredRole) {
+        // Jika role tidak sesuai (mendukung string tunggal maupun array)
+        const hasAccess = Array.isArray(requiredRole)
+          ? requiredRole.includes(userRole)
+          : userRole === requiredRole;
+
+        if (!hasAccess) {
           alert("Anda tidak memiliki akses ke halaman ini.");
           return navigateTo("/");
         }

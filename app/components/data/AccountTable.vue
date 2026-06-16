@@ -10,6 +10,18 @@
 
       <!-- Action Buttons -->
       <div class="flex items-center gap-2">
+        <!-- Tambah Akun Button (Admin Only) -->
+        <BaseButton
+          v-if="isAdmin"
+          text="Tambah"
+          @click="openCreateModal"
+          class="!bg-emerald-600 !text-white hover:!bg-emerald-500"
+        >
+          <template #icon>
+            <Plus class="w-4 h-4" />
+          </template>
+        </BaseButton>
+
         <PrintButton>
           <div class="p-8">
             <h1 class="text-2xl font-bold mb-4 text-center text-emerald-900">
@@ -168,6 +180,24 @@
                 >
                   {{ akun.nama }}
                 </h3>
+
+                <!-- Admin Edit/Delete Buttons -->
+                <div v-if="isAdmin" class="flex items-center gap-1 shrink-0">
+                  <button
+                    @click.stop="openEditModal(akun)"
+                    class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-700/60 transition-all"
+                    title="Edit"
+                  >
+                    <PencilIcon class="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    @click.stop="handleDelete(akun)"
+                    class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-700/60 transition-all"
+                    title="Hapus"
+                  >
+                    <Trash2 class="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
               <!-- Account Info -->
@@ -236,18 +266,32 @@
         />
       </div>
     </div>
+
+    <!-- CRUD Modal -->
+    <CrudModal
+      :show="showCrudModal"
+      :mode="modalMode"
+      :title="modalMode === 'create' ? 'Tambah Akun' : 'Edit Akun'"
+      :fields="accountFields"
+      :initialData="editingItem"
+      :isSaving="crudSaving"
+      @submit="handleFormSubmit"
+      @close="showCrudModal = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { FileSpreadsheet, Send, LogIn, UserCircle } from "lucide-vue-next";
+import { FileSpreadsheet, Send, LogIn, UserCircle, Plus, Pencil as PencilIcon, Trash2 } from "lucide-vue-next";
 import { ref, computed, onMounted, onUnmounted, provide, watch } from "vue";
 import Search from "~/components/ui/Search.vue";
 import Pagination from "~/components/ui/Pagination.vue";
 import { useTableData } from "~/composables/data/useTableData";
+import { useCrud } from "~/composables/data/useCrud";
 import { useExportExcel } from "~/composables/data/useExcel";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import CrudModal from "~/components/ui/CrudModal.vue";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 
 const props = defineProps({
@@ -273,14 +317,131 @@ const props = defineProps({
   },
 });
 
-const { cardData, isLoading, loadData } = useTableData();
+const { cardData, isLoading, loadData, refreshData } = useTableData();
 const { exportToCSV } = useExportExcel();
 const { Notify } = useNotiflix();
 
 const selectedTable = ref(props.initialTable);
+
+// Dynamic CRUD composable based on selected table
+const { isAdmin, isSaving: crudSaving, createItem, updateItem, deleteItem } = useCrud(
+  selectedTable.value,
+  () => refreshData(selectedTable.value)
+);
+
+// We need to re-bind the table name for CRUD when dropdown changes
+const currentCrudTable = ref(selectedTable.value);
+
 const searchQuery = ref("");
 const currentPage = ref(1);
 const sharingCardId = ref(null);
+
+// CRUD Modal state
+const showCrudModal = ref(false);
+const modalMode = ref("create");
+const editingItem = ref({});
+
+// Determine account fields based on table type
+const accountFields = computed(() => {
+  const table = selectedTable.value;
+  // AkunEmail has no link field
+  if (table === "AkunEmail") {
+    return [
+      { key: "nama", label: "Nama", required: true },
+      { key: "username", label: "Username", required: true },
+      { key: "password", label: "Password", required: true },
+    ];
+  }
+  // All others have link field
+  return [
+    { key: "nama", label: "Nama", required: true },
+    { key: "username", label: "Username", required: true },
+    { key: "password", label: "Password", required: true },
+    { key: "link", label: "Link Login" },
+  ];
+});
+
+const openCreateModal = () => {
+  modalMode.value = "create";
+  editingItem.value = {};
+  showCrudModal.value = true;
+};
+
+const openEditModal = (akun) => {
+  modalMode.value = "edit";
+  editingItem.value = {
+    _id: akun.id || akun._id,
+    nama: akun.nama || "",
+    username: akun.username || "",
+    password: akun.password || "",
+    link: akun.link || "",
+  };
+  showCrudModal.value = true;
+};
+
+const handleFormSubmit = async (formData) => {
+  const tableName = selectedTable.value;
+  let success = false;
+
+  // Import API functions directly for dynamic table name
+  const { postToApi, putToApi } = await import("~/utils/api");
+
+  if (modalMode.value === "create") {
+    try {
+      crudSaving.value = true;
+      await postToApi(tableName, formData);
+      Notify?.success?.("Data berhasil ditambahkan");
+      refreshData(tableName);
+      success = true;
+    } catch (err) {
+      Notify?.failure?.(err.message || "Gagal menambahkan data");
+    } finally {
+      crudSaving.value = false;
+    }
+  } else {
+    const id = editingItem.value._id;
+    try {
+      crudSaving.value = true;
+      await putToApi(tableName, id, formData);
+      Notify?.success?.("Data berhasil diperbarui");
+      refreshData(tableName);
+      success = true;
+    } catch (err) {
+      Notify?.failure?.(err.message || "Gagal memperbarui data");
+    } finally {
+      crudSaving.value = false;
+    }
+  }
+
+  if (success) {
+    showCrudModal.value = false;
+  }
+};
+
+const handleDelete = async (akun) => {
+  const { deleteFromApi } = await import("~/utils/api");
+  const { useNotiflix } = await import("~/composables/ui/useFeedback");
+  const { Confirm } = useNotiflix();
+  const id = akun.id || akun._id;
+  const tableName = selectedTable.value;
+
+  Confirm?.show(
+    "Hapus Akun",
+    `Apakah Anda yakin ingin menghapus akun ${akun.nama}? Tindakan ini tidak dapat dibatalkan.`,
+    "Ya, Hapus",
+    "Batal",
+    async () => {
+      try {
+        await deleteFromApi(tableName, id);
+        Notify?.success?.("Data berhasil dihapus");
+        refreshData(tableName);
+      } catch (err) {
+        Notify?.failure?.(err.message || "Gagal menghapus data");
+      }
+    },
+    () => {}
+  );
+};
 
 // Provide selectedTable for child elements
 provide("selectedTable", selectedTable);
@@ -320,6 +481,7 @@ const hasLocalData = computed(() => {
 
 const handleDropdownUpdated = (newValue) => {
   selectedTable.value = newValue;
+  currentCrudTable.value = newValue;
   loadData(newValue);
 };
 

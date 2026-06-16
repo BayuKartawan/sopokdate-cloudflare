@@ -2,14 +2,27 @@
   <div class="min-h-screen">
     <div class="page-layout">
       <div class="flex flex-col gap-4 sm:gap-6 mb-6">
-        <div>
-          <h2 class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2">
-            <Building2 class="w-7 h-7 text-emerald-400" />
-            Data Kelas
-          </h2>
-          <p class="text-sm text-zinc-400 mt-1">
-            Informasi pembagian kelas, tingkat rombel, dan wali kelas masing-masing
-          </p>
+        <div class="flex flex-wrap items-center gap-4">
+          <div>
+            <h2 class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2">
+              <Building2 class="w-7 h-7 text-emerald-400" />
+              Data Kelas
+            </h2>
+            <p class="text-sm text-zinc-400 mt-1">
+              Informasi pembagian kelas, tingkat rombel, dan wali kelas masing-masing
+            </p>
+          </div>
+
+          <!-- Tambah Kelas Button (Admin Only) -->
+          <div v-if="isAdmin" class="ml-auto">
+            <button
+              @click="openCreateModal"
+              class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all"
+            >
+              <Plus class="w-4 h-4" />
+              Tambah Kelas
+            </button>
+          </div>
         </div>
       </div>
 
@@ -79,21 +92,103 @@
                   </p>
                 </div>
               </div>
+
+              <!-- Admin Actions -->
+              <div v-if="isAdmin" class="flex items-center gap-1 shrink-0 mt-0.5">
+                <button
+                  @click.stop="openEditModal(item)"
+                  class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-700/60 transition-all"
+                  title="Edit"
+                >
+                  <Pencil class="w-3.5 h-3.5" />
+                </button>
+                <button
+                  @click.stop="handleDelete(item)"
+                  class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-700/60 transition-all"
+                  title="Hapus"
+                >
+                  <Trash2 class="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- CRUD Modal -->
+      <CrudModal
+        :show="showModal"
+        :mode="modalMode"
+        :title="modalMode === 'create' ? 'Tambah Data Kelas' : 'Edit Data Kelas'"
+        :fields="kelasFields"
+        :initialData="editingItem"
+        :isSaving="isSaving"
+        @submit="handleFormSubmit"
+        @close="showModal = false"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { Database, Building2 } from "lucide-vue-next";
+import { Database, Building2, Plus, Pencil, Trash2 } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
+import { useCrud } from "~/composables/data/useCrud";
+import CrudModal from "~/components/ui/CrudModal.vue";
 
-const { cardData: dataKelas, isLoading, loadData: loadDataKelas } = useTableData();
+const { cardData: dataKelas, isLoading, loadData: loadDataKelas, refreshData: refreshDataKelas } = useTableData();
 const { cardData: dataGtk, loadData: loadDataGtk } = useTableData();
+const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud("DataKelas", () => refreshDataKelas("DataKelas"));
+
+// CRUD Modal state
+const showModal = ref(false);
+const modalMode = ref("create");
+const editingItem = ref({});
+
+// Field configuration for Kelas CRUD form
+const kelasFields = [
+  { key: "ID Kelas", label: "ID Kelas", required: true },
+  { key: "Nama Kelas", label: "Nama Kelas", required: true },
+  { key: "Tingkat", label: "Tingkat", type: "select", options: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"] },
+  { key: "Wali Kelas", label: "Wali Kelas (Peg ID)" },
+];
+
+const openCreateModal = () => {
+  modalMode.value = "create";
+  editingItem.value = {};
+  showModal.value = true;
+};
+
+const openEditModal = (item) => {
+  modalMode.value = "edit";
+  editingItem.value = {
+    _id: item.id || item._id,
+    "ID Kelas": item.idKelas || "",
+    "Nama Kelas": item.namaKelas || "",
+    "Tingkat": item.tingkat || "",
+    "Wali Kelas": item.waliKelas || "",
+  };
+  showModal.value = true;
+};
+
+const handleFormSubmit = async (formData) => {
+  let success = false;
+  if (modalMode.value === "create") {
+    success = await createItem(formData);
+  } else {
+    const id = editingItem.value._id;
+    success = await updateItem(id, formData);
+  }
+  if (success) {
+    showModal.value = false;
+  }
+};
+
+const handleDelete = (item) => {
+  const id = item.id || item._id;
+  deleteItem(id, `Kelas ${item.namaKelas}`);
+};
 
 // Map teacher details by Peg ID
 const teacherMap = computed(() => {

@@ -13,7 +13,7 @@ import AccountTable from "~/components/data/AccountTable.vue";
 
 definePageMeta({
   requiresAuth: true,
-  role: "admin",
+  role: ["admin", "guru"],
 });
 
 const route = useRoute();

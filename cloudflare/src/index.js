@@ -56,6 +56,7 @@ const TABLE_MAP = {
   Operator: "operator",
   Berkas: "berkas",
   Aplikasi: "aplikasi",
+  Pengumuman: "pengumuman",
 };
 
 // Mapping kolom D1 (snake_case) → kolom spreadsheet (original header names)
@@ -172,6 +173,14 @@ const COLUMN_MAP = {
     title: "title",
     link: "link",
   },
+  pengumuman: {
+    id: "id",
+    title: "title",
+    content: "content",
+    date: "date",
+    tag: "tag",
+    tag_color: "tagColor",
+  },
 };
 
 // Mapping balik: nama kolom spreadsheet → nama kolom D1
@@ -199,6 +208,14 @@ function transformRows(rows, tableName) {
     }
     return transformed;
   });
+}
+
+// Helper untuk normalisasi nama (menghilangkan gelar akademis dan prefiks H./Hj. agar pencocokan nama akurat)
+function cleanName(name) {
+  if (!name) return "";
+  let cleaned = name.split(",")[0];
+  cleaned = cleaned.replace(/^(h\.|hj\.|dra\.|drs\.|prof\.|dr\.)\s+/gi, "");
+  return cleaned.replace(/\./g, "").replace(/\s+/g, " ").trim().toLowerCase();
 }
 
 // ---------------------------------------------------------------------------
@@ -231,11 +248,16 @@ async function handleGetData(request, env) {
   let query = `SELECT * FROM ${d1Table}`;
   const params = [];
   const conditions = [];
+  let applyJsFilter = false;
 
   // Filter by gtk_id (untuk guru melihat data sendiri)
-  if (gtkId && d1Table === "data_gtk") {
-    conditions.push("id = ?");
-    params.push(parseInt(gtkId));
+  if (gtkId) {
+    if (d1Table === "data_gtk") {
+      conditions.push("id = ?");
+      params.push(parseInt(gtkId));
+    } else if (["akun_emis", "akun_email", "akun_simpatika", "akun_emis_gtk", "akun_rdm"].includes(d1Table)) {
+      applyJsFilter = true;
+    }
   }
 
   if (filterCol && filterVal) {
@@ -260,7 +282,19 @@ async function handleGetData(request, env) {
 
   try {
     const result = await env.DB.prepare(query).bind(...params).all();
-    const transformed = transformRows(result.results, d1Table);
+    let rows = result.results;
+
+    if (applyJsFilter) {
+      const gtkRecord = await env.DB.prepare("SELECT nama_lengkap FROM data_gtk WHERE id = ?").bind(parseInt(gtkId)).first();
+      if (gtkRecord && gtkRecord.nama_lengkap) {
+        const targetCleaned = cleanName(gtkRecord.nama_lengkap);
+        rows = rows.filter(row => cleanName(row.nama) === targetCleaned);
+      } else {
+        rows = [];
+      }
+    }
+
+    const transformed = transformRows(rows, d1Table);
     return jsonResponse(transformed);
   } catch (err) {
     return errorResponse(`Database error: ${err.message}`, 500);
@@ -405,6 +439,110 @@ async function handlePostData(request, env) {
     } catch (err) {
       return errorResponse(`Database error: ${err.message}`, 500);
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Handler: PUT /api/data — Update data berdasarkan ID
+// ---------------------------------------------------------------------------
+async function handlePutData(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse("Invalid JSON body");
+  }
+
+  const { table, id, data } = body;
+
+  if (!table) {
+    return errorResponse("Parameter 'table' is required");
+  }
+  if (!id) {
+    return errorResponse("Parameter 'id' is required");
+  }
+  if (!data || typeof data !== "object") {
+    return errorResponse("Parameter 'data' is required and must be an object");
+  }
+
+  const d1Table = TABLE_MAP[table];
+  if (!d1Table) {
+    return errorResponse(`Table not found: ${table}`, 404);
+  }
+
+  try {
+    const reverseMap = getReversColumnMap(d1Table);
+    const colMap = COLUMN_MAP[d1Table];
+    const validD1Columns = colMap ? Object.keys(colMap) : [];
+
+    const setClauses = [];
+    const params = [];
+
+    for (const [key, value] of Object.entries(data)) {
+      const cleanedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const d1Col = reverseMap[cleanedKey] || key;
+
+      if (validD1Columns.includes(d1Col)) {
+        setClauses.push(`${d1Col} = ?`);
+        params.push(value !== undefined ? String(value) : "");
+      }
+    }
+
+    if (setClauses.length === 0) {
+      return errorResponse("No valid columns found in data");
+    }
+
+    setClauses.push("updated_at = datetime('now')");
+    params.push(parseInt(id));
+
+    const query = `UPDATE ${d1Table} SET ${setClauses.join(", ")} WHERE id = ?`;
+    await env.DB.prepare(query).bind(...params).run();
+
+    return jsonResponse({
+      success: true,
+      message: `Data successfully updated in ${table}`,
+    });
+  } catch (err) {
+    return errorResponse(`Database error: ${err.message}`, 500);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Handler: DELETE /api/data — Hapus data berdasarkan ID
+// ---------------------------------------------------------------------------
+async function handleDeleteData(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse("Invalid JSON body");
+  }
+
+  const { table, id } = body;
+
+  if (!table) {
+    return errorResponse("Parameter 'table' is required");
+  }
+  if (!id) {
+    return errorResponse("Parameter 'id' is required");
+  }
+
+  const d1Table = TABLE_MAP[table];
+  if (!d1Table) {
+    return errorResponse(`Table not found: ${table}`, 404);
+  }
+
+  try {
+    await env.DB.prepare(`DELETE FROM ${d1Table} WHERE id = ?`)
+      .bind(parseInt(id))
+      .run();
+
+    return jsonResponse({
+      success: true,
+      message: `Data successfully deleted from ${table}`,
+    });
+  } catch (err) {
+    return errorResponse(`Database error: ${err.message}`, 500);
   }
 }
 
@@ -705,21 +843,29 @@ export default {
         }
       }
 
-      // PUT endpoints
+      // PUT endpoints for data
       if (request.method === "PUT") {
+        if (path === "/api/data") {
+          return await handlePutData(request, env);
+        }
         const userUpdateMatch = path.match(/^\/api\/auth\/users\/(\d+)$/);
         if (userUpdateMatch) {
           return await handleUpdateUser(request, env, userUpdateMatch[1]);
         }
       }
 
-      // DELETE endpoints
+      // DELETE endpoints for data
       if (request.method === "DELETE") {
+        if (path === "/api/data") {
+          return await handleDeleteData(request, env);
+        }
         const userDeleteMatch = path.match(/^\/api\/auth\/users\/(\d+)$/);
         if (userDeleteMatch) {
           return await handleDeleteUser(env, userDeleteMatch[1]);
         }
       }
+
+
 
       return errorResponse("Not found", 404);
     } catch (err) {

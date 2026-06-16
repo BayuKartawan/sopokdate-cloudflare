@@ -16,6 +16,18 @@
             </p>
           </div>
           <div class="flex items-center gap-2 ml-auto">
+            <!-- Tambah Siswa Button (Admin Only) -->
+            <BaseButton
+              v-if="isAdmin"
+              text="Tambah"
+              @click="openCreateModal"
+              class="!bg-emerald-600 !text-white hover:!bg-emerald-500"
+            >
+              <template #icon>
+                <Plus class="w-4 h-4" />
+              </template>
+            </BaseButton>
+
             <!-- Export Excel Button -->
             <BaseButton
               :text="isExporting ? 'Mengekspor...' : 'Export'"
@@ -219,19 +231,19 @@
             <li
               v-for="(item, index) in visibleData"
               :key="item.id || index"
-              @click="navigateToDetail(item)"
               class="cursor-pointer rounded-xl border p-5 transition-all duration-200 shadow-sm bg-zinc-800/30 border-zinc-700/40 hover:bg-zinc-700/40 hover:border-emerald-500/30 hover:shadow-emerald-950/20 group"
             >
               <div class="flex items-start gap-4">
                 <!-- Avatar Icon -->
                 <div
                   class="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-700/40 text-emerald-400 transition-colors group-hover:bg-emerald-950/40 shrink-0"
+                  @click="navigateToDetail(item)"
                 >
                   <UserCircle class="w-6 h-6" />
                 </div>
 
                 <!-- Info Column -->
-                <div class="flex-1 min-w-0">
+                <div class="flex-1 min-w-0" @click="navigateToDetail(item)">
                   <h3
                     class="font-bold text-base text-zinc-100 truncate group-hover:text-emerald-400 transition-colors"
                   >
@@ -264,9 +276,28 @@
                   </div>
                 </div>
 
+                <!-- Admin Actions -->
+                <div v-if="isAdmin" class="flex items-center gap-1 shrink-0 mt-0.5">
+                  <button
+                    @click.stop="openEditModal(item)"
+                    class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-700/60 transition-all"
+                    title="Edit"
+                  >
+                    <Pencil class="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    @click.stop="handleDelete(item)"
+                    class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-700/60 transition-all"
+                    title="Hapus"
+                  >
+                    <Trash2 class="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
                 <!-- Arrow Icon -->
                 <ChevronRight
                   class="w-5 h-5 text-zinc-600 mt-0.5 group-hover:text-emerald-400 transition-colors shrink-0"
+                  @click="navigateToDetail(item)"
                 />
               </div>
             </li>
@@ -283,6 +314,18 @@
           </div>
         </div>
       </div>
+
+      <!-- CRUD Modal -->
+      <CrudModal
+        :show="showModal"
+        :mode="modalMode"
+        :title="modalMode === 'create' ? 'Tambah Data Siswa' : 'Edit Data Siswa'"
+        :fields="siswaFields"
+        :initialData="editingItem"
+        :isSaving="isSaving"
+        @submit="handleFormSubmit"
+        @close="showModal = false"
+      />
     </div>
   </div>
 </template>
@@ -294,18 +337,97 @@ import {
   UserCircle,
   ChevronRight,
   GraduationCap,
+  Plus,
+  Pencil,
+  Trash2,
 } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
+import CrudModal from "~/components/ui/CrudModal.vue";
 import { useTableData } from "~/composables/data/useTableData";
+import { useCrud } from "~/composables/data/useCrud";
 import { fetchFromApi } from "~/utils/api";
 import * as XLSX from "xlsx";
 
 const router = useRouter();
-const { cardData: dataSiswa, isLoading, loadData } = useTableData();
+const { cardData: dataSiswa, isLoading, loadData, refreshData } = useTableData();
 const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
+const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud("DataSiswa", () => refreshData("DataSiswa"));
+
+// CRUD Modal state
+const showModal = ref(false);
+const modalMode = ref("create");
+const editingItem = ref({});
+
+// Field configuration for Siswa CRUD form
+const siswaFields = [
+  { key: "Nama", label: "Nama", required: true },
+  { key: "NISN", label: "NISN" },
+  { key: "NIS Lokal", label: "NIS Lokal" },
+  { key: "NIK", label: "NIK" },
+  { key: "No KK", label: "No KK" },
+  { key: "Tempat Lahir", label: "Tempat Lahir" },
+  { key: "Tanggal Lahir", label: "Tanggal Lahir", type: "date" },
+  { key: "Kelas", label: "Kelas" },
+  { key: "Umur", label: "Umur" },
+  { key: "Jenis Kelamin", label: "Jenis Kelamin", type: "select", options: ["Laki-Laki", "Perempuan"] },
+  { key: "Alamat", label: "Alamat", type: "textarea" },
+  { key: "No HP", label: "No HP" },
+  { key: "No KIP", label: "No KIP" },
+  { key: "Nama Ayah Kandung", label: "Nama Ayah Kandung" },
+  { key: "Nama Ibu Kandung", label: "Nama Ibu Kandung" },
+  { key: "Nama Wali", label: "Nama Wali" },
+];
+
+const openCreateModal = () => {
+  modalMode.value = "create";
+  editingItem.value = {};
+  showModal.value = true;
+};
+
+const openEditModal = (item) => {
+  modalMode.value = "edit";
+  editingItem.value = {
+    _id: item.id || item._id,
+    "Nama": item.nama || "",
+    "NISN": item.nisn || "",
+    "NIS Lokal": item["nis lokal"] || "",
+    "NIK": item.nik || "",
+    "No KK": item["no kk"] || "",
+    "Tempat Lahir": item["tempat lahir"] || "",
+    "Tanggal Lahir": item["tanggal lahir"] || "",
+    "Kelas": item.kelas || "",
+    "Umur": item.umur || "",
+    "Jenis Kelamin": item["jenis kelamin"] || "",
+    "Alamat": item.alamat || "",
+    "No HP": item["no telepon"] || "",
+    "No KIP": item["no kip"] || "",
+    "Nama Ayah Kandung": item["nama ayah kandung"] || "",
+    "Nama Ibu Kandung": item["nama ibu kandung"] || "",
+    "Nama Wali": item["nama wali"] || "",
+  };
+  showModal.value = true;
+};
+
+const handleFormSubmit = async (formData) => {
+  let success = false;
+  if (modalMode.value === "create") {
+    success = await createItem(formData);
+  } else {
+    const id = editingItem.value._id;
+    success = await updateItem(id, formData);
+  }
+  if (success) {
+    showModal.value = false;
+  }
+};
+
+const handleDelete = (item) => {
+  const id = item.id || item._id;
+  deleteItem(id, toTitleCase(item.nama));
+};
 
 // Map kelas ID to its details
 const kelasMap = computed(() => {

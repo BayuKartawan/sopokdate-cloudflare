@@ -3,28 +3,29 @@
     <div class="page-layout px-4 sm:px-6">
       <!-- Header -->
       <div class="flex flex-col gap-4 sm:gap-6 mt-4">
-        <div class="flex flex-wrap items-center gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 class="text-xl text-white sm:text-2xl">Kelola Akun Guru</h2>
-          <div class="flex items-center gap-2 ml-auto">
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
             <!-- Seed Accounts Button -->
             <button
               @click="handleSeedGuru"
               :disabled="isSeeding"
-              class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <UserPlus v-if="!isSeeding" class="w-4 h-4" />
-              <Loader2 v-else class="w-4 h-4 animate-spin" />
-              {{ isSeeding ? "Membuat..." : "Buat Akun Otomatis" }}
+              <UserPlus v-if="!isSeeding" class="w-4 h-4 flex-shrink-0" />
+              <Loader2 v-else class="w-4 h-4 animate-spin flex-shrink-0" />
+              <span>{{ isSeeding ? "Membuat..." : "Buat Akun Otomatis" }}</span>
             </button>
 
             <!-- Refresh Button -->
             <button
               @click="loadUsers"
               :disabled="isLoading"
-              class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-zinc-700 hover:bg-zinc-600 text-zinc-200 disabled:opacity-50"
+              class="flex items-center justify-center p-2 rounded-lg transition-all duration-200 bg-zinc-700 hover:bg-zinc-600 text-zinc-200 disabled:opacity-50"
+              title="Refresh"
             >
               <RefreshCw
-                class="w-4 h-4"
+                class="w-5 h-5 flex-shrink-0"
                 :class="{ 'animate-spin': isLoading }"
               />
             </button>
@@ -57,8 +58,8 @@
         </div>
       </div>
 
-      <!-- Users Table -->
-      <div class="mt-5 overflow-x-auto">
+      <!-- Users Table Container -->
+      <div class="mt-5">
         <!-- Loading State -->
         <div
           v-if="isLoading"
@@ -86,120 +87,232 @@
           </p>
         </div>
 
-        <!-- Table -->
-        <div
-          v-else
-          class="rounded-xl border border-zinc-700/50 overflow-hidden"
-        >
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-zinc-800/60 border-b border-zinc-700/50">
-                <th
-                  class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+        <!-- Table & Mobile Cards -->
+        <template v-else>
+          <!-- Table (Desktop View) -->
+          <div
+            class="hidden md:block rounded-xl border border-zinc-700/50 overflow-x-auto"
+          >
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-zinc-800/60 border-b border-zinc-700/50">
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+                  >
+                    No
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+                  >
+                    Nama
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+                  >
+                    Username
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+                  >
+                    Password
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+                  >
+                    Role
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="px-4 py-3 text-center text-xs font-semibold text-zinc-400 uppercase tracking-wider"
+                  >
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-zinc-800/50">
+                <tr
+                  v-for="(user, index) in filteredUsers"
+                  :key="user.id"
+                  class="hover:bg-zinc-800/30 transition-colors"
                 >
-                  No
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                >
-                  Nama
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                >
-                  Username
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                >
-                  Password
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                >
-                  Role
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                >
-                  Status
-                </th>
-                <th
-                  class="px-4 py-3 text-center text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                >
-                  Aksi
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-zinc-800/50">
-              <tr
-                v-for="(user, index) in filteredUsers"
-                :key="user.id"
-                class="hover:bg-zinc-800/30 transition-colors"
-              >
-                <td class="px-4 py-3 text-zinc-400">{{ index + 1 }}</td>
-                <td class="px-4 py-3">
-                  <div class="flex items-center gap-2">
-                    <div
-                      class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                  <td class="px-4 py-3 text-zinc-400">{{ index + 1 }}</td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                        :class="
+                          user.role === 'admin'
+                            ? 'bg-amber-500/20 text-amber-400'
+                            : 'bg-emerald-500/20 text-emerald-400'
+                        "
+                      >
+                        {{ getInitials(user.display_name) }}
+                      </div>
+                      <div>
+                        <p class="text-zinc-100 font-medium text-sm">
+                          {{ user.display_name || "-" }}
+                        </p>
+                        <p
+                          v-if="user.gtk_nuptk"
+                          class="text-zinc-500 text-xs"
+                        >
+                          NUPTK: {{ user.gtk_nuptk }}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <code
+                      class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 text-xs font-mono"
+                      >{{ user.username }}</code
+                    >
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <code
+                        class="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 text-xs font-mono"
+                      >
+                        {{
+                          showPasswordMap[user.id]
+                            ? user.password
+                            : "••••••••"
+                        }}
+                      </code>
+                      <button
+                        @click="toggleShowPassword(user.id)"
+                        class="text-zinc-500 hover:text-zinc-300 transition-colors"
+                        :title="
+                          showPasswordMap[user.id]
+                            ? 'Sembunyikan'
+                            : 'Tampilkan'
+                        "
+                      >
+                        <Eye
+                          v-if="!showPasswordMap[user.id]"
+                          class="w-3.5 h-3.5"
+                        />
+                        <EyeOff v-else class="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span
+                      class="px-2 py-0.5 rounded-md text-xs font-semibold border"
                       :class="
                         user.role === 'admin'
-                          ? 'bg-amber-500/20 text-amber-400'
-                          : 'bg-emerald-500/20 text-emerald-400'
+                          ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                          : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                       "
                     >
-                      {{ getInitials(user.display_name) }}
-                    </div>
-                    <div>
-                      <p class="text-zinc-100 font-medium text-sm">
-                        {{ user.display_name || "-" }}
-                      </p>
-                      <p
-                        v-if="user.gtk_nuptk"
-                        class="text-zinc-500 text-xs"
+                      {{ user.role === "admin" ? "Admin" : "Guru" }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span
+                      class="px-2 py-0.5 rounded-md text-xs font-semibold"
+                      :class="
+                        user.is_active
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-red-500/20 text-red-400'
+                      "
+                    >
+                      {{ user.is_active ? "Aktif" : "Nonaktif" }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div
+                      class="flex items-center justify-center gap-1"
+                    >
+                      <!-- Reset Password -->
+                      <button
+                        @click="resetPassword(user)"
+                        :disabled="actionLoading === user.id"
+                        class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 transition-all disabled:opacity-50"
+                        title="Reset Password"
                       >
-                        NUPTK: {{ user.gtk_nuptk }}
-                      </p>
+                        <RefreshCw class="w-3.5 h-3.5" />
+                      </button>
+
+                      <!-- Toggle Active -->
+                      <button
+                        @click="toggleActive(user)"
+                        :disabled="
+                          actionLoading === user.id ||
+                          user.role === 'admin'
+                        "
+                        class="p-1.5 rounded-md transition-all disabled:opacity-30"
+                        :class="
+                          user.is_active
+                            ? 'text-zinc-400 hover:text-red-400 hover:bg-zinc-800'
+                            : 'text-zinc-400 hover:text-green-400 hover:bg-zinc-800'
+                        "
+                        :title="
+                          user.is_active
+                            ? 'Nonaktifkan'
+                            : 'Aktifkan'
+                        "
+                      >
+                        <Ban v-if="user.is_active" class="w-3.5 h-3.5" />
+                        <Check v-else class="w-3.5 h-3.5" />
+                      </button>
+
+                      <!-- Delete -->
+                      <button
+                        @click="deleteUser(user)"
+                        :disabled="
+                          actionLoading === user.id ||
+                          user.role === 'admin'
+                        "
+                        class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-all disabled:opacity-30"
+                        title="Hapus Akun"
+                      >
+                        <Trash2 class="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                  </div>
-                </td>
-                <td class="px-4 py-3">
-                  <code
-                    class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 text-xs font-mono"
-                    >{{ user.username }}</code
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Cards (Mobile View) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
+            <div
+              v-for="(user, index) in filteredUsers"
+              :key="user.id"
+              class="rounded-xl border border-zinc-700/50 bg-zinc-800/10 p-4 transition-all duration-200 hover:border-zinc-600/50"
+            >
+              <!-- Card Header -->
+              <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                    :class="
+                      user.role === 'admin'
+                        ? 'bg-amber-500/20 text-amber-400'
+                        : 'bg-emerald-500/20 text-emerald-400'
+                    "
                   >
-                </td>
-                <td class="px-4 py-3">
-                  <div class="flex items-center gap-2">
-                    <code
-                      class="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 text-xs font-mono"
-                    >
-                      {{
-                        showPasswordMap[user.id]
-                          ? user.password
-                          : "••••••••"
-                      }}
-                    </code>
-                    <button
-                      @click="toggleShowPassword(user.id)"
-                      class="text-zinc-500 hover:text-zinc-300 transition-colors"
-                      :title="
-                        showPasswordMap[user.id]
-                          ? 'Sembunyikan'
-                          : 'Tampilkan'
-                      "
-                    >
-                      <Eye
-                        v-if="!showPasswordMap[user.id]"
-                        class="w-3.5 h-3.5"
-                      />
-                      <EyeOff v-else class="w-3.5 h-3.5" />
-                    </button>
+                    {{ getInitials(user.display_name) }}
                   </div>
-                </td>
-                <td class="px-4 py-3">
+                  <div>
+                    <h3 class="text-zinc-100 font-medium text-sm sm:text-base leading-snug">
+                      {{ user.display_name || "-" }}
+                    </h3>
+                    <p v-if="user.gtk_nuptk" class="text-zinc-500 text-xs mt-0.5">
+                      NUPTK: {{ user.gtk_nuptk }}
+                    </p>
+                  </div>
+                </div>
+                
+                <!-- Badges -->
+                <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
                   <span
-                    class="px-2 py-0.5 rounded-md text-xs font-semibold border"
+                    class="px-2 py-0.5 rounded-md text-[10px] font-semibold border leading-tight"
                     :class="
                       user.role === 'admin'
                         ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
@@ -208,10 +321,8 @@
                   >
                     {{ user.role === "admin" ? "Admin" : "Guru" }}
                   </span>
-                </td>
-                <td class="px-4 py-3">
                   <span
-                    class="px-2 py-0.5 rounded-md text-xs font-semibold"
+                    class="px-2 py-0.5 rounded-md text-[10px] font-semibold leading-tight"
                     :class="
                       user.is_active
                         ? 'bg-green-500/20 text-green-400'
@@ -220,62 +331,85 @@
                   >
                     {{ user.is_active ? "Aktif" : "Nonaktif" }}
                   </span>
-                </td>
-                <td class="px-4 py-3">
-                  <div
-                    class="flex items-center justify-center gap-1"
-                  >
-                    <!-- Reset Password -->
-                    <button
-                      @click="resetPassword(user)"
-                      :disabled="actionLoading === user.id"
-                      class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 transition-all disabled:opacity-50"
-                      title="Reset Password"
-                    >
-                      <RefreshCw class="w-3.5 h-3.5" />
-                    </button>
+                </div>
+              </div>
 
-                    <!-- Toggle Active -->
+              <!-- Credentials Section -->
+              <div class="space-y-2.5 bg-zinc-900/40 p-3 rounded-lg border border-zinc-800/80 mb-4 text-xs">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-zinc-500">Username</span>
+                  <code class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 font-mono select-all">
+                    {{ user.username }}
+                  </code>
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-zinc-500">Password</span>
+                  <div class="flex items-center gap-1.5">
+                    <code class="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono select-all">
+                      {{ showPasswordMap[user.id] ? user.password : "••••••••" }}
+                    </code>
                     <button
-                      @click="toggleActive(user)"
-                      :disabled="
-                        actionLoading === user.id ||
-                        user.role === 'admin'
-                      "
-                      class="p-1.5 rounded-md transition-all disabled:opacity-30"
-                      :class="
-                        user.is_active
-                          ? 'text-zinc-400 hover:text-red-400 hover:bg-zinc-800'
-                          : 'text-zinc-400 hover:text-green-400 hover:bg-zinc-800'
-                      "
-                      :title="
-                        user.is_active
-                          ? 'Nonaktifkan'
-                          : 'Aktifkan'
-                      "
+                      @click="toggleShowPassword(user.id)"
+                      class="text-zinc-500 hover:text-zinc-300 p-1 rounded transition-colors"
                     >
-                      <Ban v-if="user.is_active" class="w-3.5 h-3.5" />
-                      <Check v-else class="w-3.5 h-3.5" />
-                    </button>
-
-                    <!-- Delete -->
-                    <button
-                      @click="deleteUser(user)"
-                      :disabled="
-                        actionLoading === user.id ||
-                        user.role === 'admin'
-                      "
-                      class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-all disabled:opacity-30"
-                      title="Hapus Akun"
-                    >
-                      <Trash2 class="w-3.5 h-3.5" />
+                      <Eye v-if="!showPasswordMap[user.id]" class="w-3.5 h-3.5" />
+                      <EyeOff v-else class="w-3.5 h-3.5" />
                     </button>
                   </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                </div>
+              </div>
+
+              <!-- Action Section -->
+              <div class="flex items-center justify-between pt-2 border-t border-zinc-800/80">
+                <span class="text-xs text-zinc-500">Aksi Akun</span>
+                <div class="flex items-center gap-1">
+                  <!-- Reset Password -->
+                  <button
+                    @click="resetPassword(user)"
+                    :disabled="actionLoading === user.id"
+                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-amber-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-all disabled:opacity-50"
+                    title="Reset Password"
+                  >
+                    <RefreshCw class="w-3 h-3" :class="{ 'animate-spin': actionLoading === user.id }" />
+                    <span>Reset</span>
+                  </button>
+
+                  <!-- Toggle Active -->
+                  <button
+                    @click="toggleActive(user)"
+                    :disabled="actionLoading === user.id || user.role === 'admin'"
+                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border transition-all disabled:opacity-30"
+                    :class="
+                      user.is_active
+                        ? 'bg-zinc-800 text-red-400 border-zinc-700/50 hover:bg-zinc-700/80'
+                        : 'bg-zinc-800 text-green-400 border-zinc-700/50 hover:bg-zinc-700/80'
+                    "
+                  >
+                    <template v-if="user.is_active">
+                      <Ban class="w-3 h-3" />
+                      <span>Nonaktif</span>
+                    </template>
+                    <template v-else>
+                      <Check class="w-3 h-3" />
+                      <span>Aktifkan</span>
+                    </template>
+                  </button>
+
+                  <!-- Delete -->
+                  <button
+                    @click="deleteUser(user)"
+                    :disabled="actionLoading === user.id || user.role === 'admin'"
+                    class="p-1 rounded-md bg-zinc-800 text-zinc-400 hover:text-red-400 hover:bg-zinc-700 border border-zinc-700/50 transition-all disabled:opacity-30"
+                    title="Hapus Akun"
+                  >
+                    <Trash2 class="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
 
         <!-- Summary -->
         <div v-if="users.length > 0" class="mt-3 text-xs text-zinc-500">

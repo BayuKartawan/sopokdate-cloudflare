@@ -24,6 +24,17 @@
                   </p>
                 </div>
               </div>
+
+              <!-- Admin Actions -->
+              <div v-if="isAdmin" class="flex items-center gap-2">
+                <button
+                  @click="openEditModal"
+                  class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-all"
+                >
+                  <Pencil class="w-4 h-4" />
+                  Edit Data
+                </button>
+              </div>
             </div>
           </div>
 
@@ -79,20 +90,40 @@
           </div>
         </div>
       </section>
+
+      <!-- CRUD Modal -->
+      <CrudModal
+        :show="showModal"
+        mode="edit"
+        title="Edit Data Madrasah"
+        :fields="madrasahFields"
+        :initialData="editingItem"
+        :isSaving="isSaving"
+        @submit="handleFormSubmit"
+        @close="showModal = false"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { Database } from "lucide-vue-next";
+import { Database, Pencil } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
+import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
+import CrudModal from "~/components/ui/CrudModal.vue";
 
-const { cardData: dataMadrasah, loadData } = useTableData();
+const { cardData: dataMadrasah, loadData, refreshData } = useTableData();
 const { Notify } = useNotiflix();
+const { isAdmin, isSaving, updateItem } = useCrud("DataMadrasah", () => refreshData("DataMadrasah"));
+
 const searchKeyword = ref({ dataGtk: "", dataMadrasah: "" });
 const visibleCount = ref({ dataGtk: 4, dataMadrasah: 12 });
+
+// CRUD Modal state
+const showModal = ref(false);
+const editingItem = ref({});
 
 // Define table fields configuration
 const tableFields = [
@@ -108,6 +139,42 @@ const tableFields = [
   { key: "Total_Guru", label: "Total Guru & Tenaga Pendidikan" },
   { key: "Total_Siswa", label: "Total Siswa" },
 ];
+
+// Field configuration for Madrasah edit form
+const madrasahFields = [
+  { key: "Madrasah", label: "Nama Madrasah", required: true },
+  { key: "Nsm", label: "NSM" },
+  { key: "Npsn", label: "NPSN" },
+  { key: "Akreditasi", label: "Akreditasi" },
+  { key: "Nomor Akreditasi", label: "Nomor Akreditasi" },
+  { key: "NoHp Kamad", label: "NoHp Kamad" },
+  { key: "SiapID", label: "SiapID" },
+];
+
+const openEditModal = () => {
+  if (Array.isArray(dataMadrasah.value) && dataMadrasah.value.length > 0) {
+    const item = dataMadrasah.value[0];
+    editingItem.value = {
+      _id: item.id || item._id,
+      "Madrasah": item["Madrasah"] || "",
+      "Nsm": item["Nsm"] || "",
+      "Npsn": item["Npsn"] || "",
+      "Akreditasi": item["Akreditasi"] || "",
+      "Nomor Akreditasi": item["Nomor Akreditasi"] || "",
+      "NoHp Kamad": item["NoHp Kamad"] || "",
+      "SiapID": item["SiapID"] || "",
+    };
+    showModal.value = true;
+  }
+};
+
+const handleFormSubmit = async (formData) => {
+  const id = editingItem.value._id;
+  const success = await updateItem(id, formData);
+  if (success) {
+    showModal.value = false;
+  }
+};
 
 onMounted(() => {
   loadData("DataMadrasah");

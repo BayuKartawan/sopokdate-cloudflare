@@ -10,6 +10,18 @@
         <div class="flex flex-wrap items-center gap-4">
           <h2 class="text-xl text-white sm:text-2xl">Data GTK</h2>
           <div class="flex items-center gap-2 ml-auto">
+            <!-- Tambah GTK Button (Admin Only) -->
+            <BaseButton
+              v-if="isAdmin"
+              text="Tambah"
+              @click="openCreateModal"
+              class="!bg-emerald-600 !text-white hover:!bg-emerald-500"
+            >
+              <template #icon>
+                <Plus class="w-4 h-4" />
+              </template>
+            </BaseButton>
+
             <!-- Export Excel Button -->
             <BaseButton
               :text="isExporting ? 'Mengekspor...' : 'Export'"
@@ -188,19 +200,19 @@
           <li
             v-for="(item, index) in visibleData"
             :key="index"
-            @click="navigateToDetail(item)"
             class="cursor-pointer rounded-lg border p-4 transition-colors duration-150 shadow-sm bg-zinc-800/30 border-zinc-700/50 hover:bg-zinc-700/50"
           >
             <div class="flex items-center gap-3">
               <!-- Icon -->
               <div
                 class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-700/50 text-emerald-400"
+                @click="navigateToDetail(item)"
               >
                 <UserCircle class="w-5 h-5" />
               </div>
 
               <!-- Content -->
-              <div class="flex-1 min-w-0">
+              <div class="flex-1 min-w-0" @click="navigateToDetail(item)">
                 <h3 class="font-medium text-base truncate text-zinc-100">
                   {{ toTitleCase(item.title) }}
                 </h3>
@@ -209,7 +221,25 @@
                 </p>
               </div>
 
-              <ChevronRight class="w-4 h-4 text-zinc-600" />
+              <!-- Admin Actions -->
+              <div v-if="isAdmin" class="flex items-center gap-1 shrink-0">
+                <button
+                  @click.stop="openEditModal(item)"
+                  class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-700/60 transition-all"
+                  title="Edit"
+                >
+                  <Pencil class="w-3.5 h-3.5" />
+                </button>
+                <button
+                  @click.stop="handleDelete(item)"
+                  class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-700/60 transition-all"
+                  title="Hapus"
+                >
+                  <Trash2 class="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <ChevronRight class="w-4 h-4 text-zinc-600" @click="navigateToDetail(item)" />
             </div>
           </li>
         </ul>
@@ -224,6 +254,18 @@
           />
         </div>
       </div>
+
+      <!-- CRUD Modal -->
+      <CrudModal
+        :show="showModal"
+        :mode="modalMode"
+        :title="modalMode === 'create' ? 'Tambah Data GTK' : 'Edit Data GTK'"
+        :fields="gtkFields"
+        :initialData="editingItem"
+        :isSaving="isSaving"
+        @submit="handleFormSubmit"
+        @close="showModal = false"
+      />
     </div>
   </div>
 </template>
@@ -231,19 +273,104 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 
-import { Database, UserCircle, ChevronRight } from "lucide-vue-next";
+import { Database, UserCircle, ChevronRight, Plus, Pencil, Trash2 } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import { useTableData } from "~/composables/data/useTableData";
+import { useCrud } from "~/composables/data/useCrud";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
+import CrudModal from "~/components/ui/CrudModal.vue";
 import * as XLSX from "xlsx";
 
 const router = useRouter();
-const { cardData, isLoading, loadData } = useTableData();
+const { cardData, isLoading, loadData, refreshData } = useTableData();
+const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud("DataGtk", () => refreshData("DataGtk"));
+
 const searchQuery = ref("");
 const showAll = ref(false);
 const isExporting = ref(false);
+
+// CRUD Modal state
+const showModal = ref(false);
+const modalMode = ref("create");
+const editingItem = ref({});
+
+// Field configuration for GTK CRUD form
+const gtkFields = [
+  { key: "Nama Lengkap", label: "Nama Lengkap", required: true },
+  { key: "NIK", label: "NIK" },
+  { key: "No KK", label: "No KK" },
+  { key: "NUPTK", label: "NUPTK" },
+  { key: "Peg ID", label: "Peg ID" },
+  { key: "NPK", label: "NPK" },
+  { key: "NRG", label: "NRG" },
+  { key: "Pendidikan Terakhir", label: "Pendidikan Terakhir" },
+  { key: "Jurusan", label: "Jurusan" },
+  { key: "Jenis Kelamin", label: "Jenis Kelamin", type: "select", options: ["Laki-Laki", "Perempuan"] },
+  { key: "Tempat Lahir", label: "Tempat Lahir" },
+  { key: "Tanggal Lahir", label: "Tanggal Lahir", type: "date" },
+  { key: "No HP", label: "No HP" },
+  { key: "Email", label: "Email", type: "email" },
+  { key: "Tugas", label: "Tugas" },
+  { key: "No Rekening", label: "No Rekening" },
+  { key: "Status Kepegawaian", label: "Status Kepegawaian" },
+  { key: "NIP", label: "NIP" },
+  { key: "Mata Pelajaran", label: "Mata Pelajaran" },
+  { key: "Wali Kelas", label: "Wali Kelas" },
+];
+
+const openCreateModal = () => {
+  modalMode.value = "create";
+  editingItem.value = {};
+  showModal.value = true;
+};
+
+const openEditModal = (item) => {
+  modalMode.value = "edit";
+  editingItem.value = {
+    _id: item.id || item._id,
+    "Nama Lengkap": item.title || "",
+    "NIK": item.NIK || "",
+    "No KK": item.NoKK || "",
+    "NUPTK": item.NUPTK || "",
+    "Peg ID": item.PegID || "",
+    "NPK": item.NPK || "",
+    "NRG": item.NRG || "",
+    "Pendidikan Terakhir": item.PendTerakhir || "",
+    "Jurusan": item.Jurusan || "",
+    "Jenis Kelamin": item.JenisKelamin || "",
+    "Tempat Lahir": item.TempatLahir || "",
+    "Tanggal Lahir": item.TanggalLahir || "",
+    "No HP": item.NomorHp || "",
+    "Email": item.Email || "",
+    "Tugas": item.Tugas || "",
+    "No Rekening": item.NoRek || "",
+    "Status Kepegawaian": item.StatusKepegawaian || "",
+    "NIP": item.NIP || "",
+    "Mata Pelajaran": item.MataPelajaran || "",
+    "Wali Kelas": item.WaliKelas || "",
+  };
+  showModal.value = true;
+};
+
+const handleFormSubmit = async (formData) => {
+  let success = false;
+  if (modalMode.value === "create") {
+    success = await createItem(formData);
+  } else {
+    const id = editingItem.value._id;
+    success = await updateItem(id, formData);
+  }
+  if (success) {
+    showModal.value = false;
+  }
+};
+
+const handleDelete = (item) => {
+  const id = item.id || item._id;
+  deleteItem(id, toTitleCase(item.title));
+};
 
 // State untuk tanggal dan waktu print
 const currentDate = ref("");

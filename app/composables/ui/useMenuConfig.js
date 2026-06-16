@@ -6,7 +6,6 @@ import {
   Users,
   Banknote,
   GraduationCap,
-  KeyRound,
 } from "lucide-vue-next";
 
 export const useMenuConfig = () => {
@@ -20,14 +19,14 @@ export const useMenuConfig = () => {
     {
       label: "Akun",
       icon: markRaw(Users),
-      roles: ["admin"],
+      roles: ["admin", "guru"],
       children: [
-        { to: "/akun/gtk/kelola", label: "Kelola Akun Guru", icon: markRaw(KeyRound), roles: ["admin"] },
-        { to: "/akun/gtk/emis", label: "EMIS 4.0", roles: ["admin"] },
-        { to: "/akun/gtk/email", label: "Email Madrasah", roles: ["admin"] },
-        { to: "/akun/gtk/rdm", label: "RDM", roles: ["admin"] },
-        { to: "/akun/gtk/emis-gtk", label: "EMIS GTK", roles: ["admin"] },
-        { to: "/akun/gtk/simpatika", label: "SIMPATIKA", roles: ["admin"] },
+        { to: "/akun/gtk/kelola", label: "Akun Sopokdate", roles: ["admin"] },
+        { to: "/akun/gtk/emis", label: "EMIS 4.0", roles: ["admin", "guru"] },
+        { to: "/akun/gtk/email", label: "Email Madrasah", roles: ["admin", "guru"] },
+        { to: "/akun/gtk/rdm", label: "RDM", roles: ["admin", "guru"] },
+        { to: "/akun/gtk/emis-gtk", label: "EMIS GTK", roles: ["admin", "guru"] },
+        { to: "/akun/gtk/simpatika", label: "SIMPATIKA", roles: ["admin", "guru"] },
         { to: "/akun/madrasah", label: "Akun Madrasah", roles: ["admin"] },
       ],
     },
