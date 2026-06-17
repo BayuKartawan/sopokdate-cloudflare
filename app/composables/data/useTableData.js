@@ -21,6 +21,17 @@ export function clearSessionCache() {
 }
 
 /**
+ * Membersihkan cache sesi untuk tabel tertentu
+ * @param {string} tableName
+ */
+export function clearTableSessionCache(tableName) {
+  if (tableName) {
+    delete sessionCache[tableName];
+    sessionFetched.delete(tableName);
+  }
+}
+
+/**
  * Menormalkan data GTK dari berbagai kemungkinan nama kolom di Google Sheet.
  * Ini memastikan kode frontend tetap berjalan tanpa error meskipun kolom diubah.
  */

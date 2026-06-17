@@ -2,6 +2,7 @@
 // Proxy PUT ke Cloudflare Worker D1 (update data)
 
 import { Buffer } from "buffer";
+import { invalidateCache } from "../utils/cache";
 
 function validateMockJWT(token: string): boolean {
   try {
@@ -91,6 +92,11 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${config.apiWorkerToken}`,
       },
     });
+
+    // Invalidate server cache untuk tabel ini
+    if (body.table) {
+      invalidateCache(body.table);
+    }
 
     return response;
   } catch (error: any) {

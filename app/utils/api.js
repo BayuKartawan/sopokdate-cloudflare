@@ -1,4 +1,5 @@
 // utils/api.js
+import { clearTableSessionCache } from "~/composables/data/useTableData";
 
 /**
  * Fungsi untuk mendapatkan JWT token dari localStorage
@@ -228,6 +229,8 @@ export const postToApi = async (table, data) => {
     throw new Error(`Failed to send data to table ${table}`);
   }
 
+  clearTableSessionCache(table);
+
   return response.json();
 };
 
@@ -264,6 +267,8 @@ export const putToApi = async (table, id, data) => {
     throw new Error(errData.statusMessage || `Failed to update data in table ${table}`);
   }
 
+  clearTableSessionCache(table);
+
   return response.json();
 };
 
@@ -299,6 +304,8 @@ export const deleteFromApi = async (table, id) => {
     const errData = await response.json().catch(() => ({}));
     throw new Error(errData.statusMessage || `Failed to delete data from table ${table}`);
   }
+
+  clearTableSessionCache(table);
 
   return response.json();
 };

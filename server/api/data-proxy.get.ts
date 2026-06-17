@@ -1,15 +1,8 @@
 // server/api/data-proxy.get.ts
 // Proxy ke Cloudflare Worker D1 (menggantikan Google Apps Script)
 
-interface CacheEntry {
-  data: any;
-  timestamp: number;
-}
+import { apiCache, CACHE_EXPIRATION_MS } from "../utils/cache";
 
-// In-memory cache server-side
-const apiCache = new Map<string, CacheEntry>();
-// Expiration/TTL cache: 5 menit (300.000 ms)
-const CACHE_EXPIRATION_MS = 5 * 60 * 1000;
 
 /**
  * Memvalidasi token JWT tiruan di sisi server

@@ -6,6 +6,7 @@ import {
   Users,
   Banknote,
   GraduationCap,
+  CalendarCheck,
 } from "lucide-vue-next";
 
 export const useMenuConfig = () => {
@@ -42,6 +43,16 @@ export const useMenuConfig = () => {
           label: "Rombel",
           roles: ["admin", "guru"],
         },
+      ],
+    },
+    {
+      label: "Absensi",
+      icon: markRaw(CalendarCheck),
+      roles: ["admin", "guru"],
+      children: [
+        { to: "/absensi/siswa", label: "Absensi Siswa", roles: ["admin", "guru"] },
+        { to: "/absensi/rekap", label: "Rekap Absensi", roles: ["admin", "guru"] },
+        { to: "/absensi/kalender", label: "Kalender Pendidikan", roles: ["admin", "guru"] },
       ],
     },
     {

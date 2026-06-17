@@ -2,6 +2,7 @@
 // Proxy POST ke Cloudflare Worker D1 (menggantikan Google Apps Script)
 
 import { Buffer } from "buffer";
+import { invalidateCache } from "../utils/cache";
 
 /**
  * Memvalidasi token JWT tiruan di sisi server
@@ -81,6 +82,11 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${config.apiWorkerToken}`,
       },
     });
+
+    // Invalidate server cache untuk tabel ini
+    if (body.table) {
+      invalidateCache(body.table);
+    }
 
     return response;
   } catch (error: any) {

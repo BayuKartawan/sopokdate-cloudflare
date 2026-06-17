@@ -57,6 +57,8 @@ const TABLE_MAP = {
   Berkas: "berkas",
   Aplikasi: "aplikasi",
   Pengumuman: "pengumuman",
+  KalenderPendidikan: "kalender_pendidikan",
+  PengaturanTapel: "pengaturan_tapel",
 };
 
 // Mapping kolom D1 (snake_case) → kolom spreadsheet (original header names)
@@ -181,6 +183,17 @@ const COLUMN_MAP = {
     tag: "tag",
     tag_color: "tagColor",
   },
+  kalender_pendidikan: {
+    tanggal_mulai: "tanggal_mulai",
+    tanggal_selesai: "tanggal_selesai",
+    keterangan: "keterangan",
+    tipe: "tipe",
+    tahun_pelajaran: "tahun_pelajaran",
+  },
+  pengaturan_tapel: {
+    tahun_pelajaran: "tahun_pelajaran",
+    hari_libur_mingguan: "hari_libur_mingguan",
+  },
 };
 
 // Mapping balik: nama kolom spreadsheet → nama kolom D1
@@ -203,6 +216,15 @@ function transformRows(rows, tableName) {
 
   return rows.map((row) => {
     const transformed = {};
+    
+    // Pertahankan kolom id untuk kebutuhan update/delete di frontend
+    if (row.id !== undefined && row.id !== null) {
+      transformed.id = row.id;
+    }
+    if (row._id !== undefined && row._id !== null) {
+      transformed._id = row._id;
+    }
+
     for (const [d1Col, sheetCol] of Object.entries(colMap)) {
       transformed[sheetCol] = row[d1Col] !== null ? row[d1Col] : "";
     }
@@ -766,6 +788,147 @@ async function handleDeleteUser(env, userId) {
 }
 
 // ---------------------------------------------------------------------------
+// Handler: GET /api/absensi — Ambil daftar siswa beserta absensi
+// ---------------------------------------------------------------------------
+async function handleGetAbsensi(request, env) {
+  const url = new URL(request.url);
+  const tanggal = url.searchParams.get("tanggal");
+  const kelasId = url.searchParams.get("kelas_id");
+
+  if (!tanggal || !kelasId) {
+    return errorResponse("Parameter 'tanggal' dan 'kelas_id' diperlukan");
+  }
+
+  try {
+    const query = `
+      SELECT 
+        s.id as siswa_id, 
+        s.nama, 
+        s.nisn, 
+        s.nis_lokal,
+        a.status, 
+        a.keterangan
+      FROM data_siswa s
+      LEFT JOIN absensi_siswa a 
+        ON s.id = a.siswa_id AND a.tanggal = ?1
+      WHERE s.kelas = ?2
+      ORDER BY s.nama ASC;
+    `;
+    const result = await env.DB.prepare(query).bind(tanggal, kelasId).all();
+    return jsonResponse(result.results);
+  } catch (err) {
+    return errorResponse(`Database error: ${err.message}`, 500);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Handler: POST /api/absensi — Simpan batch absensi siswa (Upsert)
+// ---------------------------------------------------------------------------
+async function handlePostAbsensi(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return errorResponse("Invalid JSON body");
+  }
+
+  const { tanggal, kelas_id, tahun_pelajaran, semester, data, input_by } = body;
+
+  if (!tanggal || !kelas_id || !tahun_pelajaran || !semester) {
+    return errorResponse("Parameter 'tanggal', 'kelas_id', 'tahun_pelajaran', dan 'semester' wajib diisi");
+  }
+
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return errorResponse("Parameter 'data' harus berupa array kehadiran siswa");
+  }
+
+  try {
+    const statements = [];
+    const upsertQuery = `
+      INSERT INTO absensi_siswa (
+        tanggal, siswa_id, kelas_id, status, keterangan, tahun_pelajaran, semester, input_by, updated_at
+      )
+      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, datetime('now'))
+      ON CONFLICT(tanggal, siswa_id) DO UPDATE SET
+        status = excluded.status,
+        keterangan = excluded.keterangan,
+        tahun_pelajaran = excluded.tahun_pelajaran,
+        semester = excluded.semester,
+        input_by = excluded.input_by,
+        updated_at = datetime('now');
+    `;
+
+    const stmt = env.DB.prepare(upsertQuery);
+
+    for (const row of data) {
+      const { siswa_id, status, keterangan } = row;
+      statements.push(
+        stmt.bind(
+          tanggal,
+          parseInt(siswa_id),
+          kelas_id,
+          status || "H",
+          keterangan || "",
+          tahun_pelajaran,
+          semester,
+          input_by ? parseInt(input_by) : null
+        )
+      );
+    }
+
+    await env.DB.batch(statements);
+
+    return jsonResponse({
+      success: true,
+      message: "Absensi berhasil disimpan",
+    });
+  } catch (err) {
+    return errorResponse(`Database error: ${err.message}`, 500);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Handler: GET /api/absensi/rekap — Rekap statistik kehadiran per semester
+// ---------------------------------------------------------------------------
+async function handleGetAbsensiRekap(request, env) {
+  const url = new URL(request.url);
+  const kelasId = url.searchParams.get("kelas_id");
+  const tahunPelajaran = url.searchParams.get("tahun_pelajaran");
+  const semester = url.searchParams.get("semester");
+
+  if (!kelasId || !tahunPelajaran || !semester) {
+    return errorResponse("Parameter 'kelas_id', 'tahun_pelajaran', dan 'semester' diperlukan");
+  }
+
+  try {
+    const query = `
+      SELECT 
+        s.id as siswa_id,
+        s.nama,
+        s.nisn,
+        s.nis_lokal,
+        SUM(CASE WHEN a.status = 'H' THEN 1 ELSE 0 END) as total_hadir,
+        SUM(CASE WHEN a.status = 'S' THEN 1 ELSE 0 END) as total_sakit,
+        SUM(CASE WHEN a.status = 'I' THEN 1 ELSE 0 END) as total_izin,
+        SUM(CASE WHEN a.status = 'A' THEN 1 ELSE 0 END) as total_alpa,
+        COUNT(a.id) as total_hari_efektif
+      FROM data_siswa s
+      LEFT JOIN absensi_siswa a ON s.id = a.siswa_id
+        AND a.kelas_id = ?1 
+        AND a.tahun_pelajaran = ?2 
+        AND a.semester = ?3
+      WHERE s.kelas = ?1
+      GROUP BY s.id, s.nama, s.nisn, s.nis_lokal
+      ORDER BY s.nama ASC;
+    `;
+    const result = await env.DB.prepare(query).bind(kelasId, tahunPelajaran, semester).all();
+    return jsonResponse(result.results);
+  } catch (err) {
+    return errorResponse(`Database error: ${err.message}`, 500);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Router Utama
 // ---------------------------------------------------------------------------
 export default {
@@ -806,6 +969,12 @@ export default {
         if (path === "/api/data") {
           return await handleGetData(request, env);
         }
+        if (path === "/api/absensi") {
+          return await handleGetAbsensi(request, env);
+        }
+        if (path === "/api/absensi/rekap") {
+          return await handleGetAbsensiRekap(request, env);
+        }
         if (path === "/api/surat") {
           return await handleGetSurat(env);
         }
@@ -821,8 +990,11 @@ export default {
               "GET  /api/data?table=DataSiswa",
               "GET  /api/data?table=DataKelas",
               "GET  /api/data?table=DataGtk&gtk_id=5",
+              "GET  /api/absensi?tanggal=2026-06-17&kelas_id=VII-A",
+              "GET  /api/absensi/rekap?kelas_id=VII-A&tahun_pelajaran=2025/2026&semester=Genap",
               "GET  /api/surat",
               "POST /api/data",
+              "POST /api/absensi",
               "POST /api/auth/login",
               "POST /api/auth/seed-guru",
               "GET  /api/auth/users",
@@ -837,6 +1009,9 @@ export default {
       if (request.method === "POST") {
         if (path === "/api/data") {
           return await handlePostData(request, env);
+        }
+        if (path === "/api/absensi") {
+          return await handlePostAbsensi(request, env);
         }
         if (path === "/api/auth/seed-guru") {
           return await handleSeedGuru(env);
