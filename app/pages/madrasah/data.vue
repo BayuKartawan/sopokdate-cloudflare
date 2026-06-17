@@ -116,7 +116,7 @@ import CrudModal from "~/components/ui/CrudModal.vue";
 
 const { cardData: dataMadrasah, loadData, refreshData } = useTableData();
 const { Notify } = useNotiflix();
-const { isAdmin, isSaving, updateItem } = useCrud("DataMadrasah", () => refreshData("DataMadrasah"));
+const { isAdmin, isSaving, updateItem } = useCrud("data_madrasah", () => refreshData("data_madrasah"));
 
 const searchKeyword = ref({ dataGtk: "", dataMadrasah: "" });
 const visibleCount = ref({ dataGtk: 4, dataMadrasah: 12 });
@@ -127,28 +127,24 @@ const editingItem = ref({});
 
 // Define table fields configuration
 const tableFields = [
-  { key: "Madrasah", label: "Nama Madrasah" },
-  { key: "Nsm", label: "NSM" },
-  { key: "Npsn", label: "NPSN" },
-  { key: "Akreditasi", label: "Akreditasi" },
-  { key: "Nomor Akreditasi", label: "Nomor Akreditasi" },
-  { key: "NoHp Kamad", label: "NoHp Kamad" },
-  { key: "SiapID", label: "SiapID" },
-  { key: "Data Emis", label: "Data Emis" },
-  { key: "Tahun_Pelajaran", label: "Tahun Pelajaran" },
-  { key: "Total_Guru", label: "Total Guru & Tenaga Pendidikan" },
-  { key: "Total_Siswa", label: "Total Siswa" },
+  { key: "madrasah", label: "Nama Madrasah" },
+  { key: "nsm", label: "NSM" },
+  { key: "npsn", label: "NPSN" },
+  { key: "akreditasi", label: "Akreditasi" },
+  { key: "nomor_akreditasi", label: "Nomor Akreditasi" },
+  { key: "no_hp_kamad", label: "NoHp Kamad" },
+  { key: "siap_id", label: "SiapID" },
 ];
 
 // Field configuration for Madrasah edit form
 const madrasahFields = [
-  { key: "Madrasah", label: "Nama Madrasah", required: true },
-  { key: "Nsm", label: "NSM" },
-  { key: "Npsn", label: "NPSN" },
-  { key: "Akreditasi", label: "Akreditasi" },
-  { key: "Nomor Akreditasi", label: "Nomor Akreditasi" },
-  { key: "NoHp Kamad", label: "NoHp Kamad" },
-  { key: "SiapID", label: "SiapID" },
+  { key: "madrasah", label: "Nama Madrasah", required: true },
+  { key: "nsm", label: "NSM" },
+  { key: "npsn", label: "NPSN" },
+  { key: "akreditasi", label: "Akreditasi" },
+  { key: "nomor_akreditasi", label: "Nomor Akreditasi" },
+  { key: "no_hp_kamad", label: "NoHp Kamad" },
+  { key: "siap_id", label: "SiapID" },
 ];
 
 const openEditModal = () => {
@@ -156,13 +152,13 @@ const openEditModal = () => {
     const item = dataMadrasah.value[0];
     editingItem.value = {
       _id: item.id || item._id,
-      "Madrasah": item["Madrasah"] || "",
-      "Nsm": item["Nsm"] || "",
-      "Npsn": item["Npsn"] || "",
-      "Akreditasi": item["Akreditasi"] || "",
-      "Nomor Akreditasi": item["Nomor Akreditasi"] || "",
-      "NoHp Kamad": item["NoHp Kamad"] || "",
-      "SiapID": item["SiapID"] || "",
+      "madrasah": item.madrasah || "",
+      "nsm": item.nsm || "",
+      "npsn": item.npsn || "",
+      "akreditasi": item.akreditasi || "",
+      "nomor_akreditasi": item.nomor_akreditasi || "",
+      "no_hp_kamad": item.no_hp_kamad || "",
+      "siap_id": item.siap_id || "",
     };
     showModal.value = true;
   }
@@ -177,7 +173,7 @@ const handleFormSubmit = async (formData) => {
 };
 
 onMounted(() => {
-  loadData("DataMadrasah");
+  loadData("data_madrasah");
 });
 
 const filteredDataMadrasah = computed(() => {
@@ -192,9 +188,9 @@ const filteredDataMadrasah = computed(() => {
 
   return dataMadrasah.value.filter(
     (item) =>
-      (item.Madrasah && item.Madrasah.toLowerCase().includes(keyword)) ||
-      (item.Nsm && String(item.Nsm).toLowerCase().includes(keyword)) ||
-      (item.Npsn && String(item.Npsn).toLowerCase().includes(keyword)),
+      (item.madrasah && item.madrasah.toLowerCase().includes(keyword)) ||
+      (item.nsm && String(item.nsm).toLowerCase().includes(keyword)) ||
+      (item.npsn && String(item.npsn).toLowerCase().includes(keyword)),
   );
 });
 

@@ -40,7 +40,7 @@ function normalizeGtkData(data) {
   return data.map((item) => {
     if (!item || typeof item !== "object") return item;
 
-    const normalized = {};
+    const normalized = { ...item };
 
     const getField = (obj, targetName) => {
       const cleanedTarget = targetName.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -53,48 +53,37 @@ function normalizeGtkData(data) {
       return "";
     };
 
-    normalized.title = getField(item, "namalengkap");
+    normalized.title = getField(item, "nama_lengkap") || getField(item, "namalengkap");
     normalized.NIK = getField(item, "nik");
-    normalized.NoKK = getField(item, "nokk");
+    normalized.NoKK = getField(item, "no_kk") || getField(item, "nokk");
     normalized.NUPTK = getField(item, "nuptk");
-    normalized.PegID = getField(item, "pegid");
+    normalized.PegID = getField(item, "peg_id") || getField(item, "pegid");
     normalized.NPK = getField(item, "npk");
     normalized.NRG = getField(item, "nrg");
-    normalized.PendTerakhir = getField(item, "pendidikanterakhir");
+    normalized.PendTerakhir = getField(item, "pendidikan_terakhir") || getField(item, "pendidikanterakhir");
     normalized.Jurusan = getField(item, "jurusan");
-    normalized.JenisKelamin = getField(item, "jeniskelamin");
-    normalized.TempatLahir = getField(item, "tempatlahir");
-    normalized.TanggalLahir = getField(item, "tanggallahir");
-    normalized.NomorHp = getField(item, "nohp");
+    normalized.JenisKelamin = getField(item, "jenis_kelamin") || getField(item, "jeniskelamin");
+    normalized.TempatLahir = getField(item, "tempat_lahir") || getField(item, "tempatlahir");
+    normalized.TanggalLahir = getField(item, "tanggal_lahir") || getField(item, "tanggallahir");
+    normalized.NomorHp = getField(item, "no_hp") || getField(item, "nohp");
     normalized.Email = getField(item, "email");
     normalized.Tugas = getField(item, "tugas");
-    normalized.NoRek = getField(item, "norekening");
-    normalized.StatusKepegawaian = getField(item, "statuskepegawaian");
+    normalized.NoRek = getField(item, "no_rekening") || getField(item, "norekening");
+    normalized.StatusKepegawaian = getField(item, "status_kepegawaian") || getField(item, "statuskepegawaian");
     normalized.NIP = getField(item, "nip");
-    normalized.MataPelajaran = getField(item, "matapelajaran");
-    normalized.WaliKelas = getField(item, "walikelas");
-
-    // Pertahankan properti lain yang tidak dinormalisasi
-    for (const key of Object.keys(item)) {
-      if (!(key in normalized)) {
-        normalized[key] = item[key];
-      }
-    }
+    normalized.MataPelajaran = getField(item, "mata_pelajaran") || getField(item, "matapelajaran");
+    normalized.WaliKelas = getField(item, "wali_kelas") || getField(item, "walikelas");
 
     return normalized;
   });
 }
 
-/**
- * Menormalkan data Siswa dari berbagai kemungkinan nama kolom di Google Sheet.
- * Ini memastikan kode frontend tetap berjalan tanpa error meskipun kolom diubah.
- */
 function normalizeSiswaData(data) {
   if (!Array.isArray(data)) return data;
   return data.map((item) => {
     if (!item || typeof item !== "object") return item;
 
-    const normalized = {};
+    const normalized = { ...item };
 
     const getField = (obj, targetName) => {
       const cleanedTarget = targetName.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -109,47 +98,35 @@ function normalizeSiswaData(data) {
 
     normalized.nama = getField(item, "nama");
     normalized.nisn = getField(item, "nisn");
-    normalized["nis lokal"] = getField(item, "nislokal");
+    normalized["nis lokal"] = getField(item, "nis_lokal") || getField(item, "nislokal");
     normalized.nik = getField(item, "nik");
-    normalized["no kk"] = getField(item, "nokk");
-    normalized["tempat lahir"] = getField(item, "tempatlahir");
-    normalized["tanggal lahir"] = getField(item, "tanggallahir");
+    normalized["no kk"] = getField(item, "no_kk") || getField(item, "nokk");
+    normalized["tempat lahir"] = getField(item, "tempat_lahir") || getField(item, "tempatlahir");
+    normalized["tanggal lahir"] = getField(item, "tanggal_lahir") || getField(item, "tanggallahir");
 
-    // Map "Kelas" ke "tingkat - rombel" agar tidak merusak frontend lama
     const kelasVal = getField(item, "kelas");
     normalized["tingkat - rombel"] = kelasVal;
     normalized.kelas = kelasVal;
 
     normalized.umur = getField(item, "umur");
-    normalized["jenis kelamin"] = getField(item, "jeniskelamin");
+    normalized["jenis kelamin"] = getField(item, "jenis_kelamin") || getField(item, "jeniskelamin");
     normalized.alamat = getField(item, "alamat");
-    normalized["no telepon"] = getField(item, "nohp");
-    normalized["no kip"] = getField(item, "nokip");
-    normalized["nama ayah kandung"] = getField(item, "namaayahkandung");
-    normalized["nama ibu kandung"] = getField(item, "namaibukandung");
-    normalized["nama wali"] = getField(item, "namawali");
-
-    // Pertahankan properti lain
-    for (const key of Object.keys(item)) {
-      const cleanedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (!(key in normalized) && cleanedKey !== "kelas" && cleanedKey !== "tingkatrombel") {
-        normalized[key] = item[key];
-      }
-    }
+    normalized["no telepon"] = getField(item, "no_hp") || getField(item, "nohp");
+    normalized["no kip"] = getField(item, "no_kip") || getField(item, "nokip");
+    normalized["nama ayah kandung"] = getField(item, "nama_ayah_kandung") || getField(item, "namaayahkandung");
+    normalized["nama ibu kandung"] = getField(item, "nama_ibu_kandung") || getField(item, "namaibukandung");
+    normalized["nama wali"] = getField(item, "nama_wali") || getField(item, "namawali");
 
     return normalized;
   });
 }
 
-/**
- * Menormalkan data Kelas dari Google Sheet.
- */
 function normalizeKelasData(data) {
   if (!Array.isArray(data)) return data;
   return data.map((item) => {
     if (!item || typeof item !== "object") return item;
 
-    const normalized = {};
+    const normalized = { ...item };
 
     const getField = (obj, targetName) => {
       const cleanedTarget = targetName.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -162,17 +139,34 @@ function normalizeKelasData(data) {
       return "";
     };
 
-    normalized.idKelas = getField(item, "idkelas");
-    normalized.namaKelas = getField(item, "namakelas");
+    normalized.idKelas = getField(item, "id_kelas") || getField(item, "idkelas");
+    normalized.namaKelas = getField(item, "nama_kelas") || getField(item, "namakelas");
     normalized.tingkat = getField(item, "tingkat");
-    normalized.waliKelas = getField(item, "walikelas");
+    normalized.waliKelas = getField(item, "wali_kelas") || getField(item, "walikelas");
 
-    // Pertahankan properti lain
-    for (const key of Object.keys(item)) {
-      if (!(key in normalized)) {
-        normalized[key] = item[key];
+    return normalized;
+  });
+}
+
+function normalizePengumumanData(data) {
+  if (!Array.isArray(data)) return data;
+  return data.map((item) => {
+    if (!item || typeof item !== "object") return item;
+
+    const normalized = { ...item };
+
+    const getField = (obj, targetName) => {
+      const cleanedTarget = targetName.toLowerCase().replace(/[^a-z0-9]/g, "");
+      for (const key of Object.keys(obj)) {
+        const cleanedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (cleanedKey === cleanedTarget) {
+          return obj[key];
+        }
       }
-    }
+      return "";
+    };
+
+    normalized.tagColor = getField(item, "tag_color") || getField(item, "tagcolor") || "";
 
     return normalized;
   });
@@ -254,12 +248,14 @@ export function useTableData() {
           }
           const extracted = tableData.data || tableData;
           let processedData = Array.isArray(extracted) ? extracted : [];
-          if (tableName === "DataGtk") {
+          if (tableName === "data_gtk" || tableName === "DataGtk") {
             processedData = normalizeGtkData(processedData);
-          } else if (tableName === "DataSiswa") {
+          } else if (tableName === "data_siswa" || tableName === "DataSiswa") {
             processedData = normalizeSiswaData(processedData);
-          } else if (tableName === "DataKelas") {
+          } else if (tableName === "data_kelas" || tableName === "DataKelas") {
             processedData = normalizeKelasData(processedData);
+          } else if (tableName === "pengumuman" || tableName === "Pengumuman") {
+            processedData = normalizePengumumanData(processedData);
           }
           cardData.value = processedData;
         }
@@ -331,12 +327,14 @@ export function useTableData() {
     try {
       const timestamp = new Date().toISOString();
       let processedData = data;
-      if (tableName === "DataGtk" && Array.isArray(data)) {
+      if ((tableName === "data_gtk" || tableName === "DataGtk") && Array.isArray(data)) {
         processedData = normalizeGtkData(data);
-      } else if (tableName === "DataSiswa" && Array.isArray(data)) {
+      } else if ((tableName === "data_siswa" || tableName === "DataSiswa") && Array.isArray(data)) {
         processedData = normalizeSiswaData(data);
-      } else if (tableName === "DataKelas" && Array.isArray(data)) {
+      } else if ((tableName === "data_kelas" || tableName === "DataKelas") && Array.isArray(data)) {
         processedData = normalizeKelasData(data);
+      } else if ((tableName === "pengumuman" || tableName === "Pengumuman") && Array.isArray(data)) {
+        processedData = normalizePengumumanData(data);
       }
       sessionCache[tableName] = {
         data: processedData,

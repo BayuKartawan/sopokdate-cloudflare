@@ -17,7 +17,7 @@
     <!-- Main content -->
     <main
       :class="[
-        isLoggedIn ? 'pt-16' : '',
+        isLoggedIn ? 'pt-0 pb-16 lg:pt-16 lg:pb-0' : '',
         {
           'lg:pl-64': isSidebarOpen && !isMobileView && isLoggedIn,
         },

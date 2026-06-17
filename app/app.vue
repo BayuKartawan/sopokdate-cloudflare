@@ -13,7 +13,7 @@
     <button
       v-show="isScrollVisible"
       @click="scrollToTop"
-      class="fixed bottom-6 right-6 z-50 p-2 rounded-full shadow-lg transition-all duration-200 border border-zinc-600 bg-zinc-800 text-zinc-100 hover:bg-zinc-700 hover:border-zinc-500"
+      class="fixed bottom-20 right-6 z-50 p-2 rounded-full shadow-lg transition-all duration-200 border border-zinc-600 bg-zinc-800 text-zinc-100 hover:bg-zinc-700 hover:border-zinc-500 lg:bottom-6"
     >
       <ArrowUp class="w-5 h-5" />
     </button>

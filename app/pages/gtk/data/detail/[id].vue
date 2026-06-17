@@ -181,14 +181,17 @@ async function loadGtkDetail() {
       }
     }
 
-    // Cari item berdasarkan parameter route (PegID)
+    // Cari item berdasarkan parameter route (PegID atau database ID)
     const pegId = route.params.id;
 
     let foundItem = null;
 
     if (pegId !== undefined && pegId !== null) {
       foundItem = dataGtk.value.find(
-        (item) => item && String(item.PegID).trim() === String(pegId).trim()
+        (item) => item && (
+          String(item.PegID).trim() === String(pegId).trim() ||
+          String(item.id).trim() === String(pegId).trim()
+        )
       );
     }
 

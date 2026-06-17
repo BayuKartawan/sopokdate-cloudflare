@@ -27,10 +27,10 @@
             <option value="" disabled>-- Pilih Kelas --</option>
             <option
               v-for="kelas in dataKelas"
-              :key="kelas.idKelas"
-              :value="kelas.idKelas"
+              :key="kelas.id_kelas"
+              :value="kelas.id_kelas"
             >
-              {{ kelas.namaKelas }}
+              {{ kelas.nama_kelas }}
             </option>
           </select>
         </div>
@@ -374,8 +374,8 @@ const formattedTanggal = computed(() => {
 // --- Computed Properties
 const currentClassName = computed(() => {
   if (!selectedClass.value) return "";
-  const match = dataKelas.value.find(k => k.idKelas === selectedClass.value);
-  return match ? match.namaKelas : selectedClass.value;
+  const match = dataKelas.value.find(k => k.id_kelas === selectedClass.value);
+  return match ? match.nama_kelas : selectedClass.value;
 });
 
 // Checks if input is disabled (user not authorized, saving, or Sunday/holiday)
@@ -432,7 +432,7 @@ const fetchHolidays = async () => {
   if (!tapel.value) return;
   try {
     // 1. Fetch holidays
-    const data = await fetchFromApi("KalenderPendidikan", false, null, {
+    const data = await fetchFromApi("kalender_pendidikan", false, null, {
       filter_col: "tahun_pelajaran",
       filter_val: tapel.value
     });
@@ -441,7 +441,7 @@ const fetchHolidays = async () => {
     }
 
     // 2. Fetch weekly holiday configuration
-    const configData = await fetchFromApi("PengaturanTapel", false, null, {
+    const configData = await fetchFromApi("pengaturan_tapel", false, null, {
       filter_col: "tahun_pelajaran",
       filter_val: tapel.value
     });
@@ -557,7 +557,7 @@ const checkWaliKelasStatus = async () => {
     isLoadingGtk.value = true;
     try {
       // Fetch data_gtk to find the teacher's full name
-      const gtkData = await fetchFromApi("DataGtk", false, null, { 
+      const gtkData = await fetchFromApi("data_gtk", false, null, { 
         filter_col: "id", 
         filter_val: String(userGtkId.value) 
       });
@@ -565,18 +565,17 @@ const checkWaliKelasStatus = async () => {
       if (Array.isArray(gtkData)) {
         const myRecord = gtkData.find(g => 
           g.id === userGtkId.value || 
-          g.ID === userGtkId.value || 
           String(g.id) === String(userGtkId.value)
         );
         
         if (myRecord) {
-          const namaGuru = myRecord.title || myRecord.NamaLengkap || myRecord["Nama Lengkap"] || myRecord.nama_lengkap;
+          const namaGuru = myRecord.nama_lengkap;
           
           // Match teacher name or Peg ID with wali_kelas in classes list
           const classes = dataKelas.value;
           const myClass = classes.find(c => {
-            const cWali = c.waliKelas || c["Wali Kelas"] || c.wali_kelas;
-            const myPegId = myRecord.PegID || myRecord["Peg ID"] || myRecord.peg_id;
+            const cWali = c.wali_kelas;
+            const myPegId = myRecord.peg_id;
             
             const matchName = cleanName(cWali) === cleanName(namaGuru);
             const matchPegId = String(cWali).trim() === String(myPegId).trim();
@@ -586,8 +585,8 @@ const checkWaliKelasStatus = async () => {
           
           if (myClass) {
             isWaliKelas.value = true;
-            waliKelasClassName.value = myClass.namaKelas || myClass["Nama Kelas"];
-            selectedClass.value = myClass.idKelas || myClass["ID Kelas"];
+            waliKelasClassName.value = myClass.nama_kelas;
+            selectedClass.value = myClass.id_kelas;
           }
         }
       }
@@ -606,7 +605,7 @@ onMounted(async () => {
 
   isLoadingKelas.value = true;
   try {
-    await loadDataKelas("DataKelas");
+    await loadDataKelas("data_kelas");
     await checkWaliKelasStatus();
   } catch (err) {
     console.error(err);

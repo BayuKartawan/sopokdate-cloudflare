@@ -55,7 +55,7 @@
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div
             v-for="(item, index) in dataKelas"
-            :key="item.idKelas || index"
+            :key="item.id_kelas || index"
             class="rounded-xl border p-5 bg-zinc-800/30 border-zinc-700/40 hover:border-emerald-500/30 transition-all duration-200 group"
           >
             <div class="flex items-start gap-4">
@@ -72,23 +72,23 @@
                 <h3
                   class="font-bold text-lg text-zinc-100 truncate group-hover:text-emerald-400 transition-colors"
                 >
-                  Kelas {{ item.namaKelas || "-" }}
+                  Kelas {{ item.nama_kelas || "-" }}
                 </h3>
 
                 <div class="flex flex-col gap-1.5 mt-2.5 text-xs text-zinc-400">
                   <p class="flex items-center gap-1.5">
                     <span class="w-20 text-zinc-500 shrink-0">ID Kelas:</span>
-                    <span class="font-mono text-zinc-300">{{ item.idKelas || "-" }}</span>
+                    <span class="font-mono text-zinc-300">{{ item.id_kelas || "-" }}</span>
                   </p>
                   <p class="flex items-center gap-1.5">
                     <span class="w-20 text-zinc-500 shrink-0">Wali Kelas:</span>
                     <span class="bg-zinc-700/50 text-emerald-300 px-2 py-0.5 rounded text-[10px] w-fit font-medium">
-                      {{ getTeacherName(item.waliKelas) }}
+                      {{ getTeacherName(item.wali_kelas) }}
                     </span>
                   </p>
                   <p class="flex items-center gap-1.5">
                     <span class="w-20 text-zinc-500 shrink-0">Peg ID Wali:</span>
-                    <span class="font-mono text-zinc-400">{{ item.waliKelas || "-" }}</span>
+                    <span class="font-mono text-zinc-400">{{ item.wali_kelas || "-" }}</span>
                   </p>
                 </div>
               </div>
@@ -139,7 +139,7 @@ import CrudModal from "~/components/ui/CrudModal.vue";
 
 const { cardData: dataKelas, isLoading, loadData: loadDataKelas, refreshData: refreshDataKelas } = useTableData();
 const { cardData: dataGtk, loadData: loadDataGtk } = useTableData();
-const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud("DataKelas", () => refreshDataKelas("DataKelas"));
+const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud("data_kelas", () => refreshDataKelas("data_kelas"));
 
 // CRUD Modal state
 const showModal = ref(false);
@@ -148,10 +148,10 @@ const editingItem = ref({});
 
 // Field configuration for Kelas CRUD form
 const kelasFields = [
-  { key: "ID Kelas", label: "ID Kelas", required: true },
-  { key: "Nama Kelas", label: "Nama Kelas", required: true },
-  { key: "Tingkat", label: "Tingkat", type: "select", options: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"] },
-  { key: "Wali Kelas", label: "Wali Kelas (Peg ID)" },
+  { key: "id_kelas", label: "ID Kelas", required: true },
+  { key: "nama_kelas", label: "Nama Kelas", required: true },
+  { key: "tingkat", label: "Tingkat", type: "select", options: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"] },
+  { key: "wali_kelas", label: "Wali Kelas (Peg ID)" },
 ];
 
 const openCreateModal = () => {
@@ -164,10 +164,10 @@ const openEditModal = (item) => {
   modalMode.value = "edit";
   editingItem.value = {
     _id: item.id || item._id,
-    "ID Kelas": item.idKelas || "",
-    "Nama Kelas": item.namaKelas || "",
-    "Tingkat": item.tingkat || "",
-    "Wali Kelas": item.waliKelas || "",
+    "id_kelas": item.id_kelas || "",
+    "nama_kelas": item.nama_kelas || "",
+    "tingkat": item.tingkat || "",
+    "wali_kelas": item.wali_kelas || "",
   };
   showModal.value = true;
 };
@@ -187,7 +187,7 @@ const handleFormSubmit = async (formData) => {
 
 const handleDelete = (item) => {
   const id = item.id || item._id;
-  deleteItem(id, `Kelas ${item.namaKelas}`);
+  deleteItem(id, `Kelas ${item.nama_kelas}`);
 };
 
 // Map teacher details by Peg ID
@@ -195,8 +195,8 @@ const teacherMap = computed(() => {
   const map = {};
   if (Array.isArray(dataGtk.value)) {
     dataGtk.value.forEach((teacher) => {
-      if (teacher.PegID) {
-        map[teacher.PegID] = teacher;
+      if (teacher.peg_id) {
+        map[teacher.peg_id] = teacher;
       }
     });
   }
@@ -206,11 +206,11 @@ const teacherMap = computed(() => {
 const getTeacherName = (pegId) => {
   if (!pegId) return "Belum Ditentukan";
   const teacher = teacherMap.value[pegId];
-  return teacher ? teacher.title : pegId;
+  return teacher ? teacher.nama_lengkap : pegId;
 };
 
 onMounted(() => {
-  loadDataKelas("DataKelas");
-  loadDataGtk("DataGtk");
+  loadDataKelas("data_kelas");
+  loadDataGtk("data_gtk");
 });
 </script>

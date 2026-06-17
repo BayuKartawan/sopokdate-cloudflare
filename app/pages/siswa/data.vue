@@ -137,13 +137,13 @@
                         {{ siswa.nisn || "-" }}
                       </td>
                       <td class="border border-gray-800 px-2 py-1 text-center">
-                        {{ siswa["nis lokal"] || "-" }}
+                        {{ siswa.nis_lokal || "-" }}
                       </td>
                       <td class="border border-gray-800 px-2 py-1 text-center">
-                        {{ getJenisKelaminAbbr(siswa["jenis kelamin"]) }}
+                        {{ getJenisKelaminAbbr(siswa.jenis_kelamin) }}
                       </td>
                       <td class="border border-gray-800 px-2 py-1 text-center">
-                        {{ getClassName(siswa["tingkat - rombel"]) }}
+                        {{ getClassName(siswa.kelas) }}
                       </td>
                     </tr>
                   </tbody>
@@ -262,7 +262,7 @@
                       <span
                         class="bg-zinc-700/50 text-emerald-300 px-1.5 py-0.5 rounded text-[10px] w-fit font-medium"
                       >
-                        {{ getClassName(item["tingkat - rombel"]) }}
+                        {{ getClassName(item.kelas) }}
                       </span>
                     </p>
                     <p class="flex items-center gap-1.5">
@@ -270,7 +270,7 @@
                         >NIS Lokal:</span
                       >
                       <span class="truncate text-zinc-300">{{
-                        item["nis lokal"] || "-"
+                        item.nis_lokal || "-"
                       }}</span>
                     </p>
                   </div>
@@ -354,7 +354,7 @@ import * as XLSX from "xlsx";
 const router = useRouter();
 const { cardData: dataSiswa, isLoading, loadData, refreshData } = useTableData();
 const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
-const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud("DataSiswa", () => refreshData("DataSiswa"));
+const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud("data_siswa", () => refreshData("data_siswa"));
 
 // CRUD Modal state
 const showModal = ref(false);
@@ -363,22 +363,22 @@ const editingItem = ref({});
 
 // Field configuration for Siswa CRUD form
 const siswaFields = [
-  { key: "Nama", label: "Nama", required: true },
-  { key: "NISN", label: "NISN" },
-  { key: "NIS Lokal", label: "NIS Lokal" },
-  { key: "NIK", label: "NIK" },
-  { key: "No KK", label: "No KK" },
-  { key: "Tempat Lahir", label: "Tempat Lahir" },
-  { key: "Tanggal Lahir", label: "Tanggal Lahir", type: "date" },
-  { key: "Kelas", label: "Kelas" },
-  { key: "Umur", label: "Umur" },
-  { key: "Jenis Kelamin", label: "Jenis Kelamin", type: "select", options: ["Laki-Laki", "Perempuan"] },
-  { key: "Alamat", label: "Alamat", type: "textarea" },
-  { key: "No HP", label: "No HP" },
-  { key: "No KIP", label: "No KIP" },
-  { key: "Nama Ayah Kandung", label: "Nama Ayah Kandung" },
-  { key: "Nama Ibu Kandung", label: "Nama Ibu Kandung" },
-  { key: "Nama Wali", label: "Nama Wali" },
+  { key: "nama", label: "Nama", required: true },
+  { key: "nisn", label: "NISN" },
+  { key: "nis_lokal", label: "NIS Lokal" },
+  { key: "nik", label: "NIK" },
+  { key: "no_kk", label: "No KK" },
+  { key: "tempat_lahir", label: "Tempat Lahir" },
+  { key: "tanggal_lahir", label: "Tanggal Lahir", type: "date" },
+  { key: "kelas", label: "Kelas" },
+  { key: "umur", label: "Umur" },
+  { key: "jenis_kelamin", label: "Jenis Kelamin", type: "select", options: ["Laki-Laki", "Perempuan"] },
+  { key: "alamat", label: "Alamat", type: "textarea" },
+  { key: "no_hp", label: "No HP" },
+  { key: "no_kip", label: "No KIP" },
+  { key: "nama_ayah_kandung", label: "Nama Ayah Kandung" },
+  { key: "nama_ibu_kandung", label: "Nama Ibu Kandung" },
+  { key: "nama_wali", label: "Nama Wali" },
 ];
 
 const openCreateModal = () => {
@@ -391,22 +391,22 @@ const openEditModal = (item) => {
   modalMode.value = "edit";
   editingItem.value = {
     _id: item.id || item._id,
-    "Nama": item.nama || "",
-    "NISN": item.nisn || "",
-    "NIS Lokal": item["nis lokal"] || "",
-    "NIK": item.nik || "",
-    "No KK": item["no kk"] || "",
-    "Tempat Lahir": item["tempat lahir"] || "",
-    "Tanggal Lahir": item["tanggal lahir"] || "",
-    "Kelas": item.kelas || "",
-    "Umur": item.umur || "",
-    "Jenis Kelamin": item["jenis kelamin"] || "",
-    "Alamat": item.alamat || "",
-    "No HP": item["no telepon"] || "",
-    "No KIP": item["no kip"] || "",
-    "Nama Ayah Kandung": item["nama ayah kandung"] || "",
-    "Nama Ibu Kandung": item["nama ibu kandung"] || "",
-    "Nama Wali": item["nama wali"] || "",
+    "nama": item.nama || "",
+    "nisn": item.nisn || "",
+    "nis_lokal": item.nis_lokal || "",
+    "nik": item.nik || "",
+    "no_kk": item.no_kk || "",
+    "tempat_lahir": item.tempat_lahir || "",
+    "tanggal_lahir": item.tanggal_lahir || "",
+    "kelas": item.kelas || "",
+    "umur": item.umur || "",
+    "jenis_kelamin": item.jenis_kelamin || "",
+    "alamat": item.alamat || "",
+    "no_hp": item.no_hp || "",
+    "no_kip": item.no_kip || "",
+    "nama_ayah_kandung": item.nama_ayah_kandung || "",
+    "nama_ibu_kandung": item.nama_ibu_kandung || "",
+    "nama_wali": item.nama_wali || "",
   };
   showModal.value = true;
 };
@@ -434,8 +434,8 @@ const kelasMap = computed(() => {
   const map = {};
   if (Array.isArray(dataKelas.value)) {
     dataKelas.value.forEach((k) => {
-      if (k.idKelas) {
-        map[k.idKelas] = k;
+      if (k.id_kelas) {
+        map[k.id_kelas] = k;
       }
     });
   }
@@ -445,7 +445,7 @@ const kelasMap = computed(() => {
 const getClassName = (classId) => {
   if (!classId) return "-";
   const classInfo = kelasMap.value[classId];
-  return classInfo ? classInfo.namaKelas : classId;
+  return classInfo ? classInfo.nama_kelas : classId;
 };
 
 const kepalaMadrasah = ref(null);
@@ -488,7 +488,7 @@ const getJenisKelaminAbbr = (jk) => {
 const classOptions = computed(() => {
   if (!Array.isArray(dataKelas.value)) return [];
   return dataKelas.value
-    .map((k) => k.namaKelas)
+    .map((k) => k.nama_kelas)
     .filter((name) => name && String(name).trim() !== "")
     .sort();
 });
@@ -496,13 +496,13 @@ const classOptions = computed(() => {
 // Dynamic Kepala Madrasah from GTK data (local storage cache lookup or highly optimized filtered fetch)
 const loadKepalaMadrasah = async () => {
   try {
-    const storedGtk = localStorage.getItem("DataGtk");
+    const storedGtk = localStorage.getItem("data_gtk");
     if (storedGtk) {
       const parsed = JSON.parse(storedGtk);
       if (Array.isArray(parsed)) {
         const kamad = parsed.find(
           (guru) =>
-            guru.Tugas && guru.Tugas.toLowerCase().includes("kepala madrasah"),
+            guru.tugas && guru.tugas.toLowerCase().includes("kepala madrasah"),
         );
         if (kamad) {
           kepalaMadrasah.value = kamad;
@@ -512,8 +512,8 @@ const loadKepalaMadrasah = async () => {
     }
 
     // Fetch only the Kepala Madrasah row from Apps Script (highly optimized!)
-    const response = await fetchFromApi("DataGtk", false, null, {
-      filter_col: "Tugas",
+    const response = await fetchFromApi("data_gtk", false, null, {
+      filter_col: "tugas",
       filter_val: "Kepala Madrasah",
     });
     if (Array.isArray(response) && response.length > 0) {
@@ -526,13 +526,13 @@ const loadKepalaMadrasah = async () => {
 
 const kepalaMadrasahName = computed(() => {
   return kepalaMadrasah.value
-    ? toTitleCase(kepalaMadrasah.value.title)
+    ? toTitleCase(kepalaMadrasah.value.nama_lengkap)
     : "_________________";
 });
 
 const kepalaMadrasahNIP = computed(() => {
   return kepalaMadrasah.value
-    ? kepalaMadrasah.value.NIP || kepalaMadrasah.value.NUPTK || "-"
+    ? kepalaMadrasah.value.nip || kepalaMadrasah.value.nuptk || "-"
     : "_________________";
 });
 
@@ -540,7 +540,7 @@ const kepalaMadrasahNIP = computed(() => {
 const filteredData = computed(() => {
   if (!Array.isArray(dataSiswa.value)) return [];
   return dataSiswa.value.filter((item) => {
-    const studentClassName = getClassName(item["tingkat - rombel"]);
+    const studentClassName = getClassName(item.kelas);
     const matchClass =
       selectedClass.value === "Semua Kelas" ||
       studentClassName === selectedClass.value;
@@ -551,7 +551,7 @@ const filteredData = computed(() => {
     const nisnMatch = String(item.nisn || "")
       .toLowerCase()
       .includes(term);
-    const nisLokalMatch = String(item["nis lokal"] || "")
+    const nisLokalMatch = String(item.nis_lokal || "")
       .toLowerCase()
       .includes(term);
 
@@ -575,7 +575,7 @@ const handleSearch = (query) => {
 };
 
 const navigateToDetail = (item) => {
-  const nisLokal = item["nis lokal"];
+  const nisLokal = item.nis_lokal;
   if (nisLokal) {
     router.push(`/akademik/siswa/detail/${nisLokal}`);
   }
@@ -596,20 +596,20 @@ const exportToExcel = async () => {
       No: index + 1,
       Nama: item.nama || "",
       NISN: item.nisn || "",
-      "NIS Lokal": item["nis lokal"] || "",
+      "NIS Lokal": item.nis_lokal || "",
       NIK: item.nik || "",
-      "No KK": item["no kk"] || "",
-      "Tempat Lahir": item["tempat lahir"] || "",
-      "Tanggal Lahir": item["tanggal lahir"] || "",
-      "Tingkat - Rombel": getClassName(item["tingkat - rombel"]),
+      "No KK": item.no_kk || "",
+      "Tempat Lahir": item.tempat_lahir || "",
+      "Tanggal Lahir": item.tanggal_lahir || "",
+      "Tingkat - Rombel": getClassName(item.kelas),
       Umur: item.umur || "",
-      "Jenis Kelamin": item["jenis kelamin"] || "",
+      "Jenis Kelamin": item.jenis_kelamin || "",
       Alamat: item.alamat || "",
-      "No Telepon": item["no telepon"] || "",
-      "No KIP": item["no kip"] || "",
-      "Nama Ayah Kandung": item["nama ayah kandung"] || "",
-      "Nama Ibu Kandung": item["nama ibu kandung"] || "",
-      "Nama Wali": item["nama wali"] || "",
+      "No Telepon": item.no_hp || "",
+      "No KIP": item.no_kip || "",
+      "Nama Ayah Kandung": item.nama_ayah_kandung || "",
+      "Nama Ibu Kandung": item.nama_ibu_kandung || "",
+      "Nama Wali": item.nama_wali || "",
     }));
 
     const wb = XLSX.utils.book_new();
@@ -689,8 +689,8 @@ const exportToExcel = async () => {
 let timeInterval = null;
 
 onMounted(() => {
-  loadData("DataSiswa");
-  loadDataKelas("DataKelas");
+  loadData("data_siswa");
+  loadDataKelas("data_kelas");
   loadKepalaMadrasah();
   updateDateTime();
   timeInterval = setInterval(updateDateTime, 1000);

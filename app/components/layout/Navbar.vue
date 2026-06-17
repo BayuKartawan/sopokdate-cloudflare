@@ -1,10 +1,15 @@
 <template>
-  <header class="fixed w-full z-30">
+  <header
+    class="fixed w-full z-30 bottom-0 lg:top-0 lg:bottom-auto border-t border-zinc-800 lg:border-t-0 lg:border-b transition-transform duration-300 ease-in-out"
+    :class="
+      isNavbarVisible ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'
+    "
+  >
     <div
       class="max-w-7xl mx-auto flex justify-between items-center h-16 px-4 bg-zinc-900 text-zinc-100"
     >
       <!-- Bagian 1: Toggle Hamburger + Toggle Tema -->
-      <div class="flex items-center space-x-4 flex-shrink-0">
+      <div class="flex items-center space-x-4 flex-shrink-0 order-3 lg:order-1">
         <!-- Sidebar Toggle Component (Inlined) -->
         <button
           @click="toggleSidebar"
@@ -24,17 +29,19 @@
         <!-- Theme Toggle -->
       </div>
 
-      <!-- Bagian 2: Logo/Teks di Tengah dengan Animasi Ketikan -->
-      <div class="text-xl font-semibold flex-1 flex justify-center">
-        <div class="w-28 sm:w-32 md:w-36 text-center">
-          <span class="font-bold text-emerald-400 text-lg sm:text-xl">
-            {{ displayedText }}<span class="animate-pulse">|</span>
+      <!-- Bagian 2: Logo/Teks di Tengah Sesuai Menu -->
+      <div class="flex-1 flex justify-center px-2 min-w-0 order-2">
+        <div class="text-center truncate max-w-full">
+          <span
+            class="inline-block text-emerald-400 text-xs sm:text-sm font-mono tracking-tight sm:tracking-wider bg-zinc-950/80 border border-zinc-800 px-3 py-1 rounded-md truncate max-w-full"
+          >
+            {{ activeMenuLabel }}
           </span>
         </div>
       </div>
 
       <!-- Bagian 3: Fullscreen + User Dropdown -->
-      <div class="flex items-center space-x-4 flex-shrink-0">
+      <div class="flex items-center space-x-4 flex-shrink-0 order-1 lg:order-3">
         <!-- User Dropdown -->
         <div class="relative" ref="userDropdownRef">
           <!-- User Avatar/Icon Button -->
@@ -51,13 +58,35 @@
           <!-- Dropdown Menu -->
           <div
             v-if="isUserDropdownOpen"
-            class="absolute right-0 mt-2 w-44 rounded-lg shadow-lg border z-50 bg-zinc-800 border-zinc-700"
+            class="absolute w-44 rounded-lg shadow-lg border z-50 bg-zinc-800 border-zinc-700 p-1 bottom-full mb-2 left-0 lg:bottom-auto lg:mb-0 lg:top-full lg:mt-2 lg:right-0 lg:left-auto"
           >
-            <div>
+            <div class="flex flex-col gap-0.5">
+              <!-- Profil Button (Hanya guru) -->
+              <NuxtLink
+                v-if="userRole === 'guru' && gtkId"
+                :to="`/akademik/gtk/detail/${gtkId}`"
+                @click="isUserDropdownOpen = false"
+                class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-zinc-700 text-zinc-200 hover:text-white"
+                aria-label="Profil"
+              >
+                <div class="flex items-center space-x-2">
+                  <UserCircle
+                    class="w-5 h-5 transition-transform duration-300"
+                  />
+                  <span class="font-medium">Profil</span>
+                </div>
+              </NuxtLink>
+
+              <!-- Divider -->
+              <div
+                v-if="userRole === 'guru' && gtkId"
+                class="border-t border-zinc-700/60 my-0.5 mx-1"
+              ></div>
+
               <!-- Logout Button (Inlined) -->
               <button
                 @click="handleLogout"
-                class="flex w-full items-center gap-3 px-3 py-3 rounded-lg cursor-pointer transition-all duration-300 hover:bg-zinc-800 text-red-400 hover:text-red-300"
+                class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-zinc-800 text-red-400 hover:text-red-300"
                 aria-label="Logout"
                 :disabled="isLoggingOut"
               >
@@ -88,16 +117,19 @@ import {
   LogOut as SignOut,
   Loader2,
 } from "lucide-vue-next";
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useMenuConfig } from "~/composables/ui/useMenuConfig.js";
 
 import { useAuth } from "~/composables/auth/useAuth";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 
 const router = useRouter();
 const { Notify, Loading, Confirm } = useNotiflix();
-const { logout, isLoading: authLoading } = useAuth();
+const { logout, isLoading: authLoading, getUserRole, getGtkId } = useAuth();
 
 const isLoggingOut = ref(false);
+const userRole = ref("");
+const gtkId = ref(null);
 
 const handleLogout = () => {
   if (isLoggingOut.value || authLoading.value) return; // Mencegah klik ganda
@@ -144,56 +176,97 @@ const handleClickOutside = (event) => {
   }
 };
 
-// Animasi Ketikan
-const texts = ["SopokDate", "SatuData", "OneData"];
-const displayedText = ref("");
-const currentTextIndex = ref(0);
-const currentCharIndex = ref(0);
-const isDeleting = ref(false);
-const typewriterInterval = ref(null);
+const route = useRoute();
+const { menuItems } = useMenuConfig();
 
-const typeWriter = () => {
-  const currentText = texts[currentTextIndex.value];
+const activeMenuLabel = computed(() => {
+  const path = route.path;
+  if (path === "/") return "Beranda";
 
-  if (!isDeleting.value) {
-    if (currentCharIndex.value < currentText.length) {
-      displayedText.value = currentText.substring(
-        0,
-        currentCharIndex.value + 1,
-      );
-      currentCharIndex.value++;
-      typewriterInterval.value = setTimeout(typeWriter, 100);
-    } else {
-      typewriterInterval.value = setTimeout(() => {
-        isDeleting.value = true;
-        typeWriter();
-      }, 2000);
+  const flatItems = [];
+  menuItems.value.forEach((item) => {
+    if (item.to) {
+      flatItems.push({ to: item.to, label: item.label });
     }
-  } else {
-    if (currentCharIndex.value > 0) {
-      displayedText.value = currentText.substring(
-        0,
-        currentCharIndex.value - 1,
-      );
-      currentCharIndex.value--;
-      typewriterInterval.value = setTimeout(typeWriter, 50);
-    } else {
-      isDeleting.value = false;
-      currentTextIndex.value = (currentTextIndex.value + 1) % texts.length;
-      typewriterInterval.value = setTimeout(typeWriter, 500);
+    if (item.children) {
+      item.children.forEach((child) => {
+        if (child.to) {
+          flatItems.push({ to: child.to, label: child.label });
+        }
+      });
     }
+  });
+
+  const exactMatch = flatItems.find(
+    (item) => item.to !== "/" && item.to === path,
+  );
+  if (exactMatch) return exactMatch.label;
+
+  const prefixMatch = flatItems
+    .filter((item) => item.to !== "/" && path.startsWith(item.to))
+    .sort((a, b) => b.to.length - a.to.length)[0];
+  if (prefixMatch) return prefixMatch.label;
+
+  if (path === "/login") return "Login";
+
+  const segments = path.split("/").filter(Boolean);
+  if (segments.length > 0) {
+    const lastSegment = segments[segments.length - 1];
+    const isId = /^[0-9a-fA-F-]+$/.test(lastSegment) || !isNaN(lastSegment);
+    const targetSegment =
+      isId && segments.length > 1 ? segments[segments.length - 2] : lastSegment;
+
+    return targetSegment
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
+
+  return "SopokDate";
+});
+
+const isNavbarVisible = ref(true);
+let lastScrollY = 0;
+
+const handleScroll = () => {
+  if (window.innerWidth >= 1024) {
+    isNavbarVisible.value = true;
+    return;
+  }
+
+  const currentScrollY = window.scrollY;
+
+  if (isUserDropdownOpen.value) {
+    isUserDropdownOpen.value = false;
+  }
+
+  if (currentScrollY <= 10) {
+    isNavbarVisible.value = true;
+    lastScrollY = currentScrollY;
+    return;
+  }
+
+  const diff = currentScrollY - lastScrollY;
+  if (Math.abs(diff) > 10) {
+    if (diff > 0) {
+      isNavbarVisible.value = false;
+    } else {
+      isNavbarVisible.value = true;
+    }
+    lastScrollY = currentScrollY;
   }
 };
 
 onMounted(() => {
-  typeWriter();
   document.addEventListener("click", handleClickOutside);
+  window.addEventListener("scroll", handleScroll, { passive: true });
+  userRole.value = getUserRole();
+  gtkId.value = getGtkId();
+  lastScrollY = window.scrollY;
 });
 
 onUnmounted(() => {
-  if (typewriterInterval.value) {
-    clearTimeout(typewriterInterval.value);
-  }
   document.removeEventListener("click", handleClickOutside);
+  window.removeEventListener("scroll", handleScroll);
 });
 </script>
