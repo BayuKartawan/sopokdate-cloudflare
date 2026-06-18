@@ -1,8 +1,8 @@
-// config.js
+// config.ts
 // ---------------------------------------------------------------------------
 // CORS Headers
 // ---------------------------------------------------------------------------
-export const CORS_HEADERS = {
+export const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
@@ -11,7 +11,7 @@ export const CORS_HEADERS = {
 // ---------------------------------------------------------------------------
 // Daftar nama tabel D1 yang valid (untuk validasi request di backend)
 // ---------------------------------------------------------------------------
-export const VALID_TABLES = [
+export const VALID_TABLES: string[] = [
   "data_gtk",
   "data_siswa",
   "data_kelas",

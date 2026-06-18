@@ -6,7 +6,7 @@ import { clearSessionCache } from "~/composables/data/useTableData";
 /**
  * Membuat token JWT tiruan di client-side agar tetap kompatibel dengan middleware dan helper decodeJWT
  */
-const signMockJWT = (payload) => {
+const signMockJWT = (payload: any): string => {
   try {
     const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
       .replace(/=/g, "")
@@ -23,24 +23,33 @@ const signMockJWT = (payload) => {
   }
 };
 
+interface UserData {
+  email: string;
+  displayName: string;
+  role: string;
+  gtkId: number | null;
+  userId: number | null;
+  loginTime: number;
+}
+
 export function useAuth() {
   const isLoading = ref(false);
   const errorMessage = ref("");
   const { Loading } = useNotiflix();
 
-  const userDataCache = ref(new Map());
+  const userDataCache = ref(new Map<string, { role: string; displayName: string }>());
 
   // API Configuration — via runtimeConfig
-  const getApiBaseUrl = () => {
+  const getApiBaseUrl = (): string => {
     try {
       const config = useRuntimeConfig();
-      return config.public.apiBaseUrl;
+      return (config.public as any).apiBaseUrl || "";
     } catch {
       return "";
     }
   };
 
-  const decodeJWT = (token) => {
+  const decodeJWT = (token: string): any | null => {
     try {
       const parts = token.split(".");
       if (parts.length !== 3) return null;
@@ -59,7 +68,7 @@ export function useAuth() {
     }
   };
 
-  const isTokenValid = () => {
+  const isTokenValid = (): boolean => {
     const token = localStorage.getItem("user-token");
     if (!token) return false;
 
@@ -67,7 +76,21 @@ export function useAuth() {
     return payload !== null;
   };
 
-  const saveUserToStorage = ({ email, token, role, displayName, gtkId, userId }) => {
+  const saveUserToStorage = ({
+    email,
+    token,
+    role,
+    displayName,
+    gtkId,
+    userId,
+  }: {
+    email: string;
+    token: string;
+    role: string;
+    displayName?: string | null;
+    gtkId?: number | string | null;
+    userId?: number | string | null;
+  }): void => {
     const finalDisplayName = displayName || email;
 
     localStorage.setItem("user-token", token);
@@ -77,10 +100,10 @@ export function useAuth() {
         email,
         displayName: finalDisplayName,
         role,
-        gtkId: gtkId || null,
-        userId: userId || null,
+        gtkId: gtkId ? Number(gtkId) : null,
+        userId: userId ? Number(userId) : null,
         loginTime: Date.now(),
-      }),
+      } as UserData),
     );
     localStorage.setItem("user-role", role);
     localStorage.setItem("user-displayName", finalDisplayName);
@@ -98,7 +121,7 @@ export function useAuth() {
     localStorage.setItem("sessionExpiry", expiryTime.toString());
   };
 
-  const clearUserStorage = () => {
+  const clearUserStorage = (): void => {
     clearUserAndRole();
     clearSessionCache();
 
@@ -117,18 +140,18 @@ export function useAuth() {
     userDataCache.value.clear();
   };
 
-  const resetAllLocalStorage = () => {
+  const resetAllLocalStorage = (): void => {
     clearSessionCache();
     localStorage.clear();
     sessionStorage.clear();
     userDataCache.value.clear();
   };
 
-  const getErrorMessage = (error) => {
+  const getErrorMessage = (error: any): string => {
     let errorMsg = "Gagal login. Silakan coba lagi.";
 
     if (error?.message) {
-      const msg = error.message.toLowerCase();
+      const msg = String(error.message).toLowerCase();
 
       if (msg.includes("email atau password salah") || msg.includes("username atau password salah")) {
         errorMsg = "Username atau password salah.";
@@ -152,7 +175,7 @@ export function useAuth() {
     return errorMsg;
   };
 
-  const redirectBasedOnRole = (router) => {
+  const redirectBasedOnRole = (router: any): void => {
     try {
       router.push("/");
     } catch {
@@ -163,7 +186,7 @@ export function useAuth() {
   /**
    * Login — verifikasi credential via server proxy ke Cloudflare Worker D1
    */
-  const login = async (username, password, router, Notify) => {
+  const login = async (username?: string, password?: string, router?: any, Notify?: any): Promise<boolean> => {
     isLoading.value = true;
     errorMessage.value = "";
 
@@ -245,7 +268,17 @@ export function useAuth() {
     }
   };
 
-  const logout = ({ router, notiflix, onStart, onFinish }) => {
+  const logout = ({
+    router,
+    notiflix,
+    onStart,
+    onFinish,
+  }: {
+    router: any;
+    notiflix: any;
+    onStart?: () => void;
+    onFinish?: () => void;
+  }): void => {
     if (!notiflix || !notiflix.Confirm) {
       return;
     }
@@ -289,7 +322,7 @@ export function useAuth() {
     );
   };
 
-  const logoutDirect = async (router, notiflix) => {
+  const logoutDirect = async (router: any, notiflix: any): Promise<boolean> => {
     isLoading.value = true;
 
     try {
@@ -315,11 +348,11 @@ export function useAuth() {
     }
   };
 
-  const getUserRole = () => {
+  const getUserRole = (): string | null => {
     return localStorage.getItem("user-role");
   };
 
-  const getUserData = () => {
+  const getUserData = (): UserData | null => {
     try {
       const userData = localStorage.getItem("user-data");
       return userData ? JSON.parse(userData) : null;
@@ -328,23 +361,23 @@ export function useAuth() {
     }
   };
 
-  const getGtkId = () => {
+  const getGtkId = (): string | null => {
     return localStorage.getItem("user-gtk-id");
   };
 
-  const getToken = () => {
+  const getToken = (): string | null => {
     return localStorage.getItem("user-token");
   };
 
-  const clearError = () => {
+  const clearError = (): void => {
     errorMessage.value = "";
   };
 
-  const clearCache = () => {
+  const clearCache = (): void => {
     userDataCache.value.clear();
   };
 
-  const isSessionValid = () => {
+  const isSessionValid = (): boolean => {
     const expiry = localStorage.getItem("sessionExpiry");
     if (!expiry) return false;
 

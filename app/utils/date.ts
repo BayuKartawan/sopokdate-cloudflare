@@ -6,7 +6,7 @@
  * @param {string|Date} dateString - The date to format
  * @returns {string} The formatted Indonesian date or original string if parsing fails
  */
-export function formatTanggalIndo(dateString) {
+export function formatTanggalIndo(dateString: string | Date): string {
   if (!dateString) return "";
 
   const str = String(dateString).trim();

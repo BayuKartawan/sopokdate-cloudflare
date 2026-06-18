@@ -9,7 +9,7 @@ import { useNotiflix } from "~/composables/ui/useFeedback";
  * @param {string} tableName - Nama tabel (PascalCase sesuai TABLE_MAP, e.g. "DataGtk")
  * @param {Function} onSuccess - Callback setelah operasi berhasil (biasanya refresh data)
  */
-export function useCrud(tableName, onSuccess) {
+export function useCrud(tableName: string, onSuccess?: () => void) {
   const { Notify, Confirm } = useNotiflix();
 
   const isSaving = ref(false);
@@ -23,14 +23,14 @@ export function useCrud(tableName, onSuccess) {
   /**
    * Buat data baru
    */
-  const createItem = async (data) => {
+  const createItem = async (data: any): Promise<boolean> => {
     isSaving.value = true;
     try {
       await postToApi(tableName, data);
       Notify?.success?.("Data berhasil ditambahkan");
       onSuccess?.();
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error("Gagal menambahkan data:", err);
       Notify?.failure?.(err.message || "Gagal menambahkan data");
       return false;
@@ -42,14 +42,14 @@ export function useCrud(tableName, onSuccess) {
   /**
    * Update data berdasarkan ID
    */
-  const updateItem = async (id, data) => {
+  const updateItem = async (id: string | number, data: any): Promise<boolean> => {
     isSaving.value = true;
     try {
       await putToApi(tableName, id, data);
       Notify?.success?.("Data berhasil diperbarui");
       onSuccess?.();
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error("Gagal memperbarui data:", err);
       Notify?.failure?.(err.message || "Gagal memperbarui data");
       return false;
@@ -61,7 +61,7 @@ export function useCrud(tableName, onSuccess) {
   /**
    * Hapus data berdasarkan ID (dengan konfirmasi)
    */
-  const deleteItem = (id, itemLabel = "data ini") => {
+  const deleteItem = (id: string | number, itemLabel: string = "data ini"): void => {
     Confirm?.show(
       "Hapus Data",
       `Apakah Anda yakin ingin menghapus ${itemLabel}? Tindakan ini tidak dapat dibatalkan.`,
@@ -73,7 +73,7 @@ export function useCrud(tableName, onSuccess) {
           await deleteFromApi(tableName, id);
           Notify?.success?.("Data berhasil dihapus");
           onSuccess?.();
-        } catch (err) {
+        } catch (err: any) {
           console.error("Gagal menghapus data:", err);
           Notify?.failure?.(err.message || "Gagal menghapus data");
         } finally {

@@ -2,18 +2,23 @@ import { ref, computed, onUnmounted } from "vue";
 import { fetchFromApi, fetchFromSuratApi } from "~/utils/api";
 
 // Memori cache sesi untuk melacak tabel yang sudah di-fetch dalam sesi SPA ini
-const sessionFetched = new Set();
+const sessionFetched = new Set<string>();
+
+interface CacheEntry {
+  data: any;
+  timestamp: string;
+}
 
 // Cache in-memory untuk menyimpan data tabel secara aman tanpa localStorage
-const sessionCache = {};
+const sessionCache: Record<string, CacheEntry> = {};
 
 // Melacak request fetch yang sedang berjalan untuk menghindari request ganda paralel
-const activeFetches = {};
+const activeFetches: Record<string, Promise<any> | undefined> = {};
 
 /**
  * Membersihkan cache sesi (dipanggil saat logout)
  */
-export function clearSessionCache() {
+export function clearSessionCache(): void {
   sessionFetched.clear();
   for (const key in sessionCache) {
     delete sessionCache[key];
@@ -24,7 +29,7 @@ export function clearSessionCache() {
  * Membersihkan cache sesi untuk tabel tertentu
  * @param {string} tableName
  */
-export function clearTableSessionCache(tableName) {
+export function clearTableSessionCache(tableName: string): void {
   if (tableName) {
     delete sessionCache[tableName];
     sessionFetched.delete(tableName);
@@ -35,14 +40,14 @@ export function clearTableSessionCache(tableName) {
  * Menormalkan data GTK dari berbagai kemungkinan nama kolom di Google Sheet.
  * Ini memastikan kode frontend tetap berjalan tanpa error meskipun kolom diubah.
  */
-function normalizeGtkData(data) {
+function normalizeGtkData(data: any[]): any[] {
   if (!Array.isArray(data)) return data;
   return data.map((item) => {
     if (!item || typeof item !== "object") return item;
 
     const normalized = { ...item };
 
-    const getField = (obj, targetName) => {
+    const getField = (obj: any, targetName: string): any => {
       const cleanedTarget = targetName.toLowerCase().replace(/[^a-z0-9]/g, "");
       for (const key of Object.keys(obj)) {
         const cleanedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -78,14 +83,14 @@ function normalizeGtkData(data) {
   });
 }
 
-function normalizeSiswaData(data) {
+function normalizeSiswaData(data: any[]): any[] {
   if (!Array.isArray(data)) return data;
   return data.map((item) => {
     if (!item || typeof item !== "object") return item;
 
     const normalized = { ...item };
 
-    const getField = (obj, targetName) => {
+    const getField = (obj: any, targetName: string): any => {
       const cleanedTarget = targetName.toLowerCase().replace(/[^a-z0-9]/g, "");
       for (const key of Object.keys(obj)) {
         const cleanedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -121,14 +126,14 @@ function normalizeSiswaData(data) {
   });
 }
 
-function normalizeKelasData(data) {
+function normalizeKelasData(data: any[]): any[] {
   if (!Array.isArray(data)) return data;
   return data.map((item) => {
     if (!item || typeof item !== "object") return item;
 
     const normalized = { ...item };
 
-    const getField = (obj, targetName) => {
+    const getField = (obj: any, targetName: string): any => {
       const cleanedTarget = targetName.toLowerCase().replace(/[^a-z0-9]/g, "");
       for (const key of Object.keys(obj)) {
         const cleanedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -148,14 +153,14 @@ function normalizeKelasData(data) {
   });
 }
 
-function normalizePengumumanData(data) {
+function normalizePengumumanData(data: any[]): any[] {
   if (!Array.isArray(data)) return data;
   return data.map((item) => {
     if (!item || typeof item !== "object") return item;
 
     const normalized = { ...item };
 
-    const getField = (obj, targetName) => {
+    const getField = (obj: any, targetName: string): any => {
       const cleanedTarget = targetName.toLowerCase().replace(/[^a-z0-9]/g, "");
       for (const key of Object.keys(obj)) {
         const cleanedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -173,18 +178,18 @@ function normalizePengumumanData(data) {
 }
 
 export function useTableData() {
-  const cardData = ref([]);
+  const cardData = ref<any[]>([]);
   const isLoading = ref(false);
-  const lastUpdated = ref(null);
+  const lastUpdated = ref<string | null>(null);
 
   // Melacak nama tabel yang sedang dimuat oleh instance ini
-  let loadedTableName = null;
+  let loadedTableName: string | null = null;
 
   // Menyimpan AbortController untuk membatalkan request jika berpindah halaman
-  let currentController = null;
+  let currentController: AbortController | null = null;
 
   // Sinkronisasi data secara reaktif antar komponen jika ada update global
-  const handleGlobalUpdateEvent = (event) => {
+  const handleGlobalUpdateEvent = (event: any) => {
     if (
       event.detail &&
       event.detail.tableName === loadedTableName &&
@@ -208,13 +213,13 @@ export function useTableData() {
     }
   });
 
-  const formattedLastUpdated = computed(() => {
+  const formattedLastUpdated = computed((): string | null => {
     return lastUpdated.value
       ? new Date(lastUpdated.value).toLocaleString()
       : null;
   });
 
-  const loadData = async (tableName, force = false) => {
+  const loadData = async (tableName: string, force: boolean = false): Promise<void> => {
     loadedTableName = tableName;
     isLoading.value = true;
     try {
@@ -303,7 +308,7 @@ export function useTableData() {
         saveData(tableName, tableData);
         sessionFetched.add(tableName);
       }
-    } catch (err) {
+    } catch (err: any) {
       if (err.name === "AbortError") {
         console.log(
           `Fetch data untuk tabel ${tableName} dibatalkan karena perpindahan halaman.`,
@@ -323,7 +328,7 @@ export function useTableData() {
     }
   };
 
-  const saveData = (tableName, data) => {
+  const saveData = (tableName: string, data: any): boolean => {
     try {
       const timestamp = new Date().toISOString();
       let processedData = data;
@@ -356,7 +361,7 @@ export function useTableData() {
     }
   };
 
-  const clearData = (tableName) => {
+  const clearData = (tableName: string): boolean => {
     try {
       delete sessionCache[tableName];
       sessionFetched.delete(tableName);
@@ -370,11 +375,11 @@ export function useTableData() {
     }
   };
 
-  const refreshData = (tableName) => {
+  const refreshData = (tableName: string): void => {
     loadData(tableName, true);
   };
 
-  const hasData = computed(() => {
+  const hasData = computed((): boolean => {
     if (Array.isArray(cardData.value)) {
       return cardData.value.length > 0;
     }

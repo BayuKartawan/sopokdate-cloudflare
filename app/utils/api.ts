@@ -1,27 +1,32 @@
-// utils/api.js
+// utils/api.ts
 import { clearTableSessionCache } from "~/composables/data/useTableData";
+
+export interface JWTPayload {
+  exp?: number;
+  [key: string]: any;
+}
 
 /**
  * Fungsi untuk mendapatkan JWT token dari localStorage
  * @returns {string|null}
  */
-const getAuthToken = () => {
+const getAuthToken = (): string | null => {
   return localStorage.getItem("user-token");
 };
 
 /**
  * Fungsi untuk decode JWT token
  * @param {string} token
- * @returns {Object|null}
+ * @returns {JWTPayload|null}
  */
-const decodeJWT = (token) => {
+const decodeJWT = (token: string): JWTPayload | null => {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
 
     const payload = JSON.parse(
       atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")),
-    );
+    ) as JWTPayload;
 
     // Check expiration
     if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
@@ -37,7 +42,7 @@ const decodeJWT = (token) => {
 /**
  * Fungsi untuk handle auto-logout jika token expired
  */
-const handleUnauthorized = () => {
+const handleUnauthorized = (): void => {
   const sessionKeys = [
     "user-token",
     "user-data",
@@ -53,11 +58,11 @@ const handleUnauthorized = () => {
  * Fungsi fetch untuk API utama melalui proxy lokal Nuxt
  */
 export const fetchFromApi = async (
-  table,
-  force = false,
-  signal = null,
-  queryParams = {},
-) => {
+  table?: string,
+  force: boolean = false,
+  signal: AbortSignal | null = null,
+  queryParams: Record<string, any> = {},
+): Promise<any> => {
   const token = getAuthToken();
 
   if (!token) {
@@ -108,7 +113,10 @@ export const fetchFromApi = async (
 /**
  * Fungsi fetch untuk API surat melalui proxy lokal Nuxt
  */
-export const fetchFromSuratApi = async (force = false, signal = null) => {
+export const fetchFromSuratApi = async (
+  force: boolean = false,
+  signal: AbortSignal | null = null,
+): Promise<any> => {
   const token = getAuthToken();
 
   if (!token) {
@@ -145,7 +153,7 @@ export const fetchFromSuratApi = async (force = false, signal = null) => {
 /**
  * Fungsi untuk login (deprecated, handled locally now)
  */
-export const loginApi = async (email, password) => {
+export const loginApi = async (email?: string, password?: string): Promise<never> => {
   throw new Error(
     "loginApi is deprecated. Authentication is now handled locally.",
   );
@@ -157,7 +165,10 @@ export const loginApi = async (email, password) => {
  * @param {RequestInit} options - Fetch options
  * @returns {Promise<Response>}
  */
-export const authenticatedFetch = async (url, options = {}) => {
+export const authenticatedFetch = async (
+  url: string,
+  options: RequestInit = {},
+): Promise<Response> => {
   const token = getAuthToken();
 
   if (!token) {
@@ -195,7 +206,7 @@ export const authenticatedFetch = async (url, options = {}) => {
 /**
  * Fungsi untuk mengirim data ke API utama melalui proxy lokal Nuxt (POST)
  */
-export const postToApi = async (table, data) => {
+export const postToApi = async (table: string, data: any): Promise<any> => {
   const token = getAuthToken();
 
   if (!token) {
@@ -237,7 +248,11 @@ export const postToApi = async (table, data) => {
 /**
  * Fungsi untuk mengupdate data di API utama melalui proxy lokal Nuxt (PUT)
  */
-export const putToApi = async (table, id, data) => {
+export const putToApi = async (
+  table: string,
+  id: string | number,
+  data: any,
+): Promise<any> => {
   const token = getAuthToken();
 
   if (!token) {
@@ -275,7 +290,10 @@ export const putToApi = async (table, id, data) => {
 /**
  * Fungsi untuk menghapus data di API utama melalui proxy lokal Nuxt (DELETE)
  */
-export const deleteFromApi = async (table, id) => {
+export const deleteFromApi = async (
+  table: string,
+  id: string | number,
+): Promise<any> => {
   const token = getAuthToken();
 
   if (!token) {

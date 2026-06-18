@@ -1,7 +1,7 @@
 import { computed } from "vue";
 
 export function useAcademicYear() {
-  const currentAcademicYear = computed(() => {
+  const currentAcademicYear = computed((): string => {
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
@@ -12,7 +12,7 @@ export function useAcademicYear() {
     return `${startYear}/${endYear}`;
   });
 
-  const currentSemester = computed(() => {
+  const currentSemester = computed((): "Ganjil" | "Genap" => {
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
 

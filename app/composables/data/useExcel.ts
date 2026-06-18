@@ -2,13 +2,21 @@ import { ref, computed } from "vue";
 import * as XLSX from "xlsx";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 
+interface ExcelField {
+  key: string;
+  label: string;
+  type?: string;
+  options?: string[];
+  [key: string]: any;
+}
+
 // ============================================================================
-// EXCEL PROCESSOR (from useExcelProcessor.js)
+// EXCEL PROCESSOR (from useExcelProcessor.ts)
 // ============================================================================
 export function useExcelProcessor() {
-  const uploadedFile = ref(null);
-  const excelData = ref([]);
-  const excelHeaders = ref([]);
+  const uploadedFile = ref<File | null>(null);
+  const excelData = ref<Record<string, any>[]>([]);
+  const excelHeaders = ref<string[]>([]);
   const isDragOver = ref(false);
 
   const previewData = computed(() => {
@@ -19,8 +27,8 @@ export function useExcelProcessor() {
   // FIELD TYPE HELPERS
   // ========================================
 
-  const getExampleValue = (field) => {
-    const examples = {
+  const getExampleValue = (field: ExcelField): string => {
+    const examples: Record<string, string> = {
       text: "Contoh Teks",
       number: "100",
       date: "2025-01-08",
@@ -37,11 +45,11 @@ export function useExcelProcessor() {
       "academic-year": "2024/2025",
       "year-range": "2025",
     };
-    return examples[field.type] || "Contoh Data";
+    return examples[field.type || "text"] || "Contoh Data";
   };
 
-  const getFieldDescription = (field) => {
-    const descriptions = {
+  const getFieldDescription = (field: ExcelField): string => {
+    const descriptions: Record<string, string> = {
       text: "Teks bebas",
       number: "Angka saja",
       date: "Format: YYYY-MM-DD (contoh: 2025-01-08)",
@@ -61,11 +69,11 @@ export function useExcelProcessor() {
       "academic-year": "Format: YYYY/YYYY (contoh: 2024/2025)",
       "year-range": "Format: YYYY (contoh: 2025)",
     };
-    return descriptions[field.type] || "Sesuai ketentuan";
+    return descriptions[field.type || "text"] || "Sesuai ketentuan";
   };
 
-  const getValidationRule = (field) => {
-    const rules = {
+  const getValidationRule = (field: ExcelField): string => {
+    const rules: Record<string, string> = {
       text: "Wajib diisi, teks tidak boleh kosong",
       number: "Wajib diisi, harus angka positif",
       date: "Wajib diisi, format tanggal YYYY-MM-DD",
@@ -82,11 +90,11 @@ export function useExcelProcessor() {
       "academic-year": "Wajib diisi, format tahun ajaran",
       "year-range": "Wajib diisi, tahun dalam format YYYY",
     };
-    return rules[field.type] || "Wajib diisi";
+    return rules[field.type || "text"] || "Wajib diisi";
   };
 
-  const getSelectOptions = (type, fieldOptions) => {
-    const optionMap = {
+  const getSelectOptions = (type: string, fieldOptions?: string[] | null): string[] | null => {
+    const optionMap: Record<string, string[]> = {
       gender: ["Laki-laki", "Perempuan"],
       hari: ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"],
       semester: ["I ( GANJIL )", "II ( GENAP )"],
@@ -121,7 +129,7 @@ export function useExcelProcessor() {
   // FILE PROCESSING
   // ========================================
 
-  const processFile = (file) => {
+  const processFile = (file: File): Promise<{ headers: string[]; data: Record<string, any>[] }> => {
     return new Promise((resolve, reject) => {
       if (!file.name.match(/\.(xlsx|xls)$/i)) {
         reject(new Error("Please select a valid Excel file (.xlsx or .xls)"));
@@ -133,12 +141,16 @@ export function useExcelProcessor() {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const data = new Uint8Array(e.target.result);
+          if (!e.target || !e.target.result) {
+            reject(new Error("Failed to read file"));
+            return;
+          }
+          const data = new Uint8Array(e.target.result as ArrayBuffer);
           const workbook = XLSX.read(data, { type: "array" });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
 
-          const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+          const jsonData = XLSX.utils.sheet_to_json<any[]>(worksheet, {
             header: 1,
             defval: "",
           });
@@ -152,18 +164,18 @@ export function useExcelProcessor() {
             return;
           }
 
-          const headers = jsonData[0].filter(
-            (header) => header && header.trim(),
-          );
-          const dataRows = jsonData
-            .slice(1)
-            .filter((row) => row.some((cell) => cell && String(cell).trim()));
+          const headers = (jsonData[0] as any[]).filter(
+            (header) => header && String(header).trim(),
+          ).map(header => String(header));
+
+          const dataRows = (jsonData.slice(1) as any[][])
+            .filter((row) => row.some((cell) => cell !== undefined && cell !== null && String(cell).trim() !== ""));
 
           excelHeaders.value = headers;
           excelData.value = dataRows.map((row) => {
-            const rowObj = {};
+            const rowObj: Record<string, any> = {};
             headers.forEach((header, index) => {
-              rowObj[header] = row[index] || "";
+              rowObj[header] = row[index] !== undefined && row[index] !== null ? row[index] : "";
             });
             return rowObj;
           });
@@ -187,7 +199,7 @@ export function useExcelProcessor() {
     });
   };
 
-  const removeFile = () => {
+  const removeFile = (): void => {
     uploadedFile.value = null;
     excelData.value = [];
     excelHeaders.value = [];
@@ -197,14 +209,14 @@ export function useExcelProcessor() {
   // TEMPLATE GENERATION
   // ========================================
 
-  const downloadTemplate = (selectedSurat, suratData) => {
+  const downloadTemplate = (selectedSurat: string, suratData: Record<string, any>): void => {
     if (!selectedSurat || !suratData[selectedSurat]) {
       alert("Pilih jenis surat terlebih dahulu!");
       return;
     }
 
     const config = suratData[selectedSurat];
-    const fields = config.placeholder || [];
+    const fields: ExcelField[] = config.placeholder || [];
 
     if (fields.length === 0) {
       alert("Tidak ada field untuk surat ini!");
@@ -228,7 +240,7 @@ export function useExcelProcessor() {
     XLSX.utils.book_append_sheet(wb, ws, "Data");
 
     // SHEET 2: Panduan
-    const guideData = [
+    const guideData: any[][] = [
       ["PANDUAN PENGGUNAAN TEMPLATE EXCEL"],
       [""],
       ["Jenis Surat:", selectedSurat],
@@ -315,13 +327,13 @@ export function useExcelProcessor() {
     XLSX.utils.book_append_sheet(wb, wsGuide, "Panduan");
 
     // SHEET 3: Opsi Pilihan
-    const optionsData = [
+    const optionsData: any[][] = [
       ["DAFTAR OPSI UNTUK FIELD PILIHAN"],
       [""],
       ["Field", "Opsi yang Tersedia"],
     ];
 
-    const selectFieldTypes = {
+    const selectFieldTypes: Record<string, string[]> = {
       gender: ["Laki-laki", "Perempuan"],
       hari: ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"],
       semester: ["I ( GANJIL )", "II ( GENAP )"],
@@ -350,7 +362,7 @@ export function useExcelProcessor() {
     };
 
     fields.forEach((field) => {
-      if (selectFieldTypes[field.type]) {
+      if (field.type && selectFieldTypes[field.type]) {
         optionsData.push([""]);
         optionsData.push([`${field.label} (${field.key}):`]);
         selectFieldTypes[field.type].forEach((option) => {
@@ -398,8 +410,8 @@ export function useExcelProcessor() {
   // VALIDATION
   // ========================================
 
-  const getValidationErrors = (selectedSurat, suratData) => {
-    const errors = [];
+  const getValidationErrors = (selectedSurat: string, suratData: Record<string, any>): string[] => {
+    const errors: string[] = [];
 
     if (!selectedSurat || !suratData[selectedSurat]) {
       return errors;
@@ -410,7 +422,7 @@ export function useExcelProcessor() {
     }
 
     const config = suratData[selectedSurat];
-    const requiredFields = config.placeholder || [];
+    const requiredFields: ExcelField[] = config.placeholder || [];
     const requiredKeys = requiredFields.map((f) => f.key);
 
     const missingFields = requiredKeys.filter(
@@ -440,7 +452,7 @@ export function useExcelProcessor() {
 
         switch (field.type) {
           case "number":
-            if (isNaN(value) || Number(value) <= 0) {
+            if (isNaN(value as any) || Number(value) <= 0) {
               errors.push(
                 `Baris ${index + 2}: "${field.label}" harus berisi angka positif`,
               );
@@ -448,7 +460,7 @@ export function useExcelProcessor() {
             break;
 
           case "email":
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value))) {
               errors.push(
                 `Baris ${index + 2}: "${field.label}" bukan email yang valid`,
               );
@@ -456,7 +468,7 @@ export function useExcelProcessor() {
             break;
 
           case "date":
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value))) {
               errors.push(
                 `Baris ${index + 2}: "${field.label}" harus format YYYY-MM-DD`,
               );
@@ -464,7 +476,7 @@ export function useExcelProcessor() {
             break;
 
           case "time":
-            if (!/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
+            if (!/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(String(value))) {
               errors.push(
                 `Baris ${index + 2}: "${field.label}" harus format HH:mm`,
               );
@@ -472,7 +484,7 @@ export function useExcelProcessor() {
             break;
 
           case "no-surat":
-            if (!/^\d{1,3}$/.test(value)) {
+            if (!/^\d{1,3}$/.test(String(value))) {
               errors.push(
                 `Baris ${index + 2}: "${field.label}" harus 3 digit angka (001-999)`,
               );
@@ -480,7 +492,7 @@ export function useExcelProcessor() {
             break;
 
           case "academic-year":
-            if (!/^\d{4}\/\d{4}$/.test(value)) {
+            if (!/^\d{4}\/\d{4}$/.test(String(value))) {
               errors.push(
                 `Baris ${index + 2}: "${field.label}" harus format YYYY/YYYY`,
               );
@@ -488,7 +500,7 @@ export function useExcelProcessor() {
             break;
 
           case "year-range":
-            if (!/^\d{4}$/.test(value)) {
+            if (!/^\d{4}$/.test(String(value))) {
               errors.push(
                 `Baris ${index + 2}: "${field.label}" harus format YYYY`,
               );
@@ -501,11 +513,13 @@ export function useExcelProcessor() {
           case "semester":
           case "class":
           case "month": {
-            const allowedOptions = getSelectOptions(field.type, field.options);
-            if (allowedOptions && !allowedOptions.includes(value)) {
-              errors.push(
-                `Baris ${index + 2}: "${field.label}" nilai "${value}" tidak valid. Pilihan: ${allowedOptions.join(", ")}`,
-              );
+            if (field.type) {
+              const allowedOptions = getSelectOptions(field.type, field.options);
+              if (allowedOptions && !allowedOptions.includes(String(value))) {
+                errors.push(
+                  `Baris ${index + 2}: "${field.label}" nilai "${value}" tidak valid. Pilihan: ${allowedOptions.join(", ")}`,
+                );
+              }
             }
             break;
           }
@@ -516,9 +530,9 @@ export function useExcelProcessor() {
     return errors;
   };
 
-  const isValidField = (header, selectedSurat, suratData) => {
+  const isValidField = (header: string, selectedSurat: string, suratData: Record<string, any>): boolean => {
     if (!selectedSurat || !suratData[selectedSurat]) return false;
-    const requiredFields = suratData[selectedSurat].placeholder.map(
+    const requiredFields = (suratData[selectedSurat].placeholder as ExcelField[]).map(
       (p) => p.key,
     );
     return requiredFields.includes(header);
@@ -528,7 +542,7 @@ export function useExcelProcessor() {
   // UTILITIES
   // ========================================
 
-  const formatFileSize = (bytes) => {
+  const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
@@ -536,19 +550,19 @@ export function useExcelProcessor() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const handleDrop = async (e) => {
+  const handleDrop = async (e: DragEvent): Promise<void> => {
     e.preventDefault();
     isDragOver.value = false;
 
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
+    if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+      const files = Array.from(e.dataTransfer.files);
       await processFile(files[0]);
     }
   };
 
-  const handleFileSelect = async (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 0) {
+  const handleFileSelect = async (e: any): Promise<void> => {
+    if (e.target && e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files as FileList);
       await processFile(files[0]);
     }
   };
@@ -571,19 +585,19 @@ export function useExcelProcessor() {
 }
 
 // ============================================================================
-// EXPORT EXCEL TO CSV (from useExportExcel.js)
+// EXPORT EXCEL TO CSV (from useExportExcel.ts)
 // ============================================================================
 export function useExportExcel() {
   const { Notify } = useNotiflix();
 
-  const exportToCSV = (data, headers, fileName = "export_data") => {
+  const exportToCSV = (data: any[], headers: string[], fileName: string = "export_data"): void => {
     if (!data || data.length === 0) {
-      Notify.warning("Tidak ada data untuk diekspor");
+      Notify?.warning?.("Tidak ada data untuk diekspor");
       return;
     }
 
     try {
-      const csvRows = [];
+      const csvRows: string[] = [];
       csvRows.push(headers.join(","));
 
       data.forEach((item) => {
@@ -606,10 +620,10 @@ export function useExportExcel() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        Notify.success("File berhasil diunduh");
+        Notify?.success?.("File berhasil diunduh");
       }
     } catch {
-      Notify.failure("Gagal mengekspor data");
+      Notify?.failure?.("Gagal mengekspor data");
     }
   };
 

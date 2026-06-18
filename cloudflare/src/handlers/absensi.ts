@@ -1,10 +1,11 @@
-// handlers/absensi.js
-import { jsonResponse, errorResponse } from "../utils.js";
+// handlers/absensi.ts
+import { jsonResponse, errorResponse } from "../utils";
+import type { Env } from "../types";
 
 // ---------------------------------------------------------------------------
 // Handler: GET /api/absensi — Ambil daftar siswa beserta absensi
 // ---------------------------------------------------------------------------
-export async function handleGetAbsensi(request, env) {
+export async function handleGetAbsensi(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   const tanggal = url.searchParams.get("tanggal");
   const kelasId = url.searchParams.get("kelas_id");
@@ -28,9 +29,16 @@ export async function handleGetAbsensi(request, env) {
       WHERE s.kelas = ?2
       ORDER BY s.nama ASC;
     `;
-    const result = await env.DB.prepare(query).bind(tanggal, kelasId).all();
+    const result = await env.DB.prepare(query).bind(tanggal, kelasId).all<{
+      siswa_id: number;
+      nama: string;
+      nisn: string | null;
+      nis_lokal: string | null;
+      status: string | null;
+      keterangan: string | null;
+    }>();
     return jsonResponse(result.results);
-  } catch (err) {
+  } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
   }
 }
@@ -38,15 +46,22 @@ export async function handleGetAbsensi(request, env) {
 // ---------------------------------------------------------------------------
 // Handler: POST /api/absensi — Simpan batch absensi siswa (Upsert)
 // ---------------------------------------------------------------------------
-export async function handlePostAbsensi(request, env) {
-  let body;
+export async function handlePostAbsensi(request: Request, env: Env): Promise<Response> {
+  let body: any;
   try {
     body = await request.json();
   } catch {
     return errorResponse("Invalid JSON body");
   }
 
-  const { tanggal, kelas_id, tahun_pelajaran, semester, data, input_by } = body;
+  const { tanggal, kelas_id, tahun_pelajaran, semester, data, input_by } = body as {
+    tanggal?: string;
+    kelas_id?: string;
+    tahun_pelajaran?: string;
+    semester?: string;
+    data?: Array<{ siswa_id: string | number; status?: string; keterangan?: string }>;
+    input_by?: string | number;
+  };
 
   if (!tanggal || !kelas_id || !tahun_pelajaran || !semester) {
     return errorResponse("Parameter 'tanggal', 'kelas_id', 'tahun_pelajaran', dan 'semester' wajib diisi");
@@ -57,7 +72,7 @@ export async function handlePostAbsensi(request, env) {
   }
 
   try {
-    const statements = [];
+    const statements: D1PreparedStatement[] = [];
     const upsertQuery = `
       INSERT INTO absensi_siswa (
         tanggal, siswa_id, kelas_id, status, keterangan, tahun_pelajaran, semester, input_by, updated_at
@@ -79,13 +94,13 @@ export async function handlePostAbsensi(request, env) {
       statements.push(
         stmt.bind(
           tanggal,
-          parseInt(siswa_id),
+          typeof siswa_id === "string" ? parseInt(siswa_id) : siswa_id,
           kelas_id,
           status || "H",
           keterangan || "",
           tahun_pelajaran,
           semester,
-          input_by ? parseInt(input_by) : null
+          input_by ? (typeof input_by === "string" ? parseInt(input_by) : input_by) : null
         )
       );
     }
@@ -96,7 +111,7 @@ export async function handlePostAbsensi(request, env) {
       success: true,
       message: "Absensi berhasil disimpan",
     });
-  } catch (err) {
+  } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
   }
 }
@@ -104,7 +119,7 @@ export async function handlePostAbsensi(request, env) {
 // ---------------------------------------------------------------------------
 // Handler: GET /api/absensi/rekap — Rekap statistik kehadiran per semester
 // ---------------------------------------------------------------------------
-export async function handleGetAbsensiRekap(request, env) {
+export async function handleGetAbsensiRekap(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   const kelasId = url.searchParams.get("kelas_id");
   const tahunPelajaran = url.searchParams.get("tahun_pelajaran");
@@ -135,9 +150,19 @@ export async function handleGetAbsensiRekap(request, env) {
       GROUP BY s.id, s.nama, s.nisn, s.nis_lokal
       ORDER BY s.nama ASC;
     `;
-    const result = await env.DB.prepare(query).bind(kelasId, tahunPelajaran, semester).all();
+    const result = await env.DB.prepare(query).bind(kelasId, tahunPelajaran, semester).all<{
+      siswa_id: number;
+      nama: string;
+      nisn: string | null;
+      nis_lokal: string | null;
+      total_hadir: number;
+      total_sakit: number;
+      total_izin: number;
+      total_alpa: number;
+      total_hari_efektif: number;
+    }>();
     return jsonResponse(result.results);
-  } catch (err) {
+  } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
   }
 }

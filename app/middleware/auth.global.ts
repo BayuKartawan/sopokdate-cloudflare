@@ -1,4 +1,4 @@
-// middleware/auth.global.js
+// middleware/auth.global.ts
 // Global middleware yang menggantikan router.beforeEach() dari router/index.js
 
 export default defineNuxtRouteMiddleware((to, from) => {
@@ -21,7 +21,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
   // --- Main Auth Guard ---
   const requiresAuth = to.meta.requiresAuth !== false; // default true
-  const requiredRole = to.meta.role;
+  const requiredRole = to.meta.role as string | string[] | undefined;
 
   try {
     // Get current user dari JWT
@@ -45,7 +45,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
         // Jika role tidak sesuai (mendukung string tunggal maupun array)
         const hasAccess = Array.isArray(requiredRole)
-          ? requiredRole.includes(userRole)
+          ? requiredRole.includes(userRole || "")
           : userRole === requiredRole;
 
         if (!hasAccess) {
@@ -65,12 +65,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
 // --- Helper Functions (dipindahkan dari router/index.js) ---
 
 // Cache untuk menyimpan role user
-const userRoleCache = new Map();
+const userRoleCache = new Map<string, string>();
 
 /**
  * Fungsi untuk decode JWT token
  */
-function decodeJWT(token) {
+function decodeJWT(token: string): any | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
@@ -90,10 +90,17 @@ function decodeJWT(token) {
   }
 }
 
+interface UserProfile {
+  email: string;
+  role: string;
+  gtkId: any;
+  userId: any;
+}
+
 /**
  * Fungsi untuk cek apakah user sudah authenticated dengan JWT
  */
-function getCurrentUser() {
+function getCurrentUser(): UserProfile | null {
   const token = localStorage.getItem("user-token");
 
   if (!token) {
@@ -122,12 +129,12 @@ const ROLE_STORAGE_KEY = "user-role";
 /**
  * Get user role from localStorage (sudah disimpan saat login)
  */
-function getUserRole(email) {
+function getUserRole(email?: string | null): string | null {
   if (!email) return null;
 
   // 1. Cek cache memori
   if (userRoleCache.has(email)) {
-    return userRoleCache.get(email);
+    return userRoleCache.get(email)!;
   }
 
   // 2. Cek localStorage
@@ -143,7 +150,7 @@ function getUserRole(email) {
 /**
  * Fungsi untuk clear user data dan role
  */
-export function clearUserAndRole() {
+export function clearUserAndRole(): void {
   userRoleCache.clear();
   localStorage.removeItem(ROLE_STORAGE_KEY);
   localStorage.removeItem("user-token");

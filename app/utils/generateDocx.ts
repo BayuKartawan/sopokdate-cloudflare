@@ -1,15 +1,15 @@
-// src\utils\generateDocx.js
+// utils/generateDocx.ts
 import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
 import { saveAs } from "file-saver";
 
 // Cache untuk menyimpan template yang sudah di-fetch
-const templateCache = new Map();
+const templateCache = new Map<string, ArrayBuffer>();
 
 // Fungsi untuk fetch dan cache template
-async function getTemplateFromCache(templatePath) {
+async function getTemplateFromCache(templatePath: string): Promise<ArrayBuffer> {
   if (templateCache.has(templatePath)) {
-    return templateCache.get(templatePath);
+    return templateCache.get(templatePath)!;
   }
   const response = await fetch(templatePath);
   if (!response.ok) throw new Error("Gagal memuat template DOCX");
@@ -19,7 +19,11 @@ async function getTemplateFromCache(templatePath) {
   return arrayBuffer;
 }
 
-export async function generateDocx(templatePath, formData, outputName) {
+export async function generateDocx(
+  templatePath: string,
+  formData: Record<string, any>,
+  outputName: string,
+): Promise<void> {
   try {
     // Gunakan template dari cache atau fetch baru
     const arrayBuffer = await getTemplateFromCache(templatePath);
@@ -32,7 +36,7 @@ export async function generateDocx(templatePath, formData, outputName) {
       paragraphLoop: true,
       linebreaks: true,
       // Nonaktifkan parser yang tidak diperlukan untuk mengurangi overhead
-      parser: (tag) => ({ get: tag === "." ? (s) => s : (s) => s[tag] }),
+      parser: (tag: string) => ({ get: tag === "." ? (s: any) => s : (s: any) => s[tag] }),
       nullGetter: () => "", // Handle null values dengan string kosong
     });
 
@@ -57,7 +61,7 @@ export async function generateDocx(templatePath, formData, outputName) {
     saveAs(blob, `${outputName}.docx`);
 
     // NOTE: intentionally not logging generated sizes in production
-  } catch (error) {
+  } catch (error: any) {
     throw new Error(`Gagal generate DOCX: ${error.message}`);
   }
 }
@@ -66,7 +70,10 @@ export async function generateDocx(templatePath, formData, outputName) {
  * Generate DOCX dan return sebagai blob (untuk bulk generation)
  * Menggunakan semua optimasi yang sama dengan generateDocx
  */
-export async function generateDocxAsBlob(templatePath, formData) {
+export async function generateDocxAsBlob(
+  templatePath: string,
+  formData: Record<string, any>,
+): Promise<Blob> {
   try {
     // Gunakan template dari cache atau fetch baru
     const arrayBuffer = await getTemplateFromCache(templatePath);
@@ -79,7 +86,7 @@ export async function generateDocxAsBlob(templatePath, formData) {
       paragraphLoop: true,
       linebreaks: true,
       // Nonaktifkan parser yang tidak diperlukan untuk mengurangi overhead
-      parser: (tag) => ({ get: tag === "." ? (s) => s : (s) => s[tag] }),
+      parser: (tag: string) => ({ get: tag === "." ? (s: any) => s : (s: any) => s[tag] }),
       nullGetter: () => "", // Handle null values dengan string kosong
     });
 
@@ -103,7 +110,7 @@ export async function generateDocxAsBlob(templatePath, formData) {
     // NOTE: intentionally not logging generated sizes in production
 
     return blob;
-  } catch (error) {
+  } catch (error: any) {
     throw new Error(`Gagal generate DOCX: ${error.message}`);
   }
 }
@@ -112,8 +119,8 @@ export async function generateDocxAsBlob(templatePath, formData) {
  * Membersihkan form data dari nilai yang tidak diperlukan
  * dan mengoptimalkan untuk template DOCX
  */
-function cleanFormData(formData) {
-  const cleaned = {};
+function cleanFormData(formData: Record<string, any>): Record<string, any> {
+  const cleaned: Record<string, any> = {};
 
   // Debug logs removed for production
 
@@ -201,7 +208,7 @@ function cleanFormData(formData) {
 /**
  * Format tanggal ke format Indonesia
  */
-function formatIndonesianDate(dateObj) {
+function formatIndonesianDate(dateObj: Date): string {
   const months = [
     "Januari",
     "Februari",
@@ -229,10 +236,10 @@ function formatIndonesianDate(dateObj) {
  * Gunakan ini jika masih ada masalah ukuran file
  */
 export async function generateDocxOptimized(
-  templatePath,
-  formData,
-  outputName,
-) {
+  templatePath: string,
+  formData: Record<string, any>,
+  outputName: string,
+): Promise<void> {
   try {
     const response = await fetch(templatePath);
     if (!response.ok) throw new Error("Gagal memuat template DOCX");
@@ -240,7 +247,7 @@ export async function generateDocxOptimized(
     const arrayBuffer = await response.arrayBuffer();
 
     // Buat copy dari array buffer untuk avoid corruption
-    const templateBuffer = arrayBuffer.slice();
+    const templateBuffer = arrayBuffer.slice(0);
 
     const zip = new PizZip(templateBuffer);
     const doc = new Docxtemplater(zip, {
@@ -268,12 +275,12 @@ export async function generateDocxOptimized(
         level: 9, // Kompresi maksimal
       },
       streamFiles: true, // Optimasi untuk file besar
-    });
+    } as any);
 
     saveAs(blob, `${outputName}.docx`);
 
     // NOTE: intentionally not logging optimized sizes in production
-  } catch (error) {
+  } catch (error: any) {
     throw new Error(`Gagal generate DOCX: ${error.message}`);
   }
 }

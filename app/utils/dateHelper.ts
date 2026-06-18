@@ -6,10 +6,13 @@
  * - Semester Genap: 1 Januari s.d 30 Juni
  * 
  * @param {Date|string} inputDate - Tanggal input (default: hari ini)
- * @returns {Object} { tahunPelajaran: "2025/2026", semester: "Ganjil" }
+ * @returns {{ tahunPelajaran: string, semester: string }} { tahunPelajaran: "2025/2026", semester: "Ganjil" }
  */
-export function dapatkanTahunDanSemester(inputDate = new Date()) {
-  let date;
+export function dapatkanTahunDanSemester(inputDate: Date | string = new Date()): {
+  tahunPelajaran: string;
+  semester: string;
+} {
+  let date: Date;
   if (typeof inputDate === "string") {
     // If input is YYYY-MM-DD, parse it as a local date to avoid timezone shifts
     if (/^\d{4}-\d{2}-\d{2}$/.test(inputDate)) {

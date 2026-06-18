@@ -1,18 +1,19 @@
-// handlers/auth.js
-import { jsonResponse, errorResponse, generateRandomPassword } from "../utils.js";
+// handlers/auth.ts
+import { jsonResponse, errorResponse, generateRandomPassword } from "../utils";
+import type { Env } from "../types";
 
 // ---------------------------------------------------------------------------
 // POST /api/auth/login — Login dengan username & password dari tabel users
 // ---------------------------------------------------------------------------
-export async function handleAuthLogin(request, env) {
-  let body;
+export async function handleAuthLogin(request: Request, env: Env): Promise<Response> {
+  let body: any;
   try {
     body = await request.json();
   } catch {
     return errorResponse("Invalid JSON body");
   }
 
-  const { username, password } = body;
+  const { username, password } = body as { username?: string; password?: string };
 
   if (!username || !password) {
     return errorResponse("Username dan password diperlukan");
@@ -23,7 +24,15 @@ export async function handleAuthLogin(request, env) {
       "SELECT id, username, password, role, display_name, gtk_id, is_active FROM users WHERE username = ?"
     )
       .bind(username)
-      .first();
+      .first<{
+        id: number;
+        username: string;
+        password?: string;
+        role: string;
+        display_name: string;
+        gtk_id: number | null;
+        is_active: number;
+      }>();
 
     if (!user) {
       return errorResponse("Username atau password salah", 401);
@@ -47,7 +56,7 @@ export async function handleAuthLogin(request, env) {
         gtk_id: user.gtk_id,
       },
     });
-  } catch (err) {
+  } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
   }
 }
@@ -56,12 +65,12 @@ export async function handleAuthLogin(request, env) {
 // POST /api/auth/seed-guru — Buat akun guru otomatis dari data_gtk
 // Membuat akun untuk semua GTK yang punya peg_id dan belum punya akun
 // ---------------------------------------------------------------------------
-export async function handleSeedGuru(env) {
+export async function handleSeedGuru(env: Env): Promise<Response> {
   try {
     // Ambil semua GTK yang punya peg_id
     const gtkRows = await env.DB.prepare(
       "SELECT id, nama_lengkap, peg_id FROM data_gtk WHERE peg_id IS NOT NULL AND peg_id != ''"
-    ).all();
+    ).all<{ id: number; nama_lengkap: string | null; peg_id: string }>();
 
     if (!gtkRows.results || gtkRows.results.length === 0) {
       return jsonResponse({
@@ -73,7 +82,12 @@ export async function handleSeedGuru(env) {
 
     let created = 0;
     let skipped = 0;
-    const createdAccounts = [];
+    const createdAccounts: Array<{
+      username: string;
+      password: string;
+      display_name: string | null;
+      gtk_id: number;
+    }> = [];
 
     for (const gtk of gtkRows.results) {
       // Cek apakah sudah ada akun untuk gtk ini
@@ -81,7 +95,7 @@ export async function handleSeedGuru(env) {
         "SELECT id FROM users WHERE gtk_id = ?"
       )
         .bind(gtk.id)
-        .first();
+        .first<{ id: number }>();
 
       if (existing) {
         skipped++;
@@ -93,7 +107,7 @@ export async function handleSeedGuru(env) {
         "SELECT id FROM users WHERE username = ?"
       )
         .bind(gtk.peg_id)
-        .first();
+        .first<{ id: number }>();
 
       if (usernameExists) {
         skipped++;
@@ -124,7 +138,7 @@ export async function handleSeedGuru(env) {
       skipped,
       accounts: createdAccounts,
     });
-  } catch (err) {
+  } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
   }
 }
@@ -132,7 +146,7 @@ export async function handleSeedGuru(env) {
 // ---------------------------------------------------------------------------
 // GET /api/auth/users — Daftar semua akun (admin only)
 // ---------------------------------------------------------------------------
-export async function handleGetUsers(env) {
+export async function handleGetUsers(env: Env): Promise<Response> {
   try {
     const users = await env.DB.prepare(
       `SELECT u.id, u.username, u.password, u.role, u.display_name, u.gtk_id, u.is_active, u.created_at,
@@ -140,10 +154,22 @@ export async function handleGetUsers(env) {
        FROM users u
        LEFT JOIN data_gtk g ON u.gtk_id = g.id
        ORDER BY u.role ASC, u.display_name ASC`
-    ).all();
+    ).all<{
+      id: number;
+      username: string;
+      password?: string;
+      role: string;
+      display_name: string;
+      gtk_id: number | null;
+      is_active: number;
+      created_at: string;
+      gtk_nama: string | null;
+      gtk_peg_id: string | null;
+      gtk_nuptk: string | null;
+    }>();
 
     return jsonResponse(users.results);
-  } catch (err) {
+  } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
   }
 }
@@ -151,16 +177,16 @@ export async function handleGetUsers(env) {
 // ---------------------------------------------------------------------------
 // PUT /api/auth/users/:id — Update akun user (admin: reset password, toggle active)
 // ---------------------------------------------------------------------------
-export async function handleUpdateUser(request, env, userId) {
-  let body;
+export async function handleUpdateUser(request: Request, env: Env, userId: string): Promise<Response> {
+  let body: any;
   try {
     body = await request.json();
   } catch {
     return errorResponse("Invalid JSON body");
   }
 
-  const updates = [];
-  const params = [];
+  const updates: string[] = [];
+  const params: any[] = [];
 
   if (body.password !== undefined) {
     updates.push("password = ?");
@@ -193,7 +219,7 @@ export async function handleUpdateUser(request, env, userId) {
       success: true,
       message: "Akun berhasil diupdate",
     });
-  } catch (err) {
+  } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
   }
 }
@@ -201,7 +227,7 @@ export async function handleUpdateUser(request, env, userId) {
 // ---------------------------------------------------------------------------
 // DELETE /api/auth/users/:id — Hapus akun user (admin only)
 // ---------------------------------------------------------------------------
-export async function handleDeleteUser(env, userId) {
+export async function handleDeleteUser(env: Env, userId: string): Promise<Response> {
   try {
     await env.DB.prepare("DELETE FROM users WHERE id = ?")
       .bind(parseInt(userId))
@@ -211,7 +237,7 @@ export async function handleDeleteUser(env, userId) {
       success: true,
       message: "Akun berhasil dihapus",
     });
-  } catch (err) {
+  } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
   }
 }

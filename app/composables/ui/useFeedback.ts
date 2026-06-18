@@ -1,45 +1,52 @@
 import { ref, shallowRef } from "vue";
 
+export interface Toast {
+  id: number;
+  message: string;
+  type: "success" | "failure" | "warning" | "info";
+  timeout: number;
+}
+
 // ============================================================================
-// TOAST STATE & METHODS (from useToast.js)
+// TOAST STATE & METHODS (from useToast.ts)
 // ============================================================================
-const toasts = ref([]);
+const toasts = ref<Toast[]>([]);
 let nextId = 0;
 
-function addToast(message, type = "info", timeout = 3500) {
+function addToast(message: string, type: Toast["type"] = "info", timeout: number = 3500): void {
   const id = ++nextId;
   toasts.value.push({ id, message, type, timeout });
   // Auto-remove after timeout
   setTimeout(() => removeToast(id), timeout);
 }
 
-function removeToast(id) {
+function removeToast(id: number): void {
   const idx = toasts.value.findIndex((t) => t.id === id);
   if (idx !== -1) toasts.value.splice(idx, 1);
 }
 
 export function useToast() {
   const Notify = {
-    success: (msg, opts = {}) => addToast(msg, "success", opts.timeout ?? 3500),
-    failure: (msg, opts = {}) => addToast(msg, "failure", opts.timeout ?? 4000),
-    warning: (msg, opts = {}) => addToast(msg, "warning", opts.timeout ?? 3500),
-    info: (msg, opts = {}) => addToast(msg, "info", opts.timeout ?? 3500),
+    success: (msg: string, opts: { timeout?: number } = {}): void => addToast(msg, "success", opts.timeout ?? 3500),
+    failure: (msg: string, opts: { timeout?: number } = {}): void => addToast(msg, "failure", opts.timeout ?? 4000),
+    warning: (msg: string, opts: { timeout?: number } = {}): void => addToast(msg, "warning", opts.timeout ?? 3500),
+    info: (msg: string, opts: { timeout?: number } = {}): void => addToast(msg, "info", opts.timeout ?? 3500),
   };
   return { toasts, remove: removeToast, Notify };
 }
 
 // ============================================================================
-// LOADING STATE & METHODS (from useLoading.js)
+// LOADING STATE & METHODS (from useLoading.ts)
 // ============================================================================
 const isLoadingVisible = ref(false);
 const loadingMessage = ref("");
 
-function showLoading(msg = "") {
+function showLoading(msg: string = ""): void {
   loadingMessage.value = msg;
   isLoadingVisible.value = true;
 }
 
-function removeLoading() {
+function removeLoading(): void {
   isLoadingVisible.value = false;
   loadingMessage.value = "";
 }
@@ -53,7 +60,7 @@ export function useLoading() {
     arrows: showLoading,
     dots: showLoading,
     remove: removeLoading,
-    change: (msg) => {
+    change: (msg: string): void => {
       loadingMessage.value = msg;
     },
   };
@@ -61,24 +68,24 @@ export function useLoading() {
 }
 
 // ============================================================================
-// CONFIRM STATE & METHODS (from useConfirm.js)
+// CONFIRM STATE & METHODS (from useConfirm.ts)
 // ============================================================================
 const isConfirmVisible = ref(false);
 const confirmTitle = ref("");
 const confirmMessage = ref("");
 const confirmOkText = ref("Ya");
 const confirmCancelText = ref("Batal");
-const onConfirmOk = shallowRef(null);
-const onConfirmCancel = shallowRef(null);
+const onConfirmOk = shallowRef<(() => void) | null>(null);
+const onConfirmCancel = shallowRef<(() => void) | null>(null);
 
 function showConfirm(
-  titleStr,
-  msgStr,
-  okStr,
-  cancelStr,
-  okCallback,
-  cancelCallback,
-) {
+  titleStr: string,
+  msgStr: string,
+  okStr?: string,
+  cancelStr?: string,
+  okCallback?: (() => void) | null,
+  cancelCallback?: (() => void) | null,
+): void {
   confirmTitle.value = titleStr;
   confirmMessage.value = msgStr;
   confirmOkText.value = okStr || "Ya";
@@ -88,12 +95,12 @@ function showConfirm(
   isConfirmVisible.value = true;
 }
 
-function triggerConfirmOk() {
+function triggerConfirmOk(): void {
   isConfirmVisible.value = false;
   onConfirmOk.value?.();
 }
 
-function triggerConfirmCancel() {
+function triggerConfirmCancel(): void {
   isConfirmVisible.value = false;
   onConfirmCancel.value?.();
 }
@@ -115,7 +122,7 @@ export function useConfirm() {
 }
 
 // ============================================================================
-// NOTIFLIX COMPATIBILITY BRIDGE (from useNotiflix.js)
+// NOTIFLIX COMPATIBILITY BRIDGE (from useNotiflix.ts)
 // ============================================================================
 export function useNotiflix() {
   const { Notify } = useToast();

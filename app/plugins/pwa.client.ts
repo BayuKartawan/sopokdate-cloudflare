@@ -1,4 +1,4 @@
-// app/plugins/pwa.client.js
+// app/plugins/pwa.client.ts
 
 export default defineNuxtPlugin(() => {
   if (typeof window !== "undefined" && "serviceWorker" in navigator) {

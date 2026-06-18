@@ -9,8 +9,22 @@ import {
   CalendarCheck,
 } from "lucide-vue-next";
 
+export interface MenuItemChild {
+  to: string;
+  label: string;
+  roles: string[];
+}
+
+export interface MenuItem {
+  to?: string;
+  label: string;
+  icon?: any;
+  roles: string[];
+  children?: MenuItemChild[];
+}
+
 export const useMenuConfig = () => {
-  const allMenuItems = ref([
+  const allMenuItems = ref<MenuItem[]>([
     {
       to: "/",
       label: "Beranda",
@@ -117,11 +131,11 @@ export const useMenuConfig = () => {
     },
   ]);
 
-  const getCurrentUserRole = () => {
+  const getCurrentUserRole = (): string | null => {
     return localStorage.getItem("user-role");
   };
 
-  const filterMenuByRole = (userRole) => {
+  const filterMenuByRole = (userRole: string | null): MenuItem[] => {
     if (!userRole) return [];
 
     return allMenuItems.value
@@ -157,38 +171,38 @@ export const useMenuConfig = () => {
       });
   };
 
-  const menuItems = computed(() => {
+  const menuItems = computed((): MenuItem[] => {
     const userRole = getCurrentUserRole();
     return filterMenuByRole(userRole);
   });
 
-  const getMenuItemsWithChildren = () => {
+  const getMenuItemsWithChildren = (): MenuItem[] => {
     return menuItems.value.filter((item) => item.children);
   };
 
-  const getAllMenuLabels = () => {
+  const getAllMenuLabels = (): string[] => {
     return menuItems.value.map((item) => item.label);
   };
 
-  const getDropdownMenuLabels = () => {
+  const getDropdownMenuLabels = (): string[] => {
     return getMenuItemsWithChildren().map((item) => item.label);
   };
 
-  const addMenuItem = (newItem) => {
+  const addMenuItem = (newItem: MenuItem): void => {
     if (!newItem.roles) {
       newItem.roles = ["admin"];
     }
     allMenuItems.value.push(newItem);
   };
 
-  const removeMenuItem = (label) => {
+  const removeMenuItem = (label: string): void => {
     const index = allMenuItems.value.findIndex((item) => item.label === label);
     if (index > -1) {
       allMenuItems.value.splice(index, 1);
     }
   };
 
-  const updateMenuItem = (label, updatedItem) => {
+  const updateMenuItem = (label: string, updatedItem: Partial<MenuItem>): void => {
     const index = allMenuItems.value.findIndex((item) => item.label === label);
     if (index > -1) {
       allMenuItems.value[index] = {
@@ -198,7 +212,7 @@ export const useMenuConfig = () => {
     }
   };
 
-  const addChildToMenuItem = (parentLabel, childItem) => {
+  const addChildToMenuItem = (parentLabel: string, childItem: MenuItemChild): void => {
     const parentIndex = allMenuItems.value.findIndex(
       (item) => item.label === parentLabel,
     );
@@ -209,7 +223,7 @@ export const useMenuConfig = () => {
       if (!childItem.roles) {
         childItem.roles = ["admin"];
       }
-      allMenuItems.value[parentIndex].children.push(childItem);
+      allMenuItems.value[parentIndex].children!.push(childItem);
     }
   };
 

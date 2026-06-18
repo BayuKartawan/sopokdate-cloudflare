@@ -1,12 +1,12 @@
 export function useBosHonor() {
-  const jenisHonorOptions = [
+  const jenisHonorOptions: string[] = [
     "HONOR OPERATOR MADRASAH",
     "HONOR BENDAHARA MADRASAH",
     "HONOR KEPALA MADRASAH",
     "HONOR GURU MADRASAH",
     "HONOR EKSTRAKULIKULER PRAMUKA",
     "HONOR EKSTRAKULIKULER TAHFIDZ",
-    "PANITIA TES KEMAMPUAN AKADEMIK ( TKA )",
+    "PANITIA TES KEMAMONTAN AKADEMIK ( TKA )",
     "PANITIA UJIAN MADRASAH ( UM )",
     "PENGAWAS UJIAN MADRASAH ( UM )",
     "PENYUSUN KISI-KISI DAN SOAL UM",
@@ -18,7 +18,7 @@ export function useBosHonor() {
     "LAINNYA (INPUT MANUAL)",
   ];
 
-  const bulanList = [
+  const bulanList: string[] = [
     "Januari",
     "Februari",
     "Maret",

@@ -3,7 +3,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { generateDocx, generateDocxAsBlob } from "~/utils/generateDocx";
 
-const monthToRoman = (month) => {
+const monthToRoman = (month: number): string => {
   const romanNumerals = [
     "I",
     "II",
@@ -21,8 +21,8 @@ const monthToRoman = (month) => {
   return romanNumerals[month - 1] || "I";
 };
 
-const formatNoSurat = (number) => {
-  if (!number || String(number).trim() === "") return "";
+const formatNoSurat = (number: string | number | null | undefined): string => {
+  if (number === undefined || number === null || String(number).trim() === "") return "";
 
   const now = new Date();
   const month = now.getMonth() + 1;
@@ -35,14 +35,14 @@ const formatNoSurat = (number) => {
   return `${paddedNumber}/MI-B/087/${romanMonth}/${year}`;
 };
 
-const formatTime = (timeValue) => {
-  if (!timeValue || String(timeValue).trim() === "") return "";
+const formatTime = (timeValue: string | null | undefined): string => {
+  if (timeValue === undefined || timeValue === null || String(timeValue).trim() === "") return "";
   const timeStr = String(timeValue);
   if (timeStr.includes(".")) return timeStr;
   return timeStr.replace(":", ".");
 };
 
-const formatRowData = (rowData, fields) => {
+const formatRowData = (rowData: Record<string, any>, fields: any[]): Record<string, any> => {
   const formattedData = { ...rowData };
 
   fields.forEach((field) => {
@@ -70,7 +70,7 @@ const formatRowData = (rowData, fields) => {
   return formattedData;
 };
 
-function resolveTemplatePath(rawPath) {
+function resolveTemplatePath(rawPath: string | null | undefined): string {
   if (!rawPath) return "";
   const p = String(rawPath).trim();
   if (/^https?:\/\//i.test(p)) return p;
@@ -92,7 +92,11 @@ export function useBulkDocumentGenerator() {
   const generationComplete = ref(false);
   const generatedCount = ref(0);
 
-  const startGeneration = async (selectedSurat, suratData, excelData) => {
+  const startGeneration = async (
+    selectedSurat: string,
+    suratData: Record<string, any>,
+    excelData: any[],
+  ): Promise<void> => {
     if (!selectedSurat || excelData.length === 0) return;
 
     isGenerating.value = true;
@@ -169,7 +173,7 @@ export function useBulkDocumentGenerator() {
       }
 
       generationComplete.value = true;
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(
         "Terjadi kesalahan saat generate dokumen: " + error.message,
       );
@@ -178,7 +182,7 @@ export function useBulkDocumentGenerator() {
     }
   };
 
-  const resetGeneration = () => {
+  const resetGeneration = (): void => {
     isGenerating.value = false;
     generationProgress.value = 0;
     generationStatus.value = "";

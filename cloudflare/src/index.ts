@@ -1,4 +1,4 @@
-// index.js
+// index.ts
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { 
@@ -6,22 +6,24 @@ import {
   handlePostData, 
   handlePutData, 
   handleDeleteData 
-} from "./handlers/data.js";
-import { handleGetSurat } from "./handlers/surat.js";
+} from "./handlers/data";
+import { handleGetSurat } from "./handlers/surat";
 import { 
   handleAuthLogin, 
   handleSeedGuru, 
   handleGetUsers, 
   handleUpdateUser, 
   handleDeleteUser 
-} from "./handlers/auth.js";
+} from "./handlers/auth";
 import { 
   handleGetAbsensi, 
   handlePostAbsensi, 
   handleGetAbsensiRekap 
-} from "./handlers/absensi.js";
+} from "./handlers/absensi";
 
-const app = new Hono();
+import type { Env } from "./types";
+
+const app = new Hono<{ Bindings: Env }>();
 
 // CORS Middleware
 app.use("*", cors({
