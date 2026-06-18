@@ -16,8 +16,7 @@
       </div>
       <!-- no surat -->
       <div class="flex justify-center h-4 w-93 mx-auto gap-1">
-        <p class="text-base">No</p>
-        <div class="flex-1 border-b-1 border-dashed"></div>
+        <p class="text-base">No :</p>
         <p class="text-base">{{ nomor }}</p>
       </div>
 
