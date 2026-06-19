@@ -239,7 +239,10 @@
                 </button>
               </div>
 
-              <ChevronRight class="w-4 h-4 text-zinc-600" @click="navigateToDetail(item)" />
+              <ChevronRight
+                class="w-4 h-4 text-zinc-600"
+                @click="navigateToDetail(item)"
+              />
             </div>
           </li>
         </ul>
@@ -273,7 +276,14 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 
-import { Database, UserCircle, ChevronRight, Plus, Pencil, Trash2 } from "lucide-vue-next";
+import {
+  Database,
+  UserCircle,
+  ChevronRight,
+  Plus,
+  Pencil,
+  Trash2,
+} from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
@@ -285,7 +295,10 @@ import * as XLSX from "xlsx";
 
 const router = useRouter();
 const { cardData, isLoading, loadData, refreshData } = useTableData();
-const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud("DataGtk", () => refreshData("DataGtk"));
+const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
+  "DataGtk",
+  () => refreshData("DataGtk"),
+);
 
 const searchQuery = ref("");
 const showAll = ref(false);
@@ -307,7 +320,12 @@ const gtkFields = [
   { key: "NRG", label: "NRG" },
   { key: "Pendidikan Terakhir", label: "Pendidikan Terakhir" },
   { key: "Jurusan", label: "Jurusan" },
-  { key: "Jenis Kelamin", label: "Jenis Kelamin", type: "select", options: ["Laki-Laki", "Perempuan"] },
+  {
+    key: "Jenis Kelamin",
+    label: "Jenis Kelamin",
+    type: "select",
+    options: ["Laki-Laki", "Perempuan"],
+  },
   { key: "Tempat Lahir", label: "Tempat Lahir" },
   { key: "Tanggal Lahir", label: "Tanggal Lahir", type: "date" },
   { key: "No HP", label: "No HP" },
@@ -331,23 +349,23 @@ const openEditModal = (item) => {
   editingItem.value = {
     _id: item.id || item._id,
     "Nama Lengkap": item.title || "",
-    "NIK": item.NIK || "",
+    NIK: item.NIK || "",
     "No KK": item.NoKK || "",
-    "NUPTK": item.NUPTK || "",
+    NUPTK: item.NUPTK || "",
     "Peg ID": item.PegID || "",
-    "NPK": item.NPK || "",
-    "NRG": item.NRG || "",
+    NPK: item.NPK || "",
+    NRG: item.NRG || "",
     "Pendidikan Terakhir": item.PendTerakhir || "",
-    "Jurusan": item.Jurusan || "",
+    Jurusan: item.Jurusan || "",
     "Jenis Kelamin": item.JenisKelamin || "",
     "Tempat Lahir": item.TempatLahir || "",
     "Tanggal Lahir": item.TanggalLahir || "",
     "No HP": item.NomorHp || "",
-    "Email": item.Email || "",
-    "Tugas": item.Tugas || "",
+    Email: item.Email || "",
+    Tugas: item.Tugas || "",
     "No Rekening": item.NoRek || "",
     "Status Kepegawaian": item.StatusKepegawaian || "",
-    "NIP": item.NIP || "",
+    NIP: item.NIP || "",
     "Mata Pelajaran": item.MataPelajaran || "",
     "Wali Kelas": item.WaliKelas || "",
   };

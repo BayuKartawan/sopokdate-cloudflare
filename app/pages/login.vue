@@ -2,20 +2,11 @@
   <section
     class="min-h-screen flex items-center justify-center bg-zinc-950 relative overflow-hidden"
   >
-    <!-- Decorative background elements -->
-    <div
-      class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"
-    ></div>
-    <div
-      class="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-80 h-80 rounded-full bg-teal-500/10 blur-3xl pointer-events-none"
-    ></div>
+    <!-- Decorative background elements removed to avoid blur -->
 
     <div class="container mx-auto px-4 relative z-10">
       <div class="max-w-[360px] w-full mx-auto group">
-        <!-- Glow wrapper -->
-        <div
-          class="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-emerald-500/30 to-teal-500/30 opacity-75 blur-xl group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
-        ></div>
+        <!-- Glow wrapper removed to avoid blur -->
 
         <div
           class="card rounded-2xl p-6 sm:p-8 border bg-zinc-900 border-zinc-800/80 shadow-2xl transition-all duration-300 relative overflow-hidden"
@@ -150,7 +141,7 @@
     <!-- Barcode Scanner Modal -->
     <div
       v-if="showScanModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
     >
       <div
         class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]"

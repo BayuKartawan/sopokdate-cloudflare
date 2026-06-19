@@ -282,7 +282,15 @@
 </template>
 
 <script setup>
-import { FileSpreadsheet, Send, LogIn, UserCircle, Plus, Pencil as PencilIcon, Trash2 } from "lucide-vue-next";
+import {
+  FileSpreadsheet,
+  Send,
+  LogIn,
+  UserCircle,
+  Plus,
+  Pencil as PencilIcon,
+  Trash2,
+} from "lucide-vue-next";
 import { ref, computed, onMounted, onUnmounted, provide, watch } from "vue";
 import Search from "~/components/ui/Search.vue";
 import Pagination from "~/components/ui/Pagination.vue";
@@ -324,10 +332,13 @@ const { Notify } = useNotiflix();
 const selectedTable = ref(props.initialTable);
 
 // Dynamic CRUD composable based on selected table
-const { isAdmin, isSaving: crudSaving, createItem, updateItem, deleteItem } = useCrud(
-  selectedTable.value,
-  () => refreshData(selectedTable.value)
-);
+const {
+  isAdmin,
+  isSaving: crudSaving,
+  createItem,
+  updateItem,
+  deleteItem,
+} = useCrud(selectedTable.value, () => refreshData(selectedTable.value));
 
 // We need to re-bind the table name for CRUD when dropdown changes
 const currentCrudTable = ref(selectedTable.value);
@@ -439,7 +450,7 @@ const handleDelete = async (akun) => {
         Notify?.failure?.(err.message || "Gagal menghapus data");
       }
     },
-    () => {}
+    () => {},
   );
 };
 

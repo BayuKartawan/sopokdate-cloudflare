@@ -24,7 +24,7 @@ export async function handleGetSurat(env: Env): Promise<Response> {
   try {
     // Ambil semua template path
     const templates = await env.DB.prepare(
-      "SELECT surat_type, template_path, template_type FROM template_path"
+      "SELECT surat_type, template_path, template_type FROM template_path",
     ).all<{
       surat_type: string;
       template_path: string;
@@ -33,7 +33,7 @@ export async function handleGetSurat(env: Env): Promise<Response> {
 
     // Ambil semua placeholders
     const allPlaceholders = await env.DB.prepare(
-      "SELECT surat_type, key, label, type, options, default_value FROM placeholders ORDER BY sort_order ASC"
+      "SELECT surat_type, key, label, type, options, default_value FROM placeholders ORDER BY sort_order ASC",
     ).all<{
       surat_type: string;
       key: string;

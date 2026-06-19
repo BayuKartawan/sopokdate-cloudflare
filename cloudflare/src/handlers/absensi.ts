@@ -5,7 +5,10 @@ import type { Env } from "../types";
 // ---------------------------------------------------------------------------
 // Handler: GET /api/absensi — Ambil daftar siswa beserta absensi
 // ---------------------------------------------------------------------------
-export async function handleGetAbsensi(request: Request, env: Env): Promise<Response> {
+export async function handleGetAbsensi(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   const url = new URL(request.url);
   const tanggal = url.searchParams.get("tanggal");
   const kelasId = url.searchParams.get("kelas_id");
@@ -46,7 +49,10 @@ export async function handleGetAbsensi(request: Request, env: Env): Promise<Resp
 // ---------------------------------------------------------------------------
 // Handler: POST /api/absensi — Simpan batch absensi siswa (Upsert)
 // ---------------------------------------------------------------------------
-export async function handlePostAbsensi(request: Request, env: Env): Promise<Response> {
+export async function handlePostAbsensi(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   let body: any;
   try {
     body = await request.json();
@@ -54,17 +60,24 @@ export async function handlePostAbsensi(request: Request, env: Env): Promise<Res
     return errorResponse("Invalid JSON body");
   }
 
-  const { tanggal, kelas_id, tahun_pelajaran, semester, data, input_by } = body as {
-    tanggal?: string;
-    kelas_id?: string;
-    tahun_pelajaran?: string;
-    semester?: string;
-    data?: Array<{ siswa_id: string | number; status?: string; keterangan?: string }>;
-    input_by?: string | number;
-  };
+  const { tanggal, kelas_id, tahun_pelajaran, semester, data, input_by } =
+    body as {
+      tanggal?: string;
+      kelas_id?: string;
+      tahun_pelajaran?: string;
+      semester?: string;
+      data?: Array<{
+        siswa_id: string | number;
+        status?: string;
+        keterangan?: string;
+      }>;
+      input_by?: string | number;
+    };
 
   if (!tanggal || !kelas_id || !tahun_pelajaran || !semester) {
-    return errorResponse("Parameter 'tanggal', 'kelas_id', 'tahun_pelajaran', dan 'semester' wajib diisi");
+    return errorResponse(
+      "Parameter 'tanggal', 'kelas_id', 'tahun_pelajaran', dan 'semester' wajib diisi",
+    );
   }
 
   if (!data || !Array.isArray(data) || data.length === 0) {
@@ -100,8 +113,12 @@ export async function handlePostAbsensi(request: Request, env: Env): Promise<Res
           keterangan || "",
           tahun_pelajaran,
           semester,
-          input_by ? (typeof input_by === "string" ? parseInt(input_by) : input_by) : null
-        )
+          input_by
+            ? typeof input_by === "string"
+              ? parseInt(input_by)
+              : input_by
+            : null,
+        ),
       );
     }
 
@@ -119,14 +136,19 @@ export async function handlePostAbsensi(request: Request, env: Env): Promise<Res
 // ---------------------------------------------------------------------------
 // Handler: GET /api/absensi/rekap — Rekap statistik kehadiran per semester
 // ---------------------------------------------------------------------------
-export async function handleGetAbsensiRekap(request: Request, env: Env): Promise<Response> {
+export async function handleGetAbsensiRekap(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   const url = new URL(request.url);
   const kelasId = url.searchParams.get("kelas_id");
   const tahunPelajaran = url.searchParams.get("tahun_pelajaran");
   const semester = url.searchParams.get("semester");
 
   if (!kelasId || !tahunPelajaran || !semester) {
-    return errorResponse("Parameter 'kelas_id', 'tahun_pelajaran', dan 'semester' diperlukan");
+    return errorResponse(
+      "Parameter 'kelas_id', 'tahun_pelajaran', dan 'semester' diperlukan",
+    );
   }
 
   try {
@@ -150,17 +172,19 @@ export async function handleGetAbsensiRekap(request: Request, env: Env): Promise
       GROUP BY s.id, s.nama, s.nisn, s.nis_lokal
       ORDER BY s.nama ASC;
     `;
-    const result = await env.DB.prepare(query).bind(kelasId, tahunPelajaran, semester).all<{
-      siswa_id: number;
-      nama: string;
-      nisn: string | null;
-      nis_lokal: string | null;
-      total_hadir: number;
-      total_sakit: number;
-      total_izin: number;
-      total_alpa: number;
-      total_hari_efektif: number;
-    }>();
+    const result = await env.DB.prepare(query)
+      .bind(kelasId, tahunPelajaran, semester)
+      .all<{
+        siswa_id: number;
+        nama: string;
+        nisn: string | null;
+        nis_lokal: string | null;
+        total_hadir: number;
+        total_sakit: number;
+        total_izin: number;
+        total_alpa: number;
+        total_hari_efektif: number;
+      }>();
     return jsonResponse(result.results);
   } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);

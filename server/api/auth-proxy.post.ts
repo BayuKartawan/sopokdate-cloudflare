@@ -60,8 +60,7 @@ export default defineEventHandler(async (event) => {
     if (!validateMockJWT(token)) {
       throw createError({
         statusCode: 401,
-        statusMessage:
-          "Unauthorized: Sesi tidak valid atau telah kedaluwarsa",
+        statusMessage: "Unauthorized: Sesi tidak valid atau telah kedaluwarsa",
       });
     }
 
@@ -76,16 +75,13 @@ export default defineEventHandler(async (event) => {
 
     // Action: seed-guru
     if (action === "seed-guru") {
-      const response = await $fetch(
-        `${cleanWorkerUrl}/api/auth/seed-guru`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await $fetch(`${cleanWorkerUrl}/api/auth/seed-guru`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json",
+        },
+      });
       return response;
     }
 
@@ -119,7 +115,7 @@ export default defineEventHandler(async (event) => {
             Authorization: `Bearer ${apiToken}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       return response;
     }
@@ -141,7 +137,7 @@ export default defineEventHandler(async (event) => {
           headers: {
             Authorization: `Bearer ${apiToken}`,
           },
-        }
+        },
       );
       return response;
     }
@@ -160,9 +156,7 @@ export default defineEventHandler(async (event) => {
     const statusCode = error?.response?.status || error?.status || 502;
     const errorData = error?.response?._data || error?.data;
     const errorMessage =
-      errorData?.error ||
-      error.message ||
-      "Gagal berkomunikasi dengan server";
+      errorData?.error || error.message || "Gagal berkomunikasi dengan server";
 
     throw createError({
       statusCode,

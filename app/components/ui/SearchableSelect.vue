@@ -21,7 +21,7 @@
         ref="menuRef"
         :style="menuStyle"
         :class="[
-          'fixed z-[9999] rounded-xl border shadow-2xl overflow-hidden backdrop-blur-md transition-opacity duration-200',
+          'fixed z-[9999] rounded-xl border shadow-2xl overflow-hidden transition-opacity duration-200',
           'bg-zinc-900/95 border-zinc-700',
         ]"
       >

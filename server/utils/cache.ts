@@ -33,11 +33,16 @@ export function invalidateCache(tableName?: string) {
       }
     } catch (e) {
       // Fallback jika key bukan URL valid
-      if (key.includes(`table=${tableName}`) || key.includes(`table=${encodeURIComponent(tableName)}`)) {
+      if (
+        key.includes(`table=${tableName}`) ||
+        key.includes(`table=${encodeURIComponent(tableName)}`)
+      ) {
         apiCache.delete(key);
         deletedCount++;
       }
     }
   }
-  console.log(`[Cache] Invalidated ${deletedCount} server cache entries for table "${tableName}"`);
+  console.log(
+    `[Cache] Invalidated ${deletedCount} server cache entries for table "${tableName}"`,
+  );
 }

@@ -7,7 +7,7 @@
         @click.self="$emit('close')"
       >
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+        <div class="absolute inset-0 bg-black/60" />
 
         <!-- Modal -->
         <div
@@ -30,7 +30,7 @@
                 <Pencil v-else class="w-5 h-5" />
               </div>
               <h3 class="text-lg font-semibold text-zinc-100">
-                {{ title || (mode === 'create' ? 'Tambah Data' : 'Edit Data') }}
+                {{ title || (mode === "create" ? "Tambah Data" : "Edit Data") }}
               </h3>
             </div>
             <button
@@ -43,17 +43,20 @@
 
           <!-- Body -->
           <div class="flex-1 overflow-y-auto px-6 py-5">
-            <form @submit.prevent="handleSubmit" class="space-y-4" id="crud-form">
-              <div
-                v-for="field in fields"
-                :key="field.key"
-              >
+            <form
+              @submit.prevent="handleSubmit"
+              class="space-y-4"
+              id="crud-form"
+            >
+              <div v-for="field in fields" :key="field.key">
                 <label
                   :for="'field-' + field.key"
                   class="block text-sm font-medium text-zinc-300 mb-1.5"
                 >
                   {{ field.label }}
-                  <span v-if="field.required" class="text-red-400 ml-0.5">*</span>
+                  <span v-if="field.required" class="text-red-400 ml-0.5"
+                    >*</span
+                  >
                 </label>
 
                 <!-- Select -->
@@ -61,16 +64,17 @@
                   v-if="field.type === 'select'"
                   :id="'field-' + field.key"
                   v-model="formData[field.key]"
-                  class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                  :disabled="field.disabled"
+                  class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="" class="bg-zinc-800">-- Pilih --</option>
                   <option
                     v-for="opt in field.options"
-                    :key="opt"
-                    :value="opt"
+                    :key="typeof opt === 'object' ? opt.value : opt"
+                    :value="typeof opt === 'object' ? opt.value : opt"
                     class="bg-zinc-800"
                   >
-                    {{ opt }}
+                    {{ typeof opt === "object" ? opt.label : opt }}
                   </option>
                 </select>
 
@@ -79,8 +83,9 @@
                   v-else-if="field.type === 'textarea'"
                   :id="'field-' + field.key"
                   v-model="formData[field.key]"
+                  :disabled="field.disabled"
                   rows="3"
-                  class="w-full px-3 py-2.5 rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none"
+                  class="w-full px-3 py-2.5 rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                   :placeholder="field.placeholder || ''"
                 />
 
@@ -90,7 +95,8 @@
                   :id="'field-' + field.key"
                   v-model="formData[field.key]"
                   :type="field.type || 'text'"
-                  class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                  :disabled="field.disabled"
+                  class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   :placeholder="field.placeholder || ''"
                 />
               </div>
@@ -120,7 +126,13 @@
               "
             >
               <Loader2 v-if="isSaving" class="w-4 h-4 animate-spin" />
-              {{ isSaving ? 'Menyimpan...' : (mode === 'create' ? 'Tambah' : 'Simpan') }}
+              {{
+                isSaving
+                  ? "Menyimpan..."
+                  : mode === "create"
+                    ? "Tambah"
+                    : "Simpan"
+              }}
             </button>
           </div>
         </div>
@@ -161,7 +173,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["submit", "close"]);
+const emit = defineEmits(["submit", "close", "change"]);
 
 const formData = ref({});
 
@@ -177,7 +189,16 @@ watch(
       formData.value = data;
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
+);
+
+// Watch for any form data changes and emit them to the parent
+watch(
+  formData,
+  (newVal) => {
+    emit("change", { ...newVal });
+  },
+  { deep: true }
 );
 
 const handleSubmit = () => {

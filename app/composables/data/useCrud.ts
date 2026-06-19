@@ -42,7 +42,10 @@ export function useCrud(tableName: string, onSuccess?: () => void) {
   /**
    * Update data berdasarkan ID
    */
-  const updateItem = async (id: string | number, data: any): Promise<boolean> => {
+  const updateItem = async (
+    id: string | number,
+    data: any,
+  ): Promise<boolean> => {
     isSaving.value = true;
     try {
       await putToApi(tableName, id, data);
@@ -61,7 +64,10 @@ export function useCrud(tableName: string, onSuccess?: () => void) {
   /**
    * Hapus data berdasarkan ID (dengan konfirmasi)
    */
-  const deleteItem = (id: string | number, itemLabel: string = "data ini"): void => {
+  const deleteItem = (
+    id: string | number,
+    itemLabel: string = "data ini",
+  ): void => {
     Confirm?.show(
       "Hapus Data",
       `Apakah Anda yakin ingin menghapus ${itemLabel}? Tindakan ini tidak dapat dibatalkan.`,
@@ -80,7 +86,7 @@ export function useCrud(tableName: string, onSuccess?: () => void) {
           isDeleting.value = false;
         }
       },
-      () => {}
+      () => {},
     );
   };
 

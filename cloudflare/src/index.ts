@@ -1,24 +1,24 @@
 // index.ts
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { 
-  handleGetData, 
-  handlePostData, 
-  handlePutData, 
-  handleDeleteData 
+import {
+  handleGetData,
+  handlePostData,
+  handlePutData,
+  handleDeleteData,
 } from "./handlers/data";
 import { handleGetSurat } from "./handlers/surat";
-import { 
-  handleAuthLogin, 
-  handleSeedGuru, 
-  handleGetUsers, 
-  handleUpdateUser, 
-  handleDeleteUser 
+import {
+  handleAuthLogin,
+  handleSeedGuru,
+  handleGetUsers,
+  handleUpdateUser,
+  handleDeleteUser,
 } from "./handlers/auth";
-import { 
-  handleGetAbsensi, 
-  handlePostAbsensi, 
-  handleGetAbsensiRekap 
+import {
+  handleGetAbsensi,
+  handlePostAbsensi,
+  handleGetAbsensiRekap,
 } from "./handlers/absensi";
 
 import type { Env } from "./types";
@@ -26,12 +26,15 @@ import type { Env } from "./types";
 const app = new Hono<{ Bindings: Env }>();
 
 // CORS Middleware
-app.use("*", cors({
-  origin: "*",
-  allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowHeaders: ["Content-Type", "Authorization"],
-  maxAge: 86400,
-}));
+app.use(
+  "*",
+  cors({
+    origin: "*",
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    maxAge: 86400,
+  }),
+);
 
 // API Key Validation Middleware
 app.use("/api/*", async (c, next) => {
@@ -45,7 +48,10 @@ app.use("/api/*", async (c, next) => {
   const expectedToken = c.env.API_KEY;
 
   if (!expectedToken) {
-    return c.json({ error: "Server configuration error: API_KEY is missing" }, 500);
+    return c.json(
+      { error: "Server configuration error: API_KEY is missing" },
+      500,
+    );
   }
 
   if (!authHeader || authHeader !== `Bearer ${expectedToken}`) {

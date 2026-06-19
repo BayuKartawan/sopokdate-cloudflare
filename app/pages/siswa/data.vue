@@ -277,7 +277,10 @@
                 </div>
 
                 <!-- Admin Actions -->
-                <div v-if="isAdmin" class="flex items-center gap-1 shrink-0 mt-0.5">
+                <div
+                  v-if="isAdmin"
+                  class="flex items-center gap-1 shrink-0 mt-0.5"
+                >
                   <button
                     @click.stop="openEditModal(item)"
                     class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-700/60 transition-all"
@@ -319,7 +322,9 @@
       <CrudModal
         :show="showModal"
         :mode="modalMode"
-        :title="modalMode === 'create' ? 'Tambah Data Siswa' : 'Edit Data Siswa'"
+        :title="
+          modalMode === 'create' ? 'Tambah Data Siswa' : 'Edit Data Siswa'
+        "
         :fields="siswaFields"
         :initialData="editingItem"
         :isSaving="isSaving"
@@ -352,9 +357,17 @@ import { fetchFromApi } from "~/utils/api";
 import * as XLSX from "xlsx";
 
 const router = useRouter();
-const { cardData: dataSiswa, isLoading, loadData, refreshData } = useTableData();
+const {
+  cardData: dataSiswa,
+  isLoading,
+  loadData,
+  refreshData,
+} = useTableData();
 const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
-const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud("data_siswa", () => refreshData("data_siswa"));
+const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
+  "data_siswa",
+  () => refreshData("data_siswa"),
+);
 
 // CRUD Modal state
 const showModal = ref(false);
@@ -372,7 +385,12 @@ const siswaFields = [
   { key: "tanggal_lahir", label: "Tanggal Lahir", type: "date" },
   { key: "kelas", label: "Kelas" },
   { key: "umur", label: "Umur" },
-  { key: "jenis_kelamin", label: "Jenis Kelamin", type: "select", options: ["Laki-Laki", "Perempuan"] },
+  {
+    key: "jenis_kelamin",
+    label: "Jenis Kelamin",
+    type: "select",
+    options: ["Laki-Laki", "Perempuan"],
+  },
   { key: "alamat", label: "Alamat", type: "textarea" },
   { key: "no_hp", label: "No HP" },
   { key: "no_kip", label: "No KIP" },
@@ -391,22 +409,22 @@ const openEditModal = (item) => {
   modalMode.value = "edit";
   editingItem.value = {
     _id: item.id || item._id,
-    "nama": item.nama || "",
-    "nisn": item.nisn || "",
-    "nis_lokal": item.nis_lokal || "",
-    "nik": item.nik || "",
-    "no_kk": item.no_kk || "",
-    "tempat_lahir": item.tempat_lahir || "",
-    "tanggal_lahir": item.tanggal_lahir || "",
-    "kelas": item.kelas || "",
-    "umur": item.umur || "",
-    "jenis_kelamin": item.jenis_kelamin || "",
-    "alamat": item.alamat || "",
-    "no_hp": item.no_hp || "",
-    "no_kip": item.no_kip || "",
-    "nama_ayah_kandung": item.nama_ayah_kandung || "",
-    "nama_ibu_kandung": item.nama_ibu_kandung || "",
-    "nama_wali": item.nama_wali || "",
+    nama: item.nama || "",
+    nisn: item.nisn || "",
+    nis_lokal: item.nis_lokal || "",
+    nik: item.nik || "",
+    no_kk: item.no_kk || "",
+    tempat_lahir: item.tempat_lahir || "",
+    tanggal_lahir: item.tanggal_lahir || "",
+    kelas: item.kelas || "",
+    umur: item.umur || "",
+    jenis_kelamin: item.jenis_kelamin || "",
+    alamat: item.alamat || "",
+    no_hp: item.no_hp || "",
+    no_kip: item.no_kip || "",
+    nama_ayah_kandung: item.nama_ayah_kandung || "",
+    nama_ibu_kandung: item.nama_ibu_kandung || "",
+    nama_wali: item.nama_wali || "",
   };
   showModal.value = true;
 };

@@ -20,7 +20,10 @@ const TABLE_MAPPING: Record<string, string> = {
   aplikasi: "aplikasi",
   pengumuman: "pengumuman",
   kalenderpendidikan: "kalender_pendidikan",
-  pengaturantapel: "pengaturan_tapel"
+  pengaturantapel: "pengaturan_tapel",
+  kurikulum: "kurikulum",
+  alokasijam: "alokasi_jam",
+  jadwalpelajaran: "jadwal_pelajaran",
 };
 
 // Helper to validate table name to prevent SQL injection on table identifiers
@@ -34,19 +37,24 @@ function getValidatedTable(table?: string | null): string | null {
   }
 
   // 2. Try direct case-insensitive match in VALID_TABLES
-  const directMatch = VALID_TABLES.find(t => t.toLowerCase() === cleanInput);
+  const directMatch = VALID_TABLES.find((t) => t.toLowerCase() === cleanInput);
   if (directMatch) return directMatch;
 
   // 3. Try converting PascalCase/camelCase to snake_case
   const converted = toSnakeCase(table);
-  const convertedMatch = VALID_TABLES.find(t => t.toLowerCase() === converted);
+  const convertedMatch = VALID_TABLES.find(
+    (t) => t.toLowerCase() === converted,
+  );
   return convertedMatch || null;
 }
 
 // ---------------------------------------------------------------------------
 // Handler: GET /api/data — Ambil data dari tabel (pengganti doGet AppScript)
 // ---------------------------------------------------------------------------
-export async function handleGetData(request: Request, env: Env): Promise<Response> {
+export async function handleGetData(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   const url = new URL(request.url);
   const tableParam = url.searchParams.get("table");
 
@@ -76,7 +84,15 @@ export async function handleGetData(request: Request, env: Env): Promise<Respons
     if (d1Table === "data_gtk") {
       conditions.push("id = ?");
       params.push(parseInt(gtkId));
-    } else if (["akun_emis", "akun_email", "akun_simpatika", "akun_emis_gtk", "akun_rdm"].includes(d1Table)) {
+    } else if (
+      [
+        "akun_emis",
+        "akun_email",
+        "akun_simpatika",
+        "akun_emis_gtk",
+        "akun_rdm",
+      ].includes(d1Table)
+    ) {
       applyJsFilter = true;
     }
   }
@@ -93,11 +109,17 @@ export async function handleGetData(request: Request, env: Env): Promise<Respons
   }
 
   try {
-    const result = await env.DB.prepare(query).bind(...params).all<any>();
+    const result = await env.DB.prepare(query)
+      .bind(...params)
+      .all<any>();
     let rows = result.results;
 
     if (applyJsFilter && gtkId) {
-      const gtkRecord = await env.DB.prepare("SELECT nama_lengkap FROM data_gtk WHERE id = ?").bind(parseInt(gtkId)).first<{ nama_lengkap: string }>();
+      const gtkRecord = await env.DB.prepare(
+        "SELECT nama_lengkap FROM data_gtk WHERE id = ?",
+      )
+        .bind(parseInt(gtkId))
+        .first<{ nama_lengkap: string }>();
       if (gtkRecord && gtkRecord.nama_lengkap) {
         const targetCleaned = cleanName(gtkRecord.nama_lengkap);
         rows = rows.filter((row: any) => cleanName(row.nama) === targetCleaned);
@@ -116,7 +138,10 @@ export async function handleGetData(request: Request, env: Env): Promise<Respons
 // ---------------------------------------------------------------------------
 // Handler: POST /api/data — Insert data baru (pengganti doPost AppScript)
 // ---------------------------------------------------------------------------
-export async function handlePostData(request: Request, env: Env): Promise<Response> {
+export async function handlePostData(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   let body: any;
   try {
     body = await request.json();
@@ -124,7 +149,10 @@ export async function handlePostData(request: Request, env: Env): Promise<Respon
     return errorResponse("Invalid JSON body");
   }
 
-  const { table, data } = body as { table?: string; data?: Record<string, any> };
+  const { table, data } = body as {
+    table?: string;
+    data?: Record<string, any>;
+  };
 
   if (!table) {
     return errorResponse("Parameter 'table' is required");
@@ -146,7 +174,9 @@ export async function handlePostData(request: Request, env: Env): Promise<Respon
     }
 
     const insertCols = Object.keys(cleanedData);
-    const insertVals = Object.values(cleanedData).map(value => value !== undefined && value !== null ? String(value) : "");
+    const insertVals = Object.values(cleanedData).map((value) =>
+      value !== undefined && value !== null ? String(value) : "",
+    );
     const placeholders = Object.keys(cleanedData).map(() => "?");
 
     if (insertCols.length === 0) {
@@ -154,7 +184,9 @@ export async function handlePostData(request: Request, env: Env): Promise<Respon
     }
 
     const query = `INSERT INTO ${d1Table} (${insertCols.join(", ")}) VALUES (${placeholders.join(", ")})`;
-    await env.DB.prepare(query).bind(...insertVals).run();
+    await env.DB.prepare(query)
+      .bind(...insertVals)
+      .run();
 
     return jsonResponse({
       success: true,
@@ -168,7 +200,10 @@ export async function handlePostData(request: Request, env: Env): Promise<Respon
 // ---------------------------------------------------------------------------
 // Handler: PUT /api/data — Update data berdasarkan ID
 // ---------------------------------------------------------------------------
-export async function handlePutData(request: Request, env: Env): Promise<Response> {
+export async function handlePutData(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   let body: any;
   try {
     body = await request.json();
@@ -176,7 +211,11 @@ export async function handlePutData(request: Request, env: Env): Promise<Respons
     return errorResponse("Invalid JSON body");
   }
 
-  const { table, id, data } = body as { table?: string; id?: string | number; data?: Record<string, any> };
+  const { table, id, data } = body as {
+    table?: string;
+    id?: string | number;
+    data?: Record<string, any>;
+  };
 
   if (!table) {
     return errorResponse("Parameter 'table' is required");
@@ -211,7 +250,9 @@ export async function handlePutData(request: Request, env: Env): Promise<Respons
     params.push(typeof id === "string" ? parseInt(id) : id);
 
     const query = `UPDATE ${d1Table} SET ${setClauses.join(", ")} WHERE id = ?`;
-    await env.DB.prepare(query).bind(...params).run();
+    await env.DB.prepare(query)
+      .bind(...params)
+      .run();
 
     return jsonResponse({
       success: true,
@@ -225,7 +266,10 @@ export async function handlePutData(request: Request, env: Env): Promise<Respons
 // ---------------------------------------------------------------------------
 // Handler: DELETE /api/data — Hapus data berdasarkan ID
 // ---------------------------------------------------------------------------
-export async function handleDeleteData(request: Request, env: Env): Promise<Response> {
+export async function handleDeleteData(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   let body: any;
   try {
     body = await request.json();

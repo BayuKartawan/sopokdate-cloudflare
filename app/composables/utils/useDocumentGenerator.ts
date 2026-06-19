@@ -22,7 +22,8 @@ const monthToRoman = (month: number): string => {
 };
 
 const formatNoSurat = (number: string | number | null | undefined): string => {
-  if (number === undefined || number === null || String(number).trim() === "") return "";
+  if (number === undefined || number === null || String(number).trim() === "")
+    return "";
 
   const now = new Date();
   const month = now.getMonth() + 1;
@@ -36,13 +37,21 @@ const formatNoSurat = (number: string | number | null | undefined): string => {
 };
 
 const formatTime = (timeValue: string | null | undefined): string => {
-  if (timeValue === undefined || timeValue === null || String(timeValue).trim() === "") return "";
+  if (
+    timeValue === undefined ||
+    timeValue === null ||
+    String(timeValue).trim() === ""
+  )
+    return "";
   const timeStr = String(timeValue);
   if (timeStr.includes(".")) return timeStr;
   return timeStr.replace(":", ".");
 };
 
-const formatRowData = (rowData: Record<string, any>, fields: any[]): Record<string, any> => {
+const formatRowData = (
+  rowData: Record<string, any>,
+  fields: any[],
+): Record<string, any> => {
   const formattedData = { ...rowData };
 
   fields.forEach((field) => {

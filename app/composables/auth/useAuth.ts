@@ -37,7 +37,9 @@ export function useAuth() {
   const errorMessage = ref("");
   const { Loading } = useNotiflix();
 
-  const userDataCache = ref(new Map<string, { role: string; displayName: string }>());
+  const userDataCache = ref(
+    new Map<string, { role: string; displayName: string }>(),
+  );
 
   // API Configuration — via runtimeConfig
   const getApiBaseUrl = (): string => {
@@ -153,7 +155,10 @@ export function useAuth() {
     if (error?.message) {
       const msg = String(error.message).toLowerCase();
 
-      if (msg.includes("email atau password salah") || msg.includes("username atau password salah")) {
+      if (
+        msg.includes("email atau password salah") ||
+        msg.includes("username atau password salah")
+      ) {
         errorMsg = "Username atau password salah.";
       } else if (msg.includes("verifikasi keamanan gagal")) {
         errorMsg = "Verifikasi keamanan gagal. Silakan coba lagi.";
@@ -186,7 +191,12 @@ export function useAuth() {
   /**
    * Login — verifikasi credential via server proxy ke Cloudflare Worker D1
    */
-  const login = async (username?: string, password?: string, router?: any, Notify?: any): Promise<boolean> => {
+  const login = async (
+    username?: string,
+    password?: string,
+    router?: any,
+    Notify?: any,
+  ): Promise<boolean> => {
     isLoading.value = true;
     errorMessage.value = "";
 
@@ -211,7 +221,9 @@ export function useAuth() {
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         throw new Error(
-          errData.statusMessage || errData.error || "Username atau password salah."
+          errData.statusMessage ||
+            errData.error ||
+            "Username atau password salah.",
         );
       }
 

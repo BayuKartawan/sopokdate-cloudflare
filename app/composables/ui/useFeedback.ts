@@ -13,7 +13,11 @@ export interface Toast {
 const toasts = ref<Toast[]>([]);
 let nextId = 0;
 
-function addToast(message: string, type: Toast["type"] = "info", timeout: number = 3500): void {
+function addToast(
+  message: string,
+  type: Toast["type"] = "info",
+  timeout: number = 3500,
+): void {
   const id = ++nextId;
   toasts.value.push({ id, message, type, timeout });
   // Auto-remove after timeout
@@ -27,10 +31,14 @@ function removeToast(id: number): void {
 
 export function useToast() {
   const Notify = {
-    success: (msg: string, opts: { timeout?: number } = {}): void => addToast(msg, "success", opts.timeout ?? 3500),
-    failure: (msg: string, opts: { timeout?: number } = {}): void => addToast(msg, "failure", opts.timeout ?? 4000),
-    warning: (msg: string, opts: { timeout?: number } = {}): void => addToast(msg, "warning", opts.timeout ?? 3500),
-    info: (msg: string, opts: { timeout?: number } = {}): void => addToast(msg, "info", opts.timeout ?? 3500),
+    success: (msg: string, opts: { timeout?: number } = {}): void =>
+      addToast(msg, "success", opts.timeout ?? 3500),
+    failure: (msg: string, opts: { timeout?: number } = {}): void =>
+      addToast(msg, "failure", opts.timeout ?? 4000),
+    warning: (msg: string, opts: { timeout?: number } = {}): void =>
+      addToast(msg, "warning", opts.timeout ?? 3500),
+    info: (msg: string, opts: { timeout?: number } = {}): void =>
+      addToast(msg, "info", opts.timeout ?? 3500),
   };
   return { toasts, remove: removeToast, Notify };
 }

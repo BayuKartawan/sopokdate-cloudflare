@@ -90,7 +90,12 @@
                 <tr
                   v-for="(row, idx) in matrixRows"
                   :key="row.rowId"
-                  class="hover:bg-zinc-900/10 transition-colors"
+                  :class="[
+                    editingRowId === row.rowId
+                      ? 'bg-emerald-950/20 border-y border-emerald-500/30'
+                      : 'hover:bg-zinc-900/10',
+                    'transition-colors'
+                  ]"
                 >
                   <!-- Index -->
                   <td
@@ -102,26 +107,38 @@
                   <!-- Subject Name -->
                   <td class="p-3 border-r border-zinc-800/60">
                     <input
+                      v-if="isAdmin && editingRowId === row.rowId"
                       type="text"
                       v-model="row.nama_mapel"
                       placeholder="Contoh: Matematika"
-                      :disabled="!isAdmin"
-                      class="w-full px-3 py-1.5 rounded-lg border border-zinc-700/50 bg-zinc-900/40 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-semibold disabled:bg-transparent disabled:border-transparent disabled:px-0 disabled:text-zinc-200"
+                      class="w-full px-3 py-1.5 rounded-lg border border-zinc-700/50 bg-zinc-900/40 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-semibold"
                     />
+                    <span
+                      v-else
+                      class="text-zinc-200 text-sm font-semibold px-3 py-1.5 block"
+                    >
+                      {{ row.nama_mapel || '(Belum diisi)' }}
+                    </span>
                   </td>
 
                   <!-- Subject Code -->
                   <td class="p-3 border-r border-zinc-800/60">
                     <input
+                      v-if="isAdmin && editingRowId === row.rowId"
                       type="text"
                       v-model="row.kode_mapel"
                       placeholder="Contoh: MAT"
                       @input="
                         row.kode_mapel = $event.target.value.toUpperCase()
                       "
-                      :disabled="!isAdmin"
-                      class="w-full px-3 py-1.5 rounded-lg border border-zinc-700/50 bg-zinc-900/40 text-zinc-100 text-sm font-mono outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:bg-transparent disabled:border-transparent disabled:px-0 disabled:text-zinc-300"
+                      class="w-full px-3 py-1.5 rounded-lg border border-zinc-700/50 bg-zinc-900/40 text-zinc-100 text-sm font-mono outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                     />
+                    <span
+                      v-else
+                      class="text-zinc-400 text-sm font-mono px-3 py-1.5 block"
+                    >
+                      {{ row.kode_mapel || '-' }}
+                    </span>
                   </td>
 
                   <!-- Hourly allocations per Grade Level -->
@@ -131,25 +148,49 @@
                     class="p-3 text-center border-r border-zinc-800/60"
                   >
                     <input
+                      v-if="isAdmin && editingRowId === row.rowId"
                       type="number"
                       min="0"
                       :value="getCellHours(row, t)"
                       @input="onHoursInput(row, t, $event.target.value)"
-                      :disabled="!isAdmin"
                       placeholder="0"
-                      class="w-16 mx-auto px-2 py-1.5 rounded-lg border border-zinc-700/50 bg-zinc-900/40 text-zinc-100 text-sm text-center font-bold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:bg-transparent disabled:border-transparent disabled:px-0 disabled:text-zinc-300"
+                      class="w-16 mx-auto px-2 py-1.5 rounded-lg border border-zinc-700/50 bg-zinc-900/40 text-zinc-100 text-sm text-center font-bold outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                     />
+                    <span
+                      v-else
+                      class="text-zinc-300 text-sm font-bold block text-center"
+                    >
+                      {{ getCellHours(row, t) || '-' }}
+                    </span>
                   </td>
 
                   <!-- Actions -->
                   <td v-if="isAdmin" class="p-3 text-center">
-                    <button
-                      @click="deleteSubjectRow(row, idx)"
-                      class="p-2 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                      title="Hapus Baris"
-                    >
-                      <Trash2 class="w-4 h-4" />
-                    </button>
+                    <div class="flex items-center justify-center gap-1">
+                      <button
+                        v-if="editingRowId === row.rowId"
+                        @click="editingRowId = null"
+                        class="p-2 rounded-lg text-emerald-400 hover:bg-emerald-500/10 transition-all"
+                        title="Selesai Edit"
+                      >
+                        <Check class="w-4 h-4" />
+                      </button>
+                      <button
+                        v-else
+                        @click="editingRowId = row.rowId"
+                        class="p-2 rounded-lg text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all"
+                        title="Edit Baris"
+                      >
+                        <Pencil class="w-4 h-4" />
+                      </button>
+                      <button
+                        @click="deleteSubjectRow(row, idx)"
+                        class="p-2 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                        title="Hapus Baris"
+                      >
+                        <Trash2 class="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
                 <!-- Total JP per Kelas Row -->
@@ -235,6 +276,8 @@ import {
   Loader2,
   Save,
   RotateCcw,
+  Pencil,
+  Check,
 } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
@@ -266,6 +309,9 @@ const { isAdmin } = useCrud("kurikulum");
 
 // Saving state
 const isSaving = ref(false);
+
+// Active editing row ID
+const editingRowId = ref(null);
 
 // Local state for interactive matrix
 const matrixRows = ref([]);
@@ -400,6 +446,9 @@ const addSubjectRow = () => {
   });
 
   matrixRows.value.push(newRow);
+
+  // Auto-edit newly added row
+  editingRowId.value = tempId;
 };
 
 // Remove a subject row with a confirmation check if there are database entries
@@ -426,6 +475,7 @@ const deleteSubjectRow = (row, index) => {
 // Reset matrix table back to database snapshot
 const discardChanges = () => {
   loadMatrixData();
+  editingRowId.value = null;
   Notify.info("Perubahan kurikulum dibatalkan.");
 };
 
@@ -531,6 +581,7 @@ const saveChanges = async () => {
     Notify.success("Semua perubahan kurikulum berhasil disimpan!");
     await refreshKurikulum("kurikulum");
     loadMatrixData();
+    editingRowId.value = null;
   } catch (err) {
     console.error("Gagal menyimpan perubahan kurikulum:", err);
     Notify.failure("Gagal menyimpan beberapa perubahan. Silakan coba kembali.");

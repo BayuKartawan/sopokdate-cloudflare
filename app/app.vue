@@ -175,7 +175,6 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
   padding: 1rem;
 }
 .confirm-dialog {
@@ -267,34 +266,33 @@ onUnmounted(() => {
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.875rem 1rem;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid transparent;
   pointer-events: all;
   overflow: hidden;
-  backdrop-filter: blur(8px);
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.4),
-    0 1px 3px rgba(0, 0, 0, 0.3);
+    0 10px 25px -5px rgba(0, 0, 0, 0.5),
+    0 8px 16px -6px rgba(0, 0, 0, 0.5);
 }
 .toast--success {
-  background: #052e16cc;
-  border-color: #166534;
-  color: #86efac;
+  background: #064e3b;
+  border-color: #10b981;
+  color: #ecfdf5;
 }
 .toast--failure {
-  background: #450a0acc;
-  border-color: #991b1b;
-  color: #fca5a5;
+  background: #7f1d1d;
+  border-color: #ef4444;
+  color: #fef2f2;
 }
 .toast--warning {
-  background: #422006cc;
-  border-color: #92400e;
-  color: #fcd34d;
+  background: #78350f;
+  border-color: #f59e0b;
+  color: #fffbeb;
 }
 .toast--info {
-  background: #0c1a3acc;
-  border-color: #1e3a8a;
-  color: #93c5fd;
+  background: #1e3a8a;
+  border-color: #3b82f6;
+  color: #eff6ff;
 }
 .toast__message {
   flex: 1;
@@ -304,29 +302,34 @@ onUnmounted(() => {
   margin: 0;
 }
 .toast__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1.5rem;
+  height: 1.5rem;
   background: transparent;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.2s;
+  opacity: 0.7;
+  transition: all 0.2s;
   padding: 0;
   color: inherit;
-  margin-top: 1px;
+  margin-top: -2px;
 }
 .toast__close:hover {
   opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
 }
 .toast__progress {
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 2px;
+  height: 3px;
   background: currentColor;
-  opacity: 0.4;
-  border-radius: 0 0 10px 10px;
+  opacity: 0.35;
+  border-radius: 0 0 12px 12px;
   animation: progress-shrink linear forwards;
   transform-origin: left;
 }
@@ -365,7 +368,6 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(6px);
 }
 .loading-box {
   display: flex;

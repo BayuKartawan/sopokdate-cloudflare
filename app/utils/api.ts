@@ -153,7 +153,10 @@ export const fetchFromSuratApi = async (
 /**
  * Fungsi untuk login (deprecated, handled locally now)
  */
-export const loginApi = async (email?: string, password?: string): Promise<never> => {
+export const loginApi = async (
+  email?: string,
+  password?: string,
+): Promise<never> => {
   throw new Error(
     "loginApi is deprecated. Authentication is now handled locally.",
   );
@@ -279,7 +282,9 @@ export const putToApi = async (
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.statusMessage || `Failed to update data in table ${table}`);
+    throw new Error(
+      errData.statusMessage || `Failed to update data in table ${table}`,
+    );
   }
 
   clearTableSessionCache(table);
@@ -320,7 +325,9 @@ export const deleteFromApi = async (
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.statusMessage || `Failed to delete data from table ${table}`);
+    throw new Error(
+      errData.statusMessage || `Failed to delete data from table ${table}`,
+    );
   }
 
   clearTableSessionCache(table);

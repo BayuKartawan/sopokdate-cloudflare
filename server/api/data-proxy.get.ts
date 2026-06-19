@@ -3,7 +3,6 @@
 
 import { apiCache, CACHE_EXPIRATION_MS } from "../utils/cache";
 
-
 /**
  * Memvalidasi token JWT tiruan di sisi server
  * @param token Token JWT yang akan divalidasi
@@ -83,7 +82,9 @@ export default defineEventHandler(async (event) => {
   }
 
   // Bersihkan trailing slash pada URL Worker agar tidak menghasilkan double slash
-  const cleanWorkerUrl = workerUrl.endsWith("/") ? workerUrl.slice(0, -1) : workerUrl;
+  const cleanWorkerUrl = workerUrl.endsWith("/")
+    ? workerUrl.slice(0, -1)
+    : workerUrl;
 
   // Bangun URL ke Cloudflare Worker
   let url = "";
@@ -106,7 +107,13 @@ export default defineEventHandler(async (event) => {
     if (jwtPayload && jwtPayload.role === "guru" && jwtPayload.gtk_id) {
       if (
         table === "DataGtk" ||
-        ["AkunEmis", "AkunEmail", "AkunSimpatika", "AkunEmisGTK", "AkunRdm"].includes(table)
+        [
+          "AkunEmis",
+          "AkunEmail",
+          "AkunSimpatika",
+          "AkunEmisGTK",
+          "AkunRdm",
+        ].includes(table)
       ) {
         searchParams.append("gtk_id", String(jwtPayload.gtk_id));
       }

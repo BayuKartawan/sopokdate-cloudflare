@@ -4,11 +4,13 @@
  * - Tahun Pelajaran baru dimulai per 1 Juli (reset)
  * - Semester Ganjil: 1 Juli s.d 31 Desember
  * - Semester Genap: 1 Januari s.d 30 Juni
- * 
+ *
  * @param {Date|string} inputDate - Tanggal input (default: hari ini)
  * @returns {{ tahunPelajaran: string, semester: string }} { tahunPelajaran: "2025/2026", semester: "Ganjil" }
  */
-export function dapatkanTahunDanSemester(inputDate: Date | string = new Date()): {
+export function dapatkanTahunDanSemester(
+  inputDate: Date | string = new Date(),
+): {
   tahunPelajaran: string;
   semester: string;
 } {
@@ -23,7 +25,7 @@ export function dapatkanTahunDanSemester(inputDate: Date | string = new Date()):
   } else {
     date = inputDate;
   }
-  
+
   // Periksa kevalidan tanggal
   if (isNaN(date.getTime())) {
     const today = new Date();

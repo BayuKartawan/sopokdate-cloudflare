@@ -66,7 +66,7 @@
         <div class="lg:col-span-1 space-y-6 print:hidden">
           <!-- Card 1: Kertas (Paper Settings) -->
           <div
-            class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 shadow-lg backdrop-blur-md"
+            class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 shadow-lg"
           >
             <h2
               class="text-sm font-semibold text-zinc-200 mb-4 flex items-center gap-2"
@@ -180,7 +180,7 @@
 
           <!-- Card 2: Pas Foto Layout (Photo Grid & Dimensions) -->
           <div
-            class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 shadow-lg backdrop-blur-md"
+            class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 shadow-lg"
           >
             <h2
               class="text-sm font-semibold text-zinc-200 mb-4 flex items-center gap-2"
@@ -440,7 +440,7 @@
 
           <!-- Card 3: Upload & Kelola File -->
           <div
-            class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 shadow-lg backdrop-blur-md"
+            class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 shadow-lg"
           >
             <h2
               class="text-sm font-semibold text-zinc-200 mb-4 flex items-center justify-between"

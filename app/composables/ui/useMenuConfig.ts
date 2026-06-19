@@ -7,6 +7,7 @@ import {
   Banknote,
   GraduationCap,
   CalendarCheck,
+  Calendar,
 } from "lucide-vue-next";
 
 export interface MenuItemChild {
@@ -38,10 +39,22 @@ export const useMenuConfig = () => {
       children: [
         { to: "/akun/gtk/kelola", label: "Akun Sopokdate", roles: ["admin"] },
         { to: "/akun/gtk/emis", label: "EMIS 4.0", roles: ["admin", "guru"] },
-        { to: "/akun/gtk/email", label: "Email Madrasah", roles: ["admin", "guru"] },
+        {
+          to: "/akun/gtk/email",
+          label: "Email Madrasah",
+          roles: ["admin", "guru"],
+        },
         { to: "/akun/gtk/rdm", label: "RDM", roles: ["admin", "guru"] },
-        { to: "/akun/gtk/emis-gtk", label: "EMIS GTK", roles: ["admin", "guru"] },
-        { to: "/akun/gtk/simpatika", label: "SIMPATIKA", roles: ["admin", "guru"] },
+        {
+          to: "/akun/gtk/emis-gtk",
+          label: "EMIS GTK",
+          roles: ["admin", "guru"],
+        },
+        {
+          to: "/akun/gtk/simpatika",
+          label: "SIMPATIKA",
+          roles: ["admin", "guru"],
+        },
         { to: "/akun/madrasah", label: "Akun Madrasah", roles: ["admin"] },
       ],
     },
@@ -53,7 +66,7 @@ export const useMenuConfig = () => {
         { to: "/akademik/siswa", label: "Siswa", roles: ["admin", "guru"] },
         { to: "/akademik/gtk", label: "Guru Tendik", roles: ["admin"] },
         {
-          to: "/akademik/kelas",
+          to: "/akademik/rombel",
           label: "Rombel",
           roles: ["admin", "guru"],
         },
@@ -64,9 +77,44 @@ export const useMenuConfig = () => {
       icon: markRaw(CalendarCheck),
       roles: ["admin", "guru"],
       children: [
-        { to: "/absensi/siswa", label: "Absensi Siswa", roles: ["admin", "guru"] },
-        { to: "/absensi/rekap", label: "Rekap Absensi", roles: ["admin", "guru"] },
-        { to: "/absensi/kalender", label: "Kalender Pendidikan", roles: ["admin", "guru"] },
+        {
+          to: "/absensi/siswa",
+          label: "Absensi Siswa",
+          roles: ["admin", "guru"],
+        },
+        {
+          to: "/absensi/rekap",
+          label: "Rekap Absensi",
+          roles: ["admin", "guru"],
+        },
+        {
+          to: "/absensi/kalender",
+          label: "Kalender Pendidikan",
+          roles: ["admin", "guru"],
+        },
+      ],
+    },
+    {
+      label: "Jadwal",
+      icon: markRaw(Calendar),
+      roles: ["admin", "guru"],
+      children: [
+        {
+          to: "/jadwal/kurikulum",
+          label: "Kurikulum",
+          roles: ["admin", "guru"],
+        },
+        {
+          to: "/jadwal/alokasi",
+          label: "Alokasi Jam",
+          roles: ["admin", "guru"],
+        },
+        { to: "/jadwal/buat", label: "Buat Jadwal", roles: ["admin", "guru"] },
+        {
+          to: "/jadwal/cetak",
+          label: "Cetak Jadwal",
+          roles: ["admin", "guru"],
+        },
       ],
     },
     {
@@ -202,7 +250,10 @@ export const useMenuConfig = () => {
     }
   };
 
-  const updateMenuItem = (label: string, updatedItem: Partial<MenuItem>): void => {
+  const updateMenuItem = (
+    label: string,
+    updatedItem: Partial<MenuItem>,
+  ): void => {
     const index = allMenuItems.value.findIndex((item) => item.label === label);
     if (index > -1) {
       allMenuItems.value[index] = {
@@ -212,7 +263,10 @@ export const useMenuConfig = () => {
     }
   };
 
-  const addChildToMenuItem = (parentLabel: string, childItem: MenuItemChild): void => {
+  const addChildToMenuItem = (
+    parentLabel: string,
+    childItem: MenuItemChild,
+  ): void => {
     const parentIndex = allMenuItems.value.findIndex(
       (item) => item.label === parentLabel,
     );

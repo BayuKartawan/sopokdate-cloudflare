@@ -28,7 +28,7 @@
       <p class="text-base">( NISN. {{ nisn }} )</p>
 
       <p class="text-base mt-2">
-        Atas keberhasilannya meraih Peringkat {{ juara }} Pada 
+        Atas keberhasilannya meraih Peringkat {{ juara }} Pada
         {{ displayKelas }} Semester {{ currentSemester }} <br />
         Tahun Pelajaran {{ currentAcademicYear }}
       </p>

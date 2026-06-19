@@ -5,7 +5,10 @@ import type { Env } from "../types";
 // ---------------------------------------------------------------------------
 // POST /api/auth/login — Login dengan username & password dari tabel users
 // ---------------------------------------------------------------------------
-export async function handleAuthLogin(request: Request, env: Env): Promise<Response> {
+export async function handleAuthLogin(
+  request: Request,
+  env: Env,
+): Promise<Response> {
   let body: any;
   try {
     body = await request.json();
@@ -13,7 +16,10 @@ export async function handleAuthLogin(request: Request, env: Env): Promise<Respo
     return errorResponse("Invalid JSON body");
   }
 
-  const { username, password } = body as { username?: string; password?: string };
+  const { username, password } = body as {
+    username?: string;
+    password?: string;
+  };
 
   if (!username || !password) {
     return errorResponse("Username dan password diperlukan");
@@ -21,7 +27,7 @@ export async function handleAuthLogin(request: Request, env: Env): Promise<Respo
 
   try {
     const user = await env.DB.prepare(
-      "SELECT id, username, password, role, display_name, gtk_id, is_active FROM users WHERE username = ?"
+      "SELECT id, username, password, role, display_name, gtk_id, is_active FROM users WHERE username = ?",
     )
       .bind(username)
       .first<{
@@ -69,7 +75,7 @@ export async function handleSeedGuru(env: Env): Promise<Response> {
   try {
     // Ambil semua GTK yang punya peg_id
     const gtkRows = await env.DB.prepare(
-      "SELECT id, nama_lengkap, peg_id FROM data_gtk WHERE peg_id IS NOT NULL AND peg_id != ''"
+      "SELECT id, nama_lengkap, peg_id FROM data_gtk WHERE peg_id IS NOT NULL AND peg_id != ''",
     ).all<{ id: number; nama_lengkap: string | null; peg_id: string }>();
 
     if (!gtkRows.results || gtkRows.results.length === 0) {
@@ -92,7 +98,7 @@ export async function handleSeedGuru(env: Env): Promise<Response> {
     for (const gtk of gtkRows.results) {
       // Cek apakah sudah ada akun untuk gtk ini
       const existing = await env.DB.prepare(
-        "SELECT id FROM users WHERE gtk_id = ?"
+        "SELECT id FROM users WHERE gtk_id = ?",
       )
         .bind(gtk.id)
         .first<{ id: number }>();
@@ -104,7 +110,7 @@ export async function handleSeedGuru(env: Env): Promise<Response> {
 
       // Cek apakah username (peg_id) sudah dipakai
       const usernameExists = await env.DB.prepare(
-        "SELECT id FROM users WHERE username = ?"
+        "SELECT id FROM users WHERE username = ?",
       )
         .bind(gtk.peg_id)
         .first<{ id: number }>();
@@ -117,7 +123,7 @@ export async function handleSeedGuru(env: Env): Promise<Response> {
       const password = generateRandomPassword(8);
 
       await env.DB.prepare(
-        "INSERT INTO users (username, password, role, display_name, gtk_id) VALUES (?, ?, 'guru', ?, ?)"
+        "INSERT INTO users (username, password, role, display_name, gtk_id) VALUES (?, ?, 'guru', ?, ?)",
       )
         .bind(gtk.peg_id, password, gtk.nama_lengkap || gtk.peg_id, gtk.id)
         .run();
@@ -153,7 +159,7 @@ export async function handleGetUsers(env: Env): Promise<Response> {
               g.nama_lengkap as gtk_nama, g.peg_id as gtk_peg_id, g.nuptk as gtk_nuptk
        FROM users u
        LEFT JOIN data_gtk g ON u.gtk_id = g.id
-       ORDER BY u.role ASC, u.display_name ASC`
+       ORDER BY u.role ASC, u.display_name ASC`,
     ).all<{
       id: number;
       username: string;
@@ -177,7 +183,11 @@ export async function handleGetUsers(env: Env): Promise<Response> {
 // ---------------------------------------------------------------------------
 // PUT /api/auth/users/:id — Update akun user (admin: reset password, toggle active)
 // ---------------------------------------------------------------------------
-export async function handleUpdateUser(request: Request, env: Env, userId: string): Promise<Response> {
+export async function handleUpdateUser(
+  request: Request,
+  env: Env,
+  userId: string,
+): Promise<Response> {
   let body: any;
   try {
     body = await request.json();
@@ -213,7 +223,9 @@ export async function handleUpdateUser(request: Request, env: Env, userId: strin
     const query = `UPDATE users SET ${updates.join(", ")} WHERE id = ?`;
     params.push(parseInt(userId));
 
-    await env.DB.prepare(query).bind(...params).run();
+    await env.DB.prepare(query)
+      .bind(...params)
+      .run();
 
     return jsonResponse({
       success: true,
@@ -227,7 +239,10 @@ export async function handleUpdateUser(request: Request, env: Env, userId: strin
 // ---------------------------------------------------------------------------
 // DELETE /api/auth/users/:id — Hapus akun user (admin only)
 // ---------------------------------------------------------------------------
-export async function handleDeleteUser(env: Env, userId: string): Promise<Response> {
+export async function handleDeleteUser(
+  env: Env,
+  userId: string,
+): Promise<Response> {
   try {
     await env.DB.prepare("DELETE FROM users WHERE id = ?")
       .bind(parseInt(userId))

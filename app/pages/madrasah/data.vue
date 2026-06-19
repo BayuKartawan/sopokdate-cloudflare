@@ -116,7 +116,9 @@ import CrudModal from "~/components/ui/CrudModal.vue";
 
 const { cardData: dataMadrasah, loadData, refreshData } = useTableData();
 const { Notify } = useNotiflix();
-const { isAdmin, isSaving, updateItem } = useCrud("data_madrasah", () => refreshData("data_madrasah"));
+const { isAdmin, isSaving, updateItem } = useCrud("data_madrasah", () =>
+  refreshData("data_madrasah"),
+);
 
 const searchKeyword = ref({ dataGtk: "", dataMadrasah: "" });
 const visibleCount = ref({ dataGtk: 4, dataMadrasah: 12 });
@@ -152,13 +154,13 @@ const openEditModal = () => {
     const item = dataMadrasah.value[0];
     editingItem.value = {
       _id: item.id || item._id,
-      "madrasah": item.madrasah || "",
-      "nsm": item.nsm || "",
-      "npsn": item.npsn || "",
-      "akreditasi": item.akreditasi || "",
-      "nomor_akreditasi": item.nomor_akreditasi || "",
-      "no_hp_kamad": item.no_hp_kamad || "",
-      "siap_id": item.siap_id || "",
+      madrasah: item.madrasah || "",
+      nsm: item.nsm || "",
+      npsn: item.npsn || "",
+      akreditasi: item.akreditasi || "",
+      nomor_akreditasi: item.nomor_akreditasi || "",
+      no_hp_kamad: item.no_hp_kamad || "",
+      siap_id: item.siap_id || "",
     };
     showModal.value = true;
   }

@@ -127,19 +127,27 @@
                       class="flex-1 select-all cursor-pointer text-zinc-100 hover:text-emerald-400 transition-colors font-medium break-all"
                       @click="
                         copyToClipboard(
-                          item.key === 'tingkat - rombel' ? getClassName(siswaDetail[item.key]) : (siswaDetail[item.key] || '-'),
+                          item.key === 'tingkat - rombel'
+                            ? getClassName(siswaDetail[item.key])
+                            : siswaDetail[item.key] || '-',
                           item.label,
                         )
                       "
                       title="Klik untuk menyalin"
                     >
-                      {{ item.key === 'tingkat - rombel' ? getClassName(siswaDetail[item.key]) : (siswaDetail[item.key] || "-") }}
+                      {{
+                        item.key === "tingkat - rombel"
+                          ? getClassName(siswaDetail[item.key])
+                          : siswaDetail[item.key] || "-"
+                      }}
                     </span>
                     <span
                       class="text-[10px] bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shrink-0"
                       @click="
                         copyToClipboard(
-                          item.key === 'tingkat - rombel' ? getClassName(siswaDetail[item.key]) : (siswaDetail[item.key] || '-'),
+                          item.key === 'tingkat - rombel'
+                            ? getClassName(siswaDetail[item.key])
+                            : siswaDetail[item.key] || '-',
                           item.label,
                         )
                       "
@@ -162,7 +170,9 @@
               >
                 <Users class="w-4 h-4 text-emerald-400" />
                 <h3 class="text-sm font-bold text-white">
-                  Siswa Sekelas ({{ getClassName(siswaDetail["tingkat - rombel"]) }})
+                  Siswa Sekelas ({{
+                    getClassName(siswaDetail["tingkat - rombel"])
+                  }})
                 </h3>
               </div>
 
@@ -287,7 +297,8 @@ async function loadSiswaDetail() {
 
     if (nisLokal !== undefined && nisLokal !== null) {
       foundItem = dataSiswa.value.find(
-        (item) => item && String(item["nis lokal"]).trim() === String(nisLokal).trim()
+        (item) =>
+          item && String(item["nis lokal"]).trim() === String(nisLokal).trim(),
       );
     }
 

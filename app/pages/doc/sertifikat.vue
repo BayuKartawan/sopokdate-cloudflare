@@ -223,9 +223,13 @@ const handleFormUpdate = ({ formData, templateType }) => {
 
     // Auto-fill Wali Kelas dari DataKelas (Lookup via PegID)
     if (Array.isArray(dataKelas.value) && Array.isArray(dataGtk.value)) {
-      const classInfo = dataKelas.value.find((k) => k.namaKelas === currentClass);
+      const classInfo = dataKelas.value.find(
+        (k) => k.namaKelas === currentClass,
+      );
       if (classInfo && classInfo.waliKelas) {
-        const teacher = dataGtk.value.find((g) => g.PegID === classInfo.waliKelas);
+        const teacher = dataGtk.value.find(
+          (g) => g.PegID === classInfo.waliKelas,
+        );
         formData.wali_kelas = teacher ? teacher.title : classInfo.waliKelas;
       } else {
         formData.wali_kelas = "";

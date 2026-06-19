@@ -3,7 +3,9 @@
     <div class="page-layout px-4 sm:px-6">
       <!-- Header -->
       <div class="flex flex-col gap-4 sm:gap-6 mt-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        >
           <h2 class="text-xl text-white sm:text-2xl">Kelola Akun Guru</h2>
           <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
             <!-- Seed Accounts Button -->
@@ -47,7 +49,9 @@
         <!-- Search -->
         <div class="w-full">
           <div class="relative">
-            <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+            <Search
+              class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400"
+            />
             <input
               v-model="searchQuery"
               type="text"
@@ -61,10 +65,7 @@
       <!-- Users Table Container -->
       <div class="mt-5">
         <!-- Loading State -->
-        <div
-          v-if="isLoading"
-          class="flex items-center justify-center py-16"
-        >
+        <div v-if="isLoading" class="flex items-center justify-center py-16">
           <Loader2 class="w-8 h-8 text-emerald-500 animate-spin" />
           <span class="ml-3 text-zinc-400">Memuat data akun...</span>
         </div>
@@ -156,10 +157,7 @@
                         <p class="text-zinc-100 font-medium text-sm">
                           {{ user.display_name || "-" }}
                         </p>
-                        <p
-                          v-if="user.gtk_nuptk"
-                          class="text-zinc-500 text-xs"
-                        >
+                        <p v-if="user.gtk_nuptk" class="text-zinc-500 text-xs">
                           NUPTK: {{ user.gtk_nuptk }}
                         </p>
                       </div>
@@ -177,18 +175,14 @@
                         class="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 text-xs font-mono"
                       >
                         {{
-                          showPasswordMap[user.id]
-                            ? user.password
-                            : "••••••••"
+                          showPasswordMap[user.id] ? user.password : "••••••••"
                         }}
                       </code>
                       <button
                         @click="toggleShowPassword(user.id)"
                         class="text-zinc-500 hover:text-zinc-300 transition-colors"
                         :title="
-                          showPasswordMap[user.id]
-                            ? 'Sembunyikan'
-                            : 'Tampilkan'
+                          showPasswordMap[user.id] ? 'Sembunyikan' : 'Tampilkan'
                         "
                       >
                         <Eye
@@ -224,9 +218,7 @@
                     </span>
                   </td>
                   <td class="px-4 py-3">
-                    <div
-                      class="flex items-center justify-center gap-1"
-                    >
+                    <div class="flex items-center justify-center gap-1">
                       <!-- Reset Password -->
                       <button
                         @click="resetPassword(user)"
@@ -241,8 +233,7 @@
                       <button
                         @click="toggleActive(user)"
                         :disabled="
-                          actionLoading === user.id ||
-                          user.role === 'admin'
+                          actionLoading === user.id || user.role === 'admin'
                         "
                         class="p-1.5 rounded-md transition-all disabled:opacity-30"
                         :class="
@@ -250,11 +241,7 @@
                             ? 'text-zinc-400 hover:text-red-400 hover:bg-zinc-800'
                             : 'text-zinc-400 hover:text-green-400 hover:bg-zinc-800'
                         "
-                        :title="
-                          user.is_active
-                            ? 'Nonaktifkan'
-                            : 'Aktifkan'
-                        "
+                        :title="user.is_active ? 'Nonaktifkan' : 'Aktifkan'"
                       >
                         <Ban v-if="user.is_active" class="w-3.5 h-3.5" />
                         <Check v-else class="w-3.5 h-3.5" />
@@ -264,8 +251,7 @@
                       <button
                         @click="deleteUser(user)"
                         :disabled="
-                          actionLoading === user.id ||
-                          user.role === 'admin'
+                          actionLoading === user.id || user.role === 'admin'
                         "
                         class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-all disabled:opacity-30"
                         title="Hapus Akun"
@@ -300,15 +286,20 @@
                     {{ getInitials(user.display_name) }}
                   </div>
                   <div>
-                    <h3 class="text-zinc-100 font-medium text-sm sm:text-base leading-snug">
+                    <h3
+                      class="text-zinc-100 font-medium text-sm sm:text-base leading-snug"
+                    >
                       {{ user.display_name || "-" }}
                     </h3>
-                    <p v-if="user.gtk_nuptk" class="text-zinc-500 text-xs mt-0.5">
+                    <p
+                      v-if="user.gtk_nuptk"
+                      class="text-zinc-500 text-xs mt-0.5"
+                    >
                       NUPTK: {{ user.gtk_nuptk }}
                     </p>
                   </div>
                 </div>
-                
+
                 <!-- Badges -->
                 <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
                   <span
@@ -335,24 +326,35 @@
               </div>
 
               <!-- Credentials Section -->
-              <div class="space-y-2.5 bg-zinc-900/40 p-3 rounded-lg border border-zinc-800/80 mb-4 text-xs">
+              <div
+                class="space-y-2.5 bg-zinc-900/40 p-3 rounded-lg border border-zinc-800/80 mb-4 text-xs"
+              >
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-zinc-500">Username</span>
-                  <code class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 font-mono select-all">
+                  <code
+                    class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 font-mono select-all"
+                  >
                     {{ user.username }}
                   </code>
                 </div>
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-zinc-500">Password</span>
                   <div class="flex items-center gap-1.5">
-                    <code class="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono select-all">
-                      {{ showPasswordMap[user.id] ? user.password : "••••••••" }}
+                    <code
+                      class="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono select-all"
+                    >
+                      {{
+                        showPasswordMap[user.id] ? user.password : "••••••••"
+                      }}
                     </code>
                     <button
                       @click="toggleShowPassword(user.id)"
                       class="text-zinc-500 hover:text-zinc-300 p-1 rounded transition-colors"
                     >
-                      <Eye v-if="!showPasswordMap[user.id]" class="w-3.5 h-3.5" />
+                      <Eye
+                        v-if="!showPasswordMap[user.id]"
+                        class="w-3.5 h-3.5"
+                      />
                       <EyeOff v-else class="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -360,7 +362,9 @@
               </div>
 
               <!-- Action Section -->
-              <div class="flex items-center justify-between pt-2 border-t border-zinc-800/80">
+              <div
+                class="flex items-center justify-between pt-2 border-t border-zinc-800/80"
+              >
                 <span class="text-xs text-zinc-500">Aksi Akun</span>
                 <div class="flex items-center gap-1">
                   <!-- Reset Password -->
@@ -370,14 +374,19 @@
                     class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-amber-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-all disabled:opacity-50"
                     title="Reset Password"
                   >
-                    <RefreshCw class="w-3 h-3" :class="{ 'animate-spin': actionLoading === user.id }" />
+                    <RefreshCw
+                      class="w-3 h-3"
+                      :class="{ 'animate-spin': actionLoading === user.id }"
+                    />
                     <span>Reset</span>
                   </button>
 
                   <!-- Toggle Active -->
                   <button
                     @click="toggleActive(user)"
-                    :disabled="actionLoading === user.id || user.role === 'admin'"
+                    :disabled="
+                      actionLoading === user.id || user.role === 'admin'
+                    "
                     class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border transition-all disabled:opacity-30"
                     :class="
                       user.is_active
@@ -398,7 +407,9 @@
                   <!-- Delete -->
                   <button
                     @click="deleteUser(user)"
-                    :disabled="actionLoading === user.id || user.role === 'admin'"
+                    :disabled="
+                      actionLoading === user.id || user.role === 'admin'
+                    "
                     class="p-1 rounded-md bg-zinc-800 text-zinc-400 hover:text-red-400 hover:bg-zinc-700 border border-zinc-700/50 transition-all disabled:opacity-30"
                     title="Hapus Akun"
                   >
@@ -409,7 +420,6 @@
             </div>
           </div>
         </template>
-
 
         <!-- Summary -->
         <div v-if="users.length > 0" class="mt-3 text-xs text-zinc-500">
@@ -462,7 +472,7 @@ const filteredUsers = computed(() => {
     (u) =>
       (u.display_name && u.display_name.toLowerCase().includes(q)) ||
       (u.username && u.username.toLowerCase().includes(q)) ||
-      (u.gtk_nuptk && u.gtk_nuptk.toLowerCase().includes(q))
+      (u.gtk_nuptk && u.gtk_nuptk.toLowerCase().includes(q)),
   );
 });
 
@@ -541,7 +551,7 @@ const handleSeedGuru = async () => {
 
         const result = await response.json();
         Notify?.success?.(
-          result.message || `Berhasil membuat ${result.created} akun guru`
+          result.message || `Berhasil membuat ${result.created} akun guru`,
         );
 
         // Reload users
@@ -553,7 +563,7 @@ const handleSeedGuru = async () => {
         isSeeding.value = false;
       }
     },
-    () => {}
+    () => {},
   );
 };
 
@@ -573,9 +583,7 @@ const resetPassword = async (user) => {
         const chars = "abcdefghjkmnpqrstuvwxyz23456789";
         let newPassword = "";
         for (let i = 0; i < 8; i++) {
-          newPassword += chars.charAt(
-            Math.floor(Math.random() * chars.length)
-          );
+          newPassword += chars.charAt(Math.floor(Math.random() * chars.length));
         }
 
         const token = getToken();
@@ -609,7 +617,7 @@ const resetPassword = async (user) => {
         };
 
         Notify?.success?.(
-          `Password ${user.display_name || user.username} berhasil direset`
+          `Password ${user.display_name || user.username} berhasil direset`,
         );
       } catch (err) {
         console.error("Gagal reset password:", err);
@@ -618,7 +626,7 @@ const resetPassword = async (user) => {
         actionLoading.value = null;
       }
     },
-    () => {}
+    () => {},
   );
 };
 
@@ -659,7 +667,7 @@ const toggleActive = async (user) => {
     }
 
     Notify?.success?.(
-      `Akun ${user.display_name || user.username} berhasil di${newStatus ? "aktifkan" : "nonaktifkan"}`
+      `Akun ${user.display_name || user.username} berhasil di${newStatus ? "aktifkan" : "nonaktifkan"}`,
     );
   } catch (err) {
     console.error(`Gagal ${statusText}:`, err);
@@ -704,7 +712,7 @@ const deleteUser = async (user) => {
         users.value = users.value.filter((u) => u.id !== user.id);
 
         Notify?.success?.(
-          `Akun ${user.display_name || user.username} berhasil dihapus`
+          `Akun ${user.display_name || user.username} berhasil dihapus`,
         );
       } catch (err) {
         console.error("Gagal menghapus:", err);
@@ -713,7 +721,7 @@ const deleteUser = async (user) => {
         actionLoading.value = null;
       }
     },
-    () => {}
+    () => {},
   );
 };
 

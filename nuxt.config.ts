@@ -26,7 +26,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // URL Cloudflare Worker (menggantikan URL AppScript)
     apiWorkerUrl: process.env.NUXT_API_WORKER_URL || "http://localhost:8787",
-    apiWorkerToken: process.env.NUXT_API_WORKER_TOKEN || "sopokdate_secret_token_123",
+    apiWorkerToken:
+      process.env.NUXT_API_WORKER_TOKEN || "sopokdate_secret_token_123",
     // URL AppScript lama (simpan sebagai fallback, bisa dihapus nanti)
     apiUrlUtama: process.env.NUXT_PUBLIC_API_URL_UTAMA || "",
     apiUrlSurat: process.env.NUXT_PUBLIC_API_URL_SURAT || "",
@@ -88,13 +89,16 @@ export default defineNuxtConfig({
             newPath = newPath.replace("/siswa/data", "/akademik/siswa");
           }
           if (newPath.startsWith("/siswa/detail")) {
-            newPath = newPath.replace("/siswa/detail", "/akademik/siswa/detail");
+            newPath = newPath.replace(
+              "/siswa/detail",
+              "/akademik/siswa/detail",
+            );
           }
           if (newPath.startsWith("/gtk/data")) {
             newPath = newPath.replace("/gtk/data", "/akademik/gtk");
           }
-          if (newPath.startsWith("/madrasah/kelas")) {
-            newPath = newPath.replace("/madrasah/kelas", "/akademik/kelas");
+          if (newPath.startsWith("/madrasah/rombel")) {
+            newPath = newPath.replace("/madrasah/rombel", "/akademik/rombel");
           }
 
           route.path = newPath;

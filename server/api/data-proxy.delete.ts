@@ -76,7 +76,9 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const cleanWorkerUrl = workerUrl.endsWith("/") ? workerUrl.slice(0, -1) : workerUrl;
+  const cleanWorkerUrl = workerUrl.endsWith("/")
+    ? workerUrl.slice(0, -1)
+    : workerUrl;
   const url = `${cleanWorkerUrl}/api/data`;
 
   try {

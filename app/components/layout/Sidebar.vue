@@ -14,7 +14,7 @@
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
         'bg-zinc-950',
       ]"
-      class="fixed backdrop-blur-lg left-0 top-0 h-full w-64 z-50 transform transition-transform duration-300 ease-in-out flex flex-col"
+      class="fixed left-0 top-0 h-full w-64 z-50 transform transition-transform duration-300 ease-in-out flex flex-col"
     >
       <div class="p-2 pl-4 flex justify-between items-center flex-shrink-0">
         <!-- App Name -->
@@ -52,7 +52,11 @@
                 :class="getLinkClass(menuItem.to, 'flex')"
                 @click="handleNavClick"
               >
-                <component :is="menuItem.icon" v-if="menuItem.icon" class="w-5 h-5 mr-3" />
+                <component
+                  :is="menuItem.icon"
+                  v-if="menuItem.icon"
+                  class="w-5 h-5 mr-3"
+                />
                 {{ menuItem.label }}
               </NuxtLink>
 
@@ -62,13 +66,17 @@
                   @click="toggleDropdown(menuItem.label)"
                   class="w-full flex items-center px-3 py-2 text-left transition-colors duration-200 text-zinc-200 hover:bg-zinc-900 hover:text-emerald-400"
                 >
-                  <component :is="menuItem.icon" v-if="menuItem.icon" class="w-5 h-5 mr-3" />
+                  <component
+                    :is="menuItem.icon"
+                    v-if="menuItem.icon"
+                    class="w-5 h-5 mr-3"
+                  />
                   <span class="flex-1">{{ menuItem.label }}</span>
 
                   <ChevronRight
                     :class="[
-                       'w-4 h-4 transition-transform duration-200',
-                       openDropdowns.includes(menuItem.label) ? 'rotate-90' : '',
+                      'w-4 h-4 transition-transform duration-200',
+                      openDropdowns.includes(menuItem.label) ? 'rotate-90' : '',
                     ]"
                   />
                 </button>
@@ -84,7 +92,11 @@
                     @click="handleSubNavClick"
                     :class="getLinkClass(childItem.to, 'ml-8')"
                   >
-                    <component :is="childItem.icon" v-if="childItem.icon" class="w-5 h-5 mr-3" />
+                    <component
+                      :is="childItem.icon"
+                      v-if="childItem.icon"
+                      class="w-5 h-5 mr-3"
+                    />
                     {{ childItem.label }}
                   </NuxtLink>
                 </div>

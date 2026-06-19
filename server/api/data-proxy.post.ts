@@ -64,7 +64,9 @@ export default defineEventHandler(async (event) => {
   }
 
   // Bersihkan trailing slash pada URL Worker agar tidak menghasilkan double slash
-  const cleanWorkerUrl = workerUrl.endsWith("/") ? workerUrl.slice(0, -1) : workerUrl;
+  const cleanWorkerUrl = workerUrl.endsWith("/")
+    ? workerUrl.slice(0, -1)
+    : workerUrl;
 
   // URL endpoint POST di Worker
   const url = `${cleanWorkerUrl}/api/data`;

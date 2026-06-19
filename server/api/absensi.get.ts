@@ -62,11 +62,14 @@ export default defineEventHandler(async (event) => {
   if (!workerUrl) {
     throw createError({
       statusCode: 500,
-      statusMessage: "Server Error: Konfigurasi API Worker tidak ditemukan di server",
+      statusMessage:
+        "Server Error: Konfigurasi API Worker tidak ditemukan di server",
     });
   }
 
-  const cleanWorkerUrl = workerUrl.endsWith("/") ? workerUrl.slice(0, -1) : workerUrl;
+  const cleanWorkerUrl = workerUrl.endsWith("/")
+    ? workerUrl.slice(0, -1)
+    : workerUrl;
   const url = `${cleanWorkerUrl}/api/absensi?tanggal=${encodeURIComponent(tanggal)}&kelas_id=${encodeURIComponent(kelasId)}`;
 
   try {
@@ -79,7 +82,10 @@ export default defineEventHandler(async (event) => {
 
     return response;
   } catch (error: any) {
-    console.error(`Gagal proxy GET absensi ke Cloudflare Worker (${url}):`, error);
+    console.error(
+      `Gagal proxy GET absensi ke Cloudflare Worker (${url}):`,
+      error,
+    );
     throw createError({
       statusCode: 502,
       statusMessage: `Bad Gateway: Gagal mengambil data absensi dari Cloudflare Worker: ${error.message}`,

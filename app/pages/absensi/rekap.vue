@@ -2,9 +2,13 @@
   <div class="min-h-screen">
     <div class="page-layout">
       <!-- Top Section: Title & Actions -->
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+      <div
+        class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6"
+      >
         <div>
-          <h2 class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2">
+          <h2
+            class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+          >
             <ClipboardList class="w-7 h-7 text-emerald-400" />
             Rekap Absensi Siswa
           </h2>
@@ -34,42 +38,122 @@
 
               <!-- Header -->
               <div class="text-center mb-6">
-                <h1 class="font-bold uppercase text-lg">REKAPITULASI PRESENSI SISWA</h1>
+                <h1 class="font-bold uppercase text-lg">
+                  REKAPITULASI PRESENSI SISWA
+                </h1>
                 <p class="text-sm font-semibold mt-1">
-                  Kelas: {{ currentClassName }} | Semester: {{ selectedSemester }} | Tahun Pelajaran: {{ selectedTapel }}
+                  Kelas: {{ currentClassName }} | Semester:
+                  {{ selectedSemester }} | Tahun Pelajaran: {{ selectedTapel }}
                 </p>
               </div>
 
               <!-- Tabel Cetak -->
-              <table class="w-full table-auto border border-gray-800 mb-6 text-xs">
+              <table
+                class="w-full table-auto border border-gray-800 mb-6 text-xs"
+              >
                 <thead class="bg-gray-100">
                   <tr>
-                    <th class="border border-gray-800 px-2 py-2 text-center w-8" rowspan="2">No</th>
-                    <th class="border border-gray-800 px-2 py-2 text-left" rowspan="2">Nama Siswa</th>
-                    <th class="border border-gray-800 px-2 py-2 text-center w-24" rowspan="2">NISN</th>
-                    <th class="border border-gray-800 px-2 py-1 text-center" colspan="4">Kehadiran (Hari)</th>
-                    <th class="border border-gray-800 px-2 py-2 text-center w-16" rowspan="2">H. Efektif</th>
-                    <th class="border border-gray-800 px-2 py-2 text-center w-16" rowspan="2">Persentase</th>
+                    <th
+                      class="border border-gray-800 px-2 py-2 text-center w-8"
+                      rowspan="2"
+                    >
+                      No
+                    </th>
+                    <th
+                      class="border border-gray-800 px-2 py-2 text-left"
+                      rowspan="2"
+                    >
+                      Nama Siswa
+                    </th>
+                    <th
+                      class="border border-gray-800 px-2 py-2 text-center w-24"
+                      rowspan="2"
+                    >
+                      NISN
+                    </th>
+                    <th
+                      class="border border-gray-800 px-2 py-1 text-center"
+                      colspan="4"
+                    >
+                      Kehadiran (Hari)
+                    </th>
+                    <th
+                      class="border border-gray-800 px-2 py-2 text-center w-16"
+                      rowspan="2"
+                    >
+                      H. Efektif
+                    </th>
+                    <th
+                      class="border border-gray-800 px-2 py-2 text-center w-16"
+                      rowspan="2"
+                    >
+                      Persentase
+                    </th>
                   </tr>
                   <tr>
-                    <th class="border border-gray-800 px-1 py-1 text-center w-10">H</th>
-                    <th class="border border-gray-800 px-1 py-1 text-center w-10">S</th>
-                    <th class="border border-gray-800 px-1 py-1 text-center w-10">I</th>
-                    <th class="border border-gray-800 px-1 py-1 text-center w-10">A</th>
+                    <th
+                      class="border border-gray-800 px-1 py-1 text-center w-10"
+                    >
+                      H
+                    </th>
+                    <th
+                      class="border border-gray-800 px-1 py-1 text-center w-10"
+                    >
+                      S
+                    </th>
+                    <th
+                      class="border border-gray-800 px-1 py-1 text-center w-10"
+                    >
+                      I
+                    </th>
+                    <th
+                      class="border border-gray-800 px-1 py-1 text-center w-10"
+                    >
+                      A
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(siswa, index) in rekapData" :key="siswa.siswa_id">
-                    <td class="border border-gray-800 px-2 py-1.5 text-center">{{ index + 1 }}</td>
-                    <td class="border border-gray-800 px-2 py-1.5 font-semibold">{{ toTitleCase(siswa.nama) }}</td>
-                    <td class="border border-gray-800 px-2 py-1.5 text-center font-mono">{{ siswa.nisn || "-" }}</td>
-                    <td class="border border-gray-800 px-2 py-1.5 text-center">{{ siswa.total_hadir }}</td>
-                    <td class="border border-gray-800 px-2 py-1.5 text-center">{{ siswa.total_sakit }}</td>
-                    <td class="border border-gray-800 px-2 py-1.5 text-center">{{ siswa.total_izin }}</td>
-                    <td class="border border-gray-800 px-2 py-1.5 text-center">{{ siswa.total_alpa }}</td>
-                    <td class="border border-gray-800 px-2 py-1.5 text-center font-bold">{{ siswa.total_hari_efektif }}</td>
-                    <td class="border border-gray-800 px-2 py-1.5 text-center font-bold">
-                      {{ hitungPersentase(siswa.total_hadir, siswa.total_hari_efektif) }}%
+                    <td class="border border-gray-800 px-2 py-1.5 text-center">
+                      {{ index + 1 }}
+                    </td>
+                    <td
+                      class="border border-gray-800 px-2 py-1.5 font-semibold"
+                    >
+                      {{ toTitleCase(siswa.nama) }}
+                    </td>
+                    <td
+                      class="border border-gray-800 px-2 py-1.5 text-center font-mono"
+                    >
+                      {{ siswa.nisn || "-" }}
+                    </td>
+                    <td class="border border-gray-800 px-2 py-1.5 text-center">
+                      {{ siswa.total_hadir }}
+                    </td>
+                    <td class="border border-gray-800 px-2 py-1.5 text-center">
+                      {{ siswa.total_sakit }}
+                    </td>
+                    <td class="border border-gray-800 px-2 py-1.5 text-center">
+                      {{ siswa.total_izin }}
+                    </td>
+                    <td class="border border-gray-800 px-2 py-1.5 text-center">
+                      {{ siswa.total_alpa }}
+                    </td>
+                    <td
+                      class="border border-gray-800 px-2 py-1.5 text-center font-bold"
+                    >
+                      {{ siswa.total_hari_efektif }}
+                    </td>
+                    <td
+                      class="border border-gray-800 px-2 py-1.5 text-center font-bold"
+                    >
+                      {{
+                        hitungPersentase(
+                          siswa.total_hadir,
+                          siswa.total_hari_efektif,
+                        )
+                      }}%
                     </td>
                   </tr>
                 </tbody>
@@ -78,11 +162,15 @@
               <!-- Footer Cetak -->
               <div class="flex justify-between items-end mt-12 text-xs">
                 <div>
-                  <p class="italic">Dicetak otomatis via SopokDate pada {{ printTimestamp }}</p>
+                  <p class="italic">
+                    Dicetak otomatis via SopokDate pada {{ printTimestamp }}
+                  </p>
                 </div>
                 <div class="text-center w-48">
                   <p class="mb-16">Wali Kelas {{ currentClassName }}</p>
-                  <p class="font-bold underline">{{ waliKelasName || "_________________" }}</p>
+                  <p class="font-bold underline">
+                    {{ waliKelasName || "_________________" }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -91,10 +179,14 @@
       </div>
 
       <!-- Filter Section (Kelas, Tapel, Semester) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 rounded-xl border bg-zinc-800/20 border-zinc-700/40 mb-6">
+      <div
+        class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 rounded-xl border bg-zinc-800/20 border-zinc-700/40 mb-6"
+      >
         <!-- Pilihan Kelas -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-semibold text-zinc-400">Kelas / Rombel</label>
+          <label class="text-xs font-semibold text-zinc-400"
+            >Kelas / Rombel</label
+          >
           <select
             v-model="selectedClass"
             :disabled="isLoading || isWaliKelas"
@@ -113,13 +205,17 @@
 
         <!-- Tahun Pelajaran -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-semibold text-zinc-400">Tahun Pelajaran</label>
+          <label class="text-xs font-semibold text-zinc-400"
+            >Tahun Pelajaran</label
+          >
           <select
             v-model="selectedTapel"
             :disabled="isLoading"
             class="h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
           >
-            <option v-for="opt in tapelOptions" :key="opt" :value="opt">{{ opt }}</option>
+            <option v-for="opt in tapelOptions" :key="opt" :value="opt">
+              {{ opt }}
+            </option>
           </select>
         </div>
 
@@ -138,25 +234,42 @@
       </div>
 
       <!-- Main Content Area -->
-      <div class="rounded-xl border border-zinc-700/40 bg-zinc-900/20 overflow-hidden">
+      <div
+        class="rounded-xl border border-zinc-700/40 bg-zinc-900/20 overflow-hidden"
+      >
         <!-- Loading State -->
         <div v-if="isLoading" class="text-center py-16">
-          <Loader2 class="w-10 h-10 animate-spin text-emerald-500 mx-auto mb-3" />
+          <Loader2
+            class="w-10 h-10 animate-spin text-emerald-500 mx-auto mb-3"
+          />
           <p class="text-zinc-400 text-sm">Menghitung rekap absensi...</p>
         </div>
 
         <!-- Empty State (No Class Selected) -->
         <div v-else-if="!selectedClass" class="text-center py-16 px-4">
-          <ClipboardList class="w-16 h-16 text-zinc-600 mx-auto mb-3" stroke-width="1.5" />
+          <ClipboardList
+            class="w-16 h-16 text-zinc-600 mx-auto mb-3"
+            stroke-width="1.5"
+          />
           <p class="text-zinc-400 font-semibold text-lg">Kelas belum dipilih</p>
-          <p class="text-zinc-500 text-sm mt-1">Silakan pilih kelas terlebih dahulu untuk melihat rekapitulasi kehadiran.</p>
+          <p class="text-zinc-500 text-sm mt-1">
+            Silakan pilih kelas terlebih dahulu untuk melihat rekapitulasi
+            kehadiran.
+          </p>
         </div>
 
         <!-- Empty State (No Rekap Data) -->
         <div v-else-if="rekapData.length === 0" class="text-center py-16 px-4">
-          <Users class="w-16 h-16 text-zinc-600 mx-auto mb-3" stroke-width="1.5" />
+          <Users
+            class="w-16 h-16 text-zinc-600 mx-auto mb-3"
+            stroke-width="1.5"
+          />
           <p class="text-zinc-400 font-semibold text-lg">Tidak ada data</p>
-          <p class="text-zinc-500 text-sm mt-1">Belum ada rekaman absensi terisi di kelas {{ currentClassName }} pada {{ selectedTapel }} - {{ selectedSemester }}.</p>
+          <p class="text-zinc-500 text-sm mt-1">
+            Belum ada rekaman absensi terisi di kelas
+            {{ currentClassName }} pada {{ selectedTapel }} -
+            {{ selectedSemester }}.
+          </p>
         </div>
 
         <!-- Rekap Table -->
@@ -164,43 +277,97 @@
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
               <thead>
-                <tr class="bg-zinc-800/40 border-b border-zinc-700/50 text-zinc-300 uppercase text-xs font-semibold">
+                <tr
+                  class="bg-zinc-800/40 border-b border-zinc-700/50 text-zinc-300 uppercase text-xs font-semibold"
+                >
                   <th class="py-4 px-4 text-center w-12" rowspan="2">No</th>
                   <th class="py-4 px-4" rowspan="2">Nama Siswa</th>
                   <th class="py-4 px-4 w-28 text-center" rowspan="2">NISN</th>
-                  <th class="py-2 px-4 text-center border-b border-zinc-800" colspan="4">Kehadiran (Hari)</th>
-                  <th class="py-4 px-4 text-center w-24" rowspan="2">Hari Efektif</th>
-                  <th class="py-4 px-4 text-center w-24" rowspan="2">Persentase</th>
+                  <th
+                    class="py-2 px-4 text-center border-b border-zinc-800"
+                    colspan="4"
+                  >
+                    Kehadiran (Hari)
+                  </th>
+                  <th class="py-4 px-4 text-center w-24" rowspan="2">
+                    Hari Efektif
+                  </th>
+                  <th class="py-4 px-4 text-center w-24" rowspan="2">
+                    Persentase
+                  </th>
                 </tr>
-                <tr class="bg-zinc-800/20 border-b border-zinc-700/50 text-zinc-400 text-[10px]">
-                  <th class="py-2 px-2 text-center w-12 text-emerald-400">Hadir</th>
-                  <th class="py-2 px-2 text-center w-12 text-amber-400">Sakit</th>
+                <tr
+                  class="bg-zinc-800/20 border-b border-zinc-700/50 text-zinc-400 text-[10px]"
+                >
+                  <th class="py-2 px-2 text-center w-12 text-emerald-400">
+                    Hadir
+                  </th>
+                  <th class="py-2 px-2 text-center w-12 text-amber-400">
+                    Sakit
+                  </th>
                   <th class="py-2 px-2 text-center w-12 text-blue-400">Izin</th>
                   <th class="py-2 px-2 text-center w-12 text-red-400">Alpa</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-zinc-800/60 text-zinc-300">
-                <tr v-for="(siswa, idx) in rekapData" :key="siswa.siswa_id" class="hover:bg-zinc-800/10 transition-colors">
-                  <td class="py-4 px-4 text-center text-zinc-500 font-mono">{{ idx + 1 }}</td>
-                  <td class="py-4 px-4 font-semibold text-zinc-100">{{ toTitleCase(siswa.nama) }}</td>
-                  <td class="py-4 px-4 text-center text-zinc-400 font-mono">{{ siswa.nisn || "-" }}</td>
-                  <td class="py-4 px-2 text-center text-emerald-400 font-bold bg-emerald-500/[0.02]">{{ siswa.total_hadir }}</td>
-                  <td class="py-4 px-2 text-center text-amber-400">{{ siswa.total_sakit }}</td>
-                  <td class="py-4 px-2 text-center text-blue-400">{{ siswa.total_izin }}</td>
-                  <td class="py-4 px-2 text-center text-red-400">{{ siswa.total_alpa }}</td>
-                  <td class="py-4 px-4 text-center text-zinc-300 font-bold">{{ siswa.total_hari_efektif }}</td>
+                <tr
+                  v-for="(siswa, idx) in rekapData"
+                  :key="siswa.siswa_id"
+                  class="hover:bg-zinc-800/10 transition-colors"
+                >
+                  <td class="py-4 px-4 text-center text-zinc-500 font-mono">
+                    {{ idx + 1 }}
+                  </td>
+                  <td class="py-4 px-4 font-semibold text-zinc-100">
+                    {{ toTitleCase(siswa.nama) }}
+                  </td>
+                  <td class="py-4 px-4 text-center text-zinc-400 font-mono">
+                    {{ siswa.nisn || "-" }}
+                  </td>
+                  <td
+                    class="py-4 px-2 text-center text-emerald-400 font-bold bg-emerald-500/[0.02]"
+                  >
+                    {{ siswa.total_hadir }}
+                  </td>
+                  <td class="py-4 px-2 text-center text-amber-400">
+                    {{ siswa.total_sakit }}
+                  </td>
+                  <td class="py-4 px-2 text-center text-blue-400">
+                    {{ siswa.total_izin }}
+                  </td>
+                  <td class="py-4 px-2 text-center text-red-400">
+                    {{ siswa.total_alpa }}
+                  </td>
+                  <td class="py-4 px-4 text-center text-zinc-300 font-bold">
+                    {{ siswa.total_hari_efektif }}
+                  </td>
                   <td class="py-4 px-4 text-center">
-                    <span 
+                    <span
                       :class="[
-                        parseFloat(hitungPersentase(siswa.total_hadir, siswa.total_hari_efektif)) >= 90
+                        parseFloat(
+                          hitungPersentase(
+                            siswa.total_hadir,
+                            siswa.total_hari_efektif,
+                          ),
+                        ) >= 90
                           ? 'text-emerald-400 bg-emerald-950/30 border-emerald-800/30'
-                          : parseFloat(hitungPersentase(siswa.total_hadir, siswa.total_hari_efektif)) >= 75
-                          ? 'text-amber-400 bg-amber-950/30 border-amber-800/30'
-                          : 'text-red-400 bg-red-950/30 border-red-800/30',
-                        'px-2 py-0.5 rounded text-[11px] font-mono border'
+                          : parseFloat(
+                                hitungPersentase(
+                                  siswa.total_hadir,
+                                  siswa.total_hari_efektif,
+                                ),
+                              ) >= 75
+                            ? 'text-amber-400 bg-amber-950/30 border-amber-800/30'
+                            : 'text-red-400 bg-red-950/30 border-red-800/30',
+                        'px-2 py-0.5 rounded text-[11px] font-mono border',
                       ]"
                     >
-                      {{ hitungPersentase(siswa.total_hadir, siswa.total_hari_efektif) }}%
+                      {{
+                        hitungPersentase(
+                          siswa.total_hadir,
+                          siswa.total_hari_efektif,
+                        )
+                      }}%
                     </span>
                   </td>
                 </tr>
@@ -209,9 +376,15 @@
           </div>
 
           <!-- Bottom Action Info -->
-          <div class="flex items-center justify-between p-4 bg-zinc-800/20 border-t border-zinc-700/40">
+          <div
+            class="flex items-center justify-between p-4 bg-zinc-800/20 border-t border-zinc-700/40"
+          >
             <div class="text-xs text-zinc-400">
-              Total siswa: <span class="font-bold text-zinc-300">{{ rekapData.length }}</span> anak
+              Total siswa:
+              <span class="font-bold text-zinc-300">{{
+                rekapData.length
+              }}</span>
+              anak
             </div>
             <div class="text-xs text-zinc-500">
               Ket: H = Hadir, S = Sakit, I = Izin, A = Alpa
@@ -269,7 +442,7 @@ const tapelOptions = computed(() => {
 
 const currentClassName = computed(() => {
   if (!selectedClass.value) return "";
-  const match = dataKelas.value.find(k => k.idKelas === selectedClass.value);
+  const match = dataKelas.value.find((k) => k.idKelas === selectedClass.value);
   return match ? match.namaKelas : selectedClass.value;
 });
 
@@ -292,19 +465,22 @@ const hitungPersentase = (hadir, total) => {
 };
 
 // Fetch rekap when filters change
-watch([selectedClass, selectedTapel, selectedSemester], async ([newClass, newTapel, newSem]) => {
-  if (!newClass || !newTapel || !newSem) {
-    rekapData.value = [];
-    return;
-  }
-  await fetchRekap();
-});
+watch(
+  [selectedClass, selectedTapel, selectedSemester],
+  async ([newClass, newTapel, newSem]) => {
+    if (!newClass || !newTapel || !newSem) {
+      rekapData.value = [];
+      return;
+    }
+    await fetchRekap();
+  },
+);
 
 const fetchRekap = async () => {
   isLoading.value = true;
   try {
     const response = await authenticatedFetch(
-      `/api/absensi/rekap?kelas_id=${encodeURIComponent(selectedClass.value)}&tahun_pelajaran=${encodeURIComponent(selectedTapel.value)}&semester=${encodeURIComponent(selectedSemester.value)}`
+      `/api/absensi/rekap?kelas_id=${encodeURIComponent(selectedClass.value)}&tahun_pelajaran=${encodeURIComponent(selectedTapel.value)}&semester=${encodeURIComponent(selectedSemester.value)}`,
     );
     const data = await response.json();
     if (Array.isArray(data)) {
@@ -329,34 +505,40 @@ const checkWaliKelasStatus = async () => {
 
   if (userRole.value === "guru" && userGtkId.value) {
     try {
-      const gtkData = await fetchFromApi("DataGtk", false, null, { 
-        filter_col: "id", 
-        filter_val: String(userGtkId.value) 
+      const gtkData = await fetchFromApi("DataGtk", false, null, {
+        filter_col: "id",
+        filter_val: String(userGtkId.value),
       });
-      
+
       if (Array.isArray(gtkData)) {
-        const myRecord = gtkData.find(g => 
-          g.id === userGtkId.value || 
-          g.ID === userGtkId.value || 
-          String(g.id) === String(userGtkId.value)
+        const myRecord = gtkData.find(
+          (g) =>
+            g.id === userGtkId.value ||
+            g.ID === userGtkId.value ||
+            String(g.id) === String(userGtkId.value),
         );
-        
+
         if (myRecord) {
-          const namaGuru = myRecord.title || myRecord.NamaLengkap || myRecord["Nama Lengkap"] || myRecord.nama_lengkap;
+          const namaGuru =
+            myRecord.title ||
+            myRecord.NamaLengkap ||
+            myRecord["Nama Lengkap"] ||
+            myRecord.nama_lengkap;
           waliKelasName.value = namaGuru;
-          
+
           // Match teacher name or Peg ID with wali_kelas in classes list
           const classes = dataKelas.value;
-          const myClass = classes.find(c => {
+          const myClass = classes.find((c) => {
             const cWali = c.waliKelas || c["Wali Kelas"] || c.wali_kelas;
-            const myPegId = myRecord.PegID || myRecord["Peg ID"] || myRecord.peg_id;
-            
+            const myPegId =
+              myRecord.PegID || myRecord["Peg ID"] || myRecord.peg_id;
+
             const matchName = cleanName(cWali) === cleanName(namaGuru);
             const matchPegId = String(cWali).trim() === String(myPegId).trim();
-            
+
             return matchPegId || matchName;
           });
-          
+
           if (myClass) {
             isWaliKelas.value = true;
             selectedClass.value = myClass.idKelas || myClass["ID Kelas"];
@@ -371,30 +553,31 @@ const checkWaliKelasStatus = async () => {
 
 const updatePrintTimestamp = () => {
   const now = new Date();
-  printTimestamp.value = now.toLocaleString("id-ID", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }) + " WITA";
+  printTimestamp.value =
+    now.toLocaleString("id-ID", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }) + " WITA";
 };
 
 // Export rekap to Excel spreadsheet
 const exportToExcel = async () => {
   if (rekapData.value.length === 0) return;
-  
+
   try {
     isExporting.value = true;
-    
+
     // Map raw data to user-friendly excel rows
     const excelRows = rekapData.value.map((siswa, index) => ({
-      "No": index + 1,
+      No: index + 1,
       "Nama Siswa": toTitleCase(siswa.nama),
-      "NISN": siswa.nisn || "-",
+      NISN: siswa.nisn || "-",
       "Hadir (H)": siswa.total_hadir,
       "Sakit (S)": siswa.total_sakit,
       "Izin (I)": siswa.total_izin,
       "Alpa (A)": siswa.total_alpa,
       "Hari Efektif": siswa.total_hari_efektif,
-      "Persentase Kehadiran (%)": `${hitungPersentase(siswa.total_hadir, siswa.total_hari_efektif)}%`
+      "Persentase Kehadiran (%)": `${hitungPersentase(siswa.total_hadir, siswa.total_hari_efektif)}%`,
     }));
 
     const wb = XLSX.utils.book_new();
@@ -402,15 +585,15 @@ const exportToExcel = async () => {
 
     // Set Column Widths
     ws["!cols"] = [
-      { wch: 5 },   // No
-      { wch: 28 },  // Nama
-      { wch: 15 },  // NISN
-      { wch: 10 },  // H
-      { wch: 10 },  // S
-      { wch: 10 },  // I
-      { wch: 10 },  // A
-      { wch: 12 },  // Hari Efektif
-      { wch: 24 }   // Persentase
+      { wch: 5 }, // No
+      { wch: 28 }, // Nama
+      { wch: 15 }, // NISN
+      { wch: 10 }, // H
+      { wch: 10 }, // S
+      { wch: 10 }, // I
+      { wch: 10 }, // A
+      { wch: 12 }, // Hari Efektif
+      { wch: 24 }, // Persentase
     ];
 
     // Apply header style (emerald-600 background)
@@ -420,7 +603,7 @@ const exportToExcel = async () => {
         ws[cell].s = {
           font: { bold: true, color: { rgb: "FFFFFF" } },
           fill: { fgColor: { rgb: "059669" } },
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
     });
@@ -431,7 +614,7 @@ const exportToExcel = async () => {
     const filename = `Rekap_Absensi_${currentClassName.value.replace(/[^a-zA-Z0-9]/g, "_")}_Smt_${selectedSemester.value}_${dateStr}.xlsx`;
 
     XLSX.writeFile(wb, filename);
-    
+
     setTimeout(() => {
       Notify.success(`Rekap berhasil diekspor ke file: ${filename}`);
     }, 100);
@@ -446,12 +629,12 @@ const exportToExcel = async () => {
 // --- Lifecycle
 onMounted(async () => {
   isLoadingKelas.value = true;
-  
+
   // Set default Tapel & Semester
   const currentInfo = dapatkanTahunDanSemester(new Date());
   selectedTapel.value = currentInfo.tahunPelajaran;
   selectedSemester.value = currentInfo.semester;
-  
+
   updatePrintTimestamp();
 
   try {

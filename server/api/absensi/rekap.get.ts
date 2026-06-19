@@ -53,7 +53,8 @@ export default defineEventHandler(async (event) => {
   if (!kelasId || !tahunPelajaran || !semester) {
     throw createError({
       statusCode: 400,
-      statusMessage: "Bad Request: Parameter kelas_id, tahun_pelajaran, dan semester diperlukan",
+      statusMessage:
+        "Bad Request: Parameter kelas_id, tahun_pelajaran, dan semester diperlukan",
     });
   }
 
@@ -63,17 +64,20 @@ export default defineEventHandler(async (event) => {
   if (!workerUrl) {
     throw createError({
       statusCode: 500,
-      statusMessage: "Server Error: Konfigurasi API Worker tidak ditemukan di server",
+      statusMessage:
+        "Server Error: Konfigurasi API Worker tidak ditemukan di server",
     });
   }
 
-  const cleanWorkerUrl = workerUrl.endsWith("/") ? workerUrl.slice(0, -1) : workerUrl;
+  const cleanWorkerUrl = workerUrl.endsWith("/")
+    ? workerUrl.slice(0, -1)
+    : workerUrl;
   const qs = new URLSearchParams({
     kelas_id: kelasId,
     tahun_pelajaran: tahunPelajaran,
     semester: semester,
   }).toString();
-  
+
   const url = `${cleanWorkerUrl}/api/absensi/rekap?${qs}`;
 
   try {
@@ -86,7 +90,10 @@ export default defineEventHandler(async (event) => {
 
     return response;
   } catch (error: any) {
-    console.error(`Gagal proxy GET rekap absensi ke Cloudflare Worker (${url}):`, error);
+    console.error(
+      `Gagal proxy GET rekap absensi ke Cloudflare Worker (${url}):`,
+      error,
+    );
     throw createError({
       statusCode: 502,
       statusMessage: `Bad Gateway: Gagal mengambil data rekap absensi dari Cloudflare Worker: ${error.message}`,

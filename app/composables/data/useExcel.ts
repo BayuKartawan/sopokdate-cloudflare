@@ -93,7 +93,10 @@ export function useExcelProcessor() {
     return rules[field.type || "text"] || "Wajib diisi";
   };
 
-  const getSelectOptions = (type: string, fieldOptions?: string[] | null): string[] | null => {
+  const getSelectOptions = (
+    type: string,
+    fieldOptions?: string[] | null,
+  ): string[] | null => {
     const optionMap: Record<string, string[]> = {
       gender: ["Laki-laki", "Perempuan"],
       hari: ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"],
@@ -129,7 +132,9 @@ export function useExcelProcessor() {
   // FILE PROCESSING
   // ========================================
 
-  const processFile = (file: File): Promise<{ headers: string[]; data: Record<string, any>[] }> => {
+  const processFile = (
+    file: File,
+  ): Promise<{ headers: string[]; data: Record<string, any>[] }> => {
     return new Promise((resolve, reject) => {
       if (!file.name.match(/\.(xlsx|xls)$/i)) {
         reject(new Error("Please select a valid Excel file (.xlsx or .xls)"));
@@ -164,18 +169,27 @@ export function useExcelProcessor() {
             return;
           }
 
-          const headers = (jsonData[0] as any[]).filter(
-            (header) => header && String(header).trim(),
-          ).map(header => String(header));
+          const headers = (jsonData[0] as any[])
+            .filter((header) => header && String(header).trim())
+            .map((header) => String(header));
 
-          const dataRows = (jsonData.slice(1) as any[][])
-            .filter((row) => row.some((cell) => cell !== undefined && cell !== null && String(cell).trim() !== ""));
+          const dataRows = (jsonData.slice(1) as any[][]).filter((row) =>
+            row.some(
+              (cell) =>
+                cell !== undefined &&
+                cell !== null &&
+                String(cell).trim() !== "",
+            ),
+          );
 
           excelHeaders.value = headers;
           excelData.value = dataRows.map((row) => {
             const rowObj: Record<string, any> = {};
             headers.forEach((header, index) => {
-              rowObj[header] = row[index] !== undefined && row[index] !== null ? row[index] : "";
+              rowObj[header] =
+                row[index] !== undefined && row[index] !== null
+                  ? row[index]
+                  : "";
             });
             return rowObj;
           });
@@ -209,7 +223,10 @@ export function useExcelProcessor() {
   // TEMPLATE GENERATION
   // ========================================
 
-  const downloadTemplate = (selectedSurat: string, suratData: Record<string, any>): void => {
+  const downloadTemplate = (
+    selectedSurat: string,
+    suratData: Record<string, any>,
+  ): void => {
     if (!selectedSurat || !suratData[selectedSurat]) {
       alert("Pilih jenis surat terlebih dahulu!");
       return;
@@ -410,7 +427,10 @@ export function useExcelProcessor() {
   // VALIDATION
   // ========================================
 
-  const getValidationErrors = (selectedSurat: string, suratData: Record<string, any>): string[] => {
+  const getValidationErrors = (
+    selectedSurat: string,
+    suratData: Record<string, any>,
+  ): string[] => {
     const errors: string[] = [];
 
     if (!selectedSurat || !suratData[selectedSurat]) {
@@ -514,7 +534,10 @@ export function useExcelProcessor() {
           case "class":
           case "month": {
             if (field.type) {
-              const allowedOptions = getSelectOptions(field.type, field.options);
+              const allowedOptions = getSelectOptions(
+                field.type,
+                field.options,
+              );
               if (allowedOptions && !allowedOptions.includes(String(value))) {
                 errors.push(
                   `Baris ${index + 2}: "${field.label}" nilai "${value}" tidak valid. Pilihan: ${allowedOptions.join(", ")}`,
@@ -530,11 +553,15 @@ export function useExcelProcessor() {
     return errors;
   };
 
-  const isValidField = (header: string, selectedSurat: string, suratData: Record<string, any>): boolean => {
+  const isValidField = (
+    header: string,
+    selectedSurat: string,
+    suratData: Record<string, any>,
+  ): boolean => {
     if (!selectedSurat || !suratData[selectedSurat]) return false;
-    const requiredFields = (suratData[selectedSurat].placeholder as ExcelField[]).map(
-      (p) => p.key,
-    );
+    const requiredFields = (
+      suratData[selectedSurat].placeholder as ExcelField[]
+    ).map((p) => p.key);
     return requiredFields.includes(header);
   };
 
@@ -590,7 +617,11 @@ export function useExcelProcessor() {
 export function useExportExcel() {
   const { Notify } = useNotiflix();
 
-  const exportToCSV = (data: any[], headers: string[], fileName: string = "export_data"): void => {
+  const exportToCSV = (
+    data: any[],
+    headers: string[],
+    fileName: string = "export_data",
+  ): void => {
     if (!data || data.length === 0) {
       Notify?.warning?.("Tidak ada data untuk diekspor");
       return;

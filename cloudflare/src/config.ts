@@ -28,4 +28,7 @@ export const VALID_TABLES: string[] = [
   "pengumuman",
   "kalender_pendidikan",
   "pengaturan_tapel",
+  "kurikulum",
+  "alokasi_jam",
+  "jadwal_pelajaran",
 ];

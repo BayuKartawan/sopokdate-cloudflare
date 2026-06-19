@@ -188,10 +188,10 @@ async function loadGtkDetail() {
 
     if (pegId !== undefined && pegId !== null) {
       foundItem = dataGtk.value.find(
-        (item) => item && (
-          String(item.PegID).trim() === String(pegId).trim() ||
-          String(item.id).trim() === String(pegId).trim()
-        )
+        (item) =>
+          item &&
+          (String(item.PegID).trim() === String(pegId).trim() ||
+            String(item.id).trim() === String(pegId).trim()),
       );
     }
 

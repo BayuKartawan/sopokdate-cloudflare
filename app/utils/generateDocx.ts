@@ -7,7 +7,9 @@ import { saveAs } from "file-saver";
 const templateCache = new Map<string, ArrayBuffer>();
 
 // Fungsi untuk fetch dan cache template
-async function getTemplateFromCache(templatePath: string): Promise<ArrayBuffer> {
+async function getTemplateFromCache(
+  templatePath: string,
+): Promise<ArrayBuffer> {
   if (templateCache.has(templatePath)) {
     return templateCache.get(templatePath)!;
   }
@@ -36,7 +38,9 @@ export async function generateDocx(
       paragraphLoop: true,
       linebreaks: true,
       // Nonaktifkan parser yang tidak diperlukan untuk mengurangi overhead
-      parser: (tag: string) => ({ get: tag === "." ? (s: any) => s : (s: any) => s[tag] }),
+      parser: (tag: string) => ({
+        get: tag === "." ? (s: any) => s : (s: any) => s[tag],
+      }),
       nullGetter: () => "", // Handle null values dengan string kosong
     });
 
@@ -86,7 +90,9 @@ export async function generateDocxAsBlob(
       paragraphLoop: true,
       linebreaks: true,
       // Nonaktifkan parser yang tidak diperlukan untuk mengurangi overhead
-      parser: (tag: string) => ({ get: tag === "." ? (s: any) => s : (s: any) => s[tag] }),
+      parser: (tag: string) => ({
+        get: tag === "." ? (s: any) => s : (s: any) => s[tag],
+      }),
       nullGetter: () => "", // Handle null values dengan string kosong
     });
 

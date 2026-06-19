@@ -127,7 +127,9 @@
       <CrudModal
         :show="showModal"
         :mode="modalMode"
-        :title="modalMode === 'create' ? 'Tambah Pengumuman' : 'Edit Pengumuman'"
+        :title="
+          modalMode === 'create' ? 'Tambah Pengumuman' : 'Edit Pengumuman'
+        "
         :fields="announcementFields"
         :initialData="editingItem"
         :isSaving="isSaving"
@@ -149,8 +151,16 @@ definePageMeta({
   requiresAuth: true,
 });
 
-const { cardData: announcements, isLoading, loadData, refreshData } = useTableData();
-const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud("Pengumuman", () => refreshData("Pengumuman"));
+const {
+  cardData: announcements,
+  isLoading,
+  loadData,
+  refreshData,
+} = useTableData();
+const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
+  "Pengumuman",
+  () => refreshData("Pengumuman"),
+);
 
 onMounted(() => {
   loadData("Pengumuman");
@@ -162,16 +172,44 @@ const modalMode = ref("create");
 const editingItem = ref({});
 
 const announcementFields = [
-  { key: "title", label: "Judul Pengumuman", required: true, placeholder: "Masukkan judul pengumuman" },
-  { key: "content", label: "Isi Pengumuman", type: "textarea", required: true, placeholder: "Tulis isi pengumuman..." },
-  { key: "date", label: "Tanggal", required: true, placeholder: "Contoh: 22 Mei 2026" },
-  { key: "tag", label: "Tag / Kategori", required: true, type: "select", options: ["Penting", "Info", "Update"] },
-  { key: "tagColor", label: "Warna Tag", required: true, type: "select", options: [
-    "bg-red-500/20 text-red-400 border-red-500/30",
-    "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    "bg-amber-500/20 text-amber-400 border-amber-500/30"
-  ]}
+  {
+    key: "title",
+    label: "Judul Pengumuman",
+    required: true,
+    placeholder: "Masukkan judul pengumuman",
+  },
+  {
+    key: "content",
+    label: "Isi Pengumuman",
+    type: "textarea",
+    required: true,
+    placeholder: "Tulis isi pengumuman...",
+  },
+  {
+    key: "date",
+    label: "Tanggal",
+    required: true,
+    placeholder: "Contoh: 22 Mei 2026",
+  },
+  {
+    key: "tag",
+    label: "Tag / Kategori",
+    required: true,
+    type: "select",
+    options: ["Penting", "Info", "Update"],
+  },
+  {
+    key: "tagColor",
+    label: "Warna Tag",
+    required: true,
+    type: "select",
+    options: [
+      "bg-red-500/20 text-red-400 border-red-500/30",
+      "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+      "bg-blue-500/20 text-blue-400 border-blue-500/30",
+      "bg-amber-500/20 text-amber-400 border-amber-500/30",
+    ],
+  },
 ];
 
 const openCreateModal = () => {
@@ -179,9 +217,13 @@ const openCreateModal = () => {
   editingItem.value = {
     title: "",
     content: "",
-    date: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
+    date: new Date().toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }),
     tag: "Info",
-    tagColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+    tagColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
   };
   showModal.value = true;
 };
@@ -194,7 +236,7 @@ const openEditModal = (item) => {
     content: item.content || "",
     date: item.date || "",
     tag: item.tag || "",
-    tagColor: item.tagColor || ""
+    tagColor: item.tagColor || "",
   };
   showModal.value = true;
 };

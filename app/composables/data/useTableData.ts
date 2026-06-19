@@ -58,26 +58,37 @@ function normalizeGtkData(data: any[]): any[] {
       return "";
     };
 
-    normalized.title = getField(item, "nama_lengkap") || getField(item, "namalengkap");
+    normalized.title =
+      getField(item, "nama_lengkap") || getField(item, "namalengkap");
     normalized.NIK = getField(item, "nik");
     normalized.NoKK = getField(item, "no_kk") || getField(item, "nokk");
     normalized.NUPTK = getField(item, "nuptk");
     normalized.PegID = getField(item, "peg_id") || getField(item, "pegid");
     normalized.NPK = getField(item, "npk");
     normalized.NRG = getField(item, "nrg");
-    normalized.PendTerakhir = getField(item, "pendidikan_terakhir") || getField(item, "pendidikanterakhir");
+    normalized.PendTerakhir =
+      getField(item, "pendidikan_terakhir") ||
+      getField(item, "pendidikanterakhir");
     normalized.Jurusan = getField(item, "jurusan");
-    normalized.JenisKelamin = getField(item, "jenis_kelamin") || getField(item, "jeniskelamin");
-    normalized.TempatLahir = getField(item, "tempat_lahir") || getField(item, "tempatlahir");
-    normalized.TanggalLahir = getField(item, "tanggal_lahir") || getField(item, "tanggallahir");
+    normalized.JenisKelamin =
+      getField(item, "jenis_kelamin") || getField(item, "jeniskelamin");
+    normalized.TempatLahir =
+      getField(item, "tempat_lahir") || getField(item, "tempatlahir");
+    normalized.TanggalLahir =
+      getField(item, "tanggal_lahir") || getField(item, "tanggallahir");
     normalized.NomorHp = getField(item, "no_hp") || getField(item, "nohp");
     normalized.Email = getField(item, "email");
     normalized.Tugas = getField(item, "tugas");
-    normalized.NoRek = getField(item, "no_rekening") || getField(item, "norekening");
-    normalized.StatusKepegawaian = getField(item, "status_kepegawaian") || getField(item, "statuskepegawaian");
+    normalized.NoRek =
+      getField(item, "no_rekening") || getField(item, "norekening");
+    normalized.StatusKepegawaian =
+      getField(item, "status_kepegawaian") ||
+      getField(item, "statuskepegawaian");
     normalized.NIP = getField(item, "nip");
-    normalized.MataPelajaran = getField(item, "mata_pelajaran") || getField(item, "matapelajaran");
-    normalized.WaliKelas = getField(item, "wali_kelas") || getField(item, "walikelas");
+    normalized.MataPelajaran =
+      getField(item, "mata_pelajaran") || getField(item, "matapelajaran");
+    normalized.WaliKelas =
+      getField(item, "wali_kelas") || getField(item, "walikelas");
 
     return normalized;
   });
@@ -103,24 +114,32 @@ function normalizeSiswaData(data: any[]): any[] {
 
     normalized.nama = getField(item, "nama");
     normalized.nisn = getField(item, "nisn");
-    normalized["nis lokal"] = getField(item, "nis_lokal") || getField(item, "nislokal");
+    normalized["nis lokal"] =
+      getField(item, "nis_lokal") || getField(item, "nislokal");
     normalized.nik = getField(item, "nik");
     normalized["no kk"] = getField(item, "no_kk") || getField(item, "nokk");
-    normalized["tempat lahir"] = getField(item, "tempat_lahir") || getField(item, "tempatlahir");
-    normalized["tanggal lahir"] = getField(item, "tanggal_lahir") || getField(item, "tanggallahir");
+    normalized["tempat lahir"] =
+      getField(item, "tempat_lahir") || getField(item, "tempatlahir");
+    normalized["tanggal lahir"] =
+      getField(item, "tanggal_lahir") || getField(item, "tanggallahir");
 
     const kelasVal = getField(item, "kelas");
     normalized["tingkat - rombel"] = kelasVal;
     normalized.kelas = kelasVal;
 
     normalized.umur = getField(item, "umur");
-    normalized["jenis kelamin"] = getField(item, "jenis_kelamin") || getField(item, "jeniskelamin");
+    normalized["jenis kelamin"] =
+      getField(item, "jenis_kelamin") || getField(item, "jeniskelamin");
     normalized.alamat = getField(item, "alamat");
-    normalized["no telepon"] = getField(item, "no_hp") || getField(item, "nohp");
+    normalized["no telepon"] =
+      getField(item, "no_hp") || getField(item, "nohp");
     normalized["no kip"] = getField(item, "no_kip") || getField(item, "nokip");
-    normalized["nama ayah kandung"] = getField(item, "nama_ayah_kandung") || getField(item, "namaayahkandung");
-    normalized["nama ibu kandung"] = getField(item, "nama_ibu_kandung") || getField(item, "namaibukandung");
-    normalized["nama wali"] = getField(item, "nama_wali") || getField(item, "namawali");
+    normalized["nama ayah kandung"] =
+      getField(item, "nama_ayah_kandung") || getField(item, "namaayahkandung");
+    normalized["nama ibu kandung"] =
+      getField(item, "nama_ibu_kandung") || getField(item, "namaibukandung");
+    normalized["nama wali"] =
+      getField(item, "nama_wali") || getField(item, "namawali");
 
     return normalized;
   });
@@ -144,10 +163,13 @@ function normalizeKelasData(data: any[]): any[] {
       return "";
     };
 
-    normalized.idKelas = getField(item, "id_kelas") || getField(item, "idkelas");
-    normalized.namaKelas = getField(item, "nama_kelas") || getField(item, "namakelas");
+    normalized.idKelas =
+      getField(item, "id_kelas") || getField(item, "idkelas");
+    normalized.namaKelas =
+      getField(item, "nama_kelas") || getField(item, "namakelas");
     normalized.tingkat = getField(item, "tingkat");
-    normalized.waliKelas = getField(item, "wali_kelas") || getField(item, "walikelas");
+    normalized.waliKelas =
+      getField(item, "wali_kelas") || getField(item, "walikelas");
 
     return normalized;
   });
@@ -171,7 +193,8 @@ function normalizePengumumanData(data: any[]): any[] {
       return "";
     };
 
-    normalized.tagColor = getField(item, "tag_color") || getField(item, "tagcolor") || "";
+    normalized.tagColor =
+      getField(item, "tag_color") || getField(item, "tagcolor") || "";
 
     return normalized;
   });
@@ -219,7 +242,10 @@ export function useTableData() {
       : null;
   });
 
-  const loadData = async (tableName: string, force: boolean = false): Promise<void> => {
+  const loadData = async (
+    tableName: string,
+    force: boolean = false,
+  ): Promise<void> => {
     loadedTableName = tableName;
     isLoading.value = true;
     try {
@@ -332,13 +358,25 @@ export function useTableData() {
     try {
       const timestamp = new Date().toISOString();
       let processedData = data;
-      if ((tableName === "data_gtk" || tableName === "DataGtk") && Array.isArray(data)) {
+      if (
+        (tableName === "data_gtk" || tableName === "DataGtk") &&
+        Array.isArray(data)
+      ) {
         processedData = normalizeGtkData(data);
-      } else if ((tableName === "data_siswa" || tableName === "DataSiswa") && Array.isArray(data)) {
+      } else if (
+        (tableName === "data_siswa" || tableName === "DataSiswa") &&
+        Array.isArray(data)
+      ) {
         processedData = normalizeSiswaData(data);
-      } else if ((tableName === "data_kelas" || tableName === "DataKelas") && Array.isArray(data)) {
+      } else if (
+        (tableName === "data_kelas" || tableName === "DataKelas") &&
+        Array.isArray(data)
+      ) {
         processedData = normalizeKelasData(data);
-      } else if ((tableName === "pengumuman" || tableName === "Pengumuman") && Array.isArray(data)) {
+      } else if (
+        (tableName === "pengumuman" || tableName === "Pengumuman") &&
+        Array.isArray(data)
+      ) {
         processedData = normalizePengumumanData(data);
       }
       sessionCache[tableName] = {

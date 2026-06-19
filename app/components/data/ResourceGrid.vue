@@ -96,10 +96,7 @@
 
       <!-- Content -->
       <div class="px-6 py-5">
-        <div
-          v-if="isLoading && !items"
-          :class="[gridClass, 'animate-pulse']"
-        >
+        <div v-if="isLoading && !items" :class="[gridClass, 'animate-pulse']">
           <div
             v-for="i in 8"
             :key="i"
@@ -110,7 +107,9 @@
                 <div class="h-4 bg-zinc-700/70 rounded w-3/4"></div>
                 <div class="h-3 bg-zinc-700/50 rounded w-1/2"></div>
               </div>
-              <div class="w-7 h-7 rounded-lg bg-zinc-700/70 flex-shrink-0"></div>
+              <div
+                class="w-7 h-7 rounded-lg bg-zinc-700/70 flex-shrink-0"
+              ></div>
             </div>
           </div>
         </div>
@@ -214,7 +213,13 @@
 </template>
 
 <script setup>
-import { FileSpreadsheet, ExternalLink, Plus, Pencil as PencilIcon, Trash2 } from "lucide-vue-next";
+import {
+  FileSpreadsheet,
+  ExternalLink,
+  Plus,
+  Pencil as PencilIcon,
+  Trash2,
+} from "lucide-vue-next";
 
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import Search from "~/components/ui/Search.vue";
@@ -271,7 +276,9 @@ const props = defineProps({
 const { cardData, isLoading, loadData, refreshData } = useTableData();
 const { exportToCSV } = useExportExcel();
 const { Notify, Confirm } = useNotiflix();
-const { isAdmin } = useCrud(props.localStorageKey, () => refreshData(props.localStorageKey));
+const { isAdmin } = useCrud(props.localStorageKey, () =>
+  refreshData(props.localStorageKey),
+);
 
 const searchQuery = ref("");
 const currentPage = ref(1);
@@ -351,7 +358,7 @@ const handleDelete = (item) => {
         Notify?.failure?.(err.message || "Gagal menghapus data");
       }
     },
-    () => {}
+    () => {},
   );
 };
 

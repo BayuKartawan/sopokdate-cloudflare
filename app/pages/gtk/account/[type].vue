@@ -1,9 +1,5 @@
 <template>
-  <AccountTable
-    :key="tableKey"
-    :title="pageTitle"
-    :initialTable="tableName"
-  />
+  <AccountTable :key="tableKey" :title="pageTitle" :initialTable="tableName" />
 </template>
 
 <script setup>
@@ -19,11 +15,11 @@ definePageMeta({
 const route = useRoute();
 
 const typeMap = {
-  "emis": { name: "AkunEmis", label: "EMIS 4.0" },
-  "email": { name: "AkunEmail", label: "Email Madrasah Kemenag" },
-  "rdm": { name: "AkunRdm", label: "Raport Digital Madrasah" },
+  emis: { name: "AkunEmis", label: "EMIS 4.0" },
+  email: { name: "AkunEmail", label: "Email Madrasah Kemenag" },
+  rdm: { name: "AkunRdm", label: "Raport Digital Madrasah" },
   "emis-gtk": { name: "AkunEmisGTK", label: "EMIS GTK" },
-  "simpatika": { name: "AkunSimpatika", label: "SIMPATIKA" },
+  simpatika: { name: "AkunSimpatika", label: "SIMPATIKA" },
 };
 
 const currentConfig = computed(() => {
