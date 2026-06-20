@@ -233,6 +233,19 @@ export async function handlePutData(
     return errorResponse(`Table not found: ${table}`, 404);
   }
 
+  // Special handle for resetting promotion status for all students
+  if (d1Table === "data_siswa" && id === "reset_promosi") {
+    try {
+      await env.DB.prepare("UPDATE data_siswa SET status_promosi = 'Belum'").run();
+      return jsonResponse({
+        success: true,
+        message: "Status promosi seluruh siswa berhasil direset",
+      });
+    } catch (err: any) {
+      return errorResponse(`Database error: ${err.message}`, 500);
+    }
+  }
+
   try {
     const setClauses: string[] = [];
     const params: any[] = [];

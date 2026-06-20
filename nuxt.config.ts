@@ -88,7 +88,12 @@ export default defineNuxtConfig({
           if (newPath.startsWith("/siswa/data")) {
             newPath = newPath.replace("/siswa/data", "/akademik/siswa");
           }
-          if (newPath.startsWith("/siswa/alumni")) {
+          if (newPath.startsWith("/siswa/alumni-detail")) {
+            newPath = newPath.replace(
+              "/siswa/alumni-detail",
+              "/akademik/alumni/detail",
+            );
+          } else if (newPath.startsWith("/siswa/alumni")) {
             newPath = newPath.replace("/siswa/alumni", "/akademik/alumni");
           }
           if (newPath.startsWith("/siswa/detail")) {

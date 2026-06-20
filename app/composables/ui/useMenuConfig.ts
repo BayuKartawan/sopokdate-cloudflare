@@ -78,28 +78,6 @@ export const useMenuConfig = () => {
       ],
     },
     {
-      label: "Absensi",
-      icon: markRaw(CalendarCheck),
-      roles: ["admin", "guru"],
-      children: [
-        {
-          to: "/absensi/siswa",
-          label: "Absensi Siswa",
-          roles: ["admin", "guru"],
-        },
-        {
-          to: "/absensi/rekap",
-          label: "Rekap Absensi",
-          roles: ["admin", "guru"],
-        },
-        {
-          to: "/absensi/kalender",
-          label: "Kalender Pendidikan",
-          roles: ["admin", "guru"],
-        },
-      ],
-    },
-    {
       label: "Jadwal",
       icon: markRaw(Calendar),
       roles: ["admin", "guru"],
@@ -118,6 +96,28 @@ export const useMenuConfig = () => {
         {
           to: "/jadwal/cetak",
           label: "Cetak Jadwal",
+          roles: ["admin", "guru"],
+        },
+      ],
+    },
+    {
+      label: "Absensi",
+      icon: markRaw(CalendarCheck),
+      roles: ["admin", "guru"],
+      children: [
+        {
+          to: "/absensi/kalender",
+          label: "Kalender Pendidikan",
+          roles: ["admin", "guru"],
+        },
+        {
+          to: "/absensi/siswa",
+          label: "Absensi Siswa",
+          roles: ["admin", "guru"],
+        },
+        {
+          to: "/absensi/rekap",
+          label: "Rekap Absensi",
           roles: ["admin", "guru"],
         },
       ],

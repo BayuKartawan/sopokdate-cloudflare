@@ -18,11 +18,20 @@
               </p>
             </div>
 
-            <!-- Tambah Rombel Button (Admin Only) -->
-            <div v-if="isAdmin" class="ml-auto">
+            <!-- Tambah Rombel & Reset Promosi Button (Admin Only) -->
+            <div v-if="isAdmin" class="ml-auto flex items-center gap-3">
+              <button
+                v-if="hasPromotedStudents"
+                @click="handleResetPromotions"
+                :disabled="isResetting"
+                class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-zinc-800 hover:bg-zinc-750 border border-zinc-700/60 text-zinc-300 disabled:opacity-50 transition-all shadow-md"
+              >
+                <RefreshCw :class="{ 'animate-spin': isResetting }" class="w-4 h-4 text-emerald-400" />
+                Mulai Tahun Ajaran Baru
+              </button>
               <button
                 @click="openCreateModal"
-                class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all"
+                class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md"
               >
                 <Plus class="w-4 h-4" />
                 Tambah Rombel
@@ -41,7 +50,7 @@
           </p>
 
           <div
-            v-else-if="dataKelas.length === 0"
+            v-else-if="sortedDataKelas.length === 0"
             class="text-center py-16 bg-zinc-800/10 rounded-xl border border-zinc-800"
           >
             <Database
@@ -62,7 +71,7 @@
             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             <div
-              v-for="(item, index) in dataKelas"
+              v-for="(item, index) in sortedDataKelas"
               :key="item.id_kelas || index"
               @click="selectedRombel = item"
               class="rounded-xl border p-5 bg-zinc-800/30 border-zinc-700/40 hover:border-emerald-500/30 transition-all duration-200 group cursor-pointer hover:bg-zinc-800/50"
@@ -242,11 +251,13 @@
                   <td class="p-3.5 text-center">
                     <input
                       type="checkbox"
+                      :disabled="student.status_promosi === 'Sudah'"
                       :checked="
                         selectedStudentIds.includes(student.id || student._id)
                       "
                       @change="toggleSelectStudent(student.id || student._id)"
-                      class="rounded bg-zinc-800 border-zinc-700 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-zinc-900 cursor-pointer w-4 h-4"
+                      class="rounded bg-zinc-800 border-zinc-700 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-zinc-900 w-4 h-4 disabled:opacity-30 disabled:cursor-not-allowed"
+                      :class="student.status_promosi === 'Sudah' ? 'cursor-not-allowed' : 'cursor-pointer'"
                     />
                   </td>
                   <td class="p-3.5 text-center font-mono text-zinc-500">
@@ -254,6 +265,12 @@
                   </td>
                   <td class="p-3.5 font-semibold text-zinc-200">
                     {{ toTitleCase(student.nama) }}
+                    <span
+                      v-if="student.status_promosi === 'Sudah'"
+                      class="ml-2 bg-blue-950/60 text-blue-400 border border-blue-900/30 px-1.5 py-0.5 rounded text-[10px] font-medium inline-block shrink-0"
+                    >
+                      Baru Naik Kelas
+                    </span>
                   </td>
                   <td class="p-3.5 font-mono text-zinc-400">
                     {{ student.nisn || "-" }}
@@ -623,7 +640,8 @@ import {
   UserMinus,
   UserPlus,
   X,
-  GraduationCap
+  GraduationCap,
+  RefreshCw
 } from "lucide-vue-next";
 import { useTableData, clearTableSessionCache } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
@@ -637,6 +655,16 @@ const {
   loadData: loadDataKelas,
   refreshData: refreshDataKelas,
 } = useTableData();
+
+const sortedDataKelas = computed(() => {
+  if (!Array.isArray(dataKelas.value)) return [];
+  return [...dataKelas.value].sort((a, b) => {
+    const levelA = Number(a.tingkat) || 0;
+    const levelB = Number(b.tingkat) || 0;
+    if (levelA !== levelB) return levelA - levelB;
+    return (a.nama_kelas || "").localeCompare(b.nama_kelas || "");
+  });
+});
 const { cardData: dataGtk, loadData: loadDataGtk } = useTableData();
 const {
   cardData: dataSiswa,
@@ -824,16 +852,20 @@ const toggleSelectStudent = (id) => {
   }
 };
 
+const promotableStudents = computed(() => {
+  return studentsInRombel.value.filter(s => s.status_promosi !== 'Sudah');
+});
+
 const isAllSelected = computed(() => {
-  if (studentsInRombel.value.length === 0) return false;
-  return studentsInRombel.value.every((s) =>
+  if (promotableStudents.value.length === 0) return false;
+  return promotableStudents.value.every((s) =>
     selectedStudentIds.value.includes(s.id || s._id),
   );
 });
 
 const toggleSelectAllStudents = () => {
   if (isAllSelected.value) {
-    studentsInRombel.value.forEach((s) => {
+    promotableStudents.value.forEach((s) => {
       const id = s.id || s._id;
       const index = selectedStudentIds.value.indexOf(id);
       if (index > -1) {
@@ -841,7 +873,7 @@ const toggleSelectAllStudents = () => {
       }
     });
   } else {
-    studentsInRombel.value.forEach((s) => {
+    promotableStudents.value.forEach((s) => {
       const id = s.id || s._id;
       if (!selectedStudentIds.value.includes(id)) {
         selectedStudentIds.value.push(id);
@@ -857,7 +889,7 @@ const higherTingkatRombels = computed(() => {
   return dataKelas.value
     .filter((rombel) => {
       const targetTingkat = Number(rombel.tingkat) || 0;
-      return targetTingkat > currentTingkat;
+      return targetTingkat === currentTingkat + 1;
     })
     .sort((a, b) => {
       const levelA = Number(a.tingkat) || 0;
@@ -894,6 +926,7 @@ const handlePromoteStudents = async () => {
           try {
             await putToApi("data_siswa", studentId, {
               kelas: targetRombelId.value,
+              status_promosi: "Sudah",
             });
             successCount++;
           } catch (err) {
@@ -1183,6 +1216,35 @@ const getJenisKelaminAbbr = (jk) => {
   if (upper.startsWith("L")) return "L";
   if (upper.startsWith("P")) return "P";
   return jk;
+};
+
+// Admin Reset Promotion Status
+const hasPromotedStudents = computed(() => {
+  if (!Array.isArray(dataSiswa.value)) return false;
+  return dataSiswa.value.some((student) => student.status_promosi === "Sudah");
+});
+
+const isResetting = ref(false);
+const handleResetPromotions = () => {
+  Confirm?.show(
+    "Mulai Tahun Ajaran Baru",
+    "Apakah Anda yakin ingin memulai tahun ajaran baru? Semua status kenaikan kelas siswa akan disetel ulang (reset), sehingga mereka dapat dipromosikan kembali di tahun ajaran baru.",
+    "Ya, Mulai",
+    "Batal",
+    async () => {
+      isResetting.value = true;
+      try {
+        await putToApi("data_siswa", "reset_promosi", {});
+        Notify?.success?.("Berhasil mereset status kenaikan kelas seluruh siswa.");
+        await loadDataSiswa("data_siswa");
+      } catch (err) {
+        Notify?.failure?.("Gagal mereset status kenaikan kelas.");
+        console.error(err);
+      } finally {
+        isResetting.value = false;
+      }
+    }
+  );
 };
 
 onMounted(() => {

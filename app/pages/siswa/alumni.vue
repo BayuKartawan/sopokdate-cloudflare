@@ -242,15 +242,14 @@
             <li
               v-for="(item, index) in visibleData"
               :key="item.id || index"
-              @click="openDetailModal(item)"
-              class="cursor-pointer rounded-xl border p-5 transition-all duration-200 shadow-sm bg-zinc-850/40 border-zinc-700/40 hover:bg-zinc-800/60 hover:border-indigo-500/30 hover:shadow-indigo-950/20 group relative overflow-hidden"
+              class="cursor-pointer rounded-xl border p-5 transition-all duration-200 shadow-sm bg-zinc-800/30 border-zinc-700/40 hover:bg-zinc-700/40 hover:border-indigo-500/30 hover:shadow-indigo-950/20 group"
             >
-              <!-- Decorative glass highlight -->
-              <div class="absolute -right-16 -top-16 w-32 h-32 rounded-full bg-indigo-500/5 blur-2xl group-hover:bg-indigo-500/10 transition-all duration-350"></div>
-
               <div class="flex items-start gap-4">
                 <!-- Avatar block -->
-                <div class="w-14 h-14 rounded-xl flex items-center justify-center bg-zinc-800 text-zinc-200 transition-all group-hover:scale-105 shrink-0 overflow-hidden border border-zinc-700/50">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-700/40 text-indigo-400 transition-colors group-hover:bg-indigo-950/40 shrink-0 overflow-hidden border border-zinc-700/50"
+                  @click="navigateToDetail(item)"
+                >
                   <img
                     v-if="item.foto && item.foto.startsWith('http')"
                     :src="item.foto"
@@ -259,65 +258,71 @@
                     loading="lazy"
                     @error="handleImageError"
                   />
-                  <div
-                    v-else
-                    class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-600/30 to-violet-600/20 text-indigo-300 font-bold text-lg"
-                  >
-                    {{ getInitials(item.nama) }}
-                  </div>
+                  <UserCircle v-else class="w-6 h-6" />
                 </div>
 
                 <!-- Info Column -->
-                <div class="flex-1 min-w-0">
+                <div class="flex-1 min-w-0" @click="navigateToDetail(item)">
                   <h3 class="font-bold text-base text-zinc-100 truncate group-hover:text-indigo-400 transition-colors">
                     {{ toTitleCase(item.nama) }}
                   </h3>
 
-                  <div class="flex flex-wrap gap-1.5 mt-2">
-                    <span class="bg-indigo-950/40 border border-indigo-900/30 text-indigo-300 px-2 py-0.5 rounded text-[10px] font-semibold">
-                      Lulus {{ item.thn_lulus || '-' }}
-                    </span>
-                    <span
-                      class="px-2 py-0.5 rounded text-[10px] font-semibold border"
-                      :class="getDestinationBadgeClass(item.menjutkan_ke)"
-                    >
-                      {{ item.menjutkan_ke || 'Tidak Melanjutkan' }}
-                    </span>
-                  </div>
-
-                  <div class="flex flex-col gap-1 mt-3 text-xs text-zinc-400">
+                  <div class="flex flex-col gap-0.5 mt-1.5 text-xs text-zinc-400">
                     <p class="flex items-center gap-1.5">
                       <span class="w-16 text-zinc-500 shrink-0">NISN:</span>
                       <span class="font-mono">{{ item.nisn || "-" }}</span>
                     </p>
                     <p class="flex items-center gap-1.5">
-                      <span class="w-16 text-zinc-500 shrink-0">Lokal ID:</span>
-                      <span class="font-mono">{{ item.nis_lokal || "-" }}</span>
+                      <span class="w-16 text-zinc-500 shrink-0">Lulus:</span>
+                      <span
+                        class="bg-zinc-700/50 text-indigo-300 px-1.5 py-0.5 rounded text-[10px] w-fit font-medium border border-indigo-900/30"
+                      >
+                        Tahun {{ item.thn_lulus || "-" }}
+                      </span>
                     </p>
-                    <p class="flex items-start gap-1.5 mt-0.5">
-                      <span class="w-16 text-zinc-500 shrink-0">Alamat:</span>
-                      <span class="truncate text-zinc-300">{{ item.alamat || "-" }}</span>
+                    <p class="flex items-center gap-1.5">
+                      <span class="w-16 text-zinc-500 shrink-0">Tujuan:</span>
+                      <span
+                        class="px-1.5 py-0.5 rounded text-[10px] w-fit font-semibold border"
+                        :class="getDestinationBadgeClass(item.menjutkan_ke)"
+                      >
+                        {{ item.menjutkan_ke || "Tidak Melanjutkan" }}
+                      </span>
+                    </p>
+                    <p class="flex items-center gap-1.5">
+                      <span class="w-16 text-zinc-500 shrink-0">NIS Lokal:</span>
+                      <span class="truncate text-zinc-300 font-mono">{{ item.nis_lokal || "-" }}</span>
                     </p>
                   </div>
                 </div>
 
-                <!-- Admin Action Buttons (stop propagation to not open detail) -->
-                <div v-if="isAdmin" class="flex flex-col items-center gap-2 shrink-0 mt-0.5" @click.stop>
+                <!-- Admin Actions -->
+                <div
+                  v-if="isAdmin"
+                  class="flex items-center gap-1 shrink-0 mt-0.5"
+                  @click.stop
+                >
                   <button
                     @click="openEditModal(item)"
-                    class="p-1.5 rounded-lg text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 transition-all border border-zinc-700/30"
+                    class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-750/60 transition-all"
                     title="Edit"
                   >
                     <Pencil class="w-3.5 h-3.5" />
                   </button>
                   <button
                     @click="handleDelete(item)"
-                    class="p-1.5 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-all border border-zinc-700/30"
-                    title="Hapus"
+                    class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-750/60 transition-all"
+                    title="Kembalikan ke Siswa Aktif"
                   >
                     <Trash2 class="w-3.5 h-3.5" />
                   </button>
                 </div>
+
+                <!-- Arrow Icon -->
+                <ChevronRight
+                  class="w-5 h-5 text-zinc-600 mt-0.5 group-hover:text-indigo-400 transition-colors shrink-0"
+                  @click="navigateToDetail(item)"
+                />
               </div>
             </li>
           </ul>
@@ -333,144 +338,7 @@
         </div>
       </div>
 
-      <!-- Alumni Detail Modal -->
-      <div v-if="showDetailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
-          <!-- Modal Header -->
-          <div class="px-6 py-4 border-b border-zinc-800 flex items-center justify-between bg-gradient-to-r from-zinc-900 to-indigo-950/20">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-              <GraduationCap class="w-5 h-5 text-indigo-400" />
-              Detail Profil Alumni
-            </h3>
-            <button @click="showDetailModal = false" class="text-zinc-400 hover:text-white transition-colors text-xl p-1 font-bold">&times;</button>
-          </div>
 
-          <!-- Modal Body (Scrollable) -->
-          <div class="p-6 max-h-[70vh] overflow-y-auto space-y-6 scrollbar-thin">
-            <!-- Summary Profile Card -->
-            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 rounded-xl bg-zinc-950/40 border border-zinc-800/80">
-              <div class="w-20 h-20 rounded-xl flex items-center justify-center bg-zinc-800 text-zinc-200 shrink-0 overflow-hidden border border-zinc-700/40">
-                <img
-                  v-if="selectedAlumni.foto && selectedAlumni.foto.startsWith('http')"
-                  :src="selectedAlumni.foto"
-                  alt="Foto Alumni"
-                  class="w-full h-full object-cover"
-                />
-                <div
-                  v-else
-                  class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-600/30 to-violet-600/20 text-indigo-300 font-bold text-3xl"
-                >
-                  {{ getInitials(selectedAlumni.nama) }}
-                </div>
-              </div>
-              <div class="text-center sm:text-left flex-1 min-w-0">
-                <h4 class="text-xl font-bold text-white">{{ toTitleCase(selectedAlumni.nama) }}</h4>
-                <p class="text-sm text-zinc-400 mt-1 font-mono">NISN: {{ selectedAlumni.nisn || '-' }}</p>
-                <div class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
-                  <span class="bg-indigo-950/50 border border-indigo-900/40 text-indigo-300 px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                    Tahun Kelulusan: {{ selectedAlumni.thn_lulus || '-' }}
-                  </span>
-                  <span class="bg-zinc-850 border border-zinc-700/50 text-zinc-300 px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                    Studi Lanjut: {{ selectedAlumni.menjutkan_ke || 'Tidak Melanjutkan' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Detail Tabs/Lists -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Biodata Pribadi -->
-              <div class="p-4 rounded-xl bg-zinc-950/20 border border-zinc-800/60 space-y-3">
-                <h5 class="text-sm font-bold text-indigo-400 border-b border-zinc-850 pb-2">Informasi Pribadi</h5>
-                <dl class="space-y-2 text-xs">
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">NIS Lokal</dt>
-                    <dd class="text-zinc-300 font-mono font-medium">{{ selectedAlumni.nis_lokal || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">NIK</dt>
-                    <dd class="text-zinc-300 font-mono font-medium">{{ selectedAlumni.nik || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">No KK</dt>
-                    <dd class="text-zinc-300 font-mono font-medium">{{ selectedAlumni.no_kk || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">Jenis Kelamin</dt>
-                    <dd class="text-zinc-300 font-medium">{{ selectedAlumni.jenis_kelamin || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">Tempat Lahir</dt>
-                    <dd class="text-zinc-300 font-medium">{{ selectedAlumni.tempat_lahir || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">Tanggal Lahir</dt>
-                    <dd class="text-zinc-300 font-medium">{{ selectedAlumni.tanggal_lahir || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">Umur Kelulusan</dt>
-                    <dd class="text-zinc-300 font-medium">{{ selectedAlumni.umur || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">Status</dt>
-                    <dd class="text-zinc-300 font-medium">{{ selectedAlumni.status || '-' }}</dd>
-                  </div>
-                </dl>
-              </div>
-
-              <!-- Kontak & Keluarga -->
-              <div class="p-4 rounded-xl bg-zinc-950/20 border border-zinc-800/60 space-y-3">
-                <h5 class="text-sm font-bold text-indigo-400 border-b border-zinc-850 pb-2">Kontak & Keluarga</h5>
-                <dl class="space-y-2 text-xs">
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">No Telepon</dt>
-                    <dd class="text-zinc-300 font-mono font-medium">{{ selectedAlumni.no_hp || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">Nomor KIP/PIP</dt>
-                    <dd class="text-zinc-300 font-mono font-medium">{{ selectedAlumni.no_kip || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">Nama Ayah</dt>
-                    <dd class="text-zinc-300 font-medium">{{ selectedAlumni.nama_ayah_kandung || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">Nama Ibu</dt>
-                    <dd class="text-zinc-300 font-medium">{{ selectedAlumni.nama_ibu_kandung || '-' }}</dd>
-                  </div>
-                  <div class="flex justify-between">
-                    <dt class="text-zinc-500">Nama Wali</dt>
-                    <dd class="text-zinc-300 font-medium">{{ selectedAlumni.nama_wali || '-' }}</dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-
-            <!-- Alamat -->
-            <div class="p-4 rounded-xl bg-zinc-950/20 border border-zinc-800/60 space-y-2">
-              <h5 class="text-sm font-bold text-indigo-400 border-b border-zinc-850 pb-1.5">🚩 Alamat Tinggal</h5>
-              <p class="text-xs text-zinc-300 leading-relaxed font-medium">
-                {{ selectedAlumni.alamat || 'Alamat belum diinputkan.' }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Modal Footer -->
-          <div class="px-6 py-4 border-t border-zinc-800 flex justify-end gap-3 bg-zinc-950/20">
-            <BaseButton text="Tutup" @click="showDetailModal = false" class="!bg-zinc-800 hover:!bg-zinc-700" />
-            <BaseButton
-              v-if="selectedAlumni.no_hp"
-              text="Hubungi Alumni"
-              @click="callAlumni(selectedAlumni.no_hp)"
-              class="!bg-indigo-600 hover:!bg-indigo-500"
-            >
-              <template #icon>
-                <Phone class="w-4 h-4" />
-              </template>
-            </BaseButton>
-          </div>
-        </div>
-      </div>
 
       <!-- CRUD Modal -->
       <CrudModal
@@ -506,9 +374,10 @@ import BaseButton from "~/components/ui/BaseButton.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
-import { useTableData } from "~/composables/data/useTableData";
+import { useTableData, clearTableSessionCache } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
-import { fetchFromApi } from "~/utils/api";
+import { useNotiflix } from "~/composables/ui/useFeedback";
+import { fetchFromApi, postToApi, deleteFromApi } from "~/utils/api";
 import * as XLSX from "xlsx";
 
 const router = useRouter();
@@ -523,10 +392,9 @@ const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
   "alumni",
   () => refreshData("alumni")
 );
+const { Notify, Confirm } = useNotiflix();
 
-// Detail Modal state
-const showDetailModal = ref(false);
-const selectedAlumni = ref({});
+// CRUD Modal state
 
 // CRUD Modal state
 const showModal = ref(false);
@@ -599,9 +467,11 @@ const openEditModal = (item) => {
   showModal.value = true;
 };
 
-const openDetailModal = (item) => {
-  selectedAlumni.value = item;
-  showDetailModal.value = true;
+const navigateToDetail = (item) => {
+  const nisLokal = item.nis_lokal;
+  if (nisLokal) {
+    router.push(`/akademik/alumni/detail/${nisLokal}`);
+  }
 };
 
 const handleFormSubmit = async (formData) => {
@@ -619,7 +489,67 @@ const handleFormSubmit = async (formData) => {
 
 const handleDelete = (item) => {
   const id = item.id || item._id;
-  deleteItem(id, toTitleCase(item.nama));
+  
+  Confirm?.show(
+    "Kembalikan Alumni Menjadi Siswa Aktif",
+    `Apakah Anda yakin ingin membatalkan status kelulusan ${toTitleCase(item.nama)}? Siswa ini akan dipindahkan kembali ke Kelas 6 aktif dan dihapus dari data Alumni.`,
+    "Ya, Kembalikan",
+    "Batal",
+    async () => {
+      try {
+        // 1. Fetch data kelas untuk mencari tingkat 6
+        const classes = await fetchFromApi("data_kelas");
+        let targetClassId = "VI-A"; // default fallback
+        
+        if (Array.isArray(classes)) {
+          // Cari kelas tingkat 6 (bisa berupa "6" atau "VI")
+          const level6Class = classes.find(
+            (c) => String(c.tingkat) === "6" || String(c.tingkat).toUpperCase() === "VI"
+          );
+          if (level6Class && level6Class.id_kelas) {
+            targetClassId = level6Class.id_kelas;
+          }
+        }
+        
+        // 2. Buat record siswa baru di data_siswa
+        const studentRecord = {
+          nama: item.nama,
+          nisn: item.nisn || "",
+          nis_lokal: item.nis_lokal || "",
+          nik: item.nik || "",
+          no_kk: item.no_kk || "",
+          tempat_lahir: item.tempat_lahir || "",
+          tanggal_lahir: item.tanggal_lahir || "",
+          kelas: targetClassId,
+          umur: item.umur || "",
+          jenis_kelamin: item.jenis_kelamin || "Laki-laki",
+          alamat: item.alamat || "",
+          no_hp: item.no_hp || "",
+          no_kip: item.no_kip || "",
+          nama_ayah_kandung: item.nama_ayah_kandung || "",
+          nama_ibu_kandung: item.nama_ibu_kandung || "",
+          nama_wali: item.nama_wali || "",
+          status_promosi: "Belum"
+        };
+        
+        // Post ke data_siswa
+        await postToApi("data_siswa", studentRecord);
+        
+        // 3. Hapus dari alumni
+        await deleteFromApi("alumni", id);
+        
+        Notify?.success?.(`Berhasil mengembalikan ${toTitleCase(item.nama)} ke kelas ${targetClassId}.`);
+        
+        // 4. Refresh data alumni
+        await refreshData("alumni");
+        // Clear cached data_siswa session cache so it reloads fresh in other pages
+        clearTableSessionCache("data_siswa");
+      } catch (err) {
+        console.error("Gagal memproses pengembalian alumni:", err);
+        Notify?.failure?.("Gagal mengembalikan data alumni ke siswa aktif.");
+      }
+    }
+  );
 };
 
 const kepalaMadrasah = ref(null);
