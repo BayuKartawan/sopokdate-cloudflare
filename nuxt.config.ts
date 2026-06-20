@@ -88,6 +88,9 @@ export default defineNuxtConfig({
           if (newPath.startsWith("/siswa/data")) {
             newPath = newPath.replace("/siswa/data", "/akademik/siswa");
           }
+          if (newPath.startsWith("/siswa/alumni")) {
+            newPath = newPath.replace("/siswa/alumni", "/akademik/alumni");
+          }
           if (newPath.startsWith("/siswa/detail")) {
             newPath = newPath.replace(
               "/siswa/detail",

@@ -296,7 +296,7 @@
             <button
               v-if="isAdmin"
               @click="handleRemoveStudentsBulk"
-              :disabled="isPromoting"
+              :disabled="isPromoting || isGraduating"
               class="px-4 py-2.5 text-sm font-medium rounded-lg bg-red-950/30 hover:bg-red-950/60 border border-red-900/40 text-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0"
             >
               <UserMinus class="w-4 h-4" />
@@ -305,28 +305,43 @@
 
             <div class="h-6 w-px bg-zinc-850 hidden md:block"></div>
 
-            <!-- Kenaikan Controls -->
-            <select
-              v-model="targetRombelId"
-              class="h-10 px-3.5 rounded-lg border border-zinc-750 bg-zinc-850 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all w-full sm:w-60"
-            >
-              <option value="">-- Pilih Rombel Tujuan Kenaikan --</option>
-              <option
-                v-for="rombel in higherTingkatRombels"
-                :key="rombel.id_kelas"
-                :value="rombel.id_kelas"
+            <!-- Graduation Action for Level 6 -->
+            <template v-if="selectedRombel.tingkat === '6'">
+              <button
+                v-if="isAdmin"
+                @click="openGraduationModal"
+                :disabled="isGraduating"
+                class="px-5 py-2.5 text-sm font-medium rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0 shadow-lg shadow-indigo-950/20"
               >
-                Tingkat {{ rombel.tingkat }} - {{ rombel.nama_kelas }}
-              </option>
-            </select>
-            <button
-              @click="handlePromoteStudents"
-              :disabled="!targetRombelId || isPromoting"
-              class="px-5 py-2.5 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0"
-            >
-              <Loader2 v-if="isPromoting" class="w-4 h-4 animate-spin" />
-              Proses Kenaikan
-            </button>
+                <GraduationCap class="w-4 h-4" />
+                Proses Kelulusan
+              </button>
+            </template>
+
+            <!-- Kenaikan Controls for non-Level 6 -->
+            <template v-else>
+              <select
+                v-model="targetRombelId"
+                class="h-10 px-3.5 rounded-lg border border-zinc-750 bg-zinc-850 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all w-full sm:w-60"
+              >
+                <option value="">-- Pilih Rombel Tujuan Kenaikan --</option>
+                <option
+                  v-for="rombel in higherTingkatRombels"
+                  :key="rombel.id_kelas"
+                  :value="rombel.id_kelas"
+                >
+                  Tingkat {{ rombel.tingkat }} - {{ rombel.nama_kelas }}
+                </option>
+              </select>
+              <button
+                @click="handlePromoteStudents"
+                :disabled="!targetRombelId || isPromoting"
+                class="px-5 py-2.5 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0"
+              >
+                <Loader2 v-if="isPromoting" class="w-4 h-4 animate-spin" />
+                Proses Kenaikan
+              </button>
+            </template>
           </div>
         </div>
       </div>
@@ -495,6 +510,102 @@
           </div>
         </Transition>
       </Teleport>
+
+      <!-- Graduation Modal -->
+      <Teleport to="body">
+        <Transition name="modal-fade">
+          <div
+            v-if="showGraduationModal"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            @click.self="showGraduationModal = false"
+          >
+            <!-- Modal Content -->
+            <div
+              class="relative w-full max-w-md flex flex-col rounded-2xl border border-zinc-700/60 bg-zinc-900/95 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+            >
+              <!-- Header -->
+              <div
+                class="flex items-center justify-between px-6 py-4 border-b border-zinc-700/50 bg-zinc-800/50 shrink-0"
+              >
+                <div class="flex items-center gap-3 text-indigo-400">
+                  <GraduationCap class="w-5 h-5" />
+                  <h3 class="text-lg font-semibold text-zinc-100">
+                    Proses Kelulusan Siswa
+                  </h3>
+                </div>
+                <button
+                  @click="showGraduationModal = false"
+                  class="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
+                >
+                  <X class="w-5 h-5" />
+                </button>
+              </div>
+
+              <!-- Body -->
+              <div class="flex-1 px-6 py-5 space-y-4">
+                <p class="text-sm text-zinc-300">
+                  Anda akan meluluskan <span class="font-semibold text-white">{{ selectedStudentIds.length }}</span> siswa terpilih dari Rombel <span class="font-semibold text-indigo-300">{{ selectedRombel.nama_kelas }}</span>. Data siswa akan dipindahkan ke tabel Alumni.
+                </p>
+
+                <!-- Input Tahun Lulus -->
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-zinc-400">Tahun Kelulusan</label>
+                  <input
+                    v-model="gradYear"
+                    type="text"
+                    placeholder="Contoh: 2026"
+                    class="w-full h-10 px-3.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-100 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                  />
+                </div>
+
+                <!-- Input Studi Lanjut -->
+                <div class="space-y-1.5">
+                  <label class="text-xs font-semibold text-zinc-400">Studi Lanjut (Melanjutkan Ke)</label>
+                  <input
+                    v-model="gradDestination"
+                    type="text"
+                    placeholder="Contoh: MTs NW Penyenggir atau SMP"
+                    class="w-full h-10 px-3.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-100 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                  />
+                  <!-- Quick Suggestions -->
+                  <div class="flex flex-wrap gap-1.5 mt-2">
+                    <button
+                      v-for="sug in ['MTs NW Penyenggir', 'SMP', 'MTs', 'Tidak Melanjutkan']"
+                      :key="sug"
+                      type="button"
+                      @click="gradDestination = sug"
+                      class="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/50 text-[10px] font-medium text-zinc-300 transition-colors"
+                    >
+                      {{ sug }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div
+                class="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-700/50 bg-zinc-800/30 shrink-0"
+              >
+                <button
+                  type="button"
+                  @click="showGraduationModal = false"
+                  class="px-4 py-2 rounded-lg text-sm font-medium text-zinc-350 bg-zinc-700/50 hover:bg-zinc-700 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  @click="handleGraduateStudents"
+                  :disabled="!gradYear || isGraduating"
+                  class="px-5 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg shadow-indigo-950/20"
+                >
+                  <Loader2 v-if="isGraduating" class="w-4 h-4 animate-spin" />
+                  Konfirmasi Kelulusan
+                </button>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
     </div>
   </div>
 </template>
@@ -512,11 +623,12 @@ import {
   UserMinus,
   UserPlus,
   X,
+  GraduationCap
 } from "lucide-vue-next";
-import { useTableData } from "~/composables/data/useTableData";
+import { useTableData, clearTableSessionCache } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
-import { putToApi } from "~/utils/api";
+import { putToApi, postToApi, deleteFromApi } from "~/utils/api";
 import CrudModal from "~/components/ui/CrudModal.vue";
 
 const {
@@ -560,6 +672,18 @@ const showAddStudentModal = ref(false);
 const searchUnassignedQuery = ref("");
 const selectedUnassignedIds = ref([]);
 const isAddingStudents = ref(false);
+
+// Graduation state
+const showGraduationModal = ref(false);
+const gradYear = ref(new Date().getFullYear().toString());
+const gradDestination = ref("");
+const isGraduating = ref(false);
+
+const openGraduationModal = () => {
+  gradYear.value = new Date().getFullYear().toString();
+  gradDestination.value = "";
+  showGraduationModal.value = true;
+};
 
 // Teacher options for dropdown selection
 const teacherOptions = computed(() => {
@@ -797,6 +921,85 @@ const handlePromoteStudents = async () => {
         isPromoting.value = false;
       }
     },
+  );
+};
+
+const handleGraduateStudents = async () => {
+  if (!gradYear.value) {
+    Notify?.failure?.("Tahun kelulusan wajib diisi.");
+    return;
+  }
+
+  Confirm?.show(
+    "Konfirmasi Kelulusan",
+    `Apakah Anda yakin ingin meluluskan ${selectedStudentIds.value.length} siswa terpilih? Siswa akan dipindahkan ke tabel Alumni dan dihapus dari siswa aktif.`,
+    "Ya, Luluskan",
+    "Batal",
+    async () => {
+      isGraduating.value = true;
+      let successCount = 0;
+      let failCount = 0;
+
+      try {
+        for (const studentId of selectedStudentIds.value) {
+          const student = dataSiswa.value.find(s => (s.id || s._id) === studentId);
+          if (!student) continue;
+
+          try {
+            // 1. Post to Alumni database
+            const alumniRecord = {
+              nama: student.nama,
+              foto: "",
+              nis_lokal: student.nis_lokal || student["nis lokal"],
+              nisn: student.nisn,
+              nik: student.nik,
+              no_kk: student.no_kk || student["no kk"] || "",
+              tempat_lahir: student.tempat_lahir || student["tempat lahir"],
+              tanggal_lahir: student.tanggal_lahir || student["tanggal lahir"],
+              umur: student.umur,
+              jenis_kelamin: student.jenis_kelamin || student["jenis kelamin"],
+              status: "Lulus",
+              thn_lulus: gradYear.value,
+              menjutkan_ke: gradDestination.value || "Tidak Melanjutkan",
+              alamat: student.alamat,
+              no_hp: student.no_hp || student["no telepon"],
+              no_kip: student.no_kip || student["no kip"],
+              nama_ayah_kandung: student.nama_ayah_kandung || student["nama ayah kandung"],
+              nama_ibu_kandung: student.nama_ibu_kandung || student["nama ibu kandung"],
+              nama_wali: student.nama_wali || student["nama wali"]
+            };
+
+            await postToApi("alumni", alumniRecord);
+
+            // 2. Delete from Student database
+            await deleteFromApi("data_siswa", studentId);
+            successCount++;
+          } catch (err) {
+            console.error(`Gagal meluluskan siswa ${student.nama}:`, err);
+            failCount++;
+          }
+        }
+
+        if (successCount > 0) {
+          Notify?.success?.(`Berhasil meluluskan ${successCount} siswa ke Alumni.`);
+          selectedStudentIds.value = [];
+          showGraduationModal.value = false;
+          
+          // Refresh databases
+          await loadDataSiswa("data_siswa");
+          // Clear cached alumni session data so it reloads fresh next time
+          clearTableSessionCache("alumni");
+        }
+
+        if (failCount > 0) {
+          Notify?.failure?.(`Gagal meluluskan ${failCount} siswa.`);
+        }
+      } catch (err) {
+        Notify?.failure?.("Terjadi kesalahan saat memproses kelulusan.");
+      } finally {
+        isGraduating.value = false;
+      }
+    }
   );
 };
 

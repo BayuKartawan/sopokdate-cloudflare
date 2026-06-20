@@ -200,6 +200,49 @@ function normalizePengumumanData(data: any[]): any[] {
   });
 }
 
+function normalizeAlumniData(data: any[]): any[] {
+  if (!Array.isArray(data)) return data;
+  return data.map((item) => {
+    if (!item || typeof item !== "object") return item;
+
+    const normalized = { ...item };
+
+    const getField = (obj: any, targetNames: string[]): any => {
+      const cleanTargets = targetNames.map(t => t.toLowerCase().replace(/[^a-z0-9]/g, ""));
+      for (const key of Object.keys(obj)) {
+        const cleanedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (cleanTargets.includes(cleanedKey)) {
+          return obj[key];
+        }
+      }
+      return "";
+    };
+
+    normalized.id = item.id;
+    normalized.nama = getField(item, ["nama", "nama_lengkap", "namalengkap"]);
+    normalized.foto = getField(item, ["foto"]);
+    normalized.nis_lokal = getField(item, ["nis_lokal", "nislokal", "nis_lokal"]);
+    normalized.nisn = getField(item, ["nisn"]);
+    normalized.nik = getField(item, ["nik"]);
+    normalized.no_kk = getField(item, ["no_kk", "nokk"]);
+    normalized.tempat_lahir = getField(item, ["tempat_lahir", "tempatlahir"]);
+    normalized.tanggal_lahir = getField(item, ["tanggal_lahir", "tanggallahir"]);
+    normalized.umur = getField(item, ["umur"]);
+    normalized.jenis_kelamin = getField(item, ["jenis_kelamin", "jeniskelamin"]);
+    normalized.status = getField(item, ["status"]);
+    normalized.thn_lulus = getField(item, ["thn_lulus", "tahunlulus", "tahun_lulus"]);
+    normalized.menjutkan_ke = getField(item, ["menjutkan_ke", "melanjutkanke", "melanjutkan_ke"]);
+    normalized.alamat = getField(item, ["alamat", "alamat"]);
+    normalized.no_hp = getField(item, ["no_hp", "nohp", "no_telepon", "notelepon"]);
+    normalized.no_kip = getField(item, ["no_kip", "nokip", "nomorkippip"]);
+    normalized.nama_ayah_kandung = getField(item, ["nama_ayah_kandung", "namaayahkandung"]);
+    normalized.nama_ibu_kandung = getField(item, ["nama_ibu_kandung", "namaibukandung"]);
+    normalized.nama_wali = getField(item, ["nama_wali", "namawali"]);
+
+    return normalized;
+  });
+}
+
 export function useTableData() {
   const cardData = ref<any[]>([]);
   const isLoading = ref(false);
@@ -287,6 +330,8 @@ export function useTableData() {
             processedData = normalizeKelasData(processedData);
           } else if (tableName === "pengumuman" || tableName === "Pengumuman") {
             processedData = normalizePengumumanData(processedData);
+          } else if (tableName === "alumni" || tableName === "Alumni") {
+            processedData = normalizeAlumniData(processedData);
           }
           cardData.value = processedData;
         }
@@ -378,6 +423,11 @@ export function useTableData() {
         Array.isArray(data)
       ) {
         processedData = normalizePengumumanData(data);
+      } else if (
+        (tableName === "alumni" || tableName === "Alumni") &&
+        Array.isArray(data)
+      ) {
+        processedData = normalizeAlumniData(data);
       }
       sessionCache[tableName] = {
         data: processedData,

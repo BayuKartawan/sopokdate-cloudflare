@@ -70,6 +70,11 @@ export const useMenuConfig = () => {
           label: "Rombel",
           roles: ["admin", "guru"],
         },
+        {
+          to: "/akademik/alumni",
+          label: "Alumni",
+          roles: ["admin", "guru"],
+        },
       ],
     },
     {

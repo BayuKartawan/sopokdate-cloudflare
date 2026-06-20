@@ -24,6 +24,7 @@ const TABLE_MAPPING: Record<string, string> = {
   kurikulum: "kurikulum",
   alokasijam: "alokasi_jam",
   jadwalpelajaran: "jadwal_pelajaran",
+  alumni: "alumni",
 };
 
 // Helper to validate table name to prevent SQL injection on table identifiers
