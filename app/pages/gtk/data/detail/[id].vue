@@ -43,15 +43,39 @@
       <div v-else-if="gtkDetail" class="space-y-6">
         <!-- Header -->
         <div class="rounded-lg p-6 bg-zinc-800">
-          <div class="flex items-center gap-4">
-            <UserCircle class="h-8 w-8 text-emerald-400" />
-            <div>
-              <h1 class="text-2xl font-semibold mb-1 text-white">
-                {{ gtkDetail.title }}
-              </h1>
-              <p class="text-sm text-zinc-400">
-                {{ gtkDetail.Tugas }}
-              </p>
+          <div
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          >
+            <div class="flex items-center gap-4">
+              <UserCircle class="h-8 w-8 text-emerald-400" />
+              <div>
+                <h1 class="text-2xl font-semibold mb-1 text-white">
+                  {{ gtkDetail.title }}
+                </h1>
+                <p class="text-sm text-zinc-400">
+                  {{ gtkDetail.Tugas }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Admin Actions -->
+            <div v-if="isAdmin" class="flex items-center gap-2">
+              <button
+                @click="openEditModal(gtkDetail)"
+                class="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors"
+                title="Edit"
+              >
+                <Pencil class="w-4 h-4" />
+                <span>Edit</span>
+              </button>
+              <button
+                @click="handleDelete(gtkDetail)"
+                class="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-500 text-white transition-colors"
+                title="Hapus"
+              >
+                <Trash2 class="w-4 h-4" />
+                <span>Hapus</span>
+              </button>
             </div>
           </div>
         </div>
@@ -130,17 +154,31 @@
           </div>
         </div>
       </div>
+
+      <!-- CRUD Modal -->
+      <CrudModal
+        :show="showModal"
+        :mode="modalMode"
+        :title="modalMode === 'create' ? 'Tambah Data GTK' : 'Edit Data GTK'"
+        :fields="gtkFields"
+        :initialData="editingItem"
+        :isSaving="isSaving"
+        @submit="handleFormSubmit"
+        @close="showModal = false"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { Info, UserCircle } from "lucide-vue-next";
+import { Info, UserCircle, Pencil, Trash2 } from "lucide-vue-next";
 
 import { ref, computed, onMounted, watch } from "vue";
 
 import { useTableData } from "~/composables/data/useTableData";
 import { useNotiflix } from "~/composables/ui/useFeedback";
+import { useCrud } from "~/composables/data/useCrud";
+import CrudModal from "~/components/ui/CrudModal.vue";
 
 const { cardData, loadData } = useTableData();
 const route = useRoute();
@@ -150,6 +188,93 @@ const gtkDetail = ref(null);
 const loading = ref(true);
 const error = ref(null);
 const dataGtk = ref([]);
+
+const showModal = ref(false);
+const modalMode = ref("edit");
+const editingItem = ref({});
+let isDeletingOp = false;
+
+const { isAdmin, isSaving, updateItem, deleteItem } = useCrud(
+  "DataGtk",
+  async () => {
+    if (isDeletingOp) {
+      router.push("/akademik/gtk");
+    } else {
+      await loadGtkDetail();
+    }
+  },
+);
+
+const gtkFields = [
+  { key: "Nama Lengkap", label: "Nama Lengkap", required: true },
+  { key: "NIK", label: "NIK" },
+  { key: "No KK", label: "No KK" },
+  { key: "NUPTK", label: "NUPTK" },
+  { key: "Peg ID", label: "Peg ID" },
+  { key: "NPK", label: "NPK" },
+  { key: "NRG", label: "NRG" },
+  { key: "Pendidikan Terakhir", label: "Pendidikan Terakhir" },
+  { key: "Jurusan", label: "Jurusan" },
+  {
+    key: "Jenis Kelamin",
+    label: "Jenis Kelamin",
+    type: "select",
+    options: ["Laki-Laki", "Perempuan"],
+  },
+  { key: "Tempat Lahir", label: "Tempat Lahir" },
+  { key: "Tanggal Lahir", label: "Tanggal Lahir", type: "date" },
+  { key: "No HP", label: "No HP" },
+  { key: "Email", label: "Email", type: "email" },
+  { key: "Tugas", label: "Tugas" },
+  { key: "No Rekening", label: "No Rekening" },
+  { key: "Status Kepegawaian", label: "Status Kepegawaian" },
+  { key: "NIP", label: "NIP" },
+  { key: "Mata Pelajaran", label: "Mata Pelajaran" },
+  { key: "Wali Kelas", label: "Wali Kelas" },
+];
+
+const openEditModal = (item) => {
+  isDeletingOp = false;
+  modalMode.value = "edit";
+  editingItem.value = {
+    _id: item.id || item._id,
+    "Nama Lengkap": item.title || "",
+    NIK: item.NIK || "",
+    "No KK": item.NoKK || "",
+    NUPTK: item.NUPTK || "",
+    "Peg ID": item.PegID || "",
+    NPK: item.NPK || "",
+    NRG: item.NRG || "",
+    "Pendidikan Terakhir": item.PendTerakhir || "",
+    Jurusan: item.Jurusan || "",
+    "Jenis Kelamin": item.JenisKelamin || "",
+    "Tempat Lahir": item.TempatLahir || "",
+    "Tanggal Lahir": item.TanggalLahir || "",
+    "No HP": item.NomorHp || "",
+    Email: item.Email || "",
+    Tugas: item.Tugas || "",
+    "No Rekening": item.NoRek || "",
+    "Status Kepegawaian": item.StatusKepegawaian || "",
+    NIP: item.NIP || "",
+    "Mata Pelajaran": item.MataPelajaran || "",
+    "Wali Kelas": item.WaliKelas || "",
+  };
+  showModal.value = true;
+};
+
+const handleFormSubmit = async (formData) => {
+  const id = editingItem.value._id;
+  const success = await updateItem(id, formData);
+  if (success) {
+    showModal.value = false;
+  }
+};
+
+const handleDelete = (item) => {
+  isDeletingOp = true;
+  const id = item.id || item._id;
+  deleteItem(id, toTitleCase(item.title));
+};
 
 // TAMBAHKAN BLOK DI BAWAH INI
 watch(

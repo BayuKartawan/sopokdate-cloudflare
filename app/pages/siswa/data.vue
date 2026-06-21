@@ -529,7 +529,7 @@ const loadKepalaMadrasah = async () => {
       }
     }
 
-    // Fetch only the Kepala Madrasah row from Apps Script (highly optimized!)
+    // Fetch only the Kepala Madrasah row (highly optimized!)
     const response = await fetchFromApi("data_gtk", false, null, {
       filter_col: "tugas",
       filter_val: "Kepala Madrasah",

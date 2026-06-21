@@ -16,6 +16,15 @@ export const CACHE_EXPIRATION_MS = 5 * 60 * 1000;
  * @param tableName optional nama tabel untuk di-invalidate
  */
 export function invalidateCache(tableName?: string) {
+  const config = useRuntimeConfig();
+  if (!config.enableServerCache) {
+    // Jika cache tidak aktif, pastikan map cache kosong untuk menghemat memori
+    if (apiCache.size > 0) {
+      apiCache.clear();
+    }
+    return;
+  }
+
   if (!tableName) {
     apiCache.clear();
     console.log("[Cache] Seluruh cache server telah dibersihkan.");

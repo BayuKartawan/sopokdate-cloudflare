@@ -7,7 +7,7 @@ Aplikasi manajemen data madrasah berbasis Nuxt 3.
 - **Framework**: [Nuxt 3](https://nuxt.com/) (SPA mode)
 - **UI**: [Vue 3](https://vuejs.org/) + [Tailwind CSS v4](https://tailwindcss.com/)
 - **Icons**: [Lucide Vue Next](https://lucide.dev/)
-- **Backend**: Cloudflare Worker + Google Apps Script
+- **Backend**: Cloudflare Worker + D1 Database
 
 ## Setup
 

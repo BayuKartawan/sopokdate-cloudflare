@@ -126,7 +126,7 @@
               v-if="activeTab === 'kelas'"
               class="font-bold text-zinc-200 print:text-black"
             >
-              KELAS: {{ selectedKelas }}
+              KELAS: {{ getKelasName(selectedKelas) }}
             </span>
             <span
               v-if="activeTab === 'guru'"
@@ -201,7 +201,10 @@
                   <template v-else-if="activeTab === 'guru'">
                     <div v-if="getTeacherScheduleAt(day, hour)">
                       <div class="font-bold text-emerald-400 print:text-black">
-                        Kelas {{ getTeacherScheduleAt(day, hour).kelas_id }}
+                        Kelas
+                        {{
+                          getKelasName(getTeacherScheduleAt(day, hour).kelas_id)
+                        }}
                       </div>
                       <div
                         class="text-[10px] text-zinc-500 print:text-zinc-600 mt-0.5 line-clamp-1"
@@ -328,6 +331,11 @@ const getTeacherScheduleAt = (day, hour) => {
 };
 
 // Name mappings
+const getKelasName = (id) => {
+  const kelas = (kelasData.value || []).find((k) => k.id_kelas === id);
+  return kelas ? kelas.nama_kelas || kelas.id_kelas : id;
+};
+
 const getMapelName = (id) => {
   const mapel = (kurikulumData.value || []).find((m) => m.id === Number(id));
   return mapel ? mapel.nama_mapel : `Mapel ID: ${id}`;

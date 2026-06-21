@@ -26,7 +26,10 @@
                 :disabled="isResetting"
                 class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-zinc-800 hover:bg-zinc-750 border border-zinc-700/60 text-zinc-300 disabled:opacity-50 transition-all shadow-md"
               >
-                <RefreshCw :class="{ 'animate-spin': isResetting }" class="w-4 h-4 text-emerald-400" />
+                <RefreshCw
+                  :class="{ 'animate-spin': isResetting }"
+                  class="w-4 h-4 text-emerald-400"
+                />
                 Mulai Tahun Ajaran Baru
               </button>
               <button
@@ -61,7 +64,7 @@
               Tidak ada data rombel ditemukan
             </p>
             <p class="text-zinc-500 text-sm mt-1">
-              Pastikan sheet DataKelas di Google Sheets Anda sudah terisi.
+              Pastikan tabel data_kelas di database D1 sudah terisi.
             </p>
           </div>
 
@@ -257,7 +260,11 @@
                       "
                       @change="toggleSelectStudent(student.id || student._id)"
                       class="rounded bg-zinc-800 border-zinc-700 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-zinc-900 w-4 h-4 disabled:opacity-30 disabled:cursor-not-allowed"
-                      :class="student.status_promosi === 'Sudah' ? 'cursor-not-allowed' : 'cursor-pointer'"
+                      :class="
+                        student.status_promosi === 'Sudah'
+                          ? 'cursor-not-allowed'
+                          : 'cursor-pointer'
+                      "
                     />
                   </td>
                   <td class="p-3.5 text-center font-mono text-zinc-500">
@@ -561,12 +568,22 @@
               <!-- Body -->
               <div class="flex-1 px-6 py-5 space-y-4">
                 <p class="text-sm text-zinc-300">
-                  Anda akan meluluskan <span class="font-semibold text-white">{{ selectedStudentIds.length }}</span> siswa terpilih dari Rombel <span class="font-semibold text-indigo-300">{{ selectedRombel.nama_kelas }}</span>. Data siswa akan dipindahkan ke tabel Alumni.
+                  Anda akan meluluskan
+                  <span class="font-semibold text-white">{{
+                    selectedStudentIds.length
+                  }}</span>
+                  siswa terpilih dari Rombel
+                  <span class="font-semibold text-indigo-300">{{
+                    selectedRombel.nama_kelas
+                  }}</span
+                  >. Data siswa akan dipindahkan ke tabel Alumni.
                 </p>
 
                 <!-- Input Tahun Lulus -->
                 <div class="space-y-1.5">
-                  <label class="text-xs font-semibold text-zinc-400">Tahun Kelulusan</label>
+                  <label class="text-xs font-semibold text-zinc-400"
+                    >Tahun Kelulusan</label
+                  >
                   <input
                     v-model="gradYear"
                     type="text"
@@ -577,7 +594,9 @@
 
                 <!-- Input Studi Lanjut -->
                 <div class="space-y-1.5">
-                  <label class="text-xs font-semibold text-zinc-400">Studi Lanjut (Melanjutkan Ke)</label>
+                  <label class="text-xs font-semibold text-zinc-400"
+                    >Studi Lanjut (Melanjutkan Ke)</label
+                  >
                   <input
                     v-model="gradDestination"
                     type="text"
@@ -587,7 +606,12 @@
                   <!-- Quick Suggestions -->
                   <div class="flex flex-wrap gap-1.5 mt-2">
                     <button
-                      v-for="sug in ['MTs NW Penyenggir', 'SMP', 'MTs', 'Tidak Melanjutkan']"
+                      v-for="sug in [
+                        'MTs NW Penyenggir',
+                        'SMP',
+                        'MTs',
+                        'Tidak Melanjutkan',
+                      ]"
                       :key="sug"
                       type="button"
                       @click="gradDestination = sug"
@@ -641,9 +665,12 @@ import {
   UserPlus,
   X,
   GraduationCap,
-  RefreshCw
+  RefreshCw,
 } from "lucide-vue-next";
-import { useTableData, clearTableSessionCache } from "~/composables/data/useTableData";
+import {
+  useTableData,
+  clearTableSessionCache,
+} from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { putToApi, postToApi, deleteFromApi } from "~/utils/api";
@@ -853,7 +880,7 @@ const toggleSelectStudent = (id) => {
 };
 
 const promotableStudents = computed(() => {
-  return studentsInRombel.value.filter(s => s.status_promosi !== 'Sudah');
+  return studentsInRombel.value.filter((s) => s.status_promosi !== "Sudah");
 });
 
 const isAllSelected = computed(() => {
@@ -975,7 +1002,9 @@ const handleGraduateStudents = async () => {
 
       try {
         for (const studentId of selectedStudentIds.value) {
-          const student = dataSiswa.value.find(s => (s.id || s._id) === studentId);
+          const student = dataSiswa.value.find(
+            (s) => (s.id || s._id) === studentId,
+          );
           if (!student) continue;
 
           try {
@@ -997,9 +1026,11 @@ const handleGraduateStudents = async () => {
               alamat: student.alamat,
               no_hp: student.no_hp || student["no telepon"],
               no_kip: student.no_kip || student["no kip"],
-              nama_ayah_kandung: student.nama_ayah_kandung || student["nama ayah kandung"],
-              nama_ibu_kandung: student.nama_ibu_kandung || student["nama ibu kandung"],
-              nama_wali: student.nama_wali || student["nama wali"]
+              nama_ayah_kandung:
+                student.nama_ayah_kandung || student["nama ayah kandung"],
+              nama_ibu_kandung:
+                student.nama_ibu_kandung || student["nama ibu kandung"],
+              nama_wali: student.nama_wali || student["nama wali"],
             };
 
             await postToApi("alumni", alumniRecord);
@@ -1014,10 +1045,12 @@ const handleGraduateStudents = async () => {
         }
 
         if (successCount > 0) {
-          Notify?.success?.(`Berhasil meluluskan ${successCount} siswa ke Alumni.`);
+          Notify?.success?.(
+            `Berhasil meluluskan ${successCount} siswa ke Alumni.`,
+          );
           selectedStudentIds.value = [];
           showGraduationModal.value = false;
-          
+
           // Refresh databases
           await loadDataSiswa("data_siswa");
           // Clear cached alumni session data so it reloads fresh next time
@@ -1032,7 +1065,7 @@ const handleGraduateStudents = async () => {
       } finally {
         isGraduating.value = false;
       }
-    }
+    },
   );
 };
 
@@ -1235,7 +1268,9 @@ const handleResetPromotions = () => {
       isResetting.value = true;
       try {
         await putToApi("data_siswa", "reset_promosi", {});
-        Notify?.success?.("Berhasil mereset status kenaikan kelas seluruh siswa.");
+        Notify?.success?.(
+          "Berhasil mereset status kenaikan kelas seluruh siswa.",
+        );
         await loadDataSiswa("data_siswa");
       } catch (err) {
         Notify?.failure?.("Gagal mereset status kenaikan kelas.");
@@ -1243,7 +1278,7 @@ const handleResetPromotions = () => {
       } finally {
         isResetting.value = false;
       }
-    }
+    },
   );
 };
 

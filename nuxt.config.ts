@@ -24,13 +24,12 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css", "~/assets/css/print.css"],
 
   runtimeConfig: {
-    // URL Cloudflare Worker (menggantikan URL AppScript)
+    // URL Cloudflare Worker
     apiWorkerUrl: process.env.NUXT_API_WORKER_URL || "http://localhost:8787",
     apiWorkerToken:
       process.env.NUXT_API_WORKER_TOKEN || "sopokdate_secret_token_123",
-    // URL AppScript lama (simpan sebagai fallback, bisa dihapus nanti)
-    apiUrlUtama: process.env.NUXT_PUBLIC_API_URL_UTAMA || "",
-    apiUrlSurat: process.env.NUXT_PUBLIC_API_URL_SURAT || "",
+    // Mengaktifkan/menonaktifkan cache server (in-memory cache tidak cocok untuk deploy serverless/multi-isolate)
+    enableServerCache: process.env.NUXT_ENABLE_SERVER_CACHE === "true",
     public: {
       appName: process.env.NUXT_PUBLIC_APP_NAME || "",
       appLink: process.env.NUXT_PUBLIC_APP_LINK || "",

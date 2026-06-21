@@ -45,8 +45,14 @@
         </div>
 
         <!-- Auto Generate Button (Admin Only) -->
-        <div v-if="selectedKelas && isAdmin" class="flex flex-col gap-1.5 w-full sm:w-auto">
-          <label class="text-xs font-semibold text-zinc-400 opacity-0 sm:block hidden">Aksi</label>
+        <div
+          v-if="selectedKelas && isAdmin"
+          class="flex flex-col gap-1.5 w-full sm:w-auto"
+        >
+          <label
+            class="text-xs font-semibold text-zinc-400 opacity-0 sm:block hidden"
+            >Aksi</label
+          >
           <button
             @click="autoGenerateSchedule"
             class="flex items-center justify-center gap-2 h-10 px-4 text-sm font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-lg shadow-indigo-950/20"
@@ -335,7 +341,14 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { Calendar, BookOpen, Plus, Trash2, Loader2, Sparkles } from "lucide-vue-next";
+import {
+  Calendar,
+  BookOpen,
+  Plus,
+  Trash2,
+  Loader2,
+  Sparkles,
+} from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
@@ -567,7 +580,7 @@ const autoGenerateSchedule = () => {
 
   if (currentClassAllocations.value.length === 0) {
     Notify.warning(
-      "Belum ada alokasi jam mengajar di kelas ini. Silakan atur di menu Alokasi Jam terlebih dahulu."
+      "Belum ada alokasi jam mengajar di kelas ini. Silakan atur di menu Alokasi Jam terlebih dahulu.",
     );
     return;
   }
@@ -645,7 +658,7 @@ const autoGenerateSchedule = () => {
         (sch) =>
           sch.hari === day &&
           Number(sch.jam_ke) === hour &&
-          Number(sch.guru_id) === guruId
+          Number(sch.guru_id) === guruId,
       );
   };
 
@@ -740,10 +753,11 @@ const autoGenerateSchedule = () => {
     // Try placing this item
     for (let d = 0; d < days.length; d++) {
       const day = days[d];
-      
-      const currentHoursOnDay = Object.keys(grid)
-        .filter((key) => key.startsWith(`${day}_`) && grid[key]?.mapel_id === item.mapel_id)
-        .length;
+
+      const currentHoursOnDay = Object.keys(grid).filter(
+        (key) =>
+          key.startsWith(`${day}_`) && grid[key]?.mapel_id === item.mapel_id,
+      ).length;
 
       // Soft constraint: avoid having more than 2 hours of this mapel on other days
       if (currentHoursOnDay >= 2) {
@@ -756,9 +770,10 @@ const autoGenerateSchedule = () => {
 
         if (grid[key] !== null) continue;
         if (isTeacherConflictingExternally(day, hour, item.guru_id)) continue;
-        
+
         // Single subject per block per day constraint check
-        if (doesBlockViolateSingleSubject(grid, day, hour, item.mapel_id)) continue;
+        if (doesBlockViolateSingleSubject(grid, day, hour, item.mapel_id))
+          continue;
 
         grid[key] = item;
         if (solveIndividualHours(index + 1)) return true;
@@ -769,10 +784,11 @@ const autoGenerateSchedule = () => {
     // Fallback: solve without soft constraint (but keep day hours limit < 4 to not stack on block day)
     for (let d = 0; d < days.length; d++) {
       const day = days[d];
-      
-      const currentHoursOnDay = Object.keys(grid)
-        .filter((key) => key.startsWith(`${day}_`) && grid[key]?.mapel_id === item.mapel_id)
-        .length;
+
+      const currentHoursOnDay = Object.keys(grid).filter(
+        (key) =>
+          key.startsWith(`${day}_`) && grid[key]?.mapel_id === item.mapel_id,
+      ).length;
 
       if (currentHoursOnDay >= 4) {
         continue;
@@ -784,9 +800,10 @@ const autoGenerateSchedule = () => {
 
         if (grid[key] !== null) continue;
         if (isTeacherConflictingExternally(day, hour, item.guru_id)) continue;
-        
+
         // Single subject per block per day constraint check
-        if (doesBlockViolateSingleSubject(grid, day, hour, item.mapel_id)) continue;
+        if (doesBlockViolateSingleSubject(grid, day, hour, item.mapel_id))
+          continue;
 
         grid[key] = item;
         if (solveIndividualHours(index + 1)) return true;
@@ -822,7 +839,7 @@ const autoGenerateSchedule = () => {
     Notify.success("Jadwal berhasil digenerate secara otomatis ke draft!");
   } else {
     Notify.failure(
-      "Gagal mengenerate jadwal secara otomatis. Terjadi tabrakan jadwal guru yang tidak dapat dihindari."
+      "Gagal mengenerate jadwal secara otomatis. Terjadi tabrakan jadwal guru yang tidak dapat dihindari.",
     );
   }
 };

@@ -221,24 +221,6 @@
                 </p>
               </div>
 
-              <!-- Admin Actions -->
-              <div v-if="isAdmin" class="flex items-center gap-1 shrink-0">
-                <button
-                  @click.stop="openEditModal(item)"
-                  class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-700/60 transition-all"
-                  title="Edit"
-                >
-                  <Pencil class="w-3.5 h-3.5" />
-                </button>
-                <button
-                  @click.stop="handleDelete(item)"
-                  class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-700/60 transition-all"
-                  title="Hapus"
-                >
-                  <Trash2 class="w-3.5 h-3.5" />
-                </button>
-              </div>
-
               <ChevronRight
                 class="w-4 h-4 text-zinc-600"
                 @click="navigateToDetail(item)"
@@ -276,14 +258,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 
-import {
-  Database,
-  UserCircle,
-  ChevronRight,
-  Plus,
-  Pencil,
-  Trash2,
-} from "lucide-vue-next";
+import { Database, UserCircle, ChevronRight, Plus } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";

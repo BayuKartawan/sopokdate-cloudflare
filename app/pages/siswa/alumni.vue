@@ -6,7 +6,9 @@
       <div class="flex flex-col gap-4 sm:gap-6 mb-6">
         <div class="flex flex-wrap items-center gap-4">
           <div>
-            <h2 class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2">
+            <h2
+              class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+            >
               <GraduationCap class="w-8 h-8 text-indigo-400" />
               Data Alumni
             </h2>
@@ -80,21 +82,34 @@
 
                 <!-- Header -->
                 <div class="text-center mb-6">
-                  <h1 class="font-bold uppercase text-lg">Daftar Data Alumni</h1>
+                  <h1 class="font-bold uppercase text-lg">
+                    Daftar Data Alumni
+                  </h1>
                   <p class="text-sm">
-                    Tahun Lulus: {{ selectedYear }} | Studi Lanjut: {{ selectedDestination }}
+                    Tahun Lulus: {{ selectedYear }} | Studi Lanjut:
+                    {{ selectedDestination }}
                   </p>
                 </div>
 
                 <!-- Tabel Cetak -->
-                <table class="w-full table-auto border border-gray-800 mb-4 text-xs">
+                <table
+                  class="w-full table-auto border border-gray-800 mb-4 text-xs"
+                >
                   <thead class="bg-gray-100">
                     <tr>
                       <th class="border border-gray-800 px-2 py-1.5 w-8">No</th>
-                      <th class="border border-gray-800 px-2 py-1.5">Nama Lengkap</th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-24">NISN</th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-20">Tahun Lulus</th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-24">Melanjutkan Ke</th>
+                      <th class="border border-gray-800 px-2 py-1.5">
+                        Nama Lengkap
+                      </th>
+                      <th class="border border-gray-800 px-2 py-1.5 w-24">
+                        NISN
+                      </th>
+                      <th class="border border-gray-800 px-2 py-1.5 w-20">
+                        Tahun Lulus
+                      </th>
+                      <th class="border border-gray-800 px-2 py-1.5 w-24">
+                        Melanjutkan Ke
+                      </th>
                       <th class="border border-gray-800 px-2 py-1.5">Alamat</th>
                     </tr>
                   </thead>
@@ -104,17 +119,29 @@
                         colspan="6"
                         class="border border-gray-800 px-2 py-4 text-center text-gray-500"
                       >
-                        {{ isLoading ? "Memuat data..." : "Tidak ada data alumni tersedia" }}
+                        {{
+                          isLoading
+                            ? "Memuat data..."
+                            : "Tidak ada data alumni tersedia"
+                        }}
                       </td>
                     </tr>
-                    <tr v-else v-for="(alumni, index) in sortedData" :key="alumni.id || index">
+                    <tr
+                      v-else
+                      v-for="(alumni, index) in sortedData"
+                      :key="alumni.id || index"
+                    >
                       <td class="border border-gray-800 px-2 py-1 text-center">
                         {{ index + 1 }}
                       </td>
-                      <td class="border border-gray-800 px-2 py-1 font-semibold">
+                      <td
+                        class="border border-gray-800 px-2 py-1 font-semibold"
+                      >
                         {{ toTitleCase(alumni.nama) }}
                       </td>
-                      <td class="border border-gray-800 px-2 py-1 text-center font-mono">
+                      <td
+                        class="border border-gray-800 px-2 py-1 text-center font-mono"
+                      >
                         {{ alumni.nisn || "-" }}
                       </td>
                       <td class="border border-gray-800 px-2 py-1 text-center">
@@ -134,7 +161,8 @@
                 <div class="flex justify-between items-end mt-8 text-xs">
                   <div>
                     <p class="italic">
-                      Dicetak dari SopokDate pada pukul {{ currentTime }} WITA, tanggal {{ currentDate }}
+                      Dicetak dari SopokDate pada pukul {{ currentTime }} WITA,
+                      tanggal {{ currentDate }}
                     </p>
                   </div>
                   <div class="text-center w-48">
@@ -150,31 +178,64 @@
 
         <!-- Premium Stats Widgets -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Total Alumni</span>
+          <div
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between"
+          >
+            <span
+              class="text-xs font-semibold uppercase tracking-wider text-zinc-500"
+              >Total Alumni</span
+            >
             <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-2xl sm:text-3xl font-bold text-white">{{ stats.total }}</span>
+              <span class="text-2xl sm:text-3xl font-bold text-white">{{
+                stats.total
+              }}</span>
               <span class="text-xs text-indigo-400 font-medium">orang</span>
             </div>
           </div>
-          <div class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Melanjutkan Studi</span>
+          <div
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between"
+          >
+            <span
+              class="text-xs font-semibold uppercase tracking-wider text-zinc-500"
+              >Melanjutkan Studi</span
+            >
             <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-2xl sm:text-3xl font-bold text-emerald-400">{{ stats.continuing }}</span>
-              <span class="text-xs text-zinc-500 font-medium">({{ stats.continuingPercent }}%)</span>
+              <span class="text-2xl sm:text-3xl font-bold text-emerald-400">{{
+                stats.continuing
+              }}</span>
+              <span class="text-xs text-zinc-500 font-medium"
+                >({{ stats.continuingPercent }}%)</span
+              >
             </div>
           </div>
-          <div class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Tahun Lulus Terbanyak</span>
+          <div
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between"
+          >
+            <span
+              class="text-xs font-semibold uppercase tracking-wider text-zinc-500"
+              >Tahun Lulus Terbanyak</span
+            >
             <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-2xl sm:text-3xl font-bold text-violet-400">{{ stats.topYear }}</span>
-              <span class="text-xs text-zinc-500 font-medium">({{ stats.topYearCount }} orang)</span>
+              <span class="text-2xl sm:text-3xl font-bold text-violet-400">{{
+                stats.topYear
+              }}</span>
+              <span class="text-xs text-zinc-500 font-medium"
+                >({{ stats.topYearCount }} orang)</span
+              >
             </div>
           </div>
-          <div class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Tujuan Terpopuler</span>
+          <div
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between"
+          >
+            <span
+              class="text-xs font-semibold uppercase tracking-wider text-zinc-500"
+              >Tujuan Terpopuler</span
+            >
             <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-xl sm:text-2xl font-bold text-amber-400 truncate max-w-full" :title="stats.topDestination">
+              <span
+                class="text-xl sm:text-2xl font-bold text-amber-400 truncate max-w-full"
+                :title="stats.topDestination"
+              >
                 {{ stats.topDestination }}
               </span>
             </div>
@@ -185,7 +246,11 @@
         <div class="flex flex-col md:flex-row gap-4 items-center w-full">
           <!-- Search Input -->
           <div class="w-full md:flex-1">
-            <Search @searchUpdated="handleSearch" class="h-10 sm:h-11" placeholder="Cari nama alumni, NISN, alamat..." />
+            <Search
+              @searchUpdated="handleSearch"
+              class="h-10 sm:h-11"
+              placeholder="Cari nama alumni, NISN, alamat..."
+            />
           </div>
 
           <!-- Filters Group -->
@@ -210,7 +275,11 @@
                 class="w-full h-10 sm:h-11 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm cursor-pointer"
               >
                 <option value="Semua Tujuan">Semua Studi Lanjut</option>
-                <option v-for="dest in destinationOptions" :key="dest" :value="dest">
+                <option
+                  v-for="dest in destinationOptions"
+                  :key="dest"
+                  :value="dest"
+                >
                   {{ dest }}
                 </option>
               </select>
@@ -221,7 +290,10 @@
 
       <!-- Main Content Area -->
       <div class="pt-2">
-        <p v-if="isLoading" class="text-center text-zinc-500 text-lg font-semibold py-12">
+        <p
+          v-if="isLoading"
+          class="text-center text-zinc-500 text-lg font-semibold py-12"
+        >
           Memuat data alumni...
         </p>
 
@@ -229,8 +301,13 @@
           v-else-if="sortedData.length === 0"
           class="text-center py-16 bg-zinc-800/10 rounded-xl border border-zinc-800"
         >
-          <Database class="w-16 h-16 mx-auto mb-4 text-zinc-600" stroke-width="1.5" />
-          <p class="text-zinc-400 text-lg font-medium">Tidak ada data alumni ditemukan</p>
+          <Database
+            class="w-16 h-16 mx-auto mb-4 text-zinc-600"
+            stroke-width="1.5"
+          />
+          <p class="text-zinc-400 text-lg font-medium">
+            Tidak ada data alumni ditemukan
+          </p>
           <p class="text-zinc-500 text-sm mt-1">
             Coba sesuaikan kata kunci pencarian atau filter pilihan Anda.
           </p>
@@ -238,7 +315,9 @@
 
         <!-- Alumni Grid List -->
         <div v-else>
-          <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <ul
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+          >
             <li
               v-for="(item, index) in visibleData"
               :key="item.id || index"
@@ -263,11 +342,15 @@
 
                 <!-- Info Column -->
                 <div class="flex-1 min-w-0" @click="navigateToDetail(item)">
-                  <h3 class="font-bold text-base text-zinc-100 truncate group-hover:text-indigo-400 transition-colors">
+                  <h3
+                    class="font-bold text-base text-zinc-100 truncate group-hover:text-indigo-400 transition-colors"
+                  >
                     {{ toTitleCase(item.nama) }}
                   </h3>
 
-                  <div class="flex flex-col gap-0.5 mt-1.5 text-xs text-zinc-400">
+                  <div
+                    class="flex flex-col gap-0.5 mt-1.5 text-xs text-zinc-400"
+                  >
                     <p class="flex items-center gap-1.5">
                       <span class="w-16 text-zinc-500 shrink-0">NISN:</span>
                       <span class="font-mono">{{ item.nisn || "-" }}</span>
@@ -290,8 +373,12 @@
                       </span>
                     </p>
                     <p class="flex items-center gap-1.5">
-                      <span class="w-16 text-zinc-500 shrink-0">NIS Lokal:</span>
-                      <span class="truncate text-zinc-300 font-mono">{{ item.nis_lokal || "-" }}</span>
+                      <span class="w-16 text-zinc-500 shrink-0"
+                        >NIS Lokal:</span
+                      >
+                      <span class="truncate text-zinc-300 font-mono">{{
+                        item.nis_lokal || "-"
+                      }}</span>
                     </p>
                   </div>
                 </div>
@@ -330,7 +417,9 @@
           <!-- Load More Button -->
           <div v-if="sortedData.length > 9" class="text-center mt-8">
             <BaseButton
-              :text="showAll ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Lebih Banyak'"
+              :text="
+                showAll ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Lebih Banyak'
+              "
               @click="showAll = !showAll"
               class="hover:bg-zinc-800"
             />
@@ -338,13 +427,13 @@
         </div>
       </div>
 
-
-
       <!-- CRUD Modal -->
       <CrudModal
         :show="showModal"
         :mode="modalMode"
-        :title="modalMode === 'create' ? 'Tambah Data Alumni' : 'Edit Data Alumni'"
+        :title="
+          modalMode === 'create' ? 'Tambah Data Alumni' : 'Edit Data Alumni'
+        "
         :fields="alumniFields"
         :initialData="editingItem"
         :isSaving="isSaving"
@@ -367,14 +456,17 @@ import {
   Phone,
   ArrowLeft,
   ChevronRight,
-  Info
+  Info,
 } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
-import { useTableData, clearTableSessionCache } from "~/composables/data/useTableData";
+import {
+  useTableData,
+  clearTableSessionCache,
+} from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { fetchFromApi, postToApi, deleteFromApi } from "~/utils/api";
@@ -385,12 +477,12 @@ const {
   cardData: dataAlumni,
   isLoading,
   loadData,
-  refreshData
+  refreshData,
 } = useTableData();
 
 const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
   "alumni",
-  () => refreshData("alumni")
+  () => refreshData("alumni"),
 );
 const { Notify, Confirm } = useNotiflix();
 
@@ -416,13 +508,13 @@ const alumniFields = [
     key: "jenis_kelamin",
     label: "Jenis Kelamin",
     type: "select",
-    options: ["Laki-laki", "Perempuan"]
+    options: ["Laki-laki", "Perempuan"],
   },
   {
     key: "status",
     label: "Status",
     type: "select",
-    options: ["Lulus", "Berhenti", "Pindah"]
+    options: ["Lulus", "Berhenti", "Pindah"],
   },
   { key: "thn_lulus", label: "Tahun Lulus", required: true },
   { key: "menjutkan_ke", label: "Melanjutkan Ke (Studi Lanjut)" },
@@ -431,7 +523,7 @@ const alumniFields = [
   { key: "no_kip", label: "Nomor KIP/PIP" },
   { key: "nama_ayah_kandung", label: "Nama Ayah Kandung" },
   { key: "nama_ibu_kandung", label: "Nama Ibu Kandung" },
-  { key: "nama_wali", label: "Nama Wali" }
+  { key: "nama_wali", label: "Nama Wali" },
 ];
 
 const openCreateModal = () => {
@@ -462,7 +554,7 @@ const openEditModal = (item) => {
     no_kip: item.no_kip || "",
     nama_ayah_kandung: item.nama_ayah_kandung || "",
     nama_ibu_kandung: item.nama_ibu_kandung || "",
-    nama_wali: item.nama_wali || ""
+    nama_wali: item.nama_wali || "",
   };
   showModal.value = true;
 };
@@ -489,7 +581,7 @@ const handleFormSubmit = async (formData) => {
 
 const handleDelete = (item) => {
   const id = item.id || item._id;
-  
+
   Confirm?.show(
     "Kembalikan Alumni Menjadi Siswa Aktif",
     `Apakah Anda yakin ingin membatalkan status kelulusan ${toTitleCase(item.nama)}? Siswa ini akan dipindahkan kembali ke Kelas 6 aktif dan dihapus dari data Alumni.`,
@@ -500,17 +592,19 @@ const handleDelete = (item) => {
         // 1. Fetch data kelas untuk mencari tingkat 6
         const classes = await fetchFromApi("data_kelas");
         let targetClassId = "VI-A"; // default fallback
-        
+
         if (Array.isArray(classes)) {
           // Cari kelas tingkat 6 (bisa berupa "6" atau "VI")
           const level6Class = classes.find(
-            (c) => String(c.tingkat) === "6" || String(c.tingkat).toUpperCase() === "VI"
+            (c) =>
+              String(c.tingkat) === "6" ||
+              String(c.tingkat).toUpperCase() === "VI",
           );
           if (level6Class && level6Class.id_kelas) {
             targetClassId = level6Class.id_kelas;
           }
         }
-        
+
         // 2. Buat record siswa baru di data_siswa
         const studentRecord = {
           nama: item.nama,
@@ -529,17 +623,19 @@ const handleDelete = (item) => {
           nama_ayah_kandung: item.nama_ayah_kandung || "",
           nama_ibu_kandung: item.nama_ibu_kandung || "",
           nama_wali: item.nama_wali || "",
-          status_promosi: "Belum"
+          status_promosi: "Belum",
         };
-        
+
         // Post ke data_siswa
         await postToApi("data_siswa", studentRecord);
-        
+
         // 3. Hapus dari alumni
         await deleteFromApi("alumni", id);
-        
-        Notify?.success?.(`Berhasil mengembalikan ${toTitleCase(item.nama)} ke kelas ${targetClassId}.`);
-        
+
+        Notify?.success?.(
+          `Berhasil mengembalikan ${toTitleCase(item.nama)} ke kelas ${targetClassId}.`,
+        );
+
         // 4. Refresh data alumni
         await refreshData("alumni");
         // Clear cached data_siswa session cache so it reloads fresh in other pages
@@ -548,7 +644,7 @@ const handleDelete = (item) => {
         console.error("Gagal memproses pengembalian alumni:", err);
         Notify?.failure?.("Gagal mengembalikan data alumni ke siswa aktif.");
       }
-    }
+    },
   );
 };
 
@@ -599,7 +695,10 @@ const callAlumni = (phone) => {
   if (!phone) return;
   const cleanPhone = String(phone).replace(/[^0-9]/g, "");
   // Standard protocol
-  window.open(`https://wa.me/${cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone}`, "_blank");
+  window.open(
+    `https://wa.me/${cleanPhone.startsWith("0") ? "62" + cleanPhone.slice(1) : cleanPhone}`,
+    "_blank",
+  );
 };
 
 // Generate options for filtering years dynamically
@@ -616,8 +715,13 @@ const destinationOptions = computed(() => {
   if (!Array.isArray(dataAlumni.value)) return [];
   const dests = dataAlumni.value
     .map((k) => k.menjutkan_ke)
-    .filter((d) => d && String(d).trim() !== "" && String(d).toLowerCase() !== "tidak melanjutkan");
-  
+    .filter(
+      (d) =>
+        d &&
+        String(d).trim() !== "" &&
+        String(d).toLowerCase() !== "tidak melanjutkan",
+    );
+
   const uniqueDests = [...new Set(dests)].sort();
   return [...uniqueDests, "Tidak Melanjutkan"];
 });
@@ -630,7 +734,8 @@ const loadKepalaMadrasah = async () => {
       const parsed = JSON.parse(storedGtk);
       if (Array.isArray(parsed)) {
         const kamad = parsed.find(
-          (guru) => guru.tugas && guru.tugas.toLowerCase().includes("kepala madrasah")
+          (guru) =>
+            guru.tugas && guru.tugas.toLowerCase().includes("kepala madrasah"),
         );
         if (kamad) {
           kepalaMadrasah.value = kamad;
@@ -641,7 +746,7 @@ const loadKepalaMadrasah = async () => {
 
     const response = await fetchFromApi("data_gtk", false, null, {
       filter_col: "tugas",
-      filter_val: "Kepala Madrasah"
+      filter_val: "Kepala Madrasah",
     });
     if (Array.isArray(response) && response.length > 0) {
       kepalaMadrasah.value = response[0];
@@ -686,15 +791,19 @@ const filteredData = computed(() => {
     const matchYear =
       selectedYear.value === "Semua Tahun" ||
       String(item.thn_lulus).trim() === String(selectedYear.value).trim();
-    
+
     // 2. Destination Filter
     let matchDest = false;
     if (selectedDestination.value === "Semua Tujuan") {
       matchDest = true;
     } else if (selectedDestination.value === "Tidak Melanjutkan") {
-      matchDest = !item.menjutkan_ke || String(item.menjutkan_ke).toLowerCase().includes("tidak");
+      matchDest =
+        !item.menjutkan_ke ||
+        String(item.menjutkan_ke).toLowerCase().includes("tidak");
     } else {
-      matchDest = String(item.menjutkan_ke).trim().toLowerCase() === String(selectedDestination.value).trim().toLowerCase();
+      matchDest =
+        String(item.menjutkan_ke).trim().toLowerCase() ===
+        String(selectedDestination.value).trim().toLowerCase();
     }
 
     // 3. Search query
@@ -702,18 +811,26 @@ const filteredData = computed(() => {
     if (!term) return matchYear && matchDest;
 
     const nameMatch = (item.nama || "").toLowerCase().includes(term);
-    const nisnMatch = String(item.nisn || "").toLowerCase().includes(term);
-    const nisLokalMatch = String(item.nis_lokal || "").toLowerCase().includes(term);
+    const nisnMatch = String(item.nisn || "")
+      .toLowerCase()
+      .includes(term);
+    const nisLokalMatch = String(item.nis_lokal || "")
+      .toLowerCase()
+      .includes(term);
     const addressMatch = (item.alamat || "").toLowerCase().includes(term);
 
-    return matchYear && matchDest && (nameMatch || nisnMatch || nisLokalMatch || addressMatch);
+    return (
+      matchYear &&
+      matchDest &&
+      (nameMatch || nisnMatch || nisLokalMatch || addressMatch)
+    );
   });
 });
 
 // Sorting alphabetically
 const sortedData = computed(() => {
   return [...filteredData.value].sort((a, b) =>
-    (a.nama || "").localeCompare(b.nama || "")
+    (a.nama || "").localeCompare(b.nama || ""),
   );
 });
 
@@ -725,13 +842,16 @@ const visibleData = computed(() => {
 const stats = computed(() => {
   const list = Array.isArray(dataAlumni.value) ? dataAlumni.value : [];
   const total = list.length;
-  
+
   // Continuing count
   const continuingList = list.filter(
-    (item) => item.menjutkan_ke && !String(item.menjutkan_ke).toLowerCase().includes("tidak")
+    (item) =>
+      item.menjutkan_ke &&
+      !String(item.menjutkan_ke).toLowerCase().includes("tidak"),
   );
   const continuing = continuingList.length;
-  const continuingPercent = total > 0 ? Math.round((continuing / total) * 100) : 0;
+  const continuingPercent =
+    total > 0 ? Math.round((continuing / total) * 100) : 0;
 
   // Year frequency
   const yearCounts = {};
@@ -772,7 +892,7 @@ const stats = computed(() => {
     continuingPercent,
     topYear,
     topYearCount,
-    topDestination
+    topDestination,
   };
 });
 
@@ -810,7 +930,7 @@ const exportToExcel = async () => {
       "No KIP/PIP": item.no_kip || "",
       "Nama Ayah Kandung": item.nama_ayah_kandung || "",
       "Nama Ibu Kandung": item.nama_ibu_kandung || "",
-      "Nama Wali": item.nama_wali || ""
+      "Nama Wali": item.nama_wali || "",
     }));
 
     const wb = XLSX.utils.book_new();
@@ -836,18 +956,38 @@ const exportToExcel = async () => {
       { wch: 15 }, // No KIP
       { wch: 20 }, // Nama Ayah
       { wch: 20 }, // Nama Ibu
-      { wch: 20 } // Nama Wali
+      { wch: 20 }, // Nama Wali
     ];
     ws["!cols"] = colWidths;
 
     // Apply header style
-    const headerRange = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1"];
+    const headerRange = [
+      "A1",
+      "B1",
+      "C1",
+      "D1",
+      "E1",
+      "F1",
+      "G1",
+      "H1",
+      "I1",
+      "J1",
+      "K1",
+      "L1",
+      "M1",
+      "N1",
+      "O1",
+      "P1",
+      "Q1",
+      "R1",
+      "S1",
+    ];
     headerRange.forEach((cell) => {
       if (ws[cell]) {
         ws[cell].s = {
           font: { bold: true, color: { rgb: "FFFFFF" } },
           fill: { fgColor: { rgb: "4F46E5" } }, // Indigo 600 header
-          alignment: { horizontal: "center", vertical: "center" }
+          alignment: { horizontal: "center", vertical: "center" },
         };
       }
     });

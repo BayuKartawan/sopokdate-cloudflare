@@ -198,7 +198,7 @@ watch(
   (newVal) => {
     emit("change", { ...newVal });
   },
-  { deep: true }
+  { deep: true },
 );
 
 const handleSubmit = () => {

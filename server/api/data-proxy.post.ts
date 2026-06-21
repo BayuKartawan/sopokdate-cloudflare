@@ -1,5 +1,5 @@
 // server/api/data-proxy.post.ts
-// Proxy POST ke Cloudflare Worker D1 (menggantikan Google Apps Script)
+// Proxy POST ke Cloudflare Worker D1
 
 import { Buffer } from "buffer";
 import { invalidateCache } from "../utils/cache";

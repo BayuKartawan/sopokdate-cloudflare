@@ -560,7 +560,7 @@ const updatePrintTimestamp = () => {
     }) + " WITA";
 };
 
-// Export rekap to Excel spreadsheet
+// Export rekap to Excel
 const exportToExcel = async () => {
   if (rekapData.value.length === 0) return;
 

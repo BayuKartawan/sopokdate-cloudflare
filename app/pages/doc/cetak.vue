@@ -228,12 +228,12 @@ const sendCertificateData = async () => {
     const res = await postToApi("Sertifikat", dataPayload);
 
     if (res && res.success) {
-      Notify.success("Data sertifikat berhasil dikirim ke Spreadsheet!");
+      Notify.success("Data sertifikat berhasil disimpan ke database!");
     } else {
       Notify.failure("Gagal mengirim data: " + (res?.error || "Unknown error"));
     }
   } catch (err) {
-    console.error("Error sending data to sheet:", err);
+    console.error("Error sending data to database:", err);
     Notify.failure("Gagal mengirim data ke server proxy.");
   } finally {
     isSending.value = false;

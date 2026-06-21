@@ -37,7 +37,11 @@
       >
         <h3 class="text-lg font-bold mb-2">Data tidak ditemukan</h3>
         <p class="text-sm text-zinc-400 mb-4">{{ error }}</p>
-        <BaseButton text="Kembali ke Daftar" @click="goBack" class="!bg-indigo-600 hover:!bg-indigo-500" />
+        <BaseButton
+          text="Kembali ke Daftar"
+          @click="goBack"
+          class="!bg-indigo-600 hover:!bg-indigo-500"
+        />
       </div>
 
       <!-- Detail Content -->
@@ -60,7 +64,9 @@
           class="rounded-xl p-6 bg-zinc-900/30 border border-zinc-800/60 shadow-md relative overflow-hidden"
         >
           <!-- Decorative glass highlight -->
-          <div class="absolute -right-16 -top-16 w-32 h-32 rounded-full bg-indigo-500/5 blur-2xl"></div>
+          <div
+            class="absolute -right-16 -top-16 w-32 h-32 rounded-full bg-indigo-500/5 blur-2xl"
+          ></div>
 
           <div
             class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10"
@@ -71,7 +77,9 @@
                 class="w-14 h-14 rounded-xl flex items-center justify-center bg-zinc-800 text-zinc-200 shrink-0 overflow-hidden border border-zinc-700/50"
               >
                 <img
-                  v-if="alumniDetail.foto && alumniDetail.foto.startsWith('http')"
+                  v-if="
+                    alumniDetail.foto && alumniDetail.foto.startsWith('http')
+                  "
                   :src="alumniDetail.foto"
                   alt="Foto Alumni"
                   class="w-full h-full object-cover"
@@ -151,14 +159,24 @@
                   <dd class="sm:col-span-2 flex items-center gap-2 group">
                     <span
                       class="flex-1 select-all cursor-pointer text-zinc-100 hover:text-indigo-400 transition-colors font-medium break-all"
-                      @click="copyToClipboard(alumniDetail[item.key] || '-', item.label)"
+                      @click="
+                        copyToClipboard(
+                          alumniDetail[item.key] || '-',
+                          item.label,
+                        )
+                      "
                       title="Klik untuk menyalin"
                     >
                       {{ alumniDetail[item.key] || "-" }}
                     </span>
                     <span
                       class="text-[10px] bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shrink-0 border border-zinc-700/30"
-                      @click="copyToClipboard(alumniDetail[item.key] || '-', item.label)"
+                      @click="
+                        copyToClipboard(
+                          alumniDetail[item.key] || '-',
+                          item.label,
+                        )
+                      "
                     >
                       Salin
                     </span>
@@ -178,7 +196,7 @@
               >
                 <Users class="w-4 h-4 text-indigo-400" />
                 <h3 class="text-sm font-bold text-white">
-                  Lulus Seangkatan ({{ alumniDetail.thn_lulus || '-' }})
+                  Lulus Seangkatan ({{ alumniDetail.thn_lulus || "-" }})
                 </h3>
               </div>
 
@@ -279,7 +297,10 @@ const getJenisKelaminAbbr = (jk) => {
 const callAlumni = (phone) => {
   if (!phone) return;
   const cleanPhone = String(phone).replace(/[^0-9]/g, "");
-  window.open(`https://wa.me/${cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone}`, "_blank");
+  window.open(
+    `https://wa.me/${cleanPhone.startsWith("0") ? "62" + cleanPhone.slice(1) : cleanPhone}`,
+    "_blank",
+  );
 };
 
 // Load alumni details based on route param (nis_lokal / ID)

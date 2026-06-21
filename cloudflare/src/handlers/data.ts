@@ -50,7 +50,7 @@ function getValidatedTable(table?: string | null): string | null {
 }
 
 // ---------------------------------------------------------------------------
-// Handler: GET /api/data — Ambil data dari tabel (pengganti doGet AppScript)
+// Handler: GET /api/data — Ambil data dari tabel
 // ---------------------------------------------------------------------------
 export async function handleGetData(
   request: Request,
@@ -129,7 +129,7 @@ export async function handleGetData(
       }
     }
 
-    // Mengembalikan data hasil query secara langsung tanpa pemetaan kolom spreadsheet
+    // Mengembalikan data hasil query secara langsung
     return jsonResponse(rows);
   } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
@@ -137,7 +137,7 @@ export async function handleGetData(
 }
 
 // ---------------------------------------------------------------------------
-// Handler: POST /api/data — Insert data baru (pengganti doPost AppScript)
+// Handler: POST /api/data — Insert data baru
 // ---------------------------------------------------------------------------
 export async function handlePostData(
   request: Request,
@@ -236,7 +236,9 @@ export async function handlePutData(
   // Special handle for resetting promotion status for all students
   if (d1Table === "data_siswa" && id === "reset_promosi") {
     try {
-      await env.DB.prepare("UPDATE data_siswa SET status_promosi = 'Belum'").run();
+      await env.DB.prepare(
+        "UPDATE data_siswa SET status_promosi = 'Belum'",
+      ).run();
       return jsonResponse({
         success: true,
         message: "Status promosi seluruh siswa berhasil direset",

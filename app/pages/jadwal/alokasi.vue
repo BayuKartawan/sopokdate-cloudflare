@@ -101,7 +101,9 @@
                   </td>
 
                   <!-- Subject Name -->
-                  <td class="p-4 border-r border-zinc-800/60 font-semibold text-zinc-200 text-sm">
+                  <td
+                    class="p-4 border-r border-zinc-800/60 font-semibold text-zinc-200 text-sm"
+                  >
                     {{ subjectName }}
                   </td>
 
@@ -112,27 +114,51 @@
                     class="p-3 text-center border-r border-zinc-800/60"
                   >
                     <template v-if="getKurikulumForCell(subjectName, k)">
-                      <div class="flex flex-col gap-1.5 items-center justify-center">
+                      <div
+                        class="flex flex-col gap-1.5 items-center justify-center"
+                      >
                         <!-- Select dropdown for Admin -->
                         <select
                           v-if="isAdmin"
-                          v-model="localAllocations[`${k.id_kelas}_${getKurikulumForCell(subjectName, k).id}`]"
+                          v-model="
+                            localAllocations[
+                              `${k.id_kelas}_${getKurikulumForCell(subjectName, k).id}`
+                            ]
+                          "
                           class="w-full px-2 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/50 text-zinc-200 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
                         >
                           <option value="">-- Pilih Guru --</option>
-                          <option v-for="g in guruOptions" :key="g.value" :value="g.value">
+                          <option
+                            v-for="g in guruOptions"
+                            :key="g.value"
+                            :value="g.value"
+                          >
                             {{ g.label }}
                           </option>
                         </select>
 
                         <!-- Plain text for non-Admin -->
-                        <span v-else class="text-xs font-semibold text-zinc-300 text-center line-clamp-1">
-                          {{ getGuruName(localAllocations[`${k.id_kelas}_${getKurikulumForCell(subjectName, k).id}`]) || '-' }}
+                        <span
+                          v-else
+                          class="text-xs font-semibold text-zinc-300 text-center line-clamp-1"
+                        >
+                          {{
+                            getGuruName(
+                              localAllocations[
+                                `${k.id_kelas}_${getKurikulumForCell(subjectName, k).id}`
+                              ],
+                            ) || "-"
+                          }}
                         </span>
 
                         <!-- Hour count badge from curriculum -->
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-400 font-mono">
-                          {{ getKurikulumForCell(subjectName, k).alokasi_jam }} JP
+                        <span
+                          class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-400 font-mono"
+                        >
+                          {{
+                            getKurikulumForCell(subjectName, k).alokasi_jam
+                          }}
+                          JP
                         </span>
                       </div>
                     </template>
@@ -186,7 +212,13 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { CalendarCheck, Database, Loader2, Save, RotateCcw } from "lucide-vue-next";
+import {
+  CalendarCheck,
+  Database,
+  Loader2,
+  Save,
+  RotateCcw,
+} from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
@@ -201,9 +233,21 @@ const {
   loadData: loadAlokasi,
   refreshData: refreshAlokasi,
 } = useTableData();
-const { cardData: kelasData, isLoading: isKelasLoading, loadData: loadKelas } = useTableData();
-const { cardData: kurikulumData, isLoading: isKurikulumLoading, loadData: loadKurikulum } = useTableData();
-const { cardData: gtkData, isLoading: isGtkLoading, loadData: loadGtk } = useTableData();
+const {
+  cardData: kelasData,
+  isLoading: isKelasLoading,
+  loadData: loadKelas,
+} = useTableData();
+const {
+  cardData: kurikulumData,
+  isLoading: isKurikulumLoading,
+  loadData: loadKurikulum,
+} = useTableData();
+const {
+  cardData: gtkData,
+  isLoading: isGtkLoading,
+  loadData: loadGtk,
+} = useTableData();
 
 // Combined loading state
 const isLoading = computed(
@@ -286,7 +330,9 @@ const loadLocalState = () => {
 
 // Detect if anything has been edited in matrix
 const hasChanges = computed(() => {
-  return JSON.stringify(localAllocations.value) !== initialAllocationsJson.value;
+  return (
+    JSON.stringify(localAllocations.value) !== initialAllocationsJson.value
+  );
 });
 
 // Populate matrix on initial load or updates
@@ -362,11 +408,15 @@ const saveChanges = async () => {
   });
 
   try {
-    const deletePromises = toDelete.map((id) => deleteFromApi("alokasi_jam", id));
+    const deletePromises = toDelete.map((id) =>
+      deleteFromApi("alokasi_jam", id),
+    );
     const updatePromises = toUpdate.map((item) =>
       putToApi("alokasi_jam", item.id, item.data),
     );
-    const createPromises = toCreate.map((data) => postToApi("alokasi_jam", data));
+    const createPromises = toCreate.map((data) =>
+      postToApi("alokasi_jam", data),
+    );
 
     await Promise.all([
       ...deletePromises,

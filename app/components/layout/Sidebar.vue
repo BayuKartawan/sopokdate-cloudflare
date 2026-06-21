@@ -64,7 +64,12 @@
               <div v-else>
                 <button
                   @click="toggleDropdown(menuItem.label)"
-                  class="w-full flex items-center px-3 py-2 text-left transition-colors duration-200 text-zinc-200 hover:bg-zinc-900 hover:text-emerald-400"
+                  :class="[
+                    'w-full flex items-center px-3 py-2 text-left transition-colors duration-200',
+                    isParentActive(menuItem)
+                      ? 'text-emerald-400 bg-zinc-900/50'
+                      : 'text-zinc-200 hover:bg-zinc-900 hover:text-emerald-400',
+                  ]"
                 >
                   <component
                     :is="menuItem.icon"
@@ -110,26 +115,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue";
-
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useMenuConfig } from "~/composables/ui/useMenuConfig.js";
 import { FolderClosed, FolderOpen, ChevronRight } from "lucide-vue-next";
 
-const route = useRoute();
-
-const getLinkClass = (toPath, additionalClass = "") => {
-  const baseClass =
-    "inline-flex items-center px-3 py-2 transition-all duration-300 outline-none focus:outline-none focus:ring-0 focus:outline-none w-full";
-  const activeClass =
-    route.path === toPath
-      ? "text-emerald-400 bg-zinc-900"
-      : "text-zinc-200 hover:text-emerald-400 hover:bg-zinc-900";
-  return `${baseClass} ${activeClass} ${additionalClass}`;
-};
-
-const appName = useRuntimeConfig().public.appName;
-
-// Props dan Emits untuk sidebar - HANYA SATU DEFINISI
+// --- Props & Emits ---
 defineProps({
   isSidebarOpen: {
     type: Boolean,
@@ -139,19 +129,16 @@ defineProps({
 
 const emit = defineEmits(["closeSidebar"]);
 
-const closeSidebar = () => {
-  emit("closeSidebar");
-};
-
-// Menggunakan composable untuk menu configuration
+// --- Composables & Config ---
+const route = useRoute();
+const appName = useRuntimeConfig().public.appName;
 const { menuItems, getMenuItemsWithChildren } = useMenuConfig();
 
-// State untuk dropdown - menggunakan array untuk multiple dropdown
+// --- State ---
 const openDropdowns = ref([]);
-
 const isMobileView = ref(false);
 
-// Computed untuk mengecek apakah semua dropdown yang memiliki children sudah terbuka
+// --- Computed Properties ---
 const allDropdownsOpen = computed(() => {
   const dropdownMenus = getMenuItemsWithChildren();
   return (
@@ -160,7 +147,34 @@ const allDropdownsOpen = computed(() => {
   );
 });
 
-// Function untuk toggle dropdown - hanya satu dropdown yang bisa terbuka
+// --- Helper Functions ---
+const isActiveRoute = (toPath) => {
+  if (!toPath) return false;
+  if (toPath === "/") {
+    return route.path === "/";
+  }
+  return route.path === toPath || route.path.startsWith(toPath + "/");
+};
+
+const isParentActive = (menuItem) => {
+  if (!menuItem.children) return false;
+  return menuItem.children.some((child) => isActiveRoute(child.to));
+};
+
+const getLinkClass = (toPath, additionalClass = "") => {
+  const baseClass =
+    "inline-flex items-center px-3 py-2 transition-all duration-300 outline-none focus:outline-none focus:ring-0 focus:outline-none w-full";
+  const activeClass = isActiveRoute(toPath)
+    ? "text-emerald-400 bg-zinc-900"
+    : "text-zinc-200 hover:text-emerald-400 hover:bg-zinc-900";
+  return `${baseClass} ${activeClass} ${additionalClass}`;
+};
+
+// --- Methods & Actions ---
+const closeSidebar = () => {
+  emit("closeSidebar");
+};
+
 const toggleDropdown = (menuLabel) => {
   const index = openDropdowns.value.indexOf(menuLabel);
   if (index > -1) {
@@ -170,16 +184,43 @@ const toggleDropdown = (menuLabel) => {
   }
 };
 
-// Function untuk toggle semua dropdown
 const toggleAllDropdowns = () => {
   const dropdownMenus = getMenuItemsWithChildren();
 
   if (allDropdownsOpen.value) {
-    // Tutup semua dropdown
     openDropdowns.value = [];
   } else {
-    // Buka semua dropdown
     openDropdowns.value = dropdownMenus.map((item) => item.label);
+  }
+};
+
+const autoExpandActiveDropdown = () => {
+  if (!menuItems.value) return;
+
+  let activeMenuLabel = null;
+  menuItems.value.forEach((menuItem) => {
+    if (menuItem.children) {
+      const hasActiveChild = menuItem.children.some((child) =>
+        isActiveRoute(child.to),
+      );
+      if (hasActiveChild) {
+        activeMenuLabel = menuItem.label;
+      }
+    }
+  });
+
+  if (activeMenuLabel) {
+    if (!allDropdownsOpen.value) {
+      openDropdowns.value = [activeMenuLabel];
+    } else {
+      if (!openDropdowns.value.includes(activeMenuLabel)) {
+        openDropdowns.value.push(activeMenuLabel);
+      }
+    }
+  } else {
+    if (!allDropdownsOpen.value) {
+      openDropdowns.value = [];
+    }
   }
 };
 
@@ -199,6 +240,16 @@ const handleSubNavClick = () => {
   }
 };
 
+// --- Watchers ---
+watch(
+  [() => route.path, () => menuItems.value],
+  () => {
+    autoExpandActiveDropdown();
+  },
+  { immediate: true, deep: true },
+);
+
+// --- Lifecycle Hooks ---
 onMounted(() => {
   checkViewport();
   window.addEventListener("resize", checkViewport);

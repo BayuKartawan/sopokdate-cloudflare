@@ -1,5 +1,5 @@
 // server/api/data-proxy.get.ts
-// Proxy ke Cloudflare Worker D1 (menggantikan Google Apps Script)
+// Proxy ke Cloudflare Worker D1
 
 import { apiCache, CACHE_EXPIRATION_MS } from "../utils/cache";
 
@@ -144,8 +144,8 @@ export default defineEventHandler(async (event) => {
     query.nocache === "true" ||
     getHeader(event, "cache-control") === "no-cache";
 
-  // Cek cache server jika tidak di-bypass
-  if (!nocache) {
+  // Cek cache server jika diaktifkan di konfigurasi dan tidak di-bypass
+  if (config.enableServerCache && !nocache) {
     const cached = apiCache.get(url);
     if (cached && Date.now() - cached.timestamp < CACHE_EXPIRATION_MS) {
       return cached.data;
@@ -161,11 +161,13 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Simpan hasil fetch ke cache server
-    apiCache.set(url, {
-      data: response,
-      timestamp: Date.now(),
-    });
+    // Simpan hasil fetch ke cache server jika diaktifkan
+    if (config.enableServerCache) {
+      apiCache.set(url, {
+        data: response,
+        timestamp: Date.now(),
+      });
+    }
 
     return response;
   } catch (error: any) {

@@ -18,7 +18,6 @@ interface SuratTemplate {
 
 // ---------------------------------------------------------------------------
 // Handler: GET /api/surat — Ambil data template surat
-// (pengganti doGet AppScript DB Surat)
 // ---------------------------------------------------------------------------
 export async function handleGetSurat(env: Env): Promise<Response> {
   try {
@@ -43,7 +42,7 @@ export async function handleGetSurat(env: Env): Promise<Response> {
       default_value: string | null;
     }>();
 
-    // Bangun templateMap (format sama dengan output AppScript)
+    // Bangun templateMap
     const templateMap: Record<string, SuratTemplate> = {};
 
     if (templates.results) {

@@ -142,26 +142,9 @@
                 >
                   <td class="px-4 py-3 text-zinc-400">{{ index + 1 }}</td>
                   <td class="px-4 py-3">
-                    <div class="flex items-center gap-2">
-                      <div
-                        class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                        :class="
-                          user.role === 'admin'
-                            ? 'bg-amber-500/20 text-amber-400'
-                            : 'bg-emerald-500/20 text-emerald-400'
-                        "
-                      >
-                        {{ getInitials(user.display_name) }}
-                      </div>
-                      <div>
-                        <p class="text-zinc-100 font-medium text-sm">
-                          {{ user.display_name || "-" }}
-                        </p>
-                        <p v-if="user.gtk_nuptk" class="text-zinc-500 text-xs">
-                          NUPTK: {{ user.gtk_nuptk }}
-                        </p>
-                      </div>
-                    </div>
+                    <span class="text-zinc-100 font-medium text-sm">
+                      {{ user.display_name || "-" }}
+                    </span>
                   </td>
                   <td class="px-4 py-3">
                     <code
@@ -219,6 +202,16 @@
                   </td>
                   <td class="px-4 py-3">
                     <div class="flex items-center justify-center gap-1">
+                      <!-- Edit Password Manual -->
+                      <button
+                        @click="openEditPasswordModal(user)"
+                        :disabled="actionLoading === user.id"
+                        class="p-1.5 rounded-md text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800 transition-all disabled:opacity-50"
+                        title="Edit Password Manual"
+                      >
+                        <Key class="w-3.5 h-3.5" />
+                      </button>
+
                       <!-- Reset Password -->
                       <button
                         @click="resetPassword(user)"
@@ -275,28 +268,12 @@
               <!-- Card Header -->
               <div class="flex items-start justify-between gap-3 mb-4">
                 <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-                    :class="
-                      user.role === 'admin'
-                        ? 'bg-amber-500/20 text-amber-400'
-                        : 'bg-emerald-500/20 text-emerald-400'
-                    "
-                  >
-                    {{ getInitials(user.display_name) }}
-                  </div>
                   <div>
                     <h3
                       class="text-zinc-100 font-medium text-sm sm:text-base leading-snug"
                     >
                       {{ user.display_name || "-" }}
                     </h3>
-                    <p
-                      v-if="user.gtk_nuptk"
-                      class="text-zinc-500 text-xs mt-0.5"
-                    >
-                      NUPTK: {{ user.gtk_nuptk }}
-                    </p>
                   </div>
                 </div>
 
@@ -367,6 +344,17 @@
               >
                 <span class="text-xs text-zinc-500">Aksi Akun</span>
                 <div class="flex items-center gap-1">
+                  <!-- Edit Password Manual -->
+                  <button
+                    @click="openEditPasswordModal(user)"
+                    :disabled="actionLoading === user.id"
+                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-emerald-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-all disabled:opacity-50"
+                    title="Edit Password Manual"
+                  >
+                    <Key class="w-3 h-3" />
+                    <span>Edit</span>
+                  </button>
+
                   <!-- Reset Password -->
                   <button
                     @click="resetPassword(user)"
@@ -429,6 +417,126 @@
           guru, {{ users.filter((u) => u.role === "admin").length }} admin)
         </div>
       </div>
+
+      <!-- Edit Password Modal -->
+      <div
+        v-if="isEditPasswordModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        @click.self="closeEditPasswordModal"
+      >
+        <div
+          class="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform scale-100"
+        >
+          <!-- Header -->
+          <div
+            class="flex items-center justify-between mb-4 border-b border-zinc-800 pb-3"
+          >
+            <h3
+              class="text-lg font-semibold text-white flex items-center gap-2"
+            >
+              <Key class="w-5 h-5 text-emerald-500" />
+              <span>Edit Password Manual</span>
+            </h3>
+            <button
+              @click="closeEditPasswordModal"
+              class="text-zinc-400 hover:text-zinc-200 transition-colors p-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="space-y-4" v-if="selectedUserForPassword">
+            <div>
+              <p class="text-xs text-zinc-500">Nama Guru / Akun</p>
+              <p class="text-sm font-semibold text-zinc-200">
+                {{ selectedUserForPassword.display_name || "-" }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs text-zinc-500">Username</p>
+              <code
+                class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 text-xs font-mono"
+              >
+                {{ selectedUserForPassword.username }}
+              </code>
+            </div>
+
+            <!-- Password Input -->
+            <div class="space-y-1.5">
+              <label class="text-xs text-zinc-400 font-medium"
+                >Password Baru</label
+              >
+              <div class="relative">
+                <input
+                  v-model="manualPasswordInput"
+                  :type="showManualPassword ? 'text' : 'password'"
+                  placeholder="Masukkan password baru..."
+                  class="w-full h-10 pl-3 pr-10 rounded-lg border bg-zinc-800/40 text-white placeholder-zinc-500 border-zinc-700/50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all duration-200 text-sm font-mono"
+                  @keyup.enter="saveManualPassword"
+                />
+                <button
+                  type="button"
+                  @click="showManualPassword = !showManualPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors"
+                >
+                  <Eye v-if="!showManualPassword" class="w-4 h-4" />
+                  <EyeOff v-else class="w-4 h-4" />
+                </button>
+              </div>
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-[11px] text-zinc-500"
+                  >Minimal 4 karakter</span
+                >
+                <button
+                  type="button"
+                  @click="generateSuggestedPassword"
+                  class="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                >
+                  Generate Acak
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div
+            class="flex items-center justify-end gap-3 mt-6 pt-3 border-t border-zinc-800"
+          >
+            <button
+              @click="closeEditPasswordModal"
+              :disabled="isSubmittingManualPassword"
+              class="px-4 py-2 text-sm font-medium rounded-lg text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-750 transition-all"
+            >
+              Batal
+            </button>
+            <button
+              @click="saveManualPassword"
+              :disabled="isSubmittingManualPassword"
+              class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 transition-all duration-200"
+            >
+              <Loader2
+                v-if="isSubmittingManualPassword"
+                class="w-4 h-4 animate-spin"
+              />
+              <span>Simpan</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -441,6 +549,7 @@ import {
   UserPlus,
   RefreshCw,
   Loader2,
+  Key,
   KeyRound,
   Eye,
   EyeOff,
@@ -465,6 +574,11 @@ const actionLoading = ref(null);
 const searchQuery = ref("");
 const showPasswordMap = ref({});
 
+const isEditPasswordModalOpen = ref(false);
+const selectedUserForPassword = ref(null);
+const manualPasswordInput = ref("");
+const showManualPassword = ref(false);
+
 const filteredUsers = computed(() => {
   if (!searchQuery.value) return users.value;
   const q = searchQuery.value.toLowerCase();
@@ -475,16 +589,6 @@ const filteredUsers = computed(() => {
       (u.gtk_nuptk && u.gtk_nuptk.toLowerCase().includes(q)),
   );
 });
-
-const getInitials = (name) => {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((n) => n.charAt(0))
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-};
 
 const toggleShowPassword = (userId) => {
   showPasswordMap.value = {
@@ -628,6 +732,101 @@ const resetPassword = async (user) => {
     },
     () => {},
   );
+};
+
+/**
+ * Membuka modal edit password manual
+ */
+const openEditPasswordModal = (user) => {
+  selectedUserForPassword.value = user;
+  manualPasswordInput.value = "";
+  showManualPassword.value = false;
+  isEditPasswordModalOpen.value = true;
+};
+
+/**
+ * Menutup modal edit password manual
+ */
+const closeEditPasswordModal = () => {
+  isEditPasswordModalOpen.value = false;
+  selectedUserForPassword.value = null;
+  manualPasswordInput.value = "";
+};
+
+/**
+ * Generate password acak 8 karakter di input manual
+ */
+const generateSuggestedPassword = () => {
+  const chars = "abcdefghjkmnpqrstuvwxyz23456789";
+  let newPassword = "";
+  for (let i = 0; i < 8; i++) {
+    newPassword += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  manualPasswordInput.value = newPassword;
+  showManualPassword.value = true;
+};
+
+/**
+ * Menyimpan password manual
+ */
+const isSubmittingManualPassword = ref(false);
+const saveManualPassword = async () => {
+  const user = selectedUserForPassword.value;
+  if (!user) return;
+
+  const password = manualPasswordInput.value.trim();
+  if (!password) {
+    Notify?.warning?.("Password tidak boleh kosong");
+    return;
+  }
+
+  if (password.length < 4) {
+    Notify?.warning?.("Password minimal terdiri dari 4 karakter");
+    return;
+  }
+
+  isSubmittingManualPassword.value = true;
+  try {
+    const token = getToken();
+    const response = await fetch("/api/auth-proxy", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        action: "update-user",
+        userId: user.id,
+        password: password,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Gagal menyimpan password baru");
+    }
+
+    // Update local state
+    const idx = users.value.findIndex((u) => u.id === user.id);
+    if (idx !== -1) {
+      users.value[idx] = { ...users.value[idx], password: password };
+    }
+
+    // Auto-show password di list utama
+    showPasswordMap.value = {
+      ...showPasswordMap.value,
+      [user.id]: true,
+    };
+
+    Notify?.success?.(
+      `Password untuk ${user.display_name || user.username} berhasil diperbarui`,
+    );
+    closeEditPasswordModal();
+  } catch (err) {
+    console.error("Gagal menyimpan password manual:", err);
+    Notify?.failure?.("Gagal menyimpan password baru");
+  } finally {
+    isSubmittingManualPassword.value = false;
+  }
 };
 
 /**
