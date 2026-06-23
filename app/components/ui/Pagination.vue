@@ -7,7 +7,12 @@
     <button
       @click="changePage(currentPage - 1)"
       :disabled="currentPage === 1"
-      class="p-2 rounded-lg border transition-all duration-200 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 disabled:opacity-30"
+      class="p-2 rounded-lg border transition-all duration-200 disabled:opacity-30"
+      :style="{
+        backgroundColor: 'var(--bg-secondary)',
+        borderColor: 'var(--border-primary)',
+        color: 'var(--text-primary)',
+      }"
       aria-label="Previous Page"
     >
       <ChevronLeft class="w-5 h-5" />
@@ -23,12 +28,21 @@
             'min-w-[40px] h-10 px-3 rounded-lg border text-sm font-medium transition-all duration-200',
             currentPage === page
               ? 'bg-emerald-600 border-emerald-500 text-white'
-              : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700',
+              : '',
           ]"
+          :style="
+            currentPage !== page
+              ? {
+                  backgroundColor: 'var(--bg-secondary)',
+                  borderColor: 'var(--border-primary)',
+                  color: 'var(--text-primary)',
+                }
+              : {}
+          "
         >
           {{ page }}
         </button>
-        <span v-else class="px-2 text-zinc-500">
+        <span v-else class="px-2" :style="{ color: 'var(--text-muted)' }">
           {{ page }}
         </span>
       </template>
@@ -38,7 +52,12 @@
     <button
       @click="changePage(currentPage + 1)"
       :disabled="currentPage === totalPages"
-      class="p-2 rounded-lg border transition-all duration-200 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 disabled:opacity-30"
+      class="p-2 rounded-lg border transition-all duration-200 disabled:opacity-30"
+      :style="{
+        backgroundColor: 'var(--bg-secondary)',
+        borderColor: 'var(--border-primary)',
+        color: 'var(--text-primary)',
+      }"
       aria-label="Next Page"
     >
       <ChevronRight class="w-5 h-5" />

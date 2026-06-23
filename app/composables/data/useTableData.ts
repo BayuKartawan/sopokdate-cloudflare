@@ -126,6 +126,7 @@ function normalizeSiswaData(data: any[]): any[] {
     const kelasVal = getField(item, "kelas");
     normalized["tingkat - rombel"] = kelasVal;
     normalized.kelas = kelasVal;
+    normalized.kelas_db = getField(item, "kelas_db");
 
     normalized.umur = getField(item, "umur");
     normalized["jenis kelamin"] =
@@ -319,13 +320,23 @@ export function useTableData() {
   const loadData = async (
     tableName: string,
     force: boolean = false,
+    queryParams: Record<string, any> = {},
   ): Promise<void> => {
     loadedTableName = tableName;
     isLoading.value = true;
+
+    // Tentukan cache key yang unik berdasarkan parameter query agar tidak tabrakan
+    const queryKeys = Object.keys(queryParams).sort();
+    const cacheSuffix =
+      queryKeys.length > 0
+        ? "_" + queryKeys.map((k) => `${k}=${queryParams[k]}`).join("&")
+        : "";
+    const cacheKey = `${tableName}${cacheSuffix}`;
+
     try {
       // Dapatkan data dari session cache
-      if (sessionCache[tableName]) {
-        const cache = sessionCache[tableName];
+      if (sessionCache[cacheKey]) {
+        const cache = sessionCache[cacheKey];
         lastUpdated.value = cache.timestamp || null;
         cardData.value = cache.data || [];
       } else {
@@ -338,9 +349,9 @@ export function useTableData() {
     }
 
     // Jika ada request fetch yang sedang berjalan untuk tabel ini, tunggu promise tersebut
-    if (activeFetches[tableName]) {
+    if (activeFetches[cacheKey]) {
       try {
-        const data = await activeFetches[tableName];
+        const data = await activeFetches[cacheKey];
         if (data) {
           let tableData = data;
           if (
@@ -384,16 +395,16 @@ export function useTableData() {
     currentController = new AbortController();
     const signal = currentController.signal;
 
-    // Lakukan fetch data realtime dengan membawa signal pembatalan
+    // Lakukan fetch data realtime dengan membawa signal pembatalan dan parameter query
     const fetchPromise = (async () => {
       if (tableName === "surat") {
         return await fetchFromSuratApi(force, signal);
       } else {
-        return await fetchFromApi(tableName, force, signal);
+        return await fetchFromApi(tableName, force, signal, queryParams);
       }
     })();
 
-    activeFetches[tableName] = fetchPromise;
+    activeFetches[cacheKey] = fetchPromise;
 
     try {
       const data = await fetchPromise;
@@ -407,8 +418,52 @@ export function useTableData() {
         ) {
           tableData = data[tableName];
         }
-        saveData(tableName, tableData);
-        sessionFetched.add(tableName);
+
+        // Simpan ke cache menggunakan cacheKey
+        const timestamp = new Date().toISOString();
+        let processedData = tableData;
+        if (
+          (tableName === "data_gtk" || tableName === "DataGtk") &&
+          Array.isArray(tableData)
+        ) {
+          processedData = normalizeGtkData(tableData);
+        } else if (
+          (tableName === "data_siswa" || tableName === "DataSiswa") &&
+          Array.isArray(tableData)
+        ) {
+          processedData = normalizeSiswaData(tableData);
+        } else if (
+          (tableName === "data_kelas" || tableName === "DataKelas") &&
+          Array.isArray(tableData)
+        ) {
+          processedData = normalizeKelasData(tableData);
+        } else if (
+          (tableName === "pengumuman" || tableName === "Pengumuman") &&
+          Array.isArray(tableData)
+        ) {
+          processedData = normalizePengumumanData(tableData);
+        } else if (
+          (tableName === "alumni" || tableName === "Alumni") &&
+          Array.isArray(tableData)
+        ) {
+          processedData = normalizeAlumniData(tableData);
+        }
+
+        sessionCache[cacheKey] = {
+          data: processedData,
+          timestamp: timestamp,
+        };
+
+        cardData.value = processedData;
+        lastUpdated.value = timestamp;
+
+        window.dispatchEvent(
+          new CustomEvent("globalDataUpdated", {
+            detail: { tableName: cacheKey, data: processedData },
+          }),
+        );
+
+        sessionFetched.add(cacheKey);
       }
     } catch (err: any) {
       if (err.name === "AbortError") {
@@ -425,7 +480,7 @@ export function useTableData() {
       if (currentController?.signal === signal) {
         currentController = null;
       }
-      delete activeFetches[tableName];
+      delete activeFetches[cacheKey];
       isLoading.value = false;
     }
   };

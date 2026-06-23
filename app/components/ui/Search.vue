@@ -9,13 +9,19 @@
         v-model="searchQuery"
         @input="$emit('searchUpdated', searchQuery)"
         placeholder="Cari..."
-        class="w-full rounded-lg border py-2 pe-12 pl-4 text-sm transition-all duration-300 ease-in-out focus:outline-none focus:ring-1 focus:ring-opacity-50 bg-zinc-800/50 text-zinc-100 border-zinc-700 placeholder-zinc-500 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+        class="w-full rounded-lg border py-2 pe-12 pl-4 text-sm transition-all duration-300 ease-in-out focus:outline-none focus:ring-1 focus:ring-opacity-50 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+        :style="{
+          backgroundColor: 'var(--bg-input-alpha)',
+          color: 'var(--text-primary)',
+          borderColor: 'var(--border-primary)',
+        }"
       />
       <button
         v-if="searchQuery"
         type="button"
         @click="clearSearch"
-        class="absolute right-3 flex items-center justify-center w-5 h-5 rounded-full transition-all duration-300 ease-in-out text-zinc-400 hover:text-red-400 hover:bg-red-500/20 active:bg-red-500/30"
+        class="absolute right-3 flex items-center justify-center w-5 h-5 rounded-full transition-all duration-300 ease-in-out hover:text-red-400 hover:bg-red-500/20 active:bg-red-500/30"
+        :style="{ color: 'var(--text-secondary)' }"
       >
         <span class="sr-only">Clear search</span>
         <X class="w-3.5 h-3.5" />

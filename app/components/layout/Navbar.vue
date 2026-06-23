@@ -1,19 +1,25 @@
 <template>
   <header
-    class="fixed w-full z-30 bottom-0 lg:top-0 lg:bottom-auto border-t border-zinc-800 lg:border-t-0 lg:border-b transition-transform duration-300 ease-in-out"
+    class="fixed w-full z-30 bottom-0 lg:top-0 lg:bottom-auto border-t lg:border-t-0 lg:border-b transition-transform duration-300 ease-in-out"
+    :style="{ borderColor: 'var(--border-primary)' }"
     :class="
       isNavbarVisible ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'
     "
   >
     <div
-      class="max-w-7xl mx-auto flex justify-between items-center h-16 px-4 bg-zinc-900 text-zinc-100"
+      class="max-w-7xl mx-auto flex justify-between items-center h-16 px-4"
+      :style="{
+        backgroundColor: 'var(--bg-primary)',
+        color: 'var(--text-primary)',
+      }"
     >
       <!-- Bagian 1: Toggle Hamburger + Toggle Tema -->
       <div class="flex items-center space-x-4 flex-shrink-0 order-3 lg:order-1">
         <!-- Sidebar Toggle Component (Inlined) -->
         <button
           @click="toggleSidebar"
-          class="p-2 rounded-lg transition-all duration-300 hover:bg-zinc-800 text-zinc-200"
+          class="p-2 rounded-lg transition-all duration-300 hover:bg-[var(--bg-tertiary)]"
+          :style="{ color: 'var(--text-primary)' }"
           :aria-label="isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'"
         >
           <Menu
@@ -33,7 +39,11 @@
       <div class="flex-1 flex justify-center px-2 min-w-0 order-2">
         <div class="text-center truncate max-w-full">
           <span
-            class="inline-block text-emerald-400 text-xs sm:text-sm font-mono tracking-tight sm:tracking-wider bg-zinc-950/80 border border-zinc-800 px-3 py-1 rounded-md truncate max-w-full"
+            class="inline-block text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-mono tracking-tight sm:tracking-wider px-3 py-1 rounded-md truncate max-w-full"
+            :style="{
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--border-primary)',
+            }"
           >
             {{ activeMenuLabel }}
           </span>
@@ -47,8 +57,9 @@
           <!-- User Avatar/Icon Button -->
           <button
             @click="toggleUserDropdown"
-            class="flex items-center justify-center p-2 rounded-lg transition-all duration-300 hover:bg-zinc-800 text-zinc-200"
-            :class="{ 'bg-zinc-800': isUserDropdownOpen }"
+            class="flex items-center justify-center p-2 rounded-lg transition-all duration-300 hover:bg-[var(--bg-tertiary)]"
+            :class="{ 'bg-[var(--bg-tertiary)]': isUserDropdownOpen }"
+            :style="{ color: 'var(--text-primary)' }"
             aria-label="User Menu"
           >
             <!-- User Icon -->
@@ -58,7 +69,11 @@
           <!-- Dropdown Menu -->
           <div
             v-if="isUserDropdownOpen"
-            class="absolute w-44 rounded-lg shadow-lg border z-50 bg-zinc-800 border-zinc-700 p-1 bottom-full mb-2 left-0 lg:bottom-auto lg:mb-0 lg:top-full lg:mt-2 lg:right-0 lg:left-auto"
+            class="absolute w-44 rounded-lg shadow-lg border z-50 p-1 bottom-full mb-2 left-0 lg:bottom-auto lg:mb-0 lg:top-full lg:mt-2 lg:right-0 lg:left-auto"
+            :style="{
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-primary)',
+            }"
           >
             <div class="flex flex-col gap-0.5">
               <!-- Profil Button (Hanya guru) -->
@@ -66,7 +81,8 @@
                 v-if="userRole === 'guru' && gtkId"
                 :to="`/akademik/gtk/detail/${gtkId}`"
                 @click="isUserDropdownOpen = false"
-                class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-zinc-700 text-zinc-200 hover:text-white"
+                class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-[var(--bg-tertiary)]"
+                :style="{ color: 'var(--text-primary)' }"
                 aria-label="Profil"
               >
                 <div class="flex items-center space-x-2">
@@ -80,13 +96,14 @@
               <!-- Divider -->
               <div
                 v-if="userRole === 'guru' && gtkId"
-                class="border-t border-zinc-700/60 my-0.5 mx-1"
+                class="border-t my-0.5 mx-1"
+                :style="{ borderColor: 'var(--border-subtle)' }"
               ></div>
 
               <!-- Logout Button (Inlined) -->
               <button
                 @click="handleLogout"
-                class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-zinc-800 text-red-400 hover:text-red-300"
+                class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-[var(--bg-tertiary)] text-red-500 dark:text-red-400 hover:text-red-400 dark:hover:text-red-300"
                 aria-label="Logout"
                 :disabled="isLoggingOut"
               >

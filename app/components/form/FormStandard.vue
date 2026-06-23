@@ -5,7 +5,9 @@
       class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4"
     >
       <div class="space-y-1">
-        <h1 class="text-2xl text-zinc-100">Pilih Jenis {{ jenis_doc }}</h1>
+        <h1 class="text-2xl" :style="{ color: 'var(--text-primary)' }">
+          Pilih Jenis {{ jenis_doc }}
+        </h1>
       </div>
 
       <BaseButton
@@ -25,14 +27,23 @@
         v-for="template in templates"
         :key="template.type"
         @click="openModal(template)"
-        class="bg-zinc-800 text-zinc-100 border-zinc-700 border rounded-lg p-4 hover:shadow-md cursor-pointer transition-colors"
+        class="border rounded-lg p-4 hover:shadow-md cursor-pointer transition-colors"
+        :style="{
+          backgroundColor: 'var(--bg-secondary)',
+          color: 'var(--text-primary)',
+          borderColor: 'var(--border-primary)',
+        }"
       >
         <!-- Image Container -->
         <div class="relative w-full h-40 mb-3 rounded-md overflow-hidden">
           <!-- Preview Button -->
           <button
             @click.stop="openPreview(template)"
-            class="absolute top-2 right-2 z-10 p-1.5 rounded-full hover:opacity-90 bg-zinc-700 text-zinc-100"
+            class="absolute top-2 right-2 z-10 p-1.5 rounded-full hover:opacity-90"
+            :style="{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
+            }"
           >
             <Eye class="w-4 h-4" />
           </button>
@@ -59,33 +70,46 @@
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
     >
       <div
-        class="bg-zinc-900 border-zinc-800 rounded-lg p-6 w-full max-w-xl relative shadow-lg border"
+        class="rounded-lg p-6 w-full max-w-xl relative shadow-lg border"
+        :style="{
+          backgroundColor: 'var(--bg-primary)',
+          borderColor: 'var(--border-primary)',
+        }"
       >
         <button
           @click="showUploadModal = false"
-          class="text-zinc-400 hover:text-zinc-300 absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center"
+          class="hover:opacity-75 absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center"
+          :style="{ color: 'var(--text-secondary)' }"
         >
           <span class="text-base">✕</span>
         </button>
 
         <div class="text-center mb-6">
           <div class="text-3xl mb-3">📤</div>
-          <h2 class="text-zinc-100 text-xl mb-1">
+          <h2 class="text-xl mb-1" :style="{ color: 'var(--text-primary)' }">
             Cetak {{ jenis_doc }} Massal
           </h2>
-          <p class="text-zinc-400 text-sm">
+          <p class="text-sm" :style="{ color: 'var(--text-secondary)' }">
             Buat banyak {{ jenis_doc }} sekaligus dengan file Excel
           </p>
         </div>
 
         <div class="space-y-6">
           <div>
-            <label class="text-zinc-300 block mb-2 font-medium text-sm">
+            <label
+              class="block mb-2 font-medium text-sm"
+              :style="{ color: 'var(--text-primary)' }"
+            >
               Pilih Template {{ jenis_doc }}:
             </label>
             <select
               v-model="selectedTemplateForExcel"
-              class="bg-zinc-800 border-zinc-700 text-zinc-100 border rounded-lg p-2 w-full focus:outline-none focus:border-emerald-500 text-sm"
+              class="border rounded-lg p-2 w-full focus:outline-none focus:border-emerald-500 text-sm"
+              :style="{
+                backgroundColor: 'var(--bg-secondary)',
+                borderColor: 'var(--border-primary)',
+                color: 'var(--text-primary)',
+              }"
             >
               <option disabled value="">-- Pilih Template --</option>
               <option v-for="t in templates" :key="t.type" :value="t">
@@ -111,7 +135,11 @@
           </div>
 
           <div
-            class="border-zinc-600 bg-zinc-800/50 border border-dashed p-6 rounded-lg text-center cursor-pointer"
+            class="border border-dashed p-6 rounded-lg text-center cursor-pointer"
+            :style="{
+              borderColor: 'var(--border-secondary)',
+              backgroundColor: 'var(--bg-input-alpha)',
+            }"
             @dragover.prevent
             @drop.prevent="handleDrop($event)"
             @click="$refs.fileInput.click()"
@@ -119,10 +147,13 @@
             <div class="space-y-3">
               <div class="text-3xl">📁</div>
               <div>
-                <p class="text-zinc-300 font-medium text-sm mb-1">
+                <p
+                  class="font-medium text-sm mb-1"
+                  :style="{ color: 'var(--text-primary)' }"
+                >
                   Drag & Drop file di sini
                 </p>
-                <p class="text-zinc-500 text-xs">
+                <p class="text-xs" :style="{ color: 'var(--text-muted)' }">
                   atau klik untuk memilih file Excel (.xlsx, .csv)
                 </p>
               </div>
@@ -146,20 +177,28 @@
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
     >
       <div
-        class="bg-zinc-900 border-zinc-800 rounded-lg p-6 w-full max-w-lg relative shadow-lg border flex flex-col max-h-[85vh]"
+        class="rounded-lg p-6 w-full max-w-lg relative shadow-lg border flex flex-col max-h-[85vh]"
+        :style="{
+          backgroundColor: 'var(--bg-primary)',
+          borderColor: 'var(--border-primary)',
+        }"
       >
         <button
           @click="closeModal"
-          class="text-zinc-400 absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center hover:opacity-75"
+          class="absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center hover:opacity-75"
+          :style="{ color: 'var(--text-secondary)' }"
         >
           <span class="text-base">✕</span>
         </button>
 
         <div class="text-center mb-6">
-          <h3 class="text-zinc-100 text-xl font-bold">
+          <h3
+            class="text-xl font-bold"
+            :style="{ color: 'var(--text-primary)' }"
+          >
             Isi Data {{ selectedTemplate?.title || jenis_doc }}
           </h3>
-          <p class="text-zinc-400 mt-1 text-sm">
+          <p class="mt-1 text-sm" :style="{ color: 'var(--text-secondary)' }">
             Lengkapi informasi dibawah ini!
           </p>
         </div>
@@ -176,7 +215,8 @@
             >
               <label
                 :for="input.name"
-                class="text-zinc-300 block text-sm font-medium"
+                class="block text-sm font-medium"
+                :style="{ color: 'var(--text-primary)' }"
               >
                 {{ input.label }}
               </label>
@@ -184,7 +224,12 @@
                 <select
                   v-model="formData[input.name]"
                   :id="input.name"
-                  class="bg-zinc-800 border-zinc-700 text-zinc-100 w-full border p-2 text-sm focus:outline-none focus:border-emerald-500"
+                  class="w-full border p-2 text-sm focus:outline-none focus:border-emerald-500"
+                  :style="{
+                    backgroundColor: 'var(--bg-secondary)',
+                    borderColor: 'var(--border-primary)',
+                    color: 'var(--text-primary)',
+                  }"
                   required
                 >
                   <option disabled value="">
@@ -207,12 +252,18 @@
                     :id="input.name"
                     placeholder="001"
                     maxlength="3"
-                    class="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-500 w-full border p-2 pr-40 text-sm focus:outline-none focus:border-emerald-500"
+                    class="w-full border p-2 pr-40 text-sm focus:outline-none focus:border-emerald-500"
+                    :style="{
+                      backgroundColor: 'var(--bg-secondary)',
+                      borderColor: 'var(--border-primary)',
+                      color: 'var(--text-primary)',
+                    }"
                     @input="handleNoSuratInput(input.name, $event)"
                     required
                   />
                   <span
-                    class="absolute right-3 text-xs pointer-events-none text-zinc-500 font-mono"
+                    class="absolute right-3 text-xs pointer-events-none font-mono"
+                    :style="{ color: 'var(--text-muted)' }"
                   >
                     /MI-B/087/{{ currentRomanMonth }}/{{ currentYear }}
                   </span>
@@ -224,7 +275,12 @@
                   :type="input.type"
                   :id="input.name"
                   :placeholder="`Masukkan ${input.label.toLowerCase()}`"
-                  class="bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-500 w-full border p-2 text-sm focus:outline-none focus:border-emerald-500"
+                  class="w-full border p-2 text-sm focus:outline-none focus:border-emerald-500"
+                  :style="{
+                    backgroundColor: 'var(--bg-secondary)',
+                    borderColor: 'var(--border-primary)',
+                    color: 'var(--text-primary)',
+                  }"
                   required
                 />
               </template>

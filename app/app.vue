@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-zinc-900">
+  <div class="theme-bg">
     <NuxtLoadingIndicator
       :height="3"
       color="linear-gradient(to right, #34d399 0%, #059669 100%)"
@@ -13,7 +13,12 @@
     <button
       v-show="isScrollVisible"
       @click="scrollToTop"
-      class="fixed bottom-20 right-6 z-50 p-2 rounded-full shadow-lg transition-all duration-200 border border-zinc-600 bg-zinc-800 text-zinc-100 hover:bg-zinc-700 hover:border-zinc-500 lg:bottom-6"
+      class="fixed bottom-20 right-6 z-50 p-2 rounded-full shadow-lg transition-all duration-200 border lg:bottom-6"
+      :style="{
+        backgroundColor: 'var(--bg-secondary)',
+        color: 'var(--text-primary)',
+        borderColor: 'var(--border-secondary)',
+      }"
     >
       <ArrowUp class="w-5 h-5" />
     </button>
@@ -174,28 +179,28 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.65);
+  background: var(--shadow-overlay);
   padding: 1rem;
 }
 .confirm-dialog {
-  background: #18181b;
-  border: 1px solid #3f3f46;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 16px;
   padding: 2rem 1.75rem 1.5rem;
   width: 100%;
   max-width: 380px;
   text-align: center;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 24px 60px var(--shadow-dialog);
 }
 .confirm-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #f4f4f5;
+  color: var(--text-primary);
   margin: 0.5rem 0;
 }
 .confirm-message {
   font-size: 0.9rem;
-  color: #a1a1aa;
+  color: var(--text-secondary);
   margin: 0 0 1.5rem;
   line-height: 1.5;
 }
@@ -216,12 +221,12 @@ onUnmounted(() => {
   max-width: 160px;
 }
 .confirm-btn--cancel {
-  background: #3f3f46;
-  color: #d4d4d8;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 .confirm-btn--cancel:hover {
-  background: #52525b;
-  color: #f4f4f5;
+  background: var(--border-secondary);
+  color: var(--text-primary);
 }
 .confirm-btn--ok {
   background: #dc2626;
@@ -271,8 +276,8 @@ onUnmounted(() => {
   pointer-events: all;
   overflow: hidden;
   box-shadow:
-    0 10px 25px -5px rgba(0, 0, 0, 0.5),
-    0 8px 16px -6px rgba(0, 0, 0, 0.5);
+    0 10px 25px -5px var(--shadow-card),
+    0 8px 16px -6px var(--shadow-card);
 }
 .toast--success {
   background: #064e3b;
@@ -367,7 +372,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.72);
+  background: var(--shadow-overlay);
 }
 .loading-box {
   display: flex;
@@ -375,15 +380,15 @@ onUnmounted(() => {
   align-items: center;
   gap: 1.25rem;
   padding: 2rem 2.5rem;
-  background: #18181b;
-  border: 1px solid #3f3f46;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 16px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 60px var(--shadow-dialog);
 }
 .loading-message {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #e4e4e7;
+  color: var(--text-primary);
   text-align: center;
   margin: 0;
 }

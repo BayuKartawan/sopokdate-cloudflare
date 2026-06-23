@@ -7,11 +7,19 @@
       @click="toggleDropdown"
       :class="[
         'w-full text-left rounded-lg border px-3 py-1.5 text-[11px] transition-all flex items-center justify-between !h-8',
-        'bg-zinc-800 border-zinc-600 text-zinc-100 hover:border-zinc-500',
       ]"
+      :style="{
+        backgroundColor: 'var(--bg-secondary)',
+        borderColor: 'var(--border-secondary)',
+        color: 'var(--text-primary)',
+      }"
     >
       <span class="truncate">{{ selectedLabel || placeholder }}</span>
-      <ChevronDown class="w-3 h-3 ml-1 text-zinc-400" stroke-width="2.5" />
+      <ChevronDown
+        class="w-3 h-3 ml-1"
+        :style="{ color: 'var(--text-secondary)' }"
+        stroke-width="2.5"
+      />
     </button>
 
     <!-- Dropdown Menu using Teleport -->
@@ -19,14 +27,22 @@
       <div
         v-if="isOpen"
         ref="menuRef"
-        :style="menuStyle"
+        :style="[
+          menuStyle,
+          {
+            backgroundColor: 'var(--bg-primary)',
+            borderColor: 'var(--border-primary)',
+          },
+        ]"
         :class="[
           'fixed z-[9999] rounded-xl border shadow-2xl overflow-hidden transition-opacity duration-200',
-          'bg-zinc-900/95 border-zinc-700',
         ]"
       >
         <!-- Search Input -->
-        <div class="p-2 border-b border-zinc-800">
+        <div
+          class="p-2 border-b"
+          :style="{ borderColor: 'var(--border-primary)' }"
+        >
           <div class="relative">
             <input
               ref="searchInputRef"
@@ -35,12 +51,17 @@
               :placeholder="searchPlaceholder"
               :class="[
                 'w-full pl-8 pr-3 py-1.5 rounded-lg text-[11px] outline-none transition-all focus:ring-2',
-                'bg-zinc-800 border-zinc-700 text-zinc-100 focus:ring-emerald-500/40',
+                'focus:ring-emerald-500/40',
               ]"
+              :style="{
+                backgroundColor: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+              }"
               @click.stop
             />
             <Search
-              class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500"
+              class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5"
+              :style="{ color: 'var(--text-muted)' }"
               stroke-width="2.5"
             />
           </div>
@@ -55,16 +76,18 @@
             :class="[
               'px-3 py-2 text-[11px] cursor-pointer transition-colors flex items-center justify-between',
               isSelected(option)
-                ? 'bg-emerald-500/20 text-emerald-400'
-                : 'text-zinc-300 hover:bg-zinc-800',
+                ? 'bg-emerald-500/20 text-emerald-500 dark:text-emerald-400'
+                : 'hover:bg-[var(--bg-secondary)]',
             ]"
+            :style="!isSelected(option) ? { color: 'var(--text-primary)' } : {}"
           >
             <span class="truncate">{{ getOptionLabel(option) }}</span>
             <Check v-if="isSelected(option)" class="w-3 h-3" stroke-width="3" />
           </div>
           <div
             v-if="filteredOptions.length === 0"
-            class="px-3 py-4 text-center text-[11px] text-zinc-500 italic"
+            class="px-3 py-4 text-center text-[11px] italic"
+            :style="{ color: 'var(--text-muted)' }"
           >
             Tidak ada data ditemukan
           </div>

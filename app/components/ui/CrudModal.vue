@@ -11,11 +11,19 @@
 
         <!-- Modal -->
         <div
-          class="relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-2xl border border-zinc-700/60 bg-zinc-900/95 shadow-2xl shadow-black/40 overflow-hidden"
+          class="relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden"
+          :style="{
+            borderColor: 'var(--border-subtle)',
+            backgroundColor: 'var(--bg-primary)',
+          }"
         >
           <!-- Header -->
           <div
-            class="flex items-center justify-between px-6 py-4 border-b border-zinc-700/50 bg-zinc-800/50 shrink-0"
+            class="flex items-center justify-between px-6 py-4 border-b shrink-0"
+            :style="{
+              borderColor: 'var(--border-subtle)',
+              backgroundColor: 'var(--bg-secondary)',
+            }"
           >
             <div class="flex items-center gap-3">
               <div
@@ -29,13 +37,17 @@
                 <Plus v-if="mode === 'create'" class="w-5 h-5" />
                 <Pencil v-else class="w-5 h-5" />
               </div>
-              <h3 class="text-lg font-semibold text-zinc-100">
+              <h3
+                class="text-lg font-semibold"
+                :style="{ color: 'var(--text-primary)' }"
+              >
                 {{ title || (mode === "create" ? "Tambah Data" : "Edit Data") }}
               </h3>
             </div>
             <button
               @click="$emit('close')"
-              class="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
+              class="p-1.5 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
+              :style="{ color: 'var(--text-secondary)' }"
             >
               <X class="w-5 h-5" />
             </button>
@@ -51,7 +63,8 @@
               <div v-for="field in fields" :key="field.key">
                 <label
                   :for="'field-' + field.key"
-                  class="block text-sm font-medium text-zinc-300 mb-1.5"
+                  class="block text-sm font-medium mb-1.5"
+                  :style="{ color: 'var(--text-primary)' }"
                 >
                   {{ field.label }}
                   <span v-if="field.required" class="text-red-400 ml-0.5"
@@ -65,14 +78,24 @@
                   :id="'field-' + field.key"
                   v-model="formData[field.key]"
                   :disabled="field.disabled"
-                  class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-full h-10 px-3 rounded-lg border text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  :style="{
+                    borderColor: 'var(--border-subtle)',
+                    backgroundColor: 'var(--bg-input-alpha)',
+                    color: 'var(--text-primary)',
+                  }"
                 >
-                  <option value="" class="bg-zinc-800">-- Pilih --</option>
+                  <option
+                    value=""
+                    :style="{ backgroundColor: 'var(--bg-secondary)' }"
+                  >
+                    -- Pilih --
+                  </option>
                   <option
                     v-for="opt in field.options"
                     :key="typeof opt === 'object' ? opt.value : opt"
                     :value="typeof opt === 'object' ? opt.value : opt"
-                    class="bg-zinc-800"
+                    :style="{ backgroundColor: 'var(--bg-secondary)' }"
                   >
                     {{ typeof opt === "object" ? opt.label : opt }}
                   </option>
@@ -85,7 +108,12 @@
                   v-model="formData[field.key]"
                   :disabled="field.disabled"
                   rows="3"
-                  class="w-full px-3 py-2.5 rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-full px-3 py-2.5 rounded-lg border text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  :style="{
+                    borderColor: 'var(--border-subtle)',
+                    backgroundColor: 'var(--bg-input-alpha)',
+                    color: 'var(--text-primary)',
+                  }"
                   :placeholder="field.placeholder || ''"
                 />
 
@@ -96,7 +124,12 @@
                   v-model="formData[field.key]"
                   :type="field.type || 'text'"
                   :disabled="field.disabled"
-                  class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-full h-10 px-3 rounded-lg border text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  :style="{
+                    borderColor: 'var(--border-subtle)',
+                    backgroundColor: 'var(--bg-input-alpha)',
+                    color: 'var(--text-primary)',
+                  }"
                   :placeholder="field.placeholder || ''"
                 />
               </div>
@@ -105,12 +138,20 @@
 
           <!-- Footer -->
           <div
-            class="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-700/50 bg-zinc-800/30 shrink-0"
+            class="flex items-center justify-end gap-3 px-6 py-4 border-t shrink-0"
+            :style="{
+              borderColor: 'var(--border-subtle)',
+              backgroundColor: 'var(--bg-secondary)',
+            }"
           >
             <button
               type="button"
               @click="$emit('close')"
-              class="px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-300 bg-zinc-700/50 hover:bg-zinc-700 transition-colors"
+              class="px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+              :style="{
+                backgroundColor: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+              }"
             >
               Batal
             </button>

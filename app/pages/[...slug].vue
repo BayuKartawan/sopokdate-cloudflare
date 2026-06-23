@@ -4,7 +4,8 @@
       <!-- 404 Number with enhanced styling -->
       <div class="relative mb-8">
         <h1
-          class="text-8xl md:text-9xl font-black select-none transition-colors duration-300 text-gray-700 drop-shadow-2xl"
+          class="text-8xl md:text-9xl font-black select-none transition-colors duration-300 drop-shadow-2xl"
+          :style="{ color: 'var(--text-faint)' }"
         >
           404
         </h1>
@@ -19,14 +20,16 @@
 
       <!-- Main heading -->
       <h2
-        class="text-2xl md:text-4xl font-bold tracking-tight mb-4 transition-colors duration-300 text-white"
+        class="text-2xl md:text-4xl font-bold tracking-tight mb-4 transition-colors duration-300"
+        :style="{ color: 'var(--text-heading)' }"
       >
         Oops! Page Not Found
       </h2>
 
       <!-- Description -->
       <p
-        class="text-lg mb-8 leading-relaxed transition-colors duration-300 text-gray-300"
+        class="text-lg mb-8 leading-relaxed transition-colors duration-300"
+        :style="{ color: 'var(--text-secondary)' }"
       >
         The page you're looking for seems to have wandered off into the digital
         void.
@@ -38,7 +41,7 @@
       >
         <NuxtLink
           to="/"
-          class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2 shadow-lg bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500 focus:ring-offset-gray-900"
+          class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 shadow-lg bg-indigo-600 hover:bg-indigo-700 text-white"
         >
           <Home class="w-4 h-4 mr-2" stroke-width="2" />
           Go Back Home
@@ -46,7 +49,11 @@
 
         <button
           @click="goBack"
-          class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2 border-2 border-gray-600 text-gray-300 hover:border-gray-500 hover:text-white focus:ring-gray-500 focus:ring-offset-gray-900"
+          class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 border-2 hover:bg-[var(--bg-secondary)]"
+          :style="{
+            borderColor: 'var(--border-secondary)',
+            color: 'var(--text-secondary)',
+          }"
         >
           <ArrowLeft class="w-4 h-4 mr-2" stroke-width="2" />
           Go Back
@@ -54,7 +61,10 @@
       </div>
 
       <!-- Additional help text -->
-      <p class="text-sm mt-8 transition-colors duration-300 text-gray-400">
+      <p
+        class="text-sm mt-8 transition-colors duration-300"
+        :style="{ color: 'var(--text-muted)' }"
+      >
         If you believe this is an error, please
         <a
           href="mailto:support@example.com"

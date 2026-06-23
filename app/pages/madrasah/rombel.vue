@@ -18,27 +18,44 @@
               </p>
             </div>
 
-            <!-- Tambah Rombel & Reset Promosi Button (Admin Only) -->
-            <div v-if="isAdmin" class="ml-auto flex items-center gap-3">
-              <button
-                v-if="hasPromotedStudents"
-                @click="handleResetPromotions"
-                :disabled="isResetting"
-                class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-zinc-800 hover:bg-zinc-750 border border-zinc-700/60 text-zinc-300 disabled:opacity-50 transition-all shadow-md"
-              >
-                <RefreshCw
-                  :class="{ 'animate-spin': isResetting }"
-                  class="w-4 h-4 text-emerald-400"
-                />
-                Mulai Tahun Ajaran Baru
-              </button>
-              <button
-                @click="openCreateModal"
-                class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md"
-              >
-                <Plus class="w-4 h-4" />
-                Tambah Rombel
-              </button>
+            <div class="ml-auto flex items-center flex-wrap gap-3">
+              <!-- Academic Year Dropdown -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-zinc-400"
+                  >Tahun Pelajaran:</span
+                >
+                <select
+                  v-model="selectedTapel"
+                  class="h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
+                >
+                  <option v-for="opt in tapelOptions" :key="opt" :value="opt">
+                    {{ opt }}{{ opt === currentTapel ? " (Tahun Sekarang)" : "" }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Admin Only Actions -->
+              <template v-if="isAdmin">
+                <button
+                  v-if="hasPromotedStudents"
+                  @click="handleResetPromotions"
+                  :disabled="isResetting"
+                  class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-zinc-800 hover:bg-zinc-750 border border-zinc-700/60 text-zinc-300 disabled:opacity-50 transition-all shadow-md shrink-0"
+                >
+                  <RefreshCw
+                    :class="{ 'animate-spin': isResetting }"
+                    class="w-4 h-4 text-emerald-400"
+                  />
+                  Mulai Tahun Ajaran Baru
+                </button>
+                <button
+                  @click="openCreateModal"
+                  class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md shrink-0"
+                >
+                  <Plus class="w-4 h-4" />
+                  Tambah Rombel
+                </button>
+              </template>
             </div>
           </div>
         </div>
@@ -76,7 +93,7 @@
             <div
               v-for="(item, index) in sortedDataKelas"
               :key="item.id_kelas || index"
-              @click="selectedRombel = item"
+              @click="selectRombel(item)"
               class="rounded-xl border p-5 bg-zinc-800/30 border-zinc-700/40 hover:border-emerald-500/30 transition-all duration-200 group cursor-pointer hover:bg-zinc-800/50"
             >
               <div class="flex items-start gap-4">
@@ -109,6 +126,12 @@
                         {{ getTeacherName(item.wali_kelas) }}
                       </span>
                     </p>
+                    <p class="flex items-center gap-1.5">
+                      <span class="text-zinc-500 shrink-0">Jumlah Siswa:</span>
+                      <span class="text-zinc-300 font-medium">
+                        {{ isLoadingSiswa ? "..." : getStudentCount(item.id_kelas) }} siswa
+                      </span>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -122,7 +145,7 @@
         <!-- Breadcrumb / Back Button -->
         <div class="mb-2">
           <button
-            @click="selectedRombel = null"
+            @click="closeRombelDetail"
             class="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors group"
           >
             <ArrowLeft
@@ -155,22 +178,38 @@
             </p>
           </div>
 
-          <!-- Admin Actions in Details -->
-          <div v-if="isAdmin" class="flex items-center gap-2">
-            <button
-              @click="openEditModal(selectedRombel)"
-              class="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-zinc-750 border border-zinc-700/60 text-zinc-300 hover:text-amber-400 transition-all"
-            >
-              <Pencil class="w-3.5 h-3.5" />
-              Edit Rombel
-            </button>
-            <button
-              @click="handleDelete(selectedRombel)"
-              class="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold rounded-lg bg-red-950/20 hover:bg-red-950/40 border border-red-900/30 text-red-400 hover:text-red-300 transition-all"
-            >
-              <Trash2 class="w-3.5 h-3.5" />
-              Hapus Rombel
-            </button>
+          <!-- Actions Panel (Academic Year Dropdown & Admin Buttons) -->
+          <div class="flex flex-wrap items-center gap-3 sm:gap-4 shrink-0">
+            <!-- Academic Year Dropdown -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold text-zinc-400">Tahun Pelajaran:</span>
+              <select
+                v-model="selectedTapel"
+                class="h-9 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm cursor-pointer"
+              >
+                <option v-for="opt in tapelOptions" :key="opt" :value="opt">
+                  {{ opt }}{{ opt === currentTapel ? " (Tahun Sekarang)" : "" }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Admin Actions in Details -->
+            <div v-if="isAdmin" class="flex items-center gap-2">
+              <button
+                @click="openEditModal(selectedRombel)"
+                class="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-zinc-750 border border-zinc-700/60 text-zinc-300 hover:text-amber-400 transition-all"
+              >
+                <Pencil class="w-3.5 h-3.5" />
+                Edit Rombel
+              </button>
+              <button
+                @click="handleDelete(selectedRombel)"
+                class="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-red-950/20 hover:bg-red-950/40 border border-red-900/30 text-red-400 hover:text-red-300 transition-all"
+              >
+                <Trash2 class="w-3.5 h-3.5" />
+                Hapus Rombel
+              </button>
+            </div>
           </div>
         </div>
 
@@ -278,6 +317,14 @@
                     >
                       Baru Naik Kelas
                     </span>
+                    <button
+                      v-if="student.status_promosi === 'Sudah' && isAdmin"
+                      @click="handleCancelPromotion(student)"
+                      class="ml-2 bg-red-950/60 text-red-400 hover:bg-red-900/20 border border-red-900/30 px-1.5 py-0.5 rounded text-[10px] font-medium transition-all shrink-0 cursor-pointer"
+                      title="Batalkan Kenaikan Kelas"
+                    >
+                      Batal Naik
+                    </button>
                   </td>
                   <td class="p-3.5 font-mono text-zinc-400">
                     {{ student.nisn || "-" }}
@@ -461,12 +508,15 @@
                         </th>
                         <th class="p-3 bg-zinc-900">Nama Siswa</th>
                         <th class="p-3 bg-zinc-900 w-32">NISN</th>
+                        <th class="p-3 bg-zinc-900 w-28 text-center">
+                          Kelas Asal
+                        </th>
                         <th class="p-3 bg-zinc-900 w-16 text-center">L/P</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-if="unassignedStudents.length === 0">
-                        <td colspan="4" class="p-8 text-center text-zinc-500">
+                        <td colspan="5" class="p-8 text-center text-zinc-500">
                           Tidak ada siswa tanpa kelas ditemukan.
                         </td>
                       </tr>
@@ -495,6 +545,13 @@
                         </td>
                         <td class="p-3 font-mono text-zinc-400">
                           {{ student.nisn || "-" }}
+                        </td>
+                        <td class="p-3 text-center">
+                          <span
+                            class="bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded text-xs font-mono"
+                          >
+                            {{ getClassName(student.kelas_db) || "Baru" }}
+                          </span>
                         </td>
                         <td class="p-3 text-center text-zinc-400">
                           {{ getJenisKelaminAbbr(student.jenis_kelamin) }}
@@ -652,7 +709,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import {
   Database,
   Building2,
@@ -674,6 +731,7 @@ import {
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { putToApi, postToApi, deleteFromApi } from "~/utils/api";
+import { dapatkanTahunDanSemester } from "~/utils/dateHelper";
 import CrudModal from "~/components/ui/CrudModal.vue";
 
 const {
@@ -699,16 +757,74 @@ const {
   loadData: loadDataSiswa,
 } = useTableData();
 
-const handleSuccess = () => {
-  refreshDataKelas("data_kelas");
-  selectedRombel.value = null;
+// Routing configurations for list-detail sync
+const route = useRoute();
+const router = useRouter();
+
+const selectRombel = (item) => {
+  router.push({ query: { ...route.query, rombel: item.id_kelas } });
 };
 
-const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
+const closeRombelDetail = () => {
+  router.push({ query: { ...route.query, rombel: undefined } });
+};
+
+const handleSuccess = () => {
+  refreshDataKelas("data_kelas");
+  closeRombelDetail();
+  // Reload data siswa dengan parameter tahun pelajaran aktif
+  loadDataSiswa("data_siswa", true, {
+    tahun_pelajaran: selectedTapel.value,
+  });
+};
+
+const { isAdmin, isSaving, createItem, updateItem } = useCrud(
   "data_kelas",
   handleSuccess,
 );
 const { Notify, Confirm } = useNotiflix();
+
+// Academic Year State
+const selectedTapel = ref("");
+const currentTapel = ref("");
+const { cardData: dataRiwayat, loadData: loadDataRiwayat } = useTableData();
+
+const tapelOptions = computed(() => {
+  const years = new Set();
+  
+  // Selalu sertakan tahun ajaran saat ini
+  if (currentTapel.value) {
+    years.add(currentTapel.value);
+  } else {
+    const todayStr = new Date().toISOString().substring(0, 10);
+    const currentInfo = dapatkanTahunDanSemester(todayStr);
+    years.add(currentInfo.tahunPelajaran);
+  }
+  
+  // Ambil tahun ajaran dari riwayat kelas siswa di database
+  if (Array.isArray(dataRiwayat.value)) {
+    dataRiwayat.value.forEach((r) => {
+      if (r.tahun_pelajaran) {
+        years.add(r.tahun_pelajaran);
+      }
+    });
+  }
+  
+  return Array.from(years).sort((a, b) => a.localeCompare(b));
+});
+
+watch(selectedTapel, async (newTapel) => {
+  if (newTapel) {
+    try {
+      await loadDataSiswa("data_siswa", true, { tahun_pelajaran: newTapel });
+    } catch (err) {
+      console.error(
+        "Gagal memuat data siswa untuk tahun ajaran terpilih:",
+        err,
+      );
+    }
+  }
+});
 
 // CRUD Modal state
 const showModal = ref(false);
@@ -721,6 +837,43 @@ const searchStudentQuery = ref("");
 const selectedStudentIds = ref([]);
 const targetRombelId = ref("");
 const isPromoting = ref(false);
+
+// Watch for changes in the query parameter 'rombel'
+watch(
+  () => route.query.rombel,
+  (newRombelId) => {
+    if (!newRombelId) {
+      selectedRombel.value = null;
+      selectedStudentIds.value = []; // Reset selected students when going back to list
+      return;
+    }
+    // If we have a rombel ID, find it in the dataKelas array
+    if (Array.isArray(dataKelas.value)) {
+      const found = dataKelas.value.find(
+        (k) => String(k.id_kelas) === String(newRombelId),
+      );
+      if (found) {
+        selectedRombel.value = found;
+        return;
+      }
+    }
+    selectedRombel.value = null;
+  },
+  { immediate: true },
+);
+
+// Also watch dataKelas to resolve selectedRombel when data finishes loading
+watch(dataKelas, (newData) => {
+  const queryRombelId = route.query.rombel;
+  if (queryRombelId && Array.isArray(newData)) {
+    const found = newData.find(
+      (k) => String(k.id_kelas) === String(queryRombelId),
+    );
+    if (found) {
+      selectedRombel.value = found;
+    }
+  }
+});
 
 // Add Student Modal state
 const showAddStudentModal = ref(false);
@@ -829,7 +982,58 @@ const handleFormSubmit = async (formData) => {
 
 const handleDelete = (item) => {
   const id = item.id || item._id;
-  deleteItem(id, `Rombel ${item.nama_kelas}`);
+  const classId = item.id_kelas;
+
+  // Cari semua siswa yang berada di rombel ini (baik berdasarkan kelas aktif maupun kelas_db)
+  const studentsToClear = Array.isArray(dataSiswa.value)
+    ? dataSiswa.value.filter((s) => s.kelas === classId || s.kelas_db === classId)
+    : [];
+
+  Confirm?.show(
+    "Hapus Rombel",
+    `Apakah Anda yakin ingin menghapus Rombel ${item.nama_kelas}? Semua (${studentsToClear.length}) siswa di rombel ini akan dikosongkan kelasnya. Tindakan ini tidak dapat dibatalkan.`,
+    "Ya, Hapus",
+    "Batal",
+    async () => {
+      isSaving.value = true;
+      let successCount = 0;
+      let failCount = 0;
+
+      try {
+        if (studentsToClear.length > 0) {
+          const promises = studentsToClear.map(async (student) => {
+            const studentId = student.id || student._id;
+            try {
+              await putToApi("data_siswa", studentId, { kelas: "" });
+              successCount++;
+            } catch (err) {
+              console.error(`Gagal mengosongkan kelas siswa ID ${studentId}:`, err);
+              failCount++;
+            }
+          });
+          await Promise.all(promises);
+        }
+
+        // Hapus rombel dari database
+        await deleteFromApi("data_kelas", id);
+
+        if (failCount > 0) {
+          Notify?.warning?.(
+            `Rombel berhasil dihapus, tetapi gagal mengosongkan kelas untuk ${failCount} siswa.`,
+          );
+        } else {
+          Notify?.success?.(`Rombel ${item.nama_kelas} berhasil dihapus.`);
+        }
+
+        handleSuccess();
+      } catch (err) {
+        console.error("Gagal menghapus rombel:", err);
+        Notify?.failure?.(err.message || "Gagal menghapus rombel");
+      } finally {
+        isSaving.value = false;
+      }
+    },
+  );
 };
 
 // Map teacher details by Peg ID
@@ -849,6 +1053,31 @@ const getTeacherName = (pegId) => {
   if (!pegId) return "Belum Ditentukan";
   const teacher = teacherMap.value[pegId];
   return teacher ? teacher.nama_lengkap : pegId;
+};
+
+// Map kelas ID to its details
+const kelasMap = computed(() => {
+  const map = {};
+  if (Array.isArray(dataKelas.value)) {
+    dataKelas.value.forEach((k) => {
+      const id = k.id_kelas || k.idKelas;
+      if (id) {
+        map[id] = k;
+      }
+    });
+  }
+  return map;
+});
+
+const getClassName = (classId) => {
+  if (!classId) return "";
+  const classInfo = kelasMap.value[classId];
+  return classInfo ? classInfo.nama_kelas : classId;
+};
+
+const getStudentCount = (classId) => {
+  if (!Array.isArray(dataSiswa.value)) return 0;
+  return dataSiswa.value.filter((s) => s.kelas === classId).length;
 };
 
 // Student filtering logic in active Rombel
@@ -971,6 +1200,7 @@ const handlePromoteStudents = async () => {
           selectedStudentIds.value = [];
           targetRombelId.value = "";
           await loadDataSiswa("data_siswa");
+          await loadDataRiwayat("riwayat_kelas_siswa", true);
         }
         if (failCount > 0) {
           Notify?.failure?.(`Gagal memproses ${failCount} siswa.`);
@@ -979,6 +1209,30 @@ const handlePromoteStudents = async () => {
         Notify?.failure?.("Terjadi kesalahan saat memproses kenaikan rombel.");
       } finally {
         isPromoting.value = false;
+      }
+    },
+  );
+};
+
+const handleCancelPromotion = async (student) => {
+  Confirm?.show(
+    "Batalkan Kenaikan Kelas",
+    `Apakah Anda yakin ingin membatalkan kenaikan kelas untuk ${toTitleCase(student.nama)}? Data pendaftaran kelas barunya untuk tahun depan akan dihapus.`,
+    "Ya, Batalkan",
+    "Batal",
+    async () => {
+      try {
+        await putToApi("data_siswa", student.id || student._id, {
+          status_promosi: "Belum",
+        });
+        Notify?.success?.(
+          `Berhasil membatalkan kenaikan kelas ${toTitleCase(student.nama)}.`,
+        );
+        await loadDataSiswa("data_siswa");
+        await loadDataRiwayat("riwayat_kelas_siswa", true);
+      } catch (err) {
+        Notify?.failure?.("Gagal membatalkan kenaikan kelas.");
+        console.error(err);
       }
     },
   );
@@ -1129,43 +1383,102 @@ const toggleSelectAllUnassigned = () => {
   }
 };
 
+const getKelasTingkat = (classId) => {
+  if (!classId) return null;
+  const match = dataKelas.value.find(
+    (k) => k.id_kelas === classId || k.idKelas === classId,
+  );
+  return match ? parseInt(match.tingkat) : null;
+};
+
 const handleAssignStudents = async () => {
   if (selectedUnassignedIds.value.length === 0) return;
 
-  isAddingStudents.value = true;
-  let successCount = 0;
-  let failCount = 0;
+  const targetTingkat = parseInt(selectedRombel.value.tingkat);
+  const anomalies = [];
 
-  try {
-    const promises = selectedUnassignedIds.value.map(async (studentId) => {
-      try {
-        await putToApi("data_siswa", studentId, {
-          kelas: selectedRombel.value.id_kelas,
-        });
-        successCount++;
-      } catch (err) {
-        console.error(`Gagal menunjuk siswa ID ${studentId} ke rombel:`, err);
-        failCount++;
+  for (const studentId of selectedUnassignedIds.value) {
+    const student = dataSiswa.value.find((s) => (s.id || s._id) === studentId);
+    if (student && student.kelas_db) {
+      const prevTingkat = getKelasTingkat(student.kelas_db);
+      if (prevTingkat !== null) {
+        if (
+          targetTingkat !== prevTingkat &&
+          targetTingkat !== prevTingkat + 1
+        ) {
+          anomalies.push({
+            nama: student.nama,
+            prevTingkat,
+            targetTingkat,
+          });
+        }
       }
-    });
-
-    await Promise.all(promises);
-
-    if (successCount > 0) {
-      Notify?.success?.(
-        `Berhasil menambahkan ${successCount} siswa ke rombel.`,
-      );
-      showAddStudentModal.value = false;
-      selectedUnassignedIds.value = [];
-      await loadDataSiswa("data_siswa");
     }
-    if (failCount > 0) {
-      Notify?.failure?.(`Gagal memproses ${failCount} siswa.`);
+  }
+
+  const proceedAssignment = async () => {
+    isAddingStudents.value = true;
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      const promises = selectedUnassignedIds.value.map(async (studentId) => {
+        try {
+          await putToApi("data_siswa", studentId, {
+            kelas: selectedRombel.value.id_kelas,
+          });
+          successCount++;
+        } catch (err) {
+          console.error(`Gagal menunjuk siswa ID ${studentId} ke rombel:`, err);
+          failCount++;
+        }
+      });
+
+      await Promise.all(promises);
+
+      if (successCount > 0) {
+        Notify?.success?.(
+          `Berhasil menambahkan ${successCount} siswa ke rombel.`,
+        );
+        showAddStudentModal.value = false;
+        selectedUnassignedIds.value = [];
+        // Reload data siswa dengan parameter tahun pelajaran aktif
+        await loadDataSiswa("data_siswa", true, {
+          tahun_pelajaran: selectedTapel.value,
+        });
+      }
+      if (failCount > 0) {
+        Notify?.failure?.(`Gagal memproses ${failCount} siswa.`);
+      }
+    } catch (err) {
+      Notify?.failure?.("Terjadi kesalahan saat menambahkan siswa.");
+    } finally {
+      isAddingStudents.value = false;
     }
-  } catch (err) {
-    Notify?.failure?.("Terjadi kesalahan saat menambahkan siswa.");
-  } finally {
-    isAddingStudents.value = false;
+  };
+
+  if (anomalies.length > 0) {
+    const warningMessage =
+      `Beberapa siswa berikut terdeteksi tidak sesuai tingkatnya:\n` +
+      anomalies
+        .map(
+          (a) =>
+            `- ${toTitleCase(a.nama)} (Tingkat asal: ${a.prevTingkat} -> Target: ${a.targetTingkat})`,
+        )
+        .join("\n") +
+      `\n\nApakah Anda yakin ingin tetap memasukkan mereka?`;
+
+    Confirm?.show(
+      "Peringatan Tingkat Rombel",
+      warningMessage,
+      "Ya, Lanjutkan",
+      "Batal",
+      async () => {
+        await proceedAssignment();
+      },
+    );
+  } else {
+    await proceedAssignment();
   }
 };
 
@@ -1283,8 +1596,13 @@ const handleResetPromotions = () => {
 };
 
 onMounted(() => {
+  const todayStr = new Date().toISOString().substring(0, 10);
+  const currentInfo = dapatkanTahunDanSemester(todayStr);
+  currentTapel.value = currentInfo.tahunPelajaran;
+  selectedTapel.value = currentInfo.tahunPelajaran;
+
   loadDataKelas("data_kelas");
   loadDataGtk("data_gtk");
-  loadDataSiswa("data_siswa");
+  loadDataRiwayat("riwayat_kelas_siswa");
 });
 </script>

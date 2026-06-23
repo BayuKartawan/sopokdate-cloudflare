@@ -7,7 +7,10 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-1.5">
           <FilePenLine class="w-4 h-4 text-green-400" />
-          <h3 class="text-sm font-medium text-zinc-200">
+          <h3
+            class="text-sm font-medium"
+            :style="{ color: 'var(--text-primary)' }"
+          >
             Data {{ selectedJenis }}
           </h3>
         </div>
@@ -22,7 +25,8 @@
           <div class="flex items-start justify-between">
             <label
               :for="field.key"
-              class="text-xs font-medium flex items-center gap-0.5 text-zinc-300"
+              class="text-xs font-medium flex items-center gap-0.5"
+              :style="{ color: 'var(--text-primary)' }"
             >
               <span>{{ field.label }}</span>
               <span class="text-red-500 text-[10px]">*</span>
@@ -31,7 +35,8 @@
             <!-- Character count for text fields -->
             <span
               v-if="shouldShowCharCount(field)"
-              class="text-[10px] text-zinc-500"
+              class="text-[10px]"
+              :style="{ color: 'var(--text-muted)' }"
             >
               {{ formData[field.key]?.length || 0 }}
             </span>
@@ -53,9 +58,92 @@
             </span>
           </div>
 
+          <!-- Connected Class Input -->
+          <select
+            v-if="hasStudentAndClass && isClassField(field)"
+            :id="field.key"
+            v-model="formData[field.key]"
+            :class="getInputClass(field)"
+          >
+            <option value="" disabled>Pilih {{ field.label }}</option>
+            <option
+              v-for="option in dynamicClassOptions"
+              :key="option"
+              :value="option"
+            >
+              {{ option }}
+            </option>
+          </select>
+
+          <!-- Connected Student Input (Loading State) -->
+          <select
+            v-else-if="
+              hasStudentAndClass && isStudentNameField(field) && isLoadingSiswa
+            "
+            :id="field.key"
+            disabled
+            :class="getInputClass(field)"
+          >
+            <option value="" disabled selected>Memuat data siswa...</option>
+          </select>
+
+          <!-- Connected Student Input (Dropdown State) -->
+          <div
+            v-else-if="
+              hasStudentAndClass &&
+              isStudentNameField(field) &&
+              !isManualStudentInput &&
+              filteredStudents.length > 0
+            "
+            class="flex gap-2"
+          >
+            <select
+              :id="field.key"
+              v-model="formData[field.key]"
+              :class="getInputClass(field)"
+              @change="handleStudentChange(field.key, $event)"
+              class="flex-1"
+            >
+              <option value="" disabled>Pilih {{ field.label }}</option>
+              <option
+                v-for="siswa in filteredStudents"
+                :key="siswa.id || siswa.nisn"
+                :value="siswa.nama"
+              >
+                {{ siswa.nama }} (NISN: {{ siswa.nisn || "-" }})
+              </option>
+              <option value="__manual__">-- Ketik manual... --</option>
+            </select>
+          </div>
+
+          <!-- Connected Student Input (Manual Text State) -->
+          <div
+            v-else-if="hasStudentAndClass && isStudentNameField(field)"
+            class="relative w-full"
+          >
+            <input
+              :id="field.key"
+              type="text"
+              v-model="formData[field.key]"
+              :placeholder="getPlaceholderText(field)"
+              :class="getInputClass(field)"
+            />
+            <button
+              v-if="filteredStudents.length > 0"
+              type="button"
+              @click="
+                isManualStudentInput = false;
+                formData[field.key] = '';
+              "
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-400 hover:text-blue-300 font-medium cursor-pointer"
+            >
+              Pilih dari daftar
+            </button>
+          </div>
+
           <!-- Regular Select Input (from API) -->
           <select
-            v-if="field.type === 'select'"
+            v-else-if="field.type === 'select'"
             :id="field.key"
             v-model="formData[field.key]"
             :class="getInputClass(field)"
@@ -197,7 +285,8 @@
               @input="handleNoSuratInput(field.key, $event)"
             />
             <span
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none text-zinc-500"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none"
+              :style="{ color: 'var(--text-muted)' }"
             >
               /MI-B/087/...
             </span>
@@ -226,7 +315,8 @@
 
       <!-- Action Buttons -->
       <div
-        class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-zinc-700"
+        class="flex flex-col sm:flex-row gap-3 pt-4 border-t"
+        :style="{ borderColor: 'var(--border-primary)' }"
       >
         <div class="flex-1">
           <BaseButton
@@ -257,12 +347,20 @@
       <!-- Form Progress Indicator -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <span class="text-zinc-400 text-xs"> Progress Pengisian </span>
-          <span class="text-zinc-300 text-xs font-medium">
+          <span class="text-xs" :style="{ color: 'var(--text-secondary)' }">
+            Progress Pengisian
+          </span>
+          <span
+            class="text-xs font-medium"
+            :style="{ color: 'var(--text-primary)' }"
+          >
             {{ filledFieldsCount }}/{{ placeholders.length }}
           </span>
         </div>
-        <div class="w-full rounded-full h-2 bg-zinc-800">
+        <div
+          class="w-full rounded-full h-2"
+          :style="{ backgroundColor: 'var(--bg-secondary)' }"
+        >
           <div
             class="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
             :style="{ width: `${progressPercentage}%` }"
@@ -276,10 +374,13 @@
       <div class="text-zinc-600 space-y-3">
         <FileText class="w-16 h-16 mx-auto" />
         <div>
-          <h3 class="text-zinc-400 text-sm font-medium mb-1">
+          <h3
+            class="text-sm font-medium mb-1"
+            :style="{ color: 'var(--text-secondary)' }"
+          >
             Pilih Jenis Surat
           </h3>
-          <p class="text-zinc-500 text-xs">
+          <p class="text-xs" :style="{ color: 'var(--text-muted)' }">
             Silakan pilih jenis surat terlebih dahulu untuk melanjutkan
           </p>
         </div>
@@ -291,8 +392,9 @@
 <script setup>
 import { FileText, FilePenLine, Download, Eraser } from "lucide-vue-next";
 
-import { reactive, ref, computed, watch } from "vue";
+import { reactive, ref, computed, watch, onMounted } from "vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import { useTableData } from "~/composables/data/useTableData";
 
 // Props
 const props = defineProps({
@@ -440,6 +542,300 @@ const handleNoSuratInput = (key, event) => {
 };
 
 // ========================================
+// DATA SISWA & KELAS SYNC LOGIC
+// ========================================
+
+const {
+  cardData: dataSiswa,
+  isLoading: isLoadingSiswa,
+  loadData: loadDataSiswa,
+} = useTableData();
+const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
+
+onMounted(() => {
+  loadDataSiswa("data_siswa");
+  loadDataKelas("data_kelas");
+});
+
+const isClassField = (field) => {
+  if (!field) return false;
+  const key = field.key.toLowerCase();
+  return (
+    field.type === "class" ||
+    key === "kelas" ||
+    key === "rombel" ||
+    (key.includes("kelas") &&
+      !key.includes("wali") &&
+      !key.includes("guru") &&
+      !key.includes("kamad"))
+  );
+};
+
+const isStudentNameField = (field) => {
+  if (!field) return false;
+  const key = field.key.toLowerCase();
+  return (
+    key === "nama_siswa" ||
+    key === "nama" ||
+    key === "nama_lengkap" ||
+    key === "nama_siswa_yang_bersangkutan" ||
+    (key.includes("nama") &&
+      !key.includes("guru") &&
+      !key.includes("wali") &&
+      !key.includes("ortu") &&
+      !key.includes("ayah") &&
+      !key.includes("ibu") &&
+      !key.includes("kepala") &&
+      !key.includes("kamad") &&
+      !key.includes("sekolah"))
+  );
+};
+
+const classField = computed(() => {
+  return placeholders.value.find(isClassField);
+});
+
+const studentField = computed(() => {
+  return placeholders.value.find(isStudentNameField);
+});
+
+const hasStudentAndClass = computed(() => {
+  return !!classField.value && !!studentField.value;
+});
+
+const dynamicClassOptions = computed(() => {
+  if (Array.isArray(dataKelas.value) && dataKelas.value.length > 0) {
+    return dataKelas.value
+      .map((k) => k.nama_kelas || k.namaKelas)
+      .filter((name) => name && String(name).trim() !== "")
+      .sort();
+  }
+  return classOptions;
+});
+
+const isManualStudentInput = ref(false);
+
+const filteredStudents = computed(() => {
+  if (!hasStudentAndClass.value || !classField.value) return [];
+
+  const selectedClassName = formData[classField.value.key];
+  if (!selectedClassName) return [];
+
+  const targetClassIds = [];
+  if (Array.isArray(dataKelas.value)) {
+    dataKelas.value.forEach((k) => {
+      const name = k.nama_kelas || k.namaKelas;
+      const id = k.id_kelas || k.idKelas;
+      if (name && name.toLowerCase() === selectedClassName.toLowerCase()) {
+        if (id) targetClassIds.push(id);
+      }
+    });
+  }
+
+  if (!Array.isArray(dataSiswa.value)) return [];
+  return dataSiswa.value.filter((s) => {
+    const sClass = s.kelas || s.kelas_db;
+    if (!sClass) return false;
+    return (
+      targetClassIds.includes(sClass) ||
+      sClass.toLowerCase() === selectedClassName.toLowerCase()
+    );
+  });
+});
+
+const formatDateForField = (dateStr, isDateInput) => {
+  if (!dateStr || dateStr === "null" || dateStr === "undefined") return "";
+
+  // Try to parse native ISO or simple formats first
+  let dateObj = new Date(dateStr);
+
+  if (isNaN(dateObj.getTime())) {
+    // Try parsing DD/MM/YYYY
+    const parts = dateStr.split("/");
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const year = parseInt(parts[2], 10);
+      dateObj = new Date(year, month, day);
+    }
+  }
+
+  if (isNaN(dateObj.getTime())) {
+    // Try parsing DD-MM-YYYY
+    const parts = dateStr.split("-");
+    if (parts.length === 3 && parts[2].length === 4) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const year = parseInt(parts[2], 10);
+      dateObj = new Date(year, month, day);
+    }
+  }
+
+  if (isNaN(dateObj.getTime())) {
+    // Try to parse "12 Jan 2011" or Indonesian months
+    const months = {
+      jan: 0,
+      januari: 0,
+      feb: 1,
+      februari: 1,
+      mar: 2,
+      maret: 2,
+      apr: 3,
+      april: 3,
+      mei: 4,
+      jun: 5,
+      juni: 5,
+      jul: 6,
+      juli: 6,
+      agu: 7,
+      agustus: 7,
+      sep: 8,
+      september: 8,
+      okt: 9,
+      oktober: 9,
+      nov: 10,
+      november: 10,
+      des: 11,
+      desember: 11,
+    };
+    const parts = dateStr.toLowerCase().split(/\s+/);
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const monthStr = parts[1];
+      const year = parseInt(parts[2], 10);
+      const month = months[monthStr];
+      if (month !== undefined && !isNaN(day) && !isNaN(year)) {
+        dateObj = new Date(year, month, day);
+      }
+    }
+  }
+
+  if (isNaN(dateObj.getTime())) {
+    return isDateInput ? "" : dateStr;
+  }
+
+  if (isDateInput) {
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const dd = String(dateObj.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  } else {
+    const indonesianMonths = [
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
+    ];
+    return `${dateObj.getDate()} ${indonesianMonths[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+  }
+};
+
+const handleStudentSelect = (selectedName) => {
+  if (!selectedName || selectedName === "__manual__") return;
+
+  const student = filteredStudents.value.find((s) => s.nama === selectedName);
+  if (!student) return;
+
+  placeholders.value.forEach((field) => {
+    const key = field.key.toLowerCase();
+    if (isClassField(field) || isStudentNameField(field)) return;
+
+    if (key === "nisn") {
+      formData[field.key] = student.nisn || "";
+    } else if (key === "nis_lokal" || key === "nis" || key === "nislokal") {
+      formData[field.key] = student.nis_lokal || student["nis lokal"] || "";
+    } else if (
+      key === "tempat_lahir" ||
+      key.includes("tempat_lahir") ||
+      key.includes("tempatlahir")
+    ) {
+      formData[field.key] =
+        student.tempat_lahir ||
+        student["tempat lahir"] ||
+        student.tempatlahir ||
+        "";
+    } else if (
+      key === "tanggal_lahir" ||
+      key.includes("tanggal_lahir") ||
+      key.includes("tanggallahir") ||
+      key === "tgl_lahir"
+    ) {
+      const dateVal =
+        student.tanggal_lahir ||
+        student["tanggal lahir"] ||
+        student.tanggallahir ||
+        student.tgl_lahir ||
+        "";
+      formData[field.key] = formatDateForField(dateVal, field.type === "date");
+    } else if (
+      key === "tempat_tanggal_lahir" ||
+      key === "tempat_tgl_lahir" ||
+      key === "ttl" ||
+      key.includes("tempat_tanggal_lahir")
+    ) {
+      const tempat =
+        student.tempat_lahir ||
+        student["tempat lahir"] ||
+        student.tempatlahir ||
+        "";
+      const tanggal =
+        student.tanggal_lahir ||
+        student["tanggal lahir"] ||
+        student.tanggallahir ||
+        student.tgl_lahir ||
+        "";
+      const formattedTanggal = formatDateForField(tanggal, false);
+      if (tempat && formattedTanggal) {
+        formData[field.key] = `${tempat}, ${formattedTanggal}`;
+      } else if (tempat) {
+        formData[field.key] = tempat;
+      } else {
+        formData[field.key] = formattedTanggal;
+      }
+    } else if (key.includes("ayah")) {
+      formData[field.key] =
+        student.nama_ayah_kandung || student["nama ayah kandung"] || "";
+    } else if (key.includes("ibu")) {
+      formData[field.key] =
+        student.nama_ibu_kandung || student["nama ibu kandung"] || "";
+    } else if (key.includes("alamat")) {
+      formData[field.key] = student.alamat || "";
+    } else if (key.includes("wali")) {
+      formData[field.key] = student.nama_wali || student["nama wali"] || "";
+    }
+  });
+};
+
+const handleStudentChange = (key, event) => {
+  const val = event.target.value;
+  if (val === "__manual__") {
+    isManualStudentInput.value = true;
+    formData[key] = "";
+  } else {
+    formData[key] = val;
+    handleStudentSelect(val);
+  }
+};
+
+watch(
+  () => (classField.value ? formData[classField.value.key] : null),
+  (newClass, oldClass) => {
+    if (newClass !== oldClass && studentField.value) {
+      formData[studentField.value.key] = "";
+      isManualStudentInput.value = false;
+    }
+  },
+);
+
+// ========================================
 // VALIDATION
 // ========================================
 
@@ -471,13 +867,10 @@ const fieldCounterClass = computed(
 
 const generateButtonClass = computed(() => [
   "w-full justify-center transition-colors",
-  isFormValid.value
-    ? "bg-blue-600 hover:bg-blue-700"
-    : "bg-zinc-700 text-zinc-400 cursor-not-allowed",
+  isFormValid.value ? "bg-blue-600 hover:bg-blue-700" : "cursor-not-allowed",
 ]);
 
-const resetButtonClass =
-  "w-full justify-center transition-colors sm:w-auto bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700";
+const resetButtonClass = "w-full justify-center transition-colors sm:w-auto";
 
 const generateButtonText = computed(() =>
   isFormValid.value
@@ -529,10 +922,9 @@ const getPlaceholderText = (field) => {
 };
 
 const baseInputClass =
-  "w-full px-3 py-2 border rounded-lg text-sm transition focus:outline-none focus:ring-1 placeholder-opacity-50";
+  "w-full px-3 py-2 border rounded-lg text-sm transition focus:outline-none focus:ring-1 placeholder-opacity-50 theme-input";
 const getInputClass = (field) => {
-  const themeClass =
-    "text-zinc-100 bg-zinc-800 border-zinc-600 placeholder-zinc-500 focus:border-blue-500";
+  const themeClass = "focus:border-blue-500";
   const validClass =
     isFieldValid(field) && formData[field.key] ? "border-green-600" : "";
   return `${baseInputClass} ${themeClass} ${validClass}`;
@@ -570,7 +962,25 @@ const loadPlaceholders = () => {
   }
 
   const config = props.suratConfigs[selectedJenis.value];
-  placeholders.value = config.placeholder || [];
+  let list = config.placeholder
+    ? JSON.parse(JSON.stringify(config.placeholder))
+    : [];
+
+  // Reorder class and student fields if both exist so class is right before student
+  const classIdx = list.findIndex(isClassField);
+  const studentIdx = list.findIndex(isStudentNameField);
+
+  if (classIdx !== -1 && studentIdx !== -1) {
+    if (classIdx > studentIdx) {
+      const classFieldObj = list[classIdx];
+      list.splice(classIdx, 1);
+
+      const newStudentIdx = list.findIndex(isStudentNameField);
+      list.splice(newStudentIdx, 0, classFieldObj);
+    }
+  }
+
+  placeholders.value = list;
 
   // Reset form data
   Object.keys(formData).forEach((key) => delete formData[key]);

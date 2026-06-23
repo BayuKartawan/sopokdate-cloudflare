@@ -1,6 +1,13 @@
 // handlers/data.ts
 import { VALID_TABLES } from "../config";
-import { jsonResponse, errorResponse, cleanName, toSnakeCase } from "../utils";
+import {
+  jsonResponse,
+  errorResponse,
+  cleanName,
+  toSnakeCase,
+  getCurrentAcademicYear,
+  getNextAcademicYear,
+} from "../utils";
 import type { Env } from "../types";
 
 // Legacy table name to D1 snake_case table name mapping
@@ -25,6 +32,7 @@ const TABLE_MAPPING: Record<string, string> = {
   alokasijam: "alokasi_jam",
   jadwalpelajaran: "jadwal_pelajaran",
   alumni: "alumni",
+  riwayatkelassiswa: "riwayat_kelas_siswa",
 };
 
 // Helper to validate table name to prevent SQL injection on table identifiers
@@ -75,10 +83,25 @@ export async function handleGetData(
   const filterVal = url.searchParams.get("filter_val");
   const gtkId = url.searchParams.get("gtk_id");
 
-  let query = `SELECT * FROM ${d1Table}`;
+  let query = "";
   const params: any[] = [];
   const conditions: string[] = [];
   let applyJsFilter = false;
+
+  if (d1Table === "data_siswa") {
+    let tapel = url.searchParams.get("tahun_pelajaran");
+    if (!tapel) {
+      tapel = getCurrentAcademicYear();
+    }
+    query = `
+      SELECT s.*, s.kelas AS kelas_db, COALESCE(r.kelas_id, '') AS kelas 
+      FROM data_siswa s
+      LEFT JOIN riwayat_kelas_siswa r ON s.id = r.siswa_id AND r.tahun_pelajaran = ?
+    `;
+    params.push(tapel);
+  } else {
+    query = `SELECT * FROM ${d1Table}`;
+  }
 
   // Filter by gtk_id (untuk guru melihat data sendiri)
   if (gtkId) {
@@ -101,7 +124,11 @@ export async function handleGetData(
   if (filterCol && filterVal) {
     // Dengan skema terpadu D1, filterCol langsung dicocokkan sebagai kolom database asli (dikonversi ke snake_case demi backward compatibility)
     const snakeFilterCol = toSnakeCase(filterCol);
-    conditions.push(`LOWER(${snakeFilterCol}) LIKE ?`);
+    if (d1Table === "data_siswa" && snakeFilterCol === "kelas") {
+      conditions.push("LOWER(COALESCE(r.kelas_id, '')) LIKE ?");
+    } else {
+      conditions.push(`LOWER(${snakeFilterCol}) LIKE ?`);
+    }
     params.push(`%${filterVal.toLowerCase()}%`);
   }
 
@@ -189,6 +216,21 @@ export async function handlePostData(
       .bind(...insertVals)
       .run();
 
+    if (d1Table === "data_siswa" && cleanedData["kelas"]) {
+      const lastRow = await env.DB.prepare(
+        "SELECT id FROM data_siswa ORDER BY id DESC LIMIT 1",
+      ).first<{ id: number }>();
+      if (lastRow) {
+        const tapel = getCurrentAcademicYear();
+        await env.DB.prepare(
+          `INSERT OR REPLACE INTO riwayat_kelas_siswa (siswa_id, kelas_id, tahun_pelajaran, updated_at) 
+           VALUES (?, ?, ?, datetime('now'))`,
+        )
+          .bind(lastRow.id, cleanedData["kelas"], tapel)
+          .run();
+      }
+    }
+
     return jsonResponse({
       success: true,
       message: `Data successfully added to ${d1Table}`,
@@ -270,6 +312,51 @@ export async function handlePutData(
       .bind(...params)
       .run();
 
+    // Mirror to riwayat_kelas_siswa
+    if (d1Table === "data_siswa") {
+      const updates: Record<string, any> = {};
+      for (const [key, val] of Object.entries(data)) {
+        updates[toSnakeCase(key)] = val;
+      }
+
+      const studentId = typeof id === "string" ? parseInt(id) : id;
+      const statusPromosi = updates["status_promosi"];
+
+      // Jika membatalkan promosi / kenaikan kelas
+      if (statusPromosi === "Belum") {
+        const nextTapel = getNextAcademicYear(getCurrentAcademicYear());
+        await env.DB.prepare(
+          "DELETE FROM riwayat_kelas_siswa WHERE siswa_id = ? AND tahun_pelajaran = ?",
+        )
+          .bind(studentId, nextTapel)
+          .run();
+      }
+
+      if (updates["kelas"] !== undefined) {
+        const newClass = updates["kelas"];
+
+        let tapel = getCurrentAcademicYear();
+        if (statusPromosi === "Sudah") {
+          tapel = getNextAcademicYear(tapel);
+        }
+
+        if (newClass === "" || newClass === "-") {
+          await env.DB.prepare(
+            "DELETE FROM riwayat_kelas_siswa WHERE siswa_id = ? AND tahun_pelajaran = ?",
+          )
+            .bind(studentId, tapel)
+            .run();
+        } else {
+          await env.DB.prepare(
+            `INSERT OR REPLACE INTO riwayat_kelas_siswa (siswa_id, kelas_id, tahun_pelajaran, updated_at) 
+             VALUES (?, ?, ?, datetime('now'))`,
+          )
+            .bind(studentId, newClass, tapel)
+            .run();
+        }
+      }
+    }
+
     return jsonResponse({
       success: true,
       message: `Data successfully updated in ${d1Table}`,
@@ -308,6 +395,33 @@ export async function handleDeleteData(
   }
 
   try {
+    // Cascading delete / clean-up logic if deleting a class (rombel)
+    if (d1Table === "data_kelas") {
+      const classRecord = await env.DB.prepare(
+        "SELECT id_kelas FROM data_kelas WHERE id = ?"
+      )
+        .bind(typeof id === "string" ? parseInt(id) : id)
+        .first<{ id_kelas: string }>();
+      
+      if (classRecord && classRecord.id_kelas) {
+        const id_kelas = classRecord.id_kelas;
+        
+        // 1. Clear 'kelas' in data_siswa
+        await env.DB.prepare(
+          "UPDATE data_siswa SET kelas = '', updated_at = datetime('now') WHERE kelas = ?"
+        )
+          .bind(id_kelas)
+          .run();
+
+        // 2. Delete history records in riwayat_kelas_siswa
+        await env.DB.prepare(
+          "DELETE FROM riwayat_kelas_siswa WHERE kelas_id = ?"
+        )
+          .bind(id_kelas)
+          .run();
+      }
+    }
+
     await env.DB.prepare(`DELETE FROM ${d1Table} WHERE id = ?`)
       .bind(typeof id === "string" ? parseInt(id) : id)
       .run();

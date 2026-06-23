@@ -5,10 +5,24 @@
       <div class="flex flex-col gap-4 mb-6">
         <div>
           <h2
-            class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+            class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2 flex-wrap"
           >
             <CalendarCheck class="w-7 h-7 text-emerald-400" />
-            Absensi Siswa
+            <span>Absensi Siswa</span>
+            <span 
+              v-if="selectedClass && hasExistingRecords && !hasUnsavedChanges"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm"
+            >
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Tersimpan di Server
+            </span>
+            <span 
+              v-else-if="selectedClass && hasUnsavedChanges"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-sm"
+            >
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              Ada Perubahan (Belum Kirim)
+            </span>
           </h2>
           <p class="text-sm text-zinc-400 mt-1">
             Pencatatan dan pengelolaan kehadiran harian siswa madrasah
@@ -27,12 +41,12 @@
           >
           <select
             v-model="selectedClass"
-            :disabled="isSaving || isWaliKelas"
+            :disabled="isDisabledDropdown"
             class="h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <option value="" disabled>-- Pilih Kelas --</option>
             <option
-              v-for="kelas in dataKelas"
+              v-for="kelas in accessibleClasses"
               :key="kelas.id_kelas"
               :value="kelas.id_kelas"
             >
@@ -43,40 +57,58 @@
 
         <!-- Date Navigation Bar -->
         <ClientOnly>
-          <div
-            class="flex items-center justify-between bg-zinc-950/40 border border-zinc-850 p-2 px-3 rounded-xl flex-1 md:max-w-[480px]"
-          >
-            <!-- Arrow Kiri (Mundur) -->
-            <button
-              type="button"
-              @click="ubahTanggal(-1)"
-              :disabled="isPrevDisabled || isSaving"
-              class="p-2 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-800"
-              title="Hari Sebelumnya"
+          <div class="flex items-center gap-2 flex-1 md:max-w-[480px]">
+            <div
+              class="flex items-center justify-between bg-zinc-950/40 border border-zinc-850 p-2 px-3 rounded-xl flex-1"
             >
-              <ChevronLeft class="w-4 h-4" />
-            </button>
-
-            <!-- Tanggal Display -->
-            <div class="text-center px-4">
-              <span
-                class="text-xs sm:text-sm font-bold text-zinc-100 block select-none"
-                >{{ formattedTanggal }}</span
+              <!-- Arrow Kiri (Mundur) -->
+              <button
+                type="button"
+                @click="ubahTanggal(-1)"
+                :disabled="isPrevDisabled || isSaving"
+                class="p-2 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-800"
+                title="Hari Sebelumnya"
               >
-              <span class="text-[10px] font-mono text-zinc-400">
-                Tapel: {{ tapel }} | Semester: {{ semester }}
-              </span>
+                <ChevronLeft class="w-4 h-4" />
+              </button>
+
+              <!-- Tanggal Display (Klik untuk buka kalender) -->
+              <div
+                class="relative text-center px-4 cursor-pointer hover:opacity-80 active:scale-[0.97] transition-all group select-none"
+                @click="toggleCalendar"
+              >
+                <span
+                  class="text-xs sm:text-sm font-bold text-zinc-100 block flex items-center justify-center gap-1"
+                >
+                  {{ formattedTanggal }}
+                  <CalendarDays class="w-3.5 h-3.5 text-emerald-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+                </span>
+                <span class="text-[10px] font-mono text-zinc-400 block">
+                  Tapel: {{ tapel }} | Semester: {{ semester }}
+                </span>
+              </div>
+
+              <!-- Arrow Kanan (Maju) -->
+              <button
+                type="button"
+                @click="ubahTanggal(1)"
+                :disabled="isNextDisabled || isSaving"
+                class="p-2 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-800"
+                title="Hari Selanjutnya"
+              >
+                <ChevronRight class="w-4 h-4" />
+              </button>
             </div>
 
-            <!-- Arrow Kanan (Maju) -->
+            <!-- Shortcut Hari Ini -->
             <button
+              v-if="tanggal !== hariIniStr"
               type="button"
-              @click="ubahTanggal(1)"
-              :disabled="isNextDisabled || isSaving"
-              class="p-2 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-800"
-              title="Hari Selanjutnya"
+              @click="tanggal = hariIniStr"
+              :disabled="isSaving"
+              class="h-10 px-3.5 rounded-xl border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white active:scale-95 transition-all text-xs font-semibold shrink-0 disabled:opacity-50"
             >
-              <ChevronRight class="w-4 h-4" />
+              Hari Ini
             </button>
           </div>
           <template #fallback>
@@ -87,22 +119,128 @@
         </ClientOnly>
       </div>
 
-      <!-- Warning/Info Banner if Teacher is NOT a Wali Kelas -->
-      <div
-        v-if="
-          userRole === 'guru' &&
-          !isWaliKelas &&
-          !isLoadingKelas &&
-          !isLoadingGtk
-        "
-        class="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-sm flex items-start gap-2.5 mb-6"
-      >
-        <AlertTriangle class="w-5 h-5 shrink-0 mt-0.5" />
-        <div>
-          <span class="font-bold">Akses Terbatas:</span> Akun guru Anda tidak
-          terdaftar sebagai Wali Kelas di kelas manapun untuk tahun ajaran
-          aktif. Anda hanya dapat melihat data absensi ini tanpa izin untuk
-          mengedit atau menyimpan.
+      <!-- Custom Calendar Popup Overlay -->
+      <Teleport to="body">
+        <Transition name="calendar-fade">
+          <div
+            v-if="showCalendar"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4"
+            @click.self="showCalendar = false"
+          >
+            <!-- Backdrop -->
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showCalendar = false"></div>
+
+            <!-- Calendar Card -->
+            <div class="relative z-10 w-full max-w-sm bg-zinc-900 border border-zinc-700/60 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
+              <!-- Calendar Header -->
+              <div class="flex items-center justify-between p-4 bg-zinc-800/60 border-b border-zinc-700/40">
+                <button
+                  type="button"
+                  @click="calendarPrevMonth"
+                  :disabled="!canCalendarGoPrev"
+                  class="p-2 rounded-lg text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft class="w-4 h-4" />
+                </button>
+                <h3 class="text-sm font-bold text-zinc-100 select-none">
+                  {{ calendarMonthLabel }}
+                </h3>
+                <button
+                  type="button"
+                  @click="calendarNextMonth"
+                  :disabled="!canCalendarGoNext"
+                  class="p-2 rounded-lg text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight class="w-4 h-4" />
+                </button>
+              </div>
+
+              <!-- Day-of-week header -->
+              <div class="grid grid-cols-7 text-center text-[10px] font-bold text-zinc-500 uppercase tracking-wider py-2 px-3 border-b border-zinc-800/60">
+                <span v-for="d in ['Min','Sen','Sel','Rab','Kam','Jum','Sab']" :key="d">{{ d }}</span>
+              </div>
+
+              <!-- Calendar Grid -->
+              <div class="grid grid-cols-7 gap-0.5 p-3">
+                <template v-for="(cell, i) in calendarCells" :key="i">
+                  <!-- Empty cell -->
+                  <div v-if="!cell.day" class="h-9"></div>
+                  <!-- Day cell -->
+                  <button
+                    v-else
+                    type="button"
+                    :disabled="cell.disabled"
+                    @click="selectCalendarDate(cell)"
+                    class="h-9 w-full rounded-lg text-xs font-semibold transition-all duration-150"
+                    :class="[
+                      cell.isSelected
+                        ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/30 scale-105'
+                        : cell.isToday
+                          ? 'bg-zinc-700/60 text-emerald-400 ring-1 ring-emerald-500/40 hover:bg-emerald-600/20'
+                          : cell.disabled
+                            ? 'text-zinc-700 cursor-not-allowed'
+                            : cell.isHoliday
+                              ? 'text-red-400/70 hover:bg-red-500/10 hover:text-red-300'
+                              : 'text-zinc-300 hover:bg-zinc-700/60 hover:text-white',
+                    ]"
+                  >
+                    {{ cell.day }}
+                  </button>
+                </template>
+              </div>
+
+              <!-- Calendar Footer -->
+              <div class="flex items-center justify-between p-3 pt-1 border-t border-zinc-800/40">
+                <span class="text-[10px] text-zinc-500">
+                  {{ userRole === 'admin' ? 'Akses 6 bulan terakhir' : 'Akses 7 hari terakhir' }}
+                </span>
+                <button
+                  v-if="tanggal !== hariIniStr"
+                  type="button"
+                  @click="selectToday"
+                  class="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors px-2 py-1 rounded-md hover:bg-emerald-500/10"
+                >
+                  Hari Ini
+                </button>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
+
+      <!-- Banner for Teachers -->
+      <div v-if="userRole === 'guru' && selectedClass && !isLoadingKelas && !isLoadingGtk" class="w-full">
+        <!-- Case 1: Guru Mapel is editing their scheduled class today -->
+        <div
+          v-if="isGuruMapel && isAuthorizedToEdit"
+          class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-sm flex items-start gap-2.5 mb-6"
+        >
+          <CalendarCheck class="w-5 h-5 shrink-0 mt-0.5 text-emerald-400" />
+          <div>
+            <span class="font-bold">Akses Guru Mapel:</span> Anda memiliki akses untuk mengisi absensi kelas ini karena terjadwal mengajar pada hari {{ namaHariSelected }}.
+          </div>
+        </div>
+
+        <!-- Case 2: Wali Kelas is editing their wali class -->
+        <div
+          v-else-if="selectedClass === waliKelasClassId && isAuthorizedToEdit"
+          class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-sm flex items-start gap-2.5 mb-6"
+        >
+          <CalendarCheck class="w-5 h-5 shrink-0 mt-0.5 text-emerald-400" />
+          <div>
+            <span class="font-bold">Akses Wali Kelas:</span> Anda sedang mengelola absensi untuk kelas binaan Anda ({{ waliKelasClassName }}).
+          </div>
+        </div>
+
+        <!-- Case 3: Read-only access -->
+        <div
+          v-else
+          class="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-sm flex items-start gap-2.5 mb-6"
+        >
+          <AlertTriangle class="w-5 h-5 shrink-0 mt-0.5 text-amber-400" />
+          <div>
+            <span class="font-bold">Akses Terbatas (Hanya Lihat):</span> Anda tidak memiliki wewenang untuk mengubah absensi kelas ini pada tanggal terpilih. Izin edit hanya diberikan untuk kelas binaan (Wali Kelas) atau kelas yang Anda ajar sesuai jadwal hari ini.
+          </div>
         </div>
       </div>
 
@@ -267,23 +405,45 @@
 
           <!-- Bottom Action Buttons -->
           <div
-            class="flex items-center justify-between p-4 bg-zinc-800/20 border-t border-zinc-700/40"
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-zinc-800/20 border-t border-zinc-700/40"
           >
-            <div class="text-xs text-zinc-400">
-              Menampilkan
-              <span class="font-bold text-zinc-300">{{ students.length }}</span>
-              siswa
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs text-zinc-400">
+                Menampilkan
+                <span class="font-bold text-zinc-300">{{ students.length }}</span>
+                siswa
+              </span>
+              <span class="text-zinc-650 hidden sm:inline">|</span>
+              <!-- Status Badge in footer -->
+              <span 
+                v-if="hasExistingRecords && !hasUnsavedChanges"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+              >
+                Sudah Terkirim (Tersimpan)
+              </span>
+              <span 
+                v-else-if="hasUnsavedChanges"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"
+              >
+                Belum Dikirim (Ada Perubahan)
+              </span>
+              <span 
+                v-else
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-zinc-800 text-zinc-450 border border-zinc-700/30"
+              >
+                Belum Ada Data
+              </span>
             </div>
             <BaseButton
               v-if="!isDisabled"
-              :text="isSaving ? 'Menyimpan...' : 'Simpan Absensi'"
+              :text="buttonText"
               @click="saveAttendance"
-              :disabled="isSaving"
-              class="!bg-emerald-600 !text-white hover:!bg-emerald-500 shadow-lg shadow-emerald-900/20"
+              :disabled="isSaving || (!hasUnsavedChanges && hasExistingRecords)"
+              :class="buttonClass"
             >
               <template #icon>
-                <Save v-if="!isSaving" class="w-4 h-4" />
-                <Loader2 v-else class="w-4 h-4 animate-spin" />
+                <Loader2 v-if="isSaving" class="w-4 h-4 animate-spin" />
+                <component v-else :is="buttonIcon" class="w-4 h-4" />
               </template>
             </BaseButton>
           </div>
@@ -297,6 +457,7 @@
 import { ref, computed, watch, onMounted } from "vue";
 import {
   CalendarCheck,
+  CalendarDays,
   Loader2,
   GraduationCap,
   Users,
@@ -305,6 +466,9 @@ import {
   ChevronLeft,
   ChevronRight,
   CalendarOff,
+  CheckCircle2,
+  CloudUpload,
+  Send,
 } from "lucide-vue-next";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import { useTableData } from "~/composables/data/useTableData";
@@ -335,15 +499,23 @@ const semester = ref("");
 const daftarHariLibur = ref([]); // Array of holiday events
 const hariLiburMingguanIndex = ref(0); // 0 = Minggu by default
 
-const userRole = ref("");
+const userRole = ref(getUserRole() || "");
 const userGtkId = ref(null);
 const isWaliKelas = ref(false);
 const waliKelasClassName = ref("");
+const waliKelasClassId = ref("");
+
+const originalStudents = ref([]);
+const hasExistingRecords = ref(false);
+
+const { cardData: jadwalData, loadData: loadJadwal } = useTableData();
 
 const isLoading = ref(false);
 const isLoadingKelas = ref(false);
 const isLoadingGtk = ref(false);
 const isSaving = ref(false);
+const showCalendar = ref(false);
+const calendarViewDate = ref(new Date()); // bulan yang sedang ditampilkan di kalender
 
 // --- Computed Date Constraints
 const hariIniStr = computed(() => {
@@ -352,7 +524,11 @@ const hariIniStr = computed(() => {
 
 const batasanMinStr = computed(() => {
   const date = new Date();
-  date.setDate(date.getDate() - 7); // Batasi 1 minggu (7 hari) ke belakang
+  if (userRole.value === "admin") {
+    date.setMonth(date.getMonth() - 6); // Batasi 6 bulan (1 semester) ke belakang
+  } else {
+    date.setDate(date.getDate() - 7); // Batasi 1 minggu (7 hari) ke belakang
+  }
   return getLocalDateString(date);
 });
 
@@ -364,6 +540,18 @@ const isPrevDisabled = computed(() => {
 const isNextDisabled = computed(() => {
   if (!tanggal.value) return true;
   return tanggal.value >= hariIniStr.value;
+});
+
+// Batasi input manual / datepicker di luar jangkauan yang diperbolehkan
+watch(tanggal, (newVal) => {
+  if (!newVal) return;
+  if (newVal < batasanMinStr.value) {
+    tanggal.value = batasanMinStr.value;
+    Notify.warning(`Pilihan tanggal dibatasi maksimal sampai ${batasanMinStr.value}`);
+  } else if (newVal > hariIniStr.value) {
+    tanggal.value = hariIniStr.value;
+    Notify.warning("Pilihan tanggal tidak boleh melebihi hari ini");
+  }
 });
 
 const isHariLiburMingguan = computed(() => {
@@ -456,15 +644,138 @@ const currentClassName = computed(() => {
   return match ? match.nama_kelas : selectedClass.value;
 });
 
+const namaHariSelected = computed(() => {
+  if (!tanggal.value) return "";
+  const parts = tanggal.value.split("-");
+  const date = new Date(
+    parseInt(parts[0], 10),
+    parseInt(parts[1], 10) - 1,
+    parseInt(parts[2], 10),
+  );
+  return NAMA_HARI[date.getDay()];
+});
+
+const guruMapelClassesOnDay = computed(() => {
+  if (userRole.value !== "guru" || !userGtkId.value || !namaHariSelected.value) {
+    return [];
+  }
+  const schedules = (jadwalData.value || []).filter((sch) => {
+    const isGuru = String(sch.guru_id) === String(userGtkId.value);
+    const isDay = String(sch.hari).toLowerCase() === namaHariSelected.value.toLowerCase();
+    return isGuru && isDay;
+  });
+  const classIds = schedules.map((sch) => sch.kelas_id);
+  return [...new Set(classIds)];
+});
+
+const isGuruMapel = computed(() => {
+  if (!selectedClass.value) return false;
+  return guruMapelClassesOnDay.value.includes(selectedClass.value);
+});
+
+const hasEditRights = computed(() => {
+  if (userRole.value === "admin") return true;
+  if (userRole.value === "guru") {
+    return (isWaliKelas.value && !!waliKelasClassId.value) || guruMapelClassesOnDay.value.length > 0;
+  }
+  return false;
+});
+
+const accessibleClasses = computed(() => {
+  if (userRole.value === "admin") {
+    return dataKelas.value;
+  }
+  if (userRole.value === "guru") {
+    const hasSchedules = guruMapelClassesOnDay.value.length > 0;
+    const hasWali = isWaliKelas.value && !!waliKelasClassId.value;
+    
+    if (!hasSchedules && !hasWali) {
+      return dataKelas.value;
+    }
+    
+    const list = [];
+    if (hasWali) {
+      const waliClass = dataKelas.value.find(c => c.id_kelas === waliKelasClassId.value);
+      if (waliClass) list.push(waliClass);
+    }
+    
+    guruMapelClassesOnDay.value.forEach(id => {
+      if (id === waliKelasClassId.value) return;
+      const matched = dataKelas.value.find(c => c.id_kelas === id);
+      if (matched) list.push(matched);
+    });
+    
+    return list;
+  }
+  return [];
+});
+
+const isDisabledDropdown = computed(() => {
+  if (isSaving.value) return true;
+  if (userRole.value === "guru") {
+    if (hasEditRights.value && accessibleClasses.value.length <= 1) {
+      return true;
+    }
+  }
+  return false;
+});
+
+const isAuthorizedToEdit = computed(() => {
+  if (userRole.value === "admin") return true;
+  if (userRole.value === "guru") {
+    const isWaliOfSelected = isWaliKelas.value && selectedClass.value === waliKelasClassId.value;
+    if (isWaliOfSelected) return true;
+    if (isGuruMapel.value) return true;
+  }
+  return false;
+});
+
 // Checks if input is disabled (user not authorized, saving, or Sunday/holiday)
 const isDisabled = computed(() => {
   if (isSaving.value || isHariLiburAtauMinggu.value) return true;
-  // If user is a teacher, they MUST be a Wali Kelas to edit
-  if (userRole.value === "guru") {
-    return !isWaliKelas.value;
+  return !isAuthorizedToEdit.value;
+});
+
+const hasUnsavedChanges = computed(() => {
+  if (students.value.length === 0) return false;
+  if (originalStudents.value.length !== students.value.length) return true;
+  
+  return students.value.some((s, idx) => {
+    const orig = originalStudents.value[idx];
+    if (!orig) return true;
+    return s.status !== orig.status || s.keterangan !== orig.keterangan;
+  });
+});
+
+const buttonText = computed(() => {
+  if (isSaving.value) return "Mengirim...";
+  if (hasUnsavedChanges.value) {
+    return hasExistingRecords.value ? "Kirim Perubahan Absensi" : "Kirim Absensi Sekarang";
   }
-  // Admin can always edit
-  return false;
+  if (hasExistingRecords.value) {
+    return "Absensi Sudah Terkirim";
+  }
+  return "Kirim Absensi";
+});
+
+const buttonClass = computed(() => {
+  if (hasUnsavedChanges.value) {
+    return "!bg-amber-600 !text-white hover:!bg-amber-500 shadow-lg shadow-amber-900/20";
+  }
+  if (hasExistingRecords.value) {
+    return "!bg-zinc-800/40 !text-zinc-500 border border-zinc-700/40 cursor-not-allowed hover:!bg-zinc-800/40 shadow-none";
+  }
+  return "!bg-emerald-600 !text-white hover:!bg-emerald-500 shadow-lg shadow-emerald-900/20";
+});
+
+const buttonIcon = computed(() => {
+  if (hasUnsavedChanges.value) {
+    return CloudUpload;
+  }
+  if (hasExistingRecords.value) {
+    return CheckCircle2;
+  }
+  return Send;
 });
 
 // --- Methods
@@ -500,6 +811,122 @@ const ubahTanggal = (offset) => {
     return;
   }
   tanggal.value = nextDateStr;
+};
+
+// --- Custom Calendar Popup Logic
+const toggleCalendar = () => {
+  if (isSaving.value) return;
+  // Set calendar view to the currently selected month
+  if (tanggal.value) {
+    const parts = tanggal.value.split("-");
+    calendarViewDate.value = new Date(
+      parseInt(parts[0], 10),
+      parseInt(parts[1], 10) - 1,
+      1,
+    );
+  }
+  showCalendar.value = !showCalendar.value;
+};
+
+const calendarMonthLabel = computed(() => {
+  return calendarViewDate.value.toLocaleDateString("id-ID", {
+    month: "long",
+    year: "numeric",
+  });
+});
+
+const canCalendarGoPrev = computed(() => {
+  const viewYear = calendarViewDate.value.getFullYear();
+  const viewMonth = calendarViewDate.value.getMonth();
+  const minParts = batasanMinStr.value.split("-");
+  const minYear = parseInt(minParts[0], 10);
+  const minMonth = parseInt(minParts[1], 10) - 1;
+  return viewYear > minYear || (viewYear === minYear && viewMonth > minMonth);
+});
+
+const canCalendarGoNext = computed(() => {
+  const viewYear = calendarViewDate.value.getFullYear();
+  const viewMonth = calendarViewDate.value.getMonth();
+  const maxParts = hariIniStr.value.split("-");
+  const maxYear = parseInt(maxParts[0], 10);
+  const maxMonth = parseInt(maxParts[1], 10) - 1;
+  return viewYear < maxYear || (viewYear === maxYear && viewMonth < maxMonth);
+});
+
+const calendarPrevMonth = () => {
+  const d = new Date(calendarViewDate.value);
+  d.setMonth(d.getMonth() - 1);
+  calendarViewDate.value = d;
+};
+
+const calendarNextMonth = () => {
+  const d = new Date(calendarViewDate.value);
+  d.setMonth(d.getMonth() + 1);
+  calendarViewDate.value = d;
+};
+
+// Check if a specific date string falls on a holiday in the calendar
+function isDateHolidayOrWeekly(dateStr) {
+  const parts = dateStr.split("-");
+  const d = new Date(
+    parseInt(parts[0], 10),
+    parseInt(parts[1], 10) - 1,
+    parseInt(parts[2], 10),
+  );
+  // Hari libur mingguan
+  if (d.getDay() === hariLiburMingguanIndex.value) return true;
+  // Hari libur kalender
+  if (Array.isArray(daftarHariLibur.value)) {
+    return daftarHariLibur.value.some(
+      (h) => dateStr >= h.tanggal_mulai && dateStr <= h.tanggal_selesai,
+    );
+  }
+  return false;
+}
+
+const calendarCells = computed(() => {
+  const year = calendarViewDate.value.getFullYear();
+  const month = calendarViewDate.value.getMonth();
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Min, 1=Sen...
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+
+  // Empty cells for days before the 1st
+  for (let i = 0; i < firstDay; i++) {
+    cells.push({ day: null });
+  }
+
+  // Day cells
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const isOutOfRange =
+      dateStr < batasanMinStr.value || dateStr > hariIniStr.value;
+    const isToday = dateStr === hariIniStr.value;
+    const isSelected = dateStr === tanggal.value;
+    const isHoliday = isDateHolidayOrWeekly(dateStr);
+
+    cells.push({
+      day: d,
+      dateStr,
+      disabled: isOutOfRange,
+      isToday,
+      isSelected,
+      isHoliday: !isOutOfRange && isHoliday,
+    });
+  }
+
+  return cells;
+});
+
+const selectCalendarDate = (cell) => {
+  if (cell.disabled || !cell.dateStr) return;
+  tanggal.value = cell.dateStr;
+  showCalendar.value = false;
+};
+
+const selectToday = () => {
+  tanggal.value = hariIniStr.value;
+  showCalendar.value = false;
 };
 
 // Auto calculate Tapel and Semester when date changes
@@ -564,6 +991,18 @@ watch([selectedClass, tanggal], async ([newClass, newDate]) => {
   await fetchStudents();
 });
 
+watch(accessibleClasses, (newClasses) => {
+  if (isLoadingKelas.value || isLoadingGtk.value) return;
+  if (userRole.value === "admin") return;
+  
+  if (hasEditRights.value && newClasses.length > 0) {
+    const stillExists = newClasses.some(c => c.id_kelas === selectedClass.value);
+    if (!stillExists) {
+      selectedClass.value = newClasses[0].id_kelas;
+    }
+  }
+});
+
 const fetchStudents = async () => {
   isLoading.value = true;
   try {
@@ -573,6 +1012,9 @@ const fetchStudents = async () => {
     const data = await response.json();
 
     if (Array.isArray(data)) {
+      // If at least one student has a non-null status, it means attendance was already saved before
+      hasExistingRecords.value = data.some(s => s.status !== null && s.status !== undefined);
+      
       // Map data and assign default status "H" if status is null
       students.value = data.map((siswa) => ({
         siswa_id: siswa.siswa_id,
@@ -582,13 +1024,18 @@ const fetchStudents = async () => {
         status: siswa.status || "H",
         keterangan: siswa.keterangan || "",
       }));
+      originalStudents.value = JSON.parse(JSON.stringify(students.value));
     } else {
       students.value = [];
+      originalStudents.value = [];
+      hasExistingRecords.value = false;
     }
   } catch (err) {
     console.error("Gagal memuat absensi siswa:", err);
     Notify.failure("Gagal mengambil data absensi siswa");
     students.value = [];
+    originalStudents.value = [];
+    hasExistingRecords.value = false;
   } finally {
     isLoading.value = false;
   }
@@ -624,6 +1071,8 @@ const saveAttendance = async () => {
 
     if (result.success) {
       Notify.success("Absensi kelas berhasil disimpan.");
+      hasExistingRecords.value = true;
+      originalStudents.value = JSON.parse(JSON.stringify(students.value));
     } else {
       throw new Error(result.error || "Gagal menyimpan.");
     }
@@ -675,6 +1124,7 @@ const checkWaliKelasStatus = async () => {
           if (myClass) {
             isWaliKelas.value = true;
             waliKelasClassName.value = myClass.nama_kelas;
+            waliKelasClassId.value = myClass.id_kelas;
             selectedClass.value = myClass.id_kelas;
           }
         }
@@ -695,6 +1145,7 @@ onMounted(async () => {
   isLoadingKelas.value = true;
   try {
     await loadDataKelas("data_kelas");
+    await loadJadwal("jadwal_pelajaran");
     await checkWaliKelasStatus();
   } catch (err) {
     console.error(err);
@@ -709,5 +1160,21 @@ onMounted(async () => {
 a,
 button {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Calendar popup transition */
+.calendar-fade-enter-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.calendar-fade-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.calendar-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.95);
+}
+.calendar-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
 }
 </style>

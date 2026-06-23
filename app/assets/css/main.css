@@ -1,5 +1,95 @@
 @import "tailwindcss";
 
+@theme {
+  --color-zinc-50: #fafafa;
+  --color-zinc-100: var(--text-primary);
+  --color-zinc-200: var(--text-secondary);
+  --color-zinc-350: var(--text-secondary);
+  --color-zinc-300: var(--text-secondary);
+  --color-zinc-400: var(--text-secondary);
+  --color-zinc-500: var(--text-muted);
+  --color-zinc-600: var(--text-muted);
+  --color-zinc-700: var(--bg-tertiary);
+  --color-zinc-850: var(--bg-secondary);
+  --color-zinc-800: var(--bg-secondary);
+  --color-zinc-900: var(--bg-primary);
+  --color-zinc-950: var(--bg-surface);
+}
+
+/* ============================================
+   THEME SYSTEM — Auto Light/Dark via prefers-color-scheme
+   ============================================ */
+
+/* Light Theme (Default) */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f4f4f5;
+  --bg-tertiary: #e4e4e7;
+  --bg-surface: #fafafa;
+  --bg-input: #f4f4f5;
+  --bg-input-alpha: rgba(244, 244, 245, 0.5);
+  --bg-card: #ffffff;
+  --bg-card-alpha: rgba(244, 244, 245, 0.4);
+  --bg-card-hover: rgba(228, 228, 231, 0.5);
+  --bg-skeleton: rgba(161, 161, 170, 0.25);
+  --bg-skeleton-soft: rgba(161, 161, 170, 0.15);
+
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #71717a;
+  --text-faint: #a1a1aa;
+  --text-heading: #09090b;
+
+  --border-primary: #e4e4e7;
+  --border-secondary: #d4d4d8;
+  --border-input: #d4d4d8;
+  --border-subtle: rgba(212, 212, 216, 0.5);
+
+  --shadow-overlay: rgba(0, 0, 0, 0.3);
+  --shadow-dialog: rgba(0, 0, 0, 0.15);
+  --shadow-card: rgba(0, 0, 0, 0.08);
+
+  --scrollbar-thumb: rgb(161 161 170);
+  --scrollbar-thumb-hover: rgb(113 113 122);
+
+  color-scheme: light dark;
+}
+
+/* Dark Theme (Device prefers dark) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #18181b;
+    --bg-secondary: #27272a;
+    --bg-tertiary: #3f3f46;
+    --bg-surface: #09090b;
+    --bg-input: #27272a;
+    --bg-input-alpha: rgba(39, 39, 42, 0.5);
+    --bg-card: #27272a;
+    --bg-card-alpha: rgba(39, 39, 42, 0.4);
+    --bg-card-hover: rgba(63, 63, 70, 0.5);
+    --bg-skeleton: rgba(63, 63, 70, 0.7);
+    --bg-skeleton-soft: rgba(63, 63, 70, 0.5);
+
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --text-faint: #52525b;
+    --text-heading: #f4f4f5;
+
+    --border-primary: #3f3f46;
+    --border-secondary: #52525b;
+    --border-input: #52525b;
+    --border-subtle: rgba(63, 63, 70, 0.5);
+
+    --shadow-overlay: rgba(0, 0, 0, 0.65);
+    --shadow-dialog: rgba(0, 0, 0, 0.6);
+    --shadow-card: rgba(0, 0, 0, 0.5);
+
+    --scrollbar-thumb: rgb(82 82 91);
+    --scrollbar-thumb-hover: rgb(113 113 122);
+  }
+}
+
 @font-face {
   font-family: "Mikalea";
   src: url("/assets/fonts/coolvetica-rg.otf") format("truetype");
@@ -15,6 +105,11 @@
 @layer base {
   body {
     font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
   }
 
   .page-layout {
@@ -37,5 +132,70 @@
     font-family: "Mikalea", cursive;
     font-weight: 400;
     font-style: normal;
+  }
+
+  /* Theme-aware utilities */
+  .theme-bg {
+    background-color: var(--bg-primary);
+  }
+  .theme-bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+  .theme-bg-tertiary {
+    background-color: var(--bg-tertiary);
+  }
+  .theme-bg-surface {
+    background-color: var(--bg-surface);
+  }
+  .theme-bg-input {
+    background-color: var(--bg-input-alpha);
+  }
+  .theme-bg-card {
+    background-color: var(--bg-card);
+  }
+  .theme-bg-card-alpha {
+    background-color: var(--bg-card-alpha);
+  }
+  .theme-bg-card-hover:hover {
+    background-color: var(--bg-card-hover);
+  }
+
+  .theme-text {
+    color: var(--text-primary);
+  }
+  .theme-text-secondary {
+    color: var(--text-secondary);
+  }
+  .theme-text-muted {
+    color: var(--text-muted);
+  }
+  .theme-text-faint {
+    color: var(--text-faint);
+  }
+  .theme-text-heading {
+    color: var(--text-heading);
+  }
+
+  .theme-border {
+    border-color: var(--border-primary);
+  }
+  .theme-border-secondary {
+    border-color: var(--border-secondary);
+  }
+  .theme-border-input {
+    border-color: var(--border-input);
+  }
+  .theme-border-subtle {
+    border-color: var(--border-subtle);
+  }
+
+  /* Theme-aware input styling — used by FormUniversal's getInputClass */
+  .theme-input {
+    color: var(--text-primary);
+    background-color: var(--bg-input-alpha);
+    border-color: var(--border-secondary);
+  }
+  .theme-input::placeholder {
+    color: var(--text-muted);
   }
 }

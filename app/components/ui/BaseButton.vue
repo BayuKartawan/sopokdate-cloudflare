@@ -4,9 +4,14 @@
     :to="to"
     :class="[
       'flex items-center justify-center gap-2 border px-3 py-1.5 rounded-md text-sm',
-      'border-zinc-700 bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:translate-y-[1px] focus:ring-1 focus:ring-zinc-500 focus:ring-offset-1 focus:ring-offset-zinc-900',
+      'hover:translate-y-[1px] focus:ring-1 focus:ring-zinc-500 focus:ring-offset-1',
       { 'router-link-active': isActive },
     ]"
+    :style="{
+      backgroundColor: 'var(--bg-secondary)',
+      borderColor: 'var(--border-primary)',
+      color: 'var(--text-primary)',
+    }"
   >
     <slot name="icon" />
     <span>{{ text }}</span>
@@ -15,8 +20,13 @@
     v-else
     :class="[
       'flex items-center justify-center gap-2 border px-3 py-1.5 rounded-md text-sm',
-      'border-zinc-700 bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:translate-y-[1px] focus:ring-1 focus:ring-zinc-500 focus:ring-offset-1 focus:ring-offset-zinc-900',
+      'hover:translate-y-[1px] focus:ring-1 focus:ring-zinc-500 focus:ring-offset-1',
     ]"
+    :style="{
+      backgroundColor: 'var(--bg-secondary)',
+      borderColor: 'var(--border-primary)',
+      color: 'var(--text-primary)',
+    }"
   >
     <slot name="icon" />
     <span>{{ text }}</span>

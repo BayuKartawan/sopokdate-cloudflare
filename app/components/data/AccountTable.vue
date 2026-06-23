@@ -4,7 +4,7 @@
     <div
       class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-4"
     >
-      <h1 class="text-2xl text-gray-100">
+      <h1 class="text-2xl" :style="{ color: 'var(--text-heading)' }">
         {{ title }}
       </h1>
 
@@ -63,7 +63,8 @@
         <BaseButton
           text="Excel"
           @click="exportToExcel"
-          class="shadow-sm bg-zinc-800 border-emerald-600 text-emerald-400 hover:bg-zinc-700"
+          class="shadow-sm border-emerald-600 text-emerald-600 dark:text-emerald-400"
+          :style="{ backgroundColor: 'var(--bg-secondary)' }"
         >
           <template #icon>
             <FileSpreadsheet class="w-4 h-4" />
@@ -79,13 +80,21 @@
         <select
           v-model="selectedTable"
           @change="handleDropdownUpdated(selectedTable)"
-          class="w-full rounded-lg border py-2 px-4 text-sm leading-5 h-[38px] transition-all duration-300 ease-in-out cursor-pointer focus:outline-none focus:ring-1 focus:ring-opacity-50 bg-zinc-800/50 text-zinc-100 border-zinc-700 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+          class="w-full rounded-lg border py-2 px-4 text-sm leading-5 h-[38px] transition-all duration-300 ease-in-out cursor-pointer focus:outline-none focus:ring-1 focus:ring-opacity-50 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+          :style="{
+            backgroundColor: 'var(--bg-input-alpha)',
+            color: 'var(--text-primary)',
+            borderColor: 'var(--border-primary)',
+          }"
         >
           <option
             v-for="option in dropdownOptions"
             :key="option.value"
             :value="option.value"
-            class="bg-zinc-800 text-zinc-100"
+            :style="{
+              backgroundColor: 'var(--bg-secondary)',
+              color: 'var(--text-primary)',
+            }"
           >
             {{ option.label }}
           </option>
@@ -109,32 +118,60 @@
           <div
             v-for="i in 6"
             :key="i"
-            class="rounded-lg border bg-zinc-800/40 border-zinc-700/60 p-4 animate-pulse"
+            class="rounded-lg border p-4 animate-pulse"
+            :style="{
+              backgroundColor: 'var(--bg-card-alpha)',
+              borderColor: 'var(--border-subtle)',
+            }"
           >
             <!-- Header -->
             <div class="flex items-center gap-3 mb-4">
               <div class="flex-shrink-0">
-                <div class="w-8 h-8 rounded-lg bg-zinc-700/80"></div>
+                <div
+                  class="w-8 h-8 rounded-lg"
+                  :style="{ backgroundColor: 'var(--bg-skeleton)' }"
+                ></div>
               </div>
-              <div class="h-4 bg-zinc-700/80 rounded w-2/3"></div>
+              <div
+                class="h-4 rounded w-2/3"
+                :style="{ backgroundColor: 'var(--bg-skeleton)' }"
+              ></div>
             </div>
 
             <!-- Account Info -->
             <div class="space-y-3 mb-5">
               <div class="flex items-center gap-2">
-                <div class="h-3 bg-zinc-700/60 rounded w-8 flex-shrink-0"></div>
-                <div class="h-4 bg-zinc-700/60 rounded flex-1"></div>
+                <div
+                  class="h-3 rounded w-8 flex-shrink-0"
+                  :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }"
+                ></div>
+                <div
+                  class="h-4 rounded flex-1"
+                  :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }"
+                ></div>
               </div>
               <div class="flex items-center gap-2">
-                <div class="h-3 bg-zinc-700/60 rounded w-8 flex-shrink-0"></div>
-                <div class="h-4 bg-zinc-700/60 rounded flex-1"></div>
+                <div
+                  class="h-3 rounded w-8 flex-shrink-0"
+                  :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }"
+                ></div>
+                <div
+                  class="h-4 rounded flex-1"
+                  :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }"
+                ></div>
               </div>
             </div>
 
             <!-- Action Buttons -->
             <div class="flex gap-2">
-              <div class="flex-1 h-9 rounded bg-zinc-700/80"></div>
-              <div class="flex-1 h-9 rounded bg-zinc-700/80"></div>
+              <div
+                class="flex-1 h-9 rounded"
+                :style="{ backgroundColor: 'var(--bg-skeleton)' }"
+              ></div>
+              <div
+                class="flex-1 h-9 rounded"
+                :style="{ backgroundColor: 'var(--bg-skeleton)' }"
+              ></div>
             </div>
           </div>
         </div>
@@ -164,7 +201,11 @@
           <div
             v-for="(akun, index) in visibleData"
             :key="index"
-            class="rounded-lg border transition-colors bg-zinc-800 border-zinc-700"
+            class="rounded-lg border transition-colors"
+            :style="{
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-primary)',
+            }"
           >
             <div class="p-4">
               <!-- Header -->
@@ -172,11 +213,13 @@
                 <div class="flex-shrink-0">
                   <UserCircle
                     aria-hidden="true"
-                    class="w-8 h-8 p-1.5 rounded-lg text-emerald-400 bg-zinc-700"
+                    class="w-8 h-8 p-1.5 rounded-lg text-emerald-500 dark:text-emerald-400"
+                    :style="{ backgroundColor: 'var(--bg-tertiary)' }"
                   />
                 </div>
                 <h3
-                  class="font-semibold text-base truncate flex-1 text-gray-200"
+                  class="font-semibold text-base truncate flex-1"
+                  :style="{ color: 'var(--text-primary)' }"
                 >
                   {{ akun.nama }}
                 </h3>
@@ -185,14 +228,16 @@
                 <div v-if="isAdmin" class="flex items-center gap-1 shrink-0">
                   <button
                     @click.stop="openEditModal(akun)"
-                    class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-700/60 transition-all"
+                    class="p-1.5 rounded-md hover:text-amber-400 hover:bg-[var(--bg-card-hover)] transition-all"
+                    :style="{ color: 'var(--text-secondary)' }"
                     title="Edit"
                   >
                     <PencilIcon class="w-3.5 h-3.5" />
                   </button>
                   <button
                     @click.stop="handleDelete(akun)"
-                    class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-700/60 transition-all"
+                    class="p-1.5 rounded-md hover:text-red-400 hover:bg-[var(--bg-card-hover)] transition-all"
+                    :style="{ color: 'var(--text-secondary)' }"
                     title="Hapus"
                   >
                     <Trash2 class="w-3.5 h-3.5" />
@@ -203,11 +248,14 @@
               <!-- Account Info -->
               <div class="space-y-2 mb-4">
                 <div class="flex items-center gap-2">
-                  <span class="text-xs w-8 flex-shrink-0 text-gray-400"
+                  <span
+                    class="text-xs w-8 flex-shrink-0"
+                    :style="{ color: 'var(--text-secondary)' }"
                     >User</span
                   >
                   <p
-                    class="text-sm font-mono truncate flex-1 select-all cursor-pointer text-gray-300 hover:text-white"
+                    class="text-sm font-mono truncate flex-1 select-all cursor-pointer"
+                    :style="{ color: 'var(--text-primary)' }"
                     @click="copyToClipboard(akun.username)"
                     title="Klik untuk menyalin username"
                   >
@@ -215,11 +263,14 @@
                   </p>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-xs w-8 flex-shrink-0 text-gray-400"
+                  <span
+                    class="text-xs w-8 flex-shrink-0"
+                    :style="{ color: 'var(--text-secondary)' }"
                     >Pass</span
                   >
                   <p
-                    class="text-sm font-mono truncate flex-1 select-all cursor-pointer text-gray-300 hover:text-white"
+                    class="text-sm font-mono truncate flex-1 select-all cursor-pointer"
+                    :style="{ color: 'var(--text-primary)' }"
                     @click="copyToClipboard(akun.password)"
                     title="Klik untuk menyalin password"
                   >
@@ -231,7 +282,11 @@
               <!-- Action Buttons -->
               <div class="flex gap-1">
                 <button
-                  class="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded text-xs font-medium bg-zinc-700 text-gray-300 hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  :style="{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                  }"
                   :class="{ 'opacity-50': sharingCardId === index }"
                   @click="handleShareAccount(akun, index)"
                   :disabled="sharingCardId === index"

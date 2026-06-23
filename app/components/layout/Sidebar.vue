@@ -10,16 +10,15 @@
 
     <!-- Sidebar -->
     <aside
-      :class="[
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
-        'bg-zinc-950',
-      ]"
+      :class="[isSidebarOpen ? 'translate-x-0' : '-translate-x-full']"
+      :style="{ backgroundColor: 'var(--bg-surface)' }"
       class="fixed left-0 top-0 h-full w-64 z-50 transform transition-transform duration-300 ease-in-out flex flex-col"
     >
       <div class="p-2 pl-4 flex justify-between items-center flex-shrink-0">
         <!-- App Name -->
         <span
-          class="p-3 pt-4 leading-none flex items-center text-sm text-zinc-200"
+          class="p-3 pt-4 leading-none flex items-center text-sm"
+          :style="{ color: 'var(--text-primary)' }"
         >
           {{ appName }}
         </span>
@@ -27,7 +26,8 @@
         <!-- Toggle Button -->
         <button
           @click="toggleAllDropdowns"
-          class="h-10 w-10 flex items-center justify-center rounded-md transition-colors text-zinc-200 hover:bg-zinc-900 hover:text-emerald-400"
+          class="h-10 w-10 flex items-center justify-center rounded-md transition-colors hover:text-emerald-500"
+          :style="{ color: 'var(--text-primary)' }"
           :title="allDropdownsOpen ? 'Tutup Semua Menu' : 'Buka Semua Menu'"
         >
           <FolderOpen v-if="allDropdownsOpen" class="w-6 h-6" />
@@ -67,9 +67,14 @@
                   :class="[
                     'w-full flex items-center px-3 py-2 text-left transition-colors duration-200',
                     isParentActive(menuItem)
-                      ? 'text-emerald-400 bg-zinc-900/50'
-                      : 'text-zinc-200 hover:bg-zinc-900 hover:text-emerald-400',
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'hover:text-emerald-500',
                   ]"
+                  :style="{
+                    color: isParentActive(menuItem)
+                      ? undefined
+                      : 'var(--text-primary)',
+                  }"
                 >
                   <component
                     :is="menuItem.icon"
@@ -165,8 +170,8 @@ const getLinkClass = (toPath, additionalClass = "") => {
   const baseClass =
     "inline-flex items-center px-3 py-2 transition-all duration-300 outline-none focus:outline-none focus:ring-0 focus:outline-none w-full";
   const activeClass = isActiveRoute(toPath)
-    ? "text-emerald-400 bg-zinc-900"
-    : "text-zinc-200 hover:text-emerald-400 hover:bg-zinc-900";
+    ? "text-emerald-600 dark:text-emerald-400"
+    : "theme-text hover:text-emerald-500";
   return `${baseClass} ${activeClass} ${additionalClass}`;
 };
 
@@ -279,17 +284,17 @@ a:focus {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgb(82 82 91);
+  background-color: var(--scrollbar-thumb);
   border-radius: 3px;
 }
 
 .scrollbar-thin:hover::-webkit-scrollbar-thumb {
-  background-color: rgb(113 113 122);
+  background-color: var(--scrollbar-thumb-hover);
 }
 
 /* Fallback untuk Firefox */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: rgb(82 82 91) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 </style>

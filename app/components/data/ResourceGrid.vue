@@ -1,9 +1,16 @@
 <template>
   <div class="page-layout">
     <div
-      class="rounded-lg shadow-sm border overflow-hidden transition-all duration-300 bg-zinc-900 border-zinc-800"
+      class="rounded-lg shadow-sm border overflow-hidden transition-all duration-300"
+      :style="{
+        backgroundColor: 'var(--bg-primary)',
+        borderColor: 'var(--border-primary)',
+      }"
     >
-      <div class="px-6 md:px-8 py-6 transition-all duration-300 bg-zinc-800">
+      <div
+        class="px-6 md:px-8 py-6 transition-all duration-300"
+        :style="{ backgroundColor: 'var(--bg-secondary)' }"
+      >
         <div
           class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
         >
@@ -11,8 +18,14 @@
             class="flex items-center justify-between lg:justify-start gap-3 w-full lg:w-auto"
           >
             <div>
-              <h1 class="text-2xl text-gray-100">{{ title }}</h1>
-              <p v-if="subtitle" class="mt-1 text-sm text-gray-100/80">
+              <h1 class="text-2xl" :style="{ color: 'var(--text-heading)' }">
+                {{ title }}
+              </h1>
+              <p
+                v-if="subtitle"
+                class="mt-1 text-sm"
+                :style="{ color: 'var(--text-secondary)' }"
+              >
                 {{ subtitle }}
               </p>
             </div>
@@ -100,15 +113,26 @@
           <div
             v-for="i in 8"
             :key="i"
-            class="rounded-lg border p-4 bg-zinc-800/30 border-zinc-700/50"
+            class="rounded-lg border p-4"
+            :style="{
+              backgroundColor: 'var(--bg-card-alpha)',
+              borderColor: 'var(--border-subtle)',
+            }"
           >
             <div class="flex items-center justify-between gap-3">
               <div class="flex-1 space-y-2.5">
-                <div class="h-4 bg-zinc-700/70 rounded w-3/4"></div>
-                <div class="h-3 bg-zinc-700/50 rounded w-1/2"></div>
+                <div
+                  class="h-4 rounded w-3/4"
+                  :style="{ backgroundColor: 'var(--bg-skeleton)' }"
+                ></div>
+                <div
+                  class="h-3 rounded w-1/2"
+                  :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }"
+                ></div>
               </div>
               <div
-                class="w-7 h-7 rounded-lg bg-zinc-700/70 flex-shrink-0"
+                class="w-7 h-7 rounded-lg flex-shrink-0"
+                :style="{ backgroundColor: 'var(--bg-skeleton)' }"
               ></div>
             </div>
           </div>
@@ -116,7 +140,8 @@
         <div v-else-if="sortedData.length === 0" class="text-center py-12">
           <slot name="empty-state">
             <svg
-              class="w-16 h-16 mx-auto mb-4 transition-colors duration-300 text-zinc-600"
+              class="w-16 h-16 mx-auto mb-4 transition-colors duration-300"
+              :style="{ color: 'var(--text-faint)' }"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -129,7 +154,10 @@
               />
             </svg>
           </slot>
-          <p class="transition-colors duration-300 text-zinc-400">
+          <p
+            class="transition-colors duration-300"
+            :style="{ color: 'var(--text-secondary)' }"
+          >
             {{ emptyMessage }}
           </p>
         </div>
@@ -139,7 +167,11 @@
             <slot name="card" :item="item" :index="index">
               <li>
                 <div
-                  class="block rounded-lg border p-4 transition-colors duration-150 bg-zinc-800/30 border-zinc-700/50 hover:bg-zinc-700/50"
+                  class="block rounded-lg border p-4 transition-colors duration-150"
+                  :style="{
+                    backgroundColor: 'var(--bg-card-alpha)',
+                    borderColor: 'var(--border-subtle)',
+                  }"
                 >
                   <div class="flex items-center justify-between gap-3">
                     <a
@@ -148,10 +180,16 @@
                       rel="noopener noreferrer"
                       class="flex-1 min-w-0 no-underline"
                     >
-                      <h3 class="font-medium text-base mb-1 text-zinc-100">
+                      <h3
+                        class="font-medium text-base mb-1"
+                        :style="{ color: 'var(--text-primary)' }"
+                      >
                         {{ item.title }}
                       </h3>
-                      <p class="text-sm truncate text-zinc-400">
+                      <p
+                        class="text-sm truncate"
+                        :style="{ color: 'var(--text-secondary)' }"
+                      >
                         {{ item.description || item.link }}
                       </p>
                     </a>
@@ -161,14 +199,16 @@
                       <template v-if="isAdmin">
                         <button
                           @click.stop="openEditModal(item)"
-                          class="p-1.5 rounded-lg transition-colors hover:bg-zinc-700/50 text-zinc-400 hover:text-amber-400"
+                          class="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-card-hover)]"
+                          :style="{ color: 'var(--text-secondary)' }"
                           title="Edit"
                         >
                           <PencilIcon class="w-4 h-4" />
                         </button>
                         <button
                           @click.stop="handleDelete(item)"
-                          class="p-1.5 rounded-lg transition-colors hover:bg-zinc-700/50 text-zinc-400 hover:text-red-400"
+                          class="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-card-hover)]"
+                          :style="{ color: 'var(--text-secondary)' }"
                           title="Hapus"
                         >
                           <Trash2 class="w-4 h-4" />
@@ -177,7 +217,8 @@
 
                       <button
                         @click.prevent="copyLink(item.link)"
-                        class="p-1.5 rounded-lg transition-colors hover:bg-zinc-700/50 text-zinc-400 hover:text-emerald-400"
+                        class="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-card-hover)]"
+                        :style="{ color: 'var(--text-secondary)' }"
                         title="Salin Link"
                       >
                         <ExternalLink class="w-4 h-4" />

@@ -462,8 +462,16 @@ const getStepLineColor = (stepNumber) => {
   return "bg-zinc-600";
 };
 
+const route = useRoute();
+const router = useRouter();
+
+// Computed step state linked to route query parameter 'step'
+const currentStep = computed(() => {
+  const step = parseInt(route.query.step);
+  return step >= 1 && step <= 3 ? step : 1;
+});
+
 // Local reactive state
-const currentStep = ref(1);
 const selectedSurat = ref("");
 const searchQuery = ref("");
 
@@ -497,13 +505,13 @@ const selectSurat = (suratName) => {
 
 const nextStep = () => {
   if (currentStep.value < 3) {
-    currentStep.value++;
+    router.push({ query: { ...route.query, step: currentStep.value + 1 } });
   }
 };
 
 const previousStep = () => {
   if (currentStep.value > 1) {
-    currentStep.value--;
+    router.push({ query: { ...route.query, step: currentStep.value - 1 } });
   }
 };
 
@@ -520,11 +528,11 @@ const handleStartGeneration = async () => {
 };
 
 const resetProcess = () => {
-  currentStep.value = 1;
   selectedSurat.value = "";
   searchQuery.value = "";
   removeFile();
   resetGeneration();
+  router.push({ query: { ...route.query, step: 1 } });
 };
 
 // Lifecycle

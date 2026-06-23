@@ -1,6 +1,7 @@
 <template>
   <section
-    class="min-h-screen flex items-center justify-center bg-zinc-950 relative overflow-hidden"
+    class="min-h-screen flex items-center justify-center relative overflow-hidden"
+    :style="{ backgroundColor: 'var(--bg-surface)' }"
   >
     <!-- Decorative background elements removed to avoid blur -->
 
@@ -9,12 +10,17 @@
         <!-- Glow wrapper removed to avoid blur -->
 
         <div
-          class="card rounded-2xl p-6 sm:p-8 border bg-zinc-900 border-zinc-800/80 shadow-2xl transition-all duration-300 relative overflow-hidden"
+          class="card rounded-2xl p-6 sm:p-8 border shadow-2xl transition-all duration-300 relative overflow-hidden"
+          :style="{
+            backgroundColor: 'var(--bg-primary)',
+            borderColor: 'var(--border-primary)',
+          }"
         >
           <div class="flex flex-col items-stretch gap-6">
             <div class="text-center sm:text-left">
               <h1
-                class="text-2xl sm:text-3xl font-semibold tracking-tight text-white flex items-baseline justify-center sm:justify-start"
+                class="text-2xl sm:text-3xl font-semibold tracking-tight flex items-baseline justify-center sm:justify-start"
+                :style="{ color: 'var(--text-heading)' }"
               >
                 {{ appName }}
               </h1>
@@ -34,11 +40,20 @@
                   v-model="email"
                   placeholder=" "
                   required
-                  class="peer w-full h-11 px-3.5 pt-4 pb-1 rounded-lg border bg-zinc-800/20 text-white placeholder-transparent border-zinc-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all duration-300 text-sm"
+                  class="peer w-full h-11 px-3.5 pt-4 pb-1 rounded-lg border placeholder-transparent focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all duration-300 text-sm"
+                  :style="{
+                    backgroundColor: 'var(--bg-input-alpha)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-primary)',
+                  }"
                 />
                 <label
                   for="email"
-                  class="absolute left-3.5 top-2 text-sm text-zinc-500 pointer-events-none transition-all duration-200 origin-left -translate-y-4 scale-75 z-10 px-1 bg-zinc-900 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-zinc-500 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-emerald-400"
+                  class="absolute left-3.5 top-2 text-sm pointer-events-none transition-all duration-200 origin-left -translate-y-4 scale-75 z-10 px-1 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-emerald-500 dark:peer-focus:text-emerald-400"
+                  :style="{
+                    color: 'var(--text-muted)',
+                    backgroundColor: 'var(--bg-primary)',
+                  }"
                 >
                   Username
                 </label>
@@ -52,11 +67,20 @@
                   v-model="password"
                   placeholder=" "
                   required
-                  class="peer w-full h-11 px-3.5 pt-4 pb-1 pr-10 rounded-lg border bg-zinc-800/20 text-white placeholder-transparent border-zinc-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all duration-300 text-sm"
+                  class="peer w-full h-11 px-3.5 pt-4 pb-1 pr-10 rounded-lg border placeholder-transparent focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all duration-300 text-sm"
+                  :style="{
+                    backgroundColor: 'var(--bg-input-alpha)',
+                    color: 'var(--text-primary)',
+                    borderColor: 'var(--border-primary)',
+                  }"
                 />
                 <label
                   for="password"
-                  class="absolute left-3.5 top-2 text-sm text-zinc-500 pointer-events-none transition-all duration-200 origin-left -translate-y-4 scale-75 z-10 px-1 bg-zinc-900 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-zinc-500 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-emerald-400"
+                  class="absolute left-3.5 top-2 text-sm pointer-events-none transition-all duration-200 origin-left -translate-y-4 scale-75 z-10 px-1 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-emerald-500 dark:peer-focus:text-emerald-400"
+                  :style="{
+                    color: 'var(--text-muted)',
+                    backgroundColor: 'var(--bg-primary)',
+                  }"
                 >
                   Password
                 </label>
@@ -68,11 +92,13 @@
                 >
                   <IconEye
                     v-if="!showPassword"
-                    class="h-4 w-4 text-zinc-400 hover:text-emerald-400 peer-focus:text-emerald-400 transition-colors duration-300"
+                    class="h-4 w-4 transition-colors duration-300"
+                    :style="{ color: 'var(--text-secondary)' }"
                   />
                   <IconEyeSlash
                     v-else
-                    class="h-4 w-4 text-zinc-400 hover:text-emerald-400 peer-focus:text-emerald-400 transition-colors duration-300"
+                    class="h-4 w-4 transition-colors duration-300"
+                    :style="{ color: 'var(--text-secondary)' }"
                   />
                 </button>
               </div>
@@ -113,12 +139,19 @@
 
               <!-- Divider -->
               <div class="relative flex py-1 items-center">
-                <div class="flex-grow border-t border-zinc-800/80"></div>
+                <div
+                  class="flex-grow border-t"
+                  :style="{ borderColor: 'var(--border-primary)' }"
+                ></div>
                 <span
-                  class="flex-shrink mx-3 text-zinc-600 text-[10px] uppercase font-bold tracking-wider"
+                  class="flex-shrink mx-3 text-[10px] uppercase font-bold tracking-wider"
+                  :style="{ color: 'var(--text-faint)' }"
                   >Atau</span
                 >
-                <div class="flex-grow border-t border-zinc-800/80"></div>
+                <div
+                  class="flex-grow border-t"
+                  :style="{ borderColor: 'var(--border-primary)' }"
+                ></div>
               </div>
 
               <!-- Barcode Login Trigger -->
@@ -126,9 +159,16 @@
                 <button
                   type="button"
                   @click="openScanModal"
-                  class="w-full h-11 rounded-lg border border-zinc-800/80 hover:border-zinc-700 bg-zinc-900 hover:bg-zinc-850 text-sm font-semibold text-zinc-300 hover:text-white transition-all duration-300 flex items-center justify-center cursor-pointer gap-2"
+                  class="w-full h-11 rounded-lg border text-sm font-semibold transition-all duration-300 flex items-center justify-center cursor-pointer gap-2"
+                  :style="{
+                    borderColor: 'var(--border-primary)',
+                    backgroundColor: 'var(--bg-primary)',
+                    color: 'var(--text-primary)',
+                  }"
                 >
-                  <ScanBarcode class="w-4 h-4 text-emerald-400" />
+                  <ScanBarcode
+                    class="w-4 h-4 text-emerald-600 dark:text-emerald-400"
+                  />
                   Scan Barcode / QR
                 </button>
               </div>
@@ -144,20 +184,31 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
     >
       <div
-        class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]"
+        class="border rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]"
+        :style="{
+          backgroundColor: 'var(--bg-primary)',
+          borderColor: 'var(--border-primary)',
+        }"
       >
         <!-- Modal Header -->
         <div
-          class="flex items-center justify-between p-4 border-b border-zinc-800/80"
+          class="flex items-center justify-between p-4 border-b"
+          :style="{ borderColor: 'var(--border-primary)' }"
         >
-          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
-            <ScanBarcode class="w-4 h-4 text-emerald-400" />
+          <h3
+            class="text-sm font-semibold flex items-center gap-2"
+            :style="{ color: 'var(--text-primary)' }"
+          >
+            <ScanBarcode
+              class="w-4 h-4 text-emerald-600 dark:text-emerald-400"
+            />
             Masuk dengan Barcode / QR
           </h3>
           <button
             type="button"
             @click="closeScanModal"
-            class="text-zinc-400 hover:text-white focus:outline-none cursor-pointer"
+            class="focus:outline-none cursor-pointer"
+            :style="{ color: 'var(--text-secondary)' }"
           >
             <X class="w-4 h-4" />
           </button>
@@ -166,11 +217,18 @@
         <!-- Modal Content -->
         <div class="p-5 flex flex-col gap-4 items-center justify-center">
           <div
-            class="relative w-full max-w-[280px] aspect-square overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950"
+            class="relative w-full max-w-[280px] aspect-square overflow-hidden rounded-xl border"
+            :style="{
+              borderColor: 'var(--border-primary)',
+              backgroundColor: 'var(--bg-surface)',
+            }"
           >
             <div id="reader" class="w-full h-full"></div>
           </div>
-          <p class="text-[11px] text-zinc-500 text-center px-2">
+          <p
+            class="text-[11px] text-center px-2"
+            :style="{ color: 'var(--text-muted)' }"
+          >
             Posisikan QR code / barcode di depan kamera.
           </p>
         </div>

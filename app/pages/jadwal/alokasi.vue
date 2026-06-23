@@ -155,9 +155,7 @@
                         <span
                           class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-400 font-mono"
                         >
-                          {{
-                            getKurikulumForCell(subjectName, k).alokasi_jam
-                          }}
+                          {{ getKurikulumForCell(subjectName, k).alokasi_jam }}
                           JP
                         </span>
                       </div>

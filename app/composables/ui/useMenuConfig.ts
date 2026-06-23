@@ -63,8 +63,8 @@ export const useMenuConfig = () => {
       icon: markRaw(GraduationCap),
       roles: ["admin", "guru"],
       children: [
-        { to: "/akademik/siswa", label: "Siswa", roles: ["admin", "guru"] },
         { to: "/akademik/gtk", label: "Guru Tendik", roles: ["admin"] },
+        { to: "/akademik/siswa", label: "Siswa", roles: ["admin", "guru"] },
         {
           to: "/akademik/rombel",
           label: "Rombel",

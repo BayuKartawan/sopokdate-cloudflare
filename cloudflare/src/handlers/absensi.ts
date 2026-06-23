@@ -1,5 +1,5 @@
 // handlers/absensi.ts
-import { jsonResponse, errorResponse } from "../utils";
+import { jsonResponse, errorResponse, getCurrentAcademicYear } from "../utils";
 import type { Env } from "../types";
 
 // ---------------------------------------------------------------------------
@@ -18,6 +18,7 @@ export async function handleGetAbsensi(
   }
 
   try {
+    const tapel = getCurrentAcademicYear(tanggal);
     const query = `
       SELECT 
         s.id as siswa_id, 
@@ -26,20 +27,23 @@ export async function handleGetAbsensi(
         s.nis_lokal,
         a.status, 
         a.keterangan
-      FROM data_siswa s
+      FROM riwayat_kelas_siswa r
+      INNER JOIN data_siswa s ON r.siswa_id = s.id
       LEFT JOIN absensi_siswa a 
         ON s.id = a.siswa_id AND a.tanggal = ?1
-      WHERE s.kelas = ?2
+      WHERE r.kelas_id = ?2 AND r.tahun_pelajaran = ?3
       ORDER BY s.nama ASC;
     `;
-    const result = await env.DB.prepare(query).bind(tanggal, kelasId).all<{
-      siswa_id: number;
-      nama: string;
-      nisn: string | null;
-      nis_lokal: string | null;
-      status: string | null;
-      keterangan: string | null;
-    }>();
+    const result = await env.DB.prepare(query)
+      .bind(tanggal, kelasId, tapel)
+      .all<{
+        siswa_id: number;
+        nama: string;
+        nisn: string | null;
+        nis_lokal: string | null;
+        status: string | null;
+        keterangan: string | null;
+      }>();
     return jsonResponse(result.results);
   } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
@@ -163,12 +167,13 @@ export async function handleGetAbsensiRekap(
         SUM(CASE WHEN a.status = 'I' THEN 1 ELSE 0 END) as total_izin,
         SUM(CASE WHEN a.status = 'A' THEN 1 ELSE 0 END) as total_alpa,
         COUNT(a.id) as total_hari_efektif
-      FROM data_siswa s
+      FROM riwayat_kelas_siswa r
+      INNER JOIN data_siswa s ON r.siswa_id = s.id
       LEFT JOIN absensi_siswa a ON s.id = a.siswa_id
-        AND a.kelas_id = ?1 
-        AND a.tahun_pelajaran = ?2 
+        AND a.kelas_id = r.kelas_id
+        AND a.tahun_pelajaran = r.tahun_pelajaran 
         AND a.semester = ?3
-      WHERE s.kelas = ?1
+      WHERE r.kelas_id = ?1 AND r.tahun_pelajaran = ?2
       GROUP BY s.id, s.nama, s.nisn, s.nis_lokal
       ORDER BY s.nama ASC;
     `;

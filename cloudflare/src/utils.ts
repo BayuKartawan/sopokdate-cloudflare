@@ -44,3 +44,32 @@ export function toSnakeCase(str?: string | null): string {
     .replace(/[\s-]+/g, "_")
     .toLowerCase();
 }
+
+/**
+ * Menghitung Tahun Pelajaran berdasarkan tanggal tertentu (Format: "YYYY/YYYY+1")
+ * Tahun Pelajaran baru dimulai per 1 Juli (reset)
+ */
+export function getCurrentAcademicYear(dateStr?: string): string {
+  // Gunakan waktu WITA (UTC+8) agar sinkron dengan client
+  const nowUtc = dateStr ? new Date(dateStr) : new Date();
+  const witaTime = new Date(nowUtc.getTime() + 8 * 60 * 60 * 1000);
+  const year = witaTime.getUTCFullYear();
+  const month = witaTime.getUTCMonth() + 1; // 1-12
+
+  if (month >= 7 && month <= 12) {
+    return `${year}/${year + 1}`;
+  } else {
+    return `${year - 1}/${year}`;
+  }
+}
+
+/**
+ * Mendapatkan tahun pelajaran berikutnya
+ */
+export function getNextAcademicYear(currentYearStr: string): string {
+  const parts = currentYearStr.split("/");
+  if (parts.length !== 2) return currentYearStr;
+  const start = parseInt(parts[0]) + 1;
+  const end = parseInt(parts[1]) + 1;
+  return `${start}/${end}`;
+}
