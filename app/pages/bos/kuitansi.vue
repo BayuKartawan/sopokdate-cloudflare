@@ -7,12 +7,8 @@
       </p>
     </div>
 
-    <div
-      class="rounded-xl border overflow-hidden mb-8 bg-zinc-900 border-zinc-700"
-    >
-      <div
-        class="px-6 py-3 border-b font-semibold text-sm bg-zinc-800 border-zinc-700 text-zinc-200"
-      >
+    <div class="rounded-xl border overflow-hidden mb-8 bg-zinc-900 border-zinc-700">
+      <div class="px-6 py-3 border-b font-semibold text-sm bg-zinc-800 border-zinc-700 text-zinc-200">
         Formulir Kwitansi
       </div>
       <div class="p-6 space-y-5">
@@ -27,48 +23,28 @@
         </div>
         <div>
           <label :class="labelClass">Nomor Kwitansi</label>
-          <input
-            v-model="form.noKwitansi"
-            type="text"
-            placeholder="Nomor kwitansi (opsional)"
-            :class="inputClass"
-          />
+          <input v-model="form.noKwitansi" type="text" placeholder="Nomor kwitansi (opsional)" :class="inputClass" />
         </div>
         <div>
           <label :class="labelClass">Telah Diterima Dari</label>
-          <input
-            v-model="form.diterimaDari"
-            type="text"
-            placeholder="Nama instansi / pihak pemberi"
-            :class="inputClass"
-          />
+          <input v-model="form.diterimaDari" type="text" placeholder="Nama instansi / pihak pemberi"
+            :class="inputClass" />
         </div>
         <div>
           <label :class="labelClass">Nominal (Rp)</label>
-          <input
-            v-model="form.nominal"
-            type="text"
-            placeholder="0"
-            @input="formatNominal"
-            :class="[...inputClass, 'monospace']"
-          />
+          <input v-model="form.nominal" type="text" placeholder="0" @input="formatNominal"
+            :class="[...inputClass, 'monospace']" />
         </div>
         <div>
           <label :class="labelClass">Terbilang</label>
-          <div
-            class="w-full rounded-lg border px-3 py-2.5 text-sm italic bg-zinc-800/50 border-zinc-700 text-zinc-300"
-          >
+          <div class="w-full rounded-lg border px-3 py-2.5 text-sm italic bg-zinc-800/50 border-zinc-700 text-zinc-300">
             {{ terbilang || "-" }}
           </div>
         </div>
         <div>
           <label :class="labelClass">Untuk Pembayaran</label>
-          <textarea
-            v-model="form.untukPembayaran"
-            rows="3"
-            placeholder="Uraian pembayaran / pembelian barang"
-            :class="[...inputClass, 'resize-none']"
-          ></textarea>
+          <textarea v-model="form.untukPembayaran" rows="3" placeholder="Uraian pembayaran / pembelian barang"
+            :class="[...inputClass, 'resize-none']"></textarea>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -77,19 +53,12 @@
           </div>
           <div>
             <label :class="labelClass">Nama Penerima</label>
-            <input
-              v-model="form.namaPenerima"
-              type="text"
-              placeholder="Nama penerima pembayaran"
-              :class="inputClass"
-            />
+            <input v-model="form.namaPenerima" type="text" placeholder="Nama penerima pembayaran" :class="inputClass" />
           </div>
         </div>
         <div class="flex justify-end pt-2">
-          <button
-            @click="handlePrint"
-            class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white"
-          >
+          <button @click="handlePrint"
+            class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white">
             <PrinterIcon class="w-4 h-4" /> Cetak
           </button>
         </div>
@@ -99,8 +68,7 @@
     <!-- Preview -->
     <div class="rounded-xl border overflow-hidden bg-zinc-900 border-zinc-700">
       <div
-        class="px-6 py-3 border-b font-semibold text-sm flex justify-between bg-zinc-800 border-zinc-700 text-zinc-200"
-      >
+        class="px-6 py-3 border-b font-semibold text-sm flex justify-between bg-zinc-800 border-zinc-700 text-zinc-200">
         <span>Preview Kwitansi</span>
         <span class="text-xs font-normal text-zinc-400">A4</span>
       </div>
@@ -132,10 +100,8 @@
                 <td class="py-1.5">Uang sejumlah</td>
                 <td class="py-1.5">:</td>
                 <td class="py-1.5">
-                  <div
-                    class="border border-black px-3 py-2 italic font-semibold text-[11pt]"
-                    style="background: #f9f9f9"
-                  >
+                  <div class="border border-black px-3 py-2 italic font-semibold text-[11pt]"
+                    style="background: #f9f9f9">
                     {{ terbilang || "..........................." }}
                   </div>
                 </td>
@@ -152,9 +118,7 @@
 
           <!-- Nominal Besar -->
           <div class="mt-6 flex justify-end">
-            <div
-              class="border-2 border-black px-6 py-3 text-[14pt] font-bold monospace"
-            >
+            <div class="border-2 border-black px-6 py-3 text-[14pt] font-bold monospace">
               Rp {{ form.nominal || "0" }}
             </div>
           </div>
@@ -187,9 +151,8 @@
 </template>
 
 <script setup>
-import { Printer as PrinterIcon } from "lucide-vue-next";
-
 import { ref, computed } from "vue";
+import { Printer as PrinterIcon } from "lucide-vue-next";
 import KopSurat from "~/components/document/KopSurat.vue";
 
 const bulanList = [
@@ -299,9 +262,140 @@ const formatTanggal = (d) => {
 const handlePrint = () => {
   if (!printArea.value) return;
   const w = window.open("", "_blank");
-  w.document.write(
-    `<!DOCTYPE html><html><head><title>Kwitansi ${form.value.noKwitansi || ""}</title><style>@page{size:A4;margin:0}*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.6;color:#000;background:#fff}.print-page{width:210mm;min-height:297mm;padding:20mm 25mm;margin:0 auto}.monospace{font-family:monospace}.font-bold{font-weight:bold}.font-semibold{font-weight:600}.italic{font-style:italic}.underline{text-decoration:underline}.text-center{text-align:center}.text-right{text-align:right}table{width:100%;border-collapse:collapse}td{padding:2px 0;vertical-align:top}.flex{display:flex}.justify-between{justify-content:space-between}.justify-end{justify-content:flex-end}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.mb-6{margin-bottom:1.5rem}.py-1\\.5{padding:.375rem 0}.w-full{width:100%}.tracking-wide{letter-spacing:.05em}.border{border:1px solid #000}.border-2{border:2px solid #000}.px-3{padding-left:.75rem;padding-right:.75rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><div class="print-page">${printArea.value.innerHTML}</div></body></html>`,
-  );
+  
+  // Ambil semua style dan stylesheet dari dokumen utama agar Tailwind terapan sempurna
+  const styles = Array.from(document.querySelectorAll("link[rel='stylesheet'], style"))
+    .map(style => style.outerHTML)
+    .join("\n");
+
+  w.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <title>Kwitansi ${form.value.noKwitansi || ""}</title>
+  <base href="${window.location.origin}/">
+  ${styles}
+  <style>
+    /* Batalkan efek penyembunyian dari print.css */
+    body, body * {
+      visibility: visible !important;
+    }
+    @page {
+      size: A4;
+      margin: 0;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #000 !important;
+      background: #fff !important;
+    }
+    .print-page {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 20mm 15mm;
+      margin: 0 auto;
+      background: #fff !important;
+      color: #000 !important;
+    }
+    .monospace {
+      font-family: monospace;
+    }
+    .font-bold {
+      font-weight: bold;
+    }
+    .font-semibold {
+      font-weight: 600;
+    }
+    .italic {
+      font-style: italic;
+    }
+    .underline {
+      text-decoration: underline;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .text-right {
+      text-align: right;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    td {
+      padding: 2px 0;
+      vertical-align: top;
+    }
+    .flex {
+      display: flex;
+    }
+    .justify-between {
+      justify-content: space-between;
+    }
+    .justify-end {
+      justify-content: flex-end;
+    }
+    .mt-4 {
+      margin-top: 1rem;
+    }
+    .mt-6 {
+      margin-top: 1.5rem;
+    }
+    .mt-8 {
+      margin-top: 2rem;
+    }
+    .mb-6 {
+      margin-bottom: 1.5rem;
+    }
+    .py-1\\.5 {
+      padding: .375rem 0;
+    }
+    .w-full {
+      width: 100%;
+    }
+    .tracking-wide {
+      letter-spacing: .05em;
+    }
+    .border {
+      border: 1px solid #000;
+    }
+    .border-2 {
+      border: 2px solid #000;
+    }
+    .px-3 {
+      padding-left: .75rem;
+      padding-right: .75rem;
+    }
+    .px-6 {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+    .py-2 {
+      padding-top: .5rem;
+      padding-bottom: .5rem;
+    }
+    .py-3 {
+      padding-top: .75rem;
+      padding-bottom: .75rem;
+    }
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="print-page">${printArea.value.innerHTML}</div>
+</body>
+</html>`);
   w.document.close();
   w.focus();
   setTimeout(() => {
@@ -315,7 +409,7 @@ const handlePrint = () => {
 .print-page {
   width: 210mm;
   min-height: 297mm;
-  padding: 20mm 25mm;
+  padding: 20mm 15mm;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11pt;
   line-height: 1.6;

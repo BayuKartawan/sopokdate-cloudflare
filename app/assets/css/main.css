@@ -199,3 +199,30 @@
     color: var(--text-muted);
   }
 }
+
+/* ============================================
+   PWA & Safe Area Layout Customization
+   ============================================ */
+
+/* Safe area support on main navigation bar */
+header {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (min-width: 1024px) {
+  header {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: 0px;
+  }
+}
+
+/* Safe area support for main content area layout */
+.safe-area-main {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+@media (min-width: 1024px) {
+  .safe-area-main {
+    padding-top: calc(4rem + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: 0px !important;
+  }
+}

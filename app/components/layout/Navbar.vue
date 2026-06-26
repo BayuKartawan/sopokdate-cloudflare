@@ -18,18 +18,21 @@
         <!-- Sidebar Toggle Component (Inlined) -->
         <button
           @click="toggleSidebar"
-          class="p-2 rounded-lg transition-all duration-300 hover:bg-[var(--bg-tertiary)]"
+          class="flex flex-col items-center justify-center p-1 sm:p-2 rounded-lg transition-all duration-300 hover:bg-[var(--bg-tertiary)] min-w-[3.5rem] lg:min-w-0"
           :style="{ color: 'var(--text-primary)' }"
           :aria-label="isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'"
         >
           <Menu
             v-if="!isSidebarOpen"
-            class="transform transition-all duration-300 hover:translate-x-0.5"
+            class="w-5 h-5 lg:w-6 lg:h-6 transform transition-all duration-300 hover:translate-x-0.5"
           />
           <X
             v-if="isSidebarOpen"
-            class="transform transition-all duration-300 hover:rotate-90"
+            class="w-5 h-5 lg:w-6 lg:h-6 transform transition-all duration-300 hover:rotate-90"
           />
+          <span class="text-[10px] leading-none mt-1 font-semibold lg:hidden">
+            {{ isSidebarOpen ? 'Tutup' : 'Menu' }}
+          </span>
         </button>
 
         <!-- Theme Toggle -->
@@ -57,13 +60,14 @@
           <!-- User Avatar/Icon Button -->
           <button
             @click="toggleUserDropdown"
-            class="flex items-center justify-center p-2 rounded-lg transition-all duration-300 hover:bg-[var(--bg-tertiary)]"
+            class="flex flex-col items-center justify-center p-1 sm:p-2 rounded-lg transition-all duration-300 hover:bg-[var(--bg-tertiary)] min-w-[3.5rem] lg:min-w-0"
             :class="{ 'bg-[var(--bg-tertiary)]': isUserDropdownOpen }"
             :style="{ color: 'var(--text-primary)' }"
             aria-label="User Menu"
           >
             <!-- User Icon -->
-            <UserCircle />
+            <UserCircle class="w-5 h-5 lg:w-6 lg:h-6" />
+            <span class="text-[10px] leading-none mt-1 font-semibold lg:hidden">Akun</span>
           </button>
 
           <!-- Dropdown Menu -->

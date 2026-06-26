@@ -10,14 +10,17 @@
         class="transition-all duration-300"
       />
 
-      <!-- Sidebar -->
-      <Sidebar :isSidebarOpen="isSidebarOpen" @closeSidebar="closeSidebar" />
+      <!-- Sidebar (Desktop) -->
+      <Sidebar v-if="!isMobileView" :isSidebarOpen="isSidebarOpen" @closeSidebar="closeSidebar" />
+
+      <!-- Mobile Menu Modal (Mobile) -->
+      <MobileMenuModal v-else :isOpen="isSidebarOpen" @close="closeSidebar" />
     </template>
 
     <!-- Main content -->
     <main
       :class="[
-        isLoggedIn ? 'pt-0 pb-16 lg:pt-16 lg:pb-0' : '',
+        isLoggedIn ? 'pt-0 pb-16 lg:pt-16 lg:pb-0 safe-area-main' : '',
         {
           'lg:pl-64': isSidebarOpen && !isMobileView && isLoggedIn,
         },
@@ -41,6 +44,7 @@ import { useAuth } from "~/composables/auth/useAuth";
 
 import Navbar from "~/components/layout/Navbar.vue";
 import Sidebar from "~/components/layout/Sidebar.vue";
+import MobileMenuModal from "~/components/layout/MobileMenuModal.vue";
 import Footer from "~/components/layout/Footer.vue";
 
 const router = useRouter();

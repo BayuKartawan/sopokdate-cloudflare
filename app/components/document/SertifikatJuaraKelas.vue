@@ -4,7 +4,7 @@
     class="w-[297mm] h-[210mm] py-32 px-34 text-black font-arial text-center blangko"
   >
     <!-- kop surat -->
-    <KopSurat />
+    <KopSertifikat />
 
     <!-- BODY -->
     <div class="mt-3">
@@ -90,7 +90,7 @@
 
 <script setup>
 import QrcodeVue from "qrcode.vue";
-import KopSurat from "./KopSurat.vue";
+import KopSertifikat from "./KopSertifikat.vue";
 import { useAcademicYear } from "~/composables/utils/useAcademicYear";
 import { ref, computed, onMounted } from "vue";
 import { formatTanggalIndo } from "~/utils/date";
