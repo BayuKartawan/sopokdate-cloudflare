@@ -7,9 +7,10 @@
       >
         <div>
           <h2
-            class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+            class="text-xl sm:text-2xl font-bold flex items-center gap-2"
+            :style="{ color: 'var(--text-heading)' }"
           >
-            <ClipboardList class="w-7 h-7 text-emerald-400" />
+            <ClipboardList class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             Rekap Absensi Siswa
           </h2>
           <p class="text-sm text-zinc-400 mt-1">
@@ -190,7 +191,7 @@
           <select
             v-model="selectedClass"
             :disabled="isLoading || isWaliKelas"
-            class="h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+            class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <option value="" disabled>-- Pilih Kelas --</option>
             <option
@@ -211,7 +212,7 @@
           <select
             v-model="selectedTapel"
             :disabled="isLoading"
-            class="h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
+            class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
           >
             <option v-for="opt in tapelOptions" :key="opt" :value="opt">
               {{ opt }}
@@ -225,7 +226,7 @@
           <select
             v-model="selectedSemester"
             :disabled="isLoading"
-            class="h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
+            class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
           >
             <option value="Ganjil">Ganjil</option>
             <option value="Genap">Genap</option>
@@ -248,7 +249,7 @@
         <!-- Empty State (No Class Selected) -->
         <div v-else-if="!selectedClass" class="text-center py-16 px-4">
           <ClipboardList
-            class="w-16 h-16 text-zinc-600 mx-auto mb-3"
+            class="w-16 h-16 text-zinc-500 mx-auto mb-3"
             stroke-width="1.5"
           />
           <p class="text-zinc-400 font-semibold text-lg">Kelas belum dipilih</p>
@@ -261,7 +262,7 @@
         <!-- Empty State (No Rekap Data) -->
         <div v-else-if="rekapData.length === 0" class="text-center py-16 px-4">
           <Users
-            class="w-16 h-16 text-zinc-600 mx-auto mb-3"
+            class="w-16 h-16 text-zinc-500 mx-auto mb-3"
             stroke-width="1.5"
           />
           <p class="text-zinc-400 font-semibold text-lg">Tidak ada data</p>
@@ -284,7 +285,7 @@
                   <th class="py-4 px-4" rowspan="2">Nama Siswa</th>
                   <th class="py-4 px-4 w-28 text-center" rowspan="2">NISN</th>
                   <th
-                    class="py-2 px-4 text-center border-b border-zinc-800"
+                    class="py-2 px-4 text-center border-b border-zinc-700/40"
                     colspan="4"
                   >
                     Kehadiran (Hari)
@@ -299,14 +300,14 @@
                 <tr
                   class="bg-zinc-800/20 border-b border-zinc-700/50 text-zinc-400 text-[10px]"
                 >
-                  <th class="py-2 px-2 text-center w-12 text-emerald-400">
+                  <th class="py-2 px-2 text-center w-12 text-emerald-600 dark:text-emerald-400">
                     Hadir
                   </th>
-                  <th class="py-2 px-2 text-center w-12 text-amber-400">
+                  <th class="py-2 px-2 text-center w-12 text-amber-600 dark:text-amber-400">
                     Sakit
                   </th>
-                  <th class="py-2 px-2 text-center w-12 text-blue-400">Izin</th>
-                  <th class="py-2 px-2 text-center w-12 text-red-400">Alpa</th>
+                  <th class="py-2 px-2 text-center w-12 text-blue-600 dark:text-blue-400">Izin</th>
+                  <th class="py-2 px-2 text-center w-12 text-red-600 dark:text-red-400">Alpa</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-zinc-800/60 text-zinc-300">
@@ -325,17 +326,17 @@
                     {{ siswa.nisn || "-" }}
                   </td>
                   <td
-                    class="py-4 px-2 text-center text-emerald-400 font-bold bg-emerald-500/[0.02]"
+                    class="py-4 px-2 text-center text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/[0.06] dark:bg-emerald-500/[0.02]"
                   >
                     {{ siswa.total_hadir }}
                   </td>
-                  <td class="py-4 px-2 text-center text-amber-400">
+                  <td class="py-4 px-2 text-center text-amber-600 dark:text-amber-400">
                     {{ siswa.total_sakit }}
                   </td>
-                  <td class="py-4 px-2 text-center text-blue-400">
+                  <td class="py-4 px-2 text-center text-blue-600 dark:text-blue-400">
                     {{ siswa.total_izin }}
                   </td>
-                  <td class="py-4 px-2 text-center text-red-400">
+                  <td class="py-4 px-2 text-center text-red-600 dark:text-red-400">
                     {{ siswa.total_alpa }}
                   </td>
                   <td class="py-4 px-4 text-center text-zinc-300 font-bold">
@@ -350,15 +351,15 @@
                             siswa.total_hari_efektif,
                           ),
                         ) >= 90
-                          ? 'text-emerald-400 bg-emerald-950/30 border-emerald-800/30'
+                          ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-950/30 border-emerald-500/20 dark:border-emerald-800/30'
                           : parseFloat(
                                 hitungPersentase(
                                   siswa.total_hadir,
                                   siswa.total_hari_efektif,
                                 ),
                               ) >= 75
-                            ? 'text-amber-400 bg-amber-950/30 border-amber-800/30'
-                            : 'text-red-400 bg-red-950/30 border-red-800/30',
+                            ? 'text-amber-700 dark:text-amber-400 bg-amber-500/10 dark:bg-amber-950/30 border-amber-500/20 dark:border-amber-800/30'
+                            : 'text-red-700 dark:text-red-400 bg-red-500/10 dark:bg-red-950/30 border-red-500/20 dark:border-red-800/30',
                         'px-2 py-0.5 rounded text-[11px] font-mono border',
                       ]"
                     >

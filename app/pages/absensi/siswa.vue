@@ -5,22 +5,23 @@
       <div class="flex flex-col gap-4 mb-6">
         <div>
           <h2
-            class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2 flex-wrap"
+            class="text-xl sm:text-2xl font-bold flex items-center gap-2 flex-wrap"
+            :style="{ color: 'var(--text-heading)' }"
           >
-            <CalendarCheck class="w-7 h-7 text-emerald-400" />
+            <CalendarCheck class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             <span>Absensi Siswa</span>
             <span 
               v-if="selectedClass && hasExistingRecords && !hasUnsavedChanges"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shadow-sm"
             >
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse"></span>
               Tersimpan di Server
             </span>
             <span 
               v-else-if="selectedClass && hasUnsavedChanges"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-sm"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 shadow-sm"
             >
-              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              <span class="w-2 h-2 rounded-full bg-amber-600 dark:bg-amber-400"></span>
               Ada Perubahan (Belum Kirim)
             </span>
           </h2>
@@ -42,7 +43,7 @@
           <select
             v-model="selectedClass"
             :disabled="isDisabledDropdown"
-            class="h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+            class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <option value="" disabled>-- Pilih Kelas --</option>
             <option
@@ -59,14 +60,14 @@
         <ClientOnly>
           <div class="flex items-center gap-2 flex-1 md:max-w-[480px]">
             <div
-              class="flex items-center justify-between bg-zinc-950/40 border border-zinc-850 p-2 px-3 rounded-xl flex-1"
+              class="flex items-center justify-between bg-zinc-950/40 border border-zinc-700/50 p-2 px-3 rounded-xl flex-1"
             >
               <!-- Arrow Kiri (Mundur) -->
               <button
                 type="button"
                 @click="ubahTanggal(-1)"
                 :disabled="isPrevDisabled || isSaving"
-                class="p-2 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-800"
+                class="p-2 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-800"
                 title="Hari Sebelumnya"
               >
                 <ChevronLeft class="w-4 h-4" />
@@ -81,7 +82,7 @@
                   class="text-xs sm:text-sm font-bold text-zinc-100 block flex items-center justify-center gap-1"
                 >
                   {{ formattedTanggal }}
-                  <CalendarDays class="w-3.5 h-3.5 text-emerald-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+                  <CalendarDays class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 opacity-60 group-hover:opacity-100 transition-opacity" />
                 </span>
                 <span class="text-[10px] font-mono text-zinc-400 block">
                   Tapel: {{ tapel }} | Semester: {{ semester }}
@@ -93,7 +94,7 @@
                 type="button"
                 @click="ubahTanggal(1)"
                 :disabled="isNextDisabled || isSaving"
-                class="p-2 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-800"
+                class="p-2 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-800"
                 title="Hari Selanjutnya"
               >
                 <ChevronRight class="w-4 h-4" />
@@ -106,7 +107,7 @@
               type="button"
               @click="tanggal = hariIniStr"
               :disabled="isSaving"
-              class="h-10 px-3.5 rounded-xl border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white active:scale-95 transition-all text-xs font-semibold shrink-0 disabled:opacity-50"
+              class="h-10 px-3.5 rounded-xl border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 active:scale-95 transition-all text-xs font-semibold shrink-0 disabled:opacity-50"
             >
               Hari Ini
             </button>
@@ -131,14 +132,14 @@
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showCalendar = false"></div>
 
             <!-- Calendar Card -->
-            <div class="relative z-10 w-full max-w-sm bg-zinc-900 border border-zinc-700/60 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
+            <div class="relative z-10 w-full max-w-sm bg-zinc-900 border border-zinc-700/60 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden">
               <!-- Calendar Header -->
               <div class="flex items-center justify-between p-4 bg-zinc-800/60 border-b border-zinc-700/40">
                 <button
                   type="button"
                   @click="calendarPrevMonth"
                   :disabled="!canCalendarGoPrev"
-                  class="p-2 rounded-lg text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                  class="p-2 rounded-lg text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft class="w-4 h-4" />
                 </button>
@@ -149,7 +150,7 @@
                   type="button"
                   @click="calendarNextMonth"
                   :disabled="!canCalendarGoNext"
-                  class="p-2 rounded-lg text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                  class="p-2 rounded-lg text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
                 >
                   <ChevronRight class="w-4 h-4" />
                 </button>
@@ -176,12 +177,12 @@
                       cell.isSelected
                         ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/30 scale-105'
                         : cell.isToday
-                          ? 'bg-zinc-700/60 text-emerald-400 ring-1 ring-emerald-500/40 hover:bg-emerald-600/20'
+                          ? 'bg-zinc-700/60 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/40 hover:bg-emerald-600/20'
                           : cell.disabled
-                            ? 'text-zinc-700 cursor-not-allowed'
+                            ? 'text-zinc-500 cursor-not-allowed'
                             : cell.isHoliday
-                              ? 'text-red-400/70 hover:bg-red-500/10 hover:text-red-300'
-                              : 'text-zinc-300 hover:bg-zinc-700/60 hover:text-white',
+                              ? 'text-red-600 dark:text-red-400/70 hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300'
+                              : 'text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100',
                     ]"
                   >
                     {{ cell.day }}
@@ -198,7 +199,7 @@
                   v-if="tanggal !== hariIniStr"
                   type="button"
                   @click="selectToday"
-                  class="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors px-2 py-1 rounded-md hover:bg-emerald-500/10"
+                  class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors px-2 py-1 rounded-md hover:bg-emerald-500/10"
                 >
                   Hari Ini
                 </button>
@@ -213,9 +214,9 @@
         <!-- Case 1: Guru Mapel is editing their scheduled class today -->
         <div
           v-if="isGuruMapel && isAuthorizedToEdit"
-          class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-sm flex items-start gap-2.5 mb-6"
+          class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 text-sm flex items-start gap-2.5 mb-6"
         >
-          <CalendarCheck class="w-5 h-5 shrink-0 mt-0.5 text-emerald-400" />
+          <CalendarCheck class="w-5 h-5 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
           <div>
             <span class="font-bold">Akses Guru Mapel:</span> Anda memiliki akses untuk mengisi absensi kelas ini karena terjadwal mengajar pada hari {{ namaHariSelected }}.
           </div>
@@ -224,9 +225,9 @@
         <!-- Case 2: Wali Kelas is editing their wali class -->
         <div
           v-else-if="selectedClass === waliKelasClassId && isAuthorizedToEdit"
-          class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-sm flex items-start gap-2.5 mb-6"
+          class="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 text-sm flex items-start gap-2.5 mb-6"
         >
-          <CalendarCheck class="w-5 h-5 shrink-0 mt-0.5 text-emerald-400" />
+          <CalendarCheck class="w-5 h-5 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
           <div>
             <span class="font-bold">Akses Wali Kelas:</span> Anda sedang mengelola absensi untuk kelas binaan Anda ({{ waliKelasClassName }}).
           </div>
@@ -235,9 +236,9 @@
         <!-- Case 3: Read-only access -->
         <div
           v-else
-          class="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-sm flex items-start gap-2.5 mb-6"
+          class="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-300 text-sm flex items-start gap-2.5 mb-6"
         >
-          <AlertTriangle class="w-5 h-5 shrink-0 mt-0.5 text-amber-400" />
+          <AlertTriangle class="w-5 h-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
           <div>
             <span class="font-bold">Akses Terbatas (Hanya Lihat):</span> Anda tidak memiliki wewenang untuk mengubah absensi kelas ini pada tanggal terpilih. Izin edit hanya diberikan untuk kelas binaan (Wali Kelas) atau kelas yang Anda ajar sesuai jadwal hari ini.
           </div>
@@ -259,7 +260,7 @@
         <!-- Empty State (No Class Selected) -->
         <div v-else-if="!selectedClass" class="text-center py-16 px-4">
           <GraduationCap
-            class="w-16 h-16 text-zinc-600 mx-auto mb-3"
+            class="w-16 h-16 text-zinc-500 mx-auto mb-3"
             stroke-width="1.5"
           />
           <p class="text-zinc-400 font-semibold text-lg">Kelas belum dipilih</p>
@@ -272,10 +273,10 @@
         <!-- Hari Minggu / Libur State -->
         <div v-else-if="isHariLiburAtauMinggu" class="text-center py-16 px-4">
           <CalendarOff
-            class="w-16 h-16 text-amber-500 mx-auto mb-3"
+            class="w-16 h-16 text-amber-600 dark:text-amber-500 mx-auto mb-3"
             stroke-width="1.5"
           />
-          <p class="text-zinc-300 font-bold text-lg">{{ keteranganLibur }}</p>
+          <p class="text-zinc-100 font-bold text-lg">{{ keteranganLibur }}</p>
           <p class="text-zinc-500 text-sm mt-1">
             Tidak ada aktivitas pengisian absensi siswa pada hari libur sekolah.
           </p>
@@ -284,7 +285,7 @@
         <!-- Empty State (No Students) -->
         <div v-else-if="students.length === 0" class="text-center py-16 px-4">
           <Users
-            class="w-16 h-16 text-zinc-600 mx-auto mb-3"
+            class="w-16 h-16 text-zinc-500 mx-auto mb-3"
             stroke-width="1.5"
           />
           <p class="text-zinc-400 font-semibold text-lg">Tidak ada siswa</p>
@@ -413,23 +414,23 @@
                 <span class="font-bold text-zinc-300">{{ students.length }}</span>
                 siswa
               </span>
-              <span class="text-zinc-650 hidden sm:inline">|</span>
+              <span class="text-zinc-400 hidden sm:inline">|</span>
               <!-- Status Badge in footer -->
               <span 
                 v-if="hasExistingRecords && !hasUnsavedChanges"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
               >
                 Sudah Terkirim (Tersimpan)
               </span>
               <span 
                 v-else-if="hasUnsavedChanges"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
               >
                 Belum Dikirim (Ada Perubahan)
               </span>
               <span 
                 v-else
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-zinc-800 text-zinc-450 border border-zinc-700/30"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-zinc-800 text-zinc-400 border border-zinc-700/30"
               >
                 Belum Ada Data
               </span>

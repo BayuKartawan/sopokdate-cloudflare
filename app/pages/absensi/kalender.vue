@@ -7,9 +7,10 @@
       >
         <div>
           <h2
-            class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+            class="text-xl sm:text-2xl font-bold flex items-center gap-2"
+            :style="{ color: 'var(--text-heading)' }"
           >
-            <Calendar class="w-7 h-7 text-emerald-400" />
+            <Calendar class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             Kalender Pendidikan
           </h2>
           <p class="text-sm text-zinc-400 mt-1">
@@ -74,7 +75,7 @@
               :text="isSavingSettings ? '...' : 'Simpan'"
               @click="saveWeeklyHoliday"
               :disabled="isSavingSettings"
-              class="!bg-zinc-700 !text-zinc-200 hover:!bg-zinc-600 !h-10 !px-4 !py-0 shrink-0"
+              class="!bg-zinc-200 dark:!bg-zinc-700 !text-zinc-700 dark:!text-zinc-200 hover:!bg-zinc-300 dark:hover:!bg-zinc-600 !h-10 !px-4 !py-0 shrink-0"
             />
           </div>
         </div>
@@ -109,7 +110,7 @@
           class="text-center py-16 px-4"
         >
           <CalendarOff
-            class="w-16 h-16 text-zinc-600 mx-auto mb-3"
+            class="w-16 h-16 text-zinc-400 dark:text-zinc-600 mx-auto mb-3"
             stroke-width="1.5"
           />
           <p class="text-zinc-400 font-semibold text-lg">Tidak ada agenda</p>
@@ -131,7 +132,7 @@
           >
             <!-- Month Header -->
             <h3
-              class="text-sm font-bold text-emerald-400 uppercase tracking-wider border-b border-zinc-800/80 pb-2 flex items-center gap-2"
+              class="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider border-b border-zinc-700/40 dark:border-zinc-800/80 pb-2 flex items-center gap-2"
             >
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               {{ group.monthName }}
@@ -142,20 +143,20 @@
               <div
                 v-for="event in group.events"
                 :key="event.id"
-                class="flex items-start justify-between p-4 rounded-xl border border-zinc-800 bg-zinc-950/20 hover:border-zinc-700/60 transition-all duration-200 group"
+                class="flex items-start justify-between p-4 rounded-xl border border-zinc-700/40 dark:border-zinc-800 bg-zinc-100/60 dark:bg-zinc-950/20 hover:border-zinc-600/60 dark:hover:border-zinc-700/60 transition-all duration-200 group"
               >
                 <div class="space-y-2">
                   <!-- Date and Badge -->
                   <div class="flex items-center gap-2">
-                    <span class="text-xs font-mono font-bold text-zinc-300">
+                    <span class="text-xs font-mono font-bold text-zinc-500 dark:text-zinc-300">
                       {{ formatEventRange(event) }}
                     </span>
                     <span
                       class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wide border uppercase"
                       :class="
                         event.tipe === 'libur'
-                          ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                          : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                          ? 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20'
+                          : 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20'
                       "
                     >
                       {{
@@ -165,7 +166,7 @@
                   </div>
 
                   <!-- Description -->
-                  <p class="text-sm font-semibold text-zinc-100 pr-4">
+                  <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100 pr-4">
                     {{ event.keterangan }}
                   </p>
                 </div>
@@ -177,14 +178,14 @@
                 >
                   <button
                     @click="openEditModal(event)"
-                    class="p-1.5 rounded-lg text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 transition-colors"
+                    class="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
                     title="Edit Agenda"
                   >
                     <Pencil class="w-4 h-4" />
                   </button>
                   <button
                     @click="handleDelete(event)"
-                    class="p-1.5 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-colors"
+                    class="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
                     title="Hapus Agenda"
                   >
                     <Trash2 class="w-4 h-4" />
