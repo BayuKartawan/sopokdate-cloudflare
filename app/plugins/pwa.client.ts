@@ -2,7 +2,7 @@
 
 export default defineNuxtPlugin(() => {
   if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
+    const register = () => {
       navigator.serviceWorker
         .register("/sw.js")
         .then((registration) => {
@@ -14,6 +14,12 @@ export default defineNuxtPlugin(() => {
         .catch((error) => {
           console.error("Service Worker registration failed:", error);
         });
-    });
+    };
+
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+      register();
+    } else {
+      window.addEventListener("load", register);
+    }
   }
 });

@@ -1,156 +1,169 @@
 <template>
   <div>
-    <!-- Backdrop Overlay (No Blur) -->
+    <!-- Backdrop Overlay -->
     <Transition name="fade">
       <div
         v-if="isOpen"
         @click="close"
-        class="fixed inset-0 bg-black/60 z-45 lg:hidden"
+        class="fixed inset-0 bg-black/50 z-45 lg:hidden"
         aria-label="Tutup menu"
       ></div>
     </Transition>
 
-    <!-- Bottom Sheet Modal Container -->
+    <!-- Bottom Sheet Modal -->
     <Transition name="slide-up">
       <div
         v-if="isOpen"
-        class="fixed left-0 bottom-0 w-full max-h-[82vh] z-50 flex flex-col rounded-t-3xl shadow-2xl lg:hidden"
+        class="fixed left-0 bottom-0 w-full max-h-[85vh] z-50 flex flex-col rounded-t-[28px] lg:hidden overflow-hidden"
         :style="{
-          backgroundColor: 'var(--bg-surface)',
-          borderTop: '1px solid var(--border-primary)',
+          backgroundColor: 'var(--bg-primary)',
+          boxShadow: '0 -8px 40px var(--shadow-overlay)',
         }"
       >
-        <!-- Aesthetic Drag Handle -->
-        <div class="w-full flex justify-center py-3.5 flex-shrink-0 cursor-pointer" @click="close">
-          <div class="w-12 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700"></div>
-        </div>
-
-        <!-- Navigation Scrollable Content -->
-        <div class="flex-grow overflow-y-auto px-5 py-2 scrollbar-none pb-4">
-          <ul class="space-y-2.5">
-            <li
-              v-for="menuItem in menuItems"
-              :key="menuItem.to || menuItem.label"
-              class="block"
-            >
-              <!-- Menu Item (Direct Link) -->
-              <NuxtLink
-                v-if="!menuItem.children"
-                :to="menuItem.to"
-                :class="getMobileLinkClass(menuItem.to)"
-                @click="handleNavClick"
-              >
-                <div class="flex items-center">
-                  <component
-                    :is="menuItem.icon"
-                    v-if="menuItem.icon"
-                    class="w-5 h-5 mr-3.5 text-zinc-500 dark:text-zinc-400 group-hover:text-emerald-500 transition-colors"
-                  />
-                  <span class="font-semibold text-sm">{{ menuItem.label }}</span>
-                </div>
-              </NuxtLink>
-
-              <!-- Menu Item (Dropdown / Group Category) -->
-              <div
-                v-else
-                class="rounded-2xl overflow-hidden border transition-all duration-300"
-                :style="{
-                  borderColor: isParentActive(menuItem) ? 'rgba(16, 185, 129, 0.25)' : 'var(--border-primary)',
-                  backgroundColor: isParentActive(menuItem) ? 'var(--bg-secondary)' : 'transparent'
-                }"
-              >
-                <!-- Trigger Button -->
-                <button
-                  @click="toggleDropdown(menuItem.label)"
-                  class="w-full flex items-center justify-between px-4 py-3.5 text-left transition-all duration-300"
-                  :style="{
-                    color: isParentActive(menuItem) ? 'var(--text-primary)' : 'var(--text-primary)'
-                  }"
-                >
-                  <div class="flex items-center">
-                    <component
-                      :is="menuItem.icon"
-                      v-if="menuItem.icon"
-                      class="w-5 h-5 mr-3.5 transition-colors"
-                      :class="[
-                        isParentActive(menuItem) ? 'text-emerald-500' : 'text-zinc-500 dark:text-zinc-400'
-                      ]"
-                    />
-                    <span
-                      class="text-sm transition-colors duration-200"
-                      :class="[isParentActive(menuItem) ? 'font-bold text-emerald-600 dark:text-emerald-400' : 'font-semibold']"
-                    >
-                      {{ menuItem.label }}
-                    </span>
-                  </div>
-
-                  <ChevronRight
-                    :class="[
-                      'w-4 h-4 transition-transform duration-300',
-                      openDropdowns.includes(menuItem.label) ? 'rotate-90 text-emerald-500' : 'text-zinc-400',
-                    ]"
-                  />
-                </button>
-
-                <!-- Nested Dropdown List -->
-                <div
-                  v-show="openDropdowns.includes(menuItem.label)"
-                  class="bg-zinc-50/20 dark:bg-black/10 border-t border-dashed"
-                  :style="{ borderColor: 'var(--border-primary)' }"
-                >
-                  <ul class="py-1.5 divide-y divide-dashed" :style="{ borderColor: 'var(--border-primary)' }">
-                    <li v-for="childItem in menuItem.children" :key="childItem.to">
-                      <NuxtLink
-                        :to="childItem.to"
-                        @click="handleSubNavClick"
-                        :class="getMobileChildLinkClass(childItem.to)"
-                      >
-                        <div class="flex items-center pl-4">
-                          <!-- Bullet Indicator -->
-                          <div
-                            class="w-1.5 h-1.5 rounded-full mr-3.5 transition-all duration-300"
-                            :class="isActiveRoute(childItem.to) ? 'bg-emerald-500 scale-125 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-300 dark:bg-zinc-700'"
-                          ></div>
-                          <span class="text-sm font-medium">{{ childItem.label }}</span>
-                        </div>
-                      </NuxtLink>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Sticky Footer with App Info on Left and Close Button on Bottom-Right -->
-        <div
-          class="px-6 pt-4 flex justify-between items-center border-t flex-shrink-0"
-          :style="{
-            borderColor: 'var(--border-primary)',
-            backgroundColor: 'var(--bg-surface)',
-            paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))'
-          }"
-        >
-          <div class="flex flex-col">
-            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tracking-widest uppercase mb-0.5">Sistem Navigasi</span>
-            <span class="text-sm font-bold tracking-tight" :style="{ color: 'var(--text-primary)' }">
-              {{ appName }}
-            </span>
+        <!-- Drag Handle + Close -->
+        <div class="flex items-center justify-between px-5 pt-4 pb-2 flex-shrink-0">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 flex items-center justify-center">
+              <LayoutGrid class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <span class="text-sm font-semibold" :style="{ color: 'var(--text-primary)' }">SopokDate</span>
           </div>
-
-          <!-- Relocated Close Button -->
           <button
             @click="close"
-            class="px-4 py-2.5 rounded-xl transition-all duration-300 hover:bg-[var(--bg-tertiary)] flex items-center justify-center border font-semibold text-xs gap-2"
-            :style="{
-              borderColor: 'var(--border-primary)',
-              color: 'var(--text-primary)'
-            }"
+            class="w-8 h-8 rounded-xl flex items-center justify-center transition-colors duration-200 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95"
             aria-label="Tutup menu"
           >
-            <X class="w-4 h-4 text-red-500 dark:text-red-400" />
-            <span>Tutup Menu</span>
+            <X class="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
           </button>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="flex-grow overflow-y-auto px-4 pt-2 pb-4 scrollbar-none" :style="{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }">
+
+          <!-- Direct Link Items (e.g., Beranda) as a leading grid -->
+          <div v-if="directMenuItems.length" class="mb-4">
+            <div class="grid grid-cols-3 gap-2">
+              <NuxtLink
+                v-for="item in directMenuItems"
+                :key="item.to"
+                :to="item.to"
+                @click="handleNavClick"
+                class="flex flex-col items-center justify-center rounded-2xl p-3.5 transition-all duration-200 active:scale-95 select-none"
+                :class="[
+                  isActiveRoute(item.to)
+                    ? 'bg-emerald-500/12 dark:bg-emerald-500/15 ring-1 ring-emerald-500/25'
+                    : 'bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                ]"
+              >
+                <div
+                  class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-colors duration-200"
+                  :class="[
+                    isActiveRoute(item.to)
+                      ? 'bg-emerald-500/15 dark:bg-emerald-500/20'
+                      : 'bg-zinc-100 dark:bg-zinc-700/60'
+                  ]"
+                >
+                  <component
+                    :is="item.icon"
+                    class="w-5 h-5 transition-colors duration-200"
+                    :class="[
+                      isActiveRoute(item.to)
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-zinc-500 dark:text-zinc-400'
+                    ]"
+                  />
+                </div>
+                <span
+                  class="text-xs font-medium text-center leading-tight transition-colors duration-200"
+                  :class="[
+                    isActiveRoute(item.to)
+                      ? 'text-emerald-700 dark:text-emerald-300 font-semibold'
+                      : 'text-zinc-600 dark:text-zinc-400'
+                  ]"
+                >{{ item.label }}</span>
+              </NuxtLink>
+            </div>
+          </div>
+
+          <!-- Grouped Menu Items (with children) -->
+          <div
+            v-for="(group, groupIndex) in groupedMenuItems"
+            :key="group.label"
+            :class="groupIndex > 0 ? 'mt-5' : 'mt-1'"
+          >
+            <!-- Group Header -->
+            <div class="flex items-center gap-2 px-1 mb-2.5">
+              <component
+                :is="group.icon"
+                v-if="group.icon"
+                class="w-3.5 h-3.5"
+                :class="[
+                  isParentActive(group)
+                    ? 'text-emerald-500 dark:text-emerald-400'
+                    : 'text-zinc-400 dark:text-zinc-500'
+                ]"
+              />
+              <span
+                class="text-[11px] font-bold uppercase tracking-wider"
+                :class="[
+                  isParentActive(group)
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-zinc-400 dark:text-zinc-500'
+                ]"
+              >{{ group.label }}</span>
+              <div class="flex-1 h-px ml-1" :class="[
+                isParentActive(group)
+                  ? 'bg-emerald-500/15 dark:bg-emerald-500/20'
+                  : 'bg-zinc-200 dark:bg-zinc-800'
+              ]"></div>
+            </div>
+
+            <!-- Children Grid -->
+            <div class="grid grid-cols-3 gap-2">
+              <NuxtLink
+                v-for="child in group.children"
+                :key="child.to"
+                :to="child.to"
+                @click="handleNavClick"
+                class="flex flex-col items-center justify-center rounded-2xl p-3 transition-all duration-200 active:scale-95 select-none min-h-[76px]"
+                :class="[
+                  isActiveRoute(child.to)
+                    ? 'bg-emerald-500/12 dark:bg-emerald-500/15 ring-1 ring-emerald-500/25'
+                    : 'bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                ]"
+              >
+                <div
+                  class="w-9 h-9 rounded-xl flex items-center justify-center mb-1.5 transition-colors duration-200"
+                  :class="[
+                    isActiveRoute(child.to)
+                      ? childIconMeta(child).activeBg
+                      : 'bg-zinc-100 dark:bg-zinc-700/60'
+                  ]"
+                >
+                  <component
+                    :is="childIconMeta(child).icon"
+                    class="w-4 h-4 transition-colors duration-200"
+                    :class="[
+                      isActiveRoute(child.to)
+                        ? childIconMeta(child).activeColor
+                        : 'text-zinc-500 dark:text-zinc-400'
+                    ]"
+                  />
+                </div>
+                <span
+                  class="text-[11px] font-medium text-center leading-tight line-clamp-2 transition-colors duration-200"
+                  :class="[
+                    isActiveRoute(child.to)
+                      ? 'text-emerald-700 dark:text-emerald-300 font-semibold'
+                      : 'text-zinc-600 dark:text-zinc-400'
+                  ]"
+                >{{ child.label }}</span>
+              </NuxtLink>
+            </div>
+          </div>
+
+          <!-- Bottom Spacer -->
+          <div class="h-2"></div>
         </div>
       </div>
     </Transition>
@@ -158,9 +171,49 @@
 </template>
 
 <script setup>
-import { ref, onUnmounted, computed, watch } from "vue";
+import { ref, computed, onUnmounted, watch, markRaw } from "vue";
 import { useMenuConfig } from "~/composables/ui/useMenuConfig.js";
-import { X, ChevronRight } from "lucide-vue-next";
+import {
+  X,
+  LayoutGrid,
+  Home,
+  // Akun icons
+  KeyRound,
+  Fingerprint,
+  Mail,
+  ShieldCheck,
+  UserCog,
+  Building,
+  BadgeCheck,
+  // Akademik icons
+  UserCheck,
+  GraduationCap,
+  Users,
+  Award,
+  // Jadwal icons
+  BookOpen,
+  Clock,
+  CalendarPlus,
+  Printer,
+  // Absensi icons
+  CalendarDays,
+  ClipboardList,
+  BarChart3,
+  // Madrasah icons
+  Building2,
+  FolderOpen,
+  AppWindow,
+  // Dokumen icons
+  FileText,
+  Medal,
+  BookCopy,
+  ListOrdered,
+  Camera,
+  // Keuangan icons
+  Banknote,
+  Receipt,
+  StickyNote,
+} from "lucide-vue-next";
 
 // --- Props & Emits ---
 const props = defineProps({
@@ -174,11 +227,63 @@ const emit = defineEmits(["close"]);
 
 // --- Composables & Config ---
 const route = useRoute();
-const appName = useRuntimeConfig().public.appName;
 const { menuItems } = useMenuConfig();
 
-// --- State ---
-const openDropdowns = ref([]);
+// --- Child icon mapping ---
+// Maps child item labels to specific icons and accent colors for visual distinction
+const childIconMap = {
+  // Akun
+  "Akun Sopokdate": { icon: markRaw(KeyRound), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
+  "EMIS 4.0": { icon: markRaw(Fingerprint), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
+  "Email Madrasah": { icon: markRaw(Mail), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
+  "RDM": { icon: markRaw(ShieldCheck), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
+  "EMIS GTK": { icon: markRaw(UserCog), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
+  "SIMPATIKA": { icon: markRaw(BadgeCheck), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
+  "Akun Madrasah": { icon: markRaw(Building), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
+  // Akademik
+  "Guru Tendik": { icon: markRaw(UserCheck), activeColor: "text-sky-600 dark:text-sky-400", activeBg: "bg-sky-500/15 dark:bg-sky-500/20" },
+  "Siswa": { icon: markRaw(Users), activeColor: "text-sky-600 dark:text-sky-400", activeBg: "bg-sky-500/15 dark:bg-sky-500/20" },
+  "Rombel": { icon: markRaw(GraduationCap), activeColor: "text-sky-600 dark:text-sky-400", activeBg: "bg-sky-500/15 dark:bg-sky-500/20" },
+  "Alumni": { icon: markRaw(Award), activeColor: "text-sky-600 dark:text-sky-400", activeBg: "bg-sky-500/15 dark:bg-sky-500/20" },
+  // Jadwal
+  "Kurikulum": { icon: markRaw(BookOpen), activeColor: "text-amber-600 dark:text-amber-400", activeBg: "bg-amber-500/15 dark:bg-amber-500/20" },
+  "Alokasi Jam": { icon: markRaw(Clock), activeColor: "text-amber-600 dark:text-amber-400", activeBg: "bg-amber-500/15 dark:bg-amber-500/20" },
+  "Buat Jadwal": { icon: markRaw(CalendarPlus), activeColor: "text-amber-600 dark:text-amber-400", activeBg: "bg-amber-500/15 dark:bg-amber-500/20" },
+  "Cetak Jadwal": { icon: markRaw(Printer), activeColor: "text-amber-600 dark:text-amber-400", activeBg: "bg-amber-500/15 dark:bg-amber-500/20" },
+  // Absensi
+  "Kalender Pendidikan": { icon: markRaw(CalendarDays), activeColor: "text-teal-600 dark:text-teal-400", activeBg: "bg-teal-500/15 dark:bg-teal-500/20" },
+  "Absensi Siswa": { icon: markRaw(ClipboardList), activeColor: "text-teal-600 dark:text-teal-400", activeBg: "bg-teal-500/15 dark:bg-teal-500/20" },
+  "Rekap Absensi": { icon: markRaw(BarChart3), activeColor: "text-teal-600 dark:text-teal-400", activeBg: "bg-teal-500/15 dark:bg-teal-500/20" },
+  // Madrasah
+  "Data Madrasah": { icon: markRaw(Building2), activeColor: "text-rose-600 dark:text-rose-400", activeBg: "bg-rose-500/15 dark:bg-rose-500/20" },
+  "Berkas Madrasah": { icon: markRaw(FolderOpen), activeColor: "text-rose-600 dark:text-rose-400", activeBg: "bg-rose-500/15 dark:bg-rose-500/20" },
+  "Aplikasi Madrasah": { icon: markRaw(AppWindow), activeColor: "text-rose-600 dark:text-rose-400", activeBg: "bg-rose-500/15 dark:bg-rose-500/20" },
+  // Dokumen
+  "Surat": { icon: markRaw(FileText), activeColor: "text-indigo-600 dark:text-indigo-400", activeBg: "bg-indigo-500/15 dark:bg-indigo-500/20" },
+  "Sertifikat": { icon: markRaw(Medal), activeColor: "text-indigo-600 dark:text-indigo-400", activeBg: "bg-indigo-500/15 dark:bg-indigo-500/20" },
+  "Sampul": { icon: markRaw(BookCopy), activeColor: "text-indigo-600 dark:text-indigo-400", activeBg: "bg-indigo-500/15 dark:bg-indigo-500/20" },
+  "Daftar Siswa": { icon: markRaw(ListOrdered), activeColor: "text-indigo-600 dark:text-indigo-400", activeBg: "bg-indigo-500/15 dark:bg-indigo-500/20" },
+  "Cetak Pas Foto": { icon: markRaw(Camera), activeColor: "text-indigo-600 dark:text-indigo-400", activeBg: "bg-indigo-500/15 dark:bg-indigo-500/20" },
+  // Keuangan BOS
+  "Penerimaan Honor": { icon: markRaw(Banknote), activeColor: "text-emerald-600 dark:text-emerald-400", activeBg: "bg-emerald-500/15 dark:bg-emerald-500/20" },
+  "Kuitansi": { icon: markRaw(Receipt), activeColor: "text-emerald-600 dark:text-emerald-400", activeBg: "bg-emerald-500/15 dark:bg-emerald-500/20" },
+  "Nota": { icon: markRaw(StickyNote), activeColor: "text-emerald-600 dark:text-emerald-400", activeBg: "bg-emerald-500/15 dark:bg-emerald-500/20" },
+};
+
+const defaultIconMeta = { icon: markRaw(FileText), activeColor: "text-emerald-600 dark:text-emerald-400", activeBg: "bg-emerald-500/15 dark:bg-emerald-500/20" };
+
+const childIconMeta = (child) => {
+  return childIconMap[child.label] || defaultIconMeta;
+};
+
+// --- Computed ---
+const directMenuItems = computed(() => {
+  return menuItems.value.filter((item) => !item.children);
+});
+
+const groupedMenuItems = computed(() => {
+  return menuItems.value.filter((item) => item.children && item.children.length > 0);
+});
 
 // --- Helper Functions ---
 const isActiveRoute = (toPath) => {
@@ -194,67 +299,13 @@ const isParentActive = (menuItem) => {
   return menuItem.children.some((child) => isActiveRoute(child.to));
 };
 
-const getMobileLinkClass = (toPath) => {
-  const baseClass =
-    "group flex items-center px-4 py-3.5 rounded-2xl border transition-all duration-300 select-none outline-none";
-  const activeClass = isActiveRoute(toPath)
-    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25 shadow-xs"
-    : "theme-text border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800/40 hover:text-emerald-500";
-  return `${baseClass} ${activeClass}`;
-};
-
-const getMobileChildLinkClass = (toPath) => {
-  const baseClass =
-    "flex items-center px-4 py-3 transition-all duration-300 select-none outline-none w-full";
-  const activeClass = isActiveRoute(toPath)
-    ? "text-emerald-600 dark:text-emerald-400 font-semibold"
-    : "text-zinc-600 dark:text-zinc-400 hover:text-emerald-500 hover:bg-zinc-100/50 dark:hover:bg-zinc-850/40";
-  return `${baseClass} ${activeClass}`;
-};
-
 // --- Methods & Actions ---
 const close = () => {
   emit("close");
 };
 
-const toggleDropdown = (menuLabel) => {
-  const index = openDropdowns.value.indexOf(menuLabel);
-  if (index > -1) {
-    openDropdowns.value = openDropdowns.value.filter((label) => label !== menuLabel);
-  } else {
-    // Accordion behavior: only one dropdown is open at a time
-    openDropdowns.value = [menuLabel];
-  }
-};
-
 const handleNavClick = () => {
   close();
-};
-
-const handleSubNavClick = () => {
-  close();
-};
-
-const autoExpandActiveDropdown = () => {
-  if (!menuItems.value) return;
-
-  let activeMenuLabel = null;
-  menuItems.value.forEach((menuItem) => {
-    if (menuItem.children) {
-      const hasActiveChild = menuItem.children.some((child) =>
-        isActiveRoute(child.to)
-      );
-      if (hasActiveChild) {
-        activeMenuLabel = menuItem.label;
-      }
-    }
-  });
-
-  if (activeMenuLabel) {
-    openDropdowns.value = [activeMenuLabel];
-  } else {
-    openDropdowns.value = [];
-  }
 };
 
 // Scroll Lock when open to prevent background scrolling
@@ -270,42 +321,33 @@ watch(
   { immediate: true }
 );
 
-// --- Watchers ---
-watch(
-  [() => route.path, () => menuItems.value],
-  () => {
-    autoExpandActiveDropdown();
-  },
-  { immediate: true, deep: true },
-);
-
 onUnmounted(() => {
   document.body.style.overflow = "";
 });
 </script>
 
 <style scoped>
-/* Scoped transition for slide-up mobile menu */
+/* Slide-up transition */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
 }
 .slide-up-enter-from,
 .slide-up-leave-to {
   transform: translateY(100%);
 }
 
-/* Scoped transition for backdrop fade */
+/* Backdrop fade */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
 
-/* Tap Highlight and focus outline fixes */
+/* Tap highlight and focus fixes */
 a, button {
   -webkit-tap-highlight-color: transparent;
   outline: none;
@@ -318,5 +360,14 @@ a, button {
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>
