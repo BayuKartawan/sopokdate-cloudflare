@@ -64,12 +64,12 @@
           >
             <div class="flex items-center gap-4">
               <div
-                class="w-14 h-14 rounded-xl flex items-center justify-center bg-emerald-950/40 text-emerald-400"
+                class="w-14 h-14 rounded-xl flex items-center justify-center bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
               >
                 <UserCircle class="h-9 w-9" />
               </div>
               <div>
-                <h1 class="text-2xl font-bold text-white mb-1">
+                <h1 class="text-2xl font-bold text-[var(--text-heading)] mb-1">
                   {{ toTitleCase(siswaDetail.nama) }}
                 </h1>
                 <div class="flex flex-wrap gap-2 items-center text-sm">
@@ -78,7 +78,7 @@
                   >
                   <span class="text-zinc-600">•</span>
                   <span
-                    class="bg-zinc-700/50 text-emerald-300 px-2 py-0.5 rounded text-xs font-semibold"
+                    class="bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded text-xs font-semibold"
                   >
                     Kelas {{ getClassName(siswaDetail["tingkat - rombel"]) }}
                   </span>
@@ -107,7 +107,7 @@
                 class="flex items-center gap-2 mb-6 border-b border-zinc-700/50 pb-3"
               >
                 <Info class="w-5 h-5 text-emerald-400" />
-                <h2 class="text-lg font-bold text-white">
+                <h2 class="text-lg font-bold text-[var(--text-heading)]">
                   Biodata Lengkap Siswa
                 </h2>
               </div>
@@ -169,7 +169,7 @@
                 class="flex items-center gap-2 mb-4 pb-2 border-b border-zinc-700/50"
               >
                 <Users class="w-4 h-4 text-emerald-400" />
-                <h3 class="text-sm font-bold text-white">
+                <h3 class="text-sm font-bold text-[var(--text-heading)]">
                   Siswa Sekelas ({{
                     getClassName(siswaDetail["tingkat - rombel"])
                   }})

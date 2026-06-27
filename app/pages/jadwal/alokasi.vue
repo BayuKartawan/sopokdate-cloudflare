@@ -6,9 +6,10 @@
         <div class="flex flex-wrap items-center gap-4">
           <div>
             <h2
-              class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
+              :style="{ color: 'var(--text-heading)' }"
             >
-              <CalendarCheck class="w-7 h-7 text-emerald-400" />
+              <CalendarCheck class="w-7 h-7 text-emerald-650 dark:text-emerald-400" />
               Alokasi Jam Mengajar
             </h2>
             <p class="text-sm text-zinc-400 mt-1">
@@ -152,12 +153,12 @@
                         </span>
 
                         <!-- Hour count badge from curriculum -->
-                        <span
-                          class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-400 font-mono"
-                        >
-                          {{ getKurikulumForCell(subjectName, k).alokasi_jam }}
-                          JP
-                        </span>
+                         <span
+                           class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-zinc-500/10 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400 font-mono"
+                         >
+                           {{ getKurikulumForCell(subjectName, k).alokasi_jam }}
+                           JP
+                         </span>
                       </div>
                     </template>
                     <template v-else>

@@ -49,7 +49,7 @@
             <div class="flex items-center gap-4">
               <UserCircle class="h-8 w-8 text-emerald-400" />
               <div>
-                <h1 class="text-2xl font-semibold mb-1 text-white">
+                <h1 class="text-2xl font-semibold mb-1 text-[var(--text-heading)]">
                   {{ gtkDetail.title }}
                 </h1>
                 <p class="text-sm text-zinc-400">
@@ -88,7 +88,7 @@
             <div class="rounded-lg p-6 bg-zinc-800">
               <div class="flex items-center gap-2 mb-4">
                 <Info class="w-5 h-5 text-emerald-400" />
-                <h2 class="text-lg font-medium text-white">Informasi Detail</h2>
+                <h2 class="text-lg font-medium text-[var(--text-heading)]">Informasi Detail</h2>
               </div>
 
               <div class="divide-y divide-zinc-700">
@@ -97,7 +97,7 @@
                   <dt class="text-zinc-300">Nama</dt>
                   <dd class="col-span-2 flex items-center gap-2">
                     <span
-                      class="flex-1 select-all cursor-pointer text-white"
+                      class="flex-1 select-all cursor-pointer text-[var(--text-primary)]"
                       @click="copyToClipboard(gtkDetail.title)"
                       title="Klik untuk menyalin"
                     >
@@ -117,7 +117,7 @@
                   </dt>
                   <dd class="col-span-2 flex items-center gap-2">
                     <span
-                      class="flex-1 select-all cursor-pointer text-white"
+                      class="flex-1 select-all cursor-pointer text-[var(--text-primary)]"
                       @click="copyToClipboard(gtkDetail[item.key] || '-')"
                       title="Klik untuk menyalin"
                     >
@@ -132,7 +132,7 @@
           <!-- Right Column - Related Items -->
           <div>
             <div class="rounded-lg p-4 bg-zinc-800">
-              <h3 class="text-sm font-medium mb-3 text-white">GTK Terkait</h3>
+              <h3 class="text-sm font-medium mb-3 text-[var(--text-heading)]">GTK Terkait</h3>
               <div class="space-y-2">
                 <button
                   v-for="(item, index) in relatedItems"

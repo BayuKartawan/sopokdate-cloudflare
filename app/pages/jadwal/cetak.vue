@@ -5,9 +5,10 @@
       <div class="flex flex-col gap-4 sm:gap-6 mb-6 print:hidden">
         <div>
           <h2
-            class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+            class="text-xl sm:text-2xl font-bold flex items-center gap-2"
+            :style="{ color: 'var(--text-heading)' }"
           >
-            <Printer class="w-7 h-7 text-emerald-400" />
+            <Printer class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             Cetak Jadwal Pelajaran
           </h2>
           <p class="text-sm text-zinc-400 mt-1">
@@ -23,7 +24,7 @@
           @click="activeTab = 'kelas'"
           :class="[
             activeTab === 'kelas'
-              ? 'border-emerald-500 text-emerald-400'
+              ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
               : 'border-transparent text-zinc-400 hover:text-zinc-200',
           ]"
           class="px-5 py-3 border-b-2 font-medium text-sm transition-colors"
@@ -34,7 +35,7 @@
           @click="activeTab = 'guru'"
           :class="[
             activeTab === 'guru'
-              ? 'border-emerald-500 text-emerald-400'
+              ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
               : 'border-transparent text-zinc-400 hover:text-zinc-200',
           ]"
           class="px-5 py-3 border-b-2 font-medium text-sm transition-colors"
@@ -99,38 +100,44 @@
         </button>
       </div>
 
-      <!-- Printable Area (visible on screen and formatted for print-area fallback) -->
+      <!-- Printable Area (always light mode to match print output) -->
       <div
         v-if="hasSelection"
         id="print-area"
-        class="bg-zinc-950 border border-zinc-800 rounded-xl p-6 sm:p-8 text-zinc-100 print:text-black print:bg-white print:border-none print:p-0"
+        class="bg-white border border-[#d4d4d8] rounded-xl p-6 sm:p-8 print:text-black print:bg-white print:border-none print:p-0"
+        style="color: #18181b"
       >
         <!-- Print Header -->
         <div
-          class="text-center mb-8 border-b-2 border-zinc-800 print:border-zinc-900 pb-5"
+          class="text-center mb-8 border-b-2 border-[#d4d4d8] print:border-zinc-900 pb-5"
         >
           <h1
-            class="text-lg sm:text-2xl font-bold uppercase tracking-wider text-zinc-100 print:text-black"
+            class="text-lg sm:text-2xl font-bold uppercase tracking-wider print:text-black"
+            style="color: #09090b"
           >
             Jadwal Pelajaran Mingguan
           </h1>
           <p
-            class="text-sm font-semibold text-emerald-400 print:text-zinc-700 uppercase mt-1"
+            class="text-sm font-semibold print:text-zinc-700 uppercase mt-1"
+            style="color: #047857"
           >
             {{ getMadrasahName }}
           </p>
           <div
-            class="mt-4 flex flex-wrap justify-center gap-x-8 gap-y-1.5 text-xs text-zinc-400 print:text-zinc-600 font-mono"
+            class="mt-4 flex flex-wrap justify-center gap-x-8 gap-y-1.5 text-xs print:text-zinc-600 font-mono"
+            style="color: #71717a"
           >
             <span
               v-if="activeTab === 'kelas'"
-              class="font-bold text-zinc-200 print:text-black"
+              class="font-bold print:text-black"
+              style="color: #18181b"
             >
               KELAS: {{ getKelasName(selectedKelas) }}
             </span>
             <span
               v-if="activeTab === 'guru'"
-              class="font-bold text-zinc-200 print:text-black"
+              class="font-bold print:text-black"
+              style="color: #18181b"
             >
               GURU: {{ getSelectedGuruName }}
             </span>
@@ -141,21 +148,22 @@
         <!-- Schedule Grid -->
         <div class="overflow-x-auto">
           <table
-            class="w-full border-collapse border border-zinc-800 print:border-black text-xs"
+            class="w-full border-collapse border border-[#d4d4d8] print:border-black text-xs"
           >
             <thead>
               <tr
-                class="bg-zinc-900 print:bg-zinc-100 text-zinc-300 print:text-black font-bold uppercase border-b border-zinc-800 print:border-black"
+                class="print:bg-zinc-100 font-bold uppercase border-b border-[#d4d4d8] print:border-black"
+                style="background: #f4f4f5; color: #3f3f46"
               >
                 <th
-                  class="p-3 w-28 text-center border-r border-zinc-800 print:border-black"
+                  class="p-3 w-28 text-center border-r border-[#d4d4d8] print:border-black"
                 >
                   Jam / Hari
                 </th>
                 <th
                   v-for="day in days"
                   :key="day"
-                  class="p-3 text-center border-r border-zinc-800 print:border-black"
+                  class="p-3 text-center border-r border-[#d4d4d8] print:border-black"
                 >
                   {{ day }}
                 </th>
@@ -165,11 +173,12 @@
               <tr
                 v-for="hour in maxHours"
                 :key="hour"
-                class="border-b border-zinc-800 print:border-black"
+                class="border-b border-[#d4d4d8] print:border-black"
               >
                 <!-- Hour Label -->
                 <td
-                  class="p-3 font-bold bg-zinc-900/40 print:bg-zinc-50/50 text-center border-r border-zinc-800 print:border-black text-zinc-300 print:text-black"
+                  class="p-3 font-bold print:bg-zinc-50/50 text-center border-r border-[#d4d4d8] print:border-black"
+                  style="background: #fafafa; color: #52525b"
                 >
                   Jam ke-{{ hour }}
                 </td>
@@ -178,36 +187,45 @@
                 <td
                   v-for="day in days"
                   :key="day"
-                  class="p-2.5 border-r border-zinc-800 print:border-black text-center min-h-[50px]"
+                  class="p-2.5 border-r border-[#d4d4d8] print:border-black text-center min-h-[50px]"
                 >
                   <template v-if="activeTab === 'kelas'">
                     <div v-if="getScheduleAt(day, hour)">
-                      <div class="font-bold text-emerald-400 print:text-black">
+                      <div
+                        class="font-bold print:text-black"
+                        style="color: #047857"
+                      >
                         {{ getMapelName(getScheduleAt(day, hour).mapel_id) }}
                       </div>
                       <div
-                        class="text-[10px] text-zinc-500 print:text-zinc-600 mt-0.5 line-clamp-1"
+                        class="text-[10px] print:text-zinc-600 mt-0.5 line-clamp-1"
+                        style="color: #71717a"
                       >
                         {{ getGuruName(getScheduleAt(day, hour).guru_id) }}
                       </div>
                     </div>
                     <span
                       v-else
-                      class="text-[10px] text-zinc-700 print:text-zinc-300"
+                      class="text-[10px]"
+                      style="color: #a1a1aa"
                       >-</span
                     >
                   </template>
 
                   <template v-else-if="activeTab === 'guru'">
                     <div v-if="getTeacherScheduleAt(day, hour)">
-                      <div class="font-bold text-emerald-400 print:text-black">
+                      <div
+                        class="font-bold print:text-black"
+                        style="color: #047857"
+                      >
                         Kelas
                         {{
                           getKelasName(getTeacherScheduleAt(day, hour).kelas_id)
                         }}
                       </div>
                       <div
-                        class="text-[10px] text-zinc-500 print:text-zinc-600 mt-0.5 line-clamp-1"
+                        class="text-[10px] print:text-zinc-600 mt-0.5 line-clamp-1"
+                        style="color: #71717a"
                       >
                         {{
                           getMapelName(getTeacherScheduleAt(day, hour).mapel_id)
@@ -216,7 +234,8 @@
                     </div>
                     <span
                       v-else
-                      class="text-[10px] text-zinc-700 print:text-zinc-300"
+                      class="text-[10px]"
+                      style="color: #a1a1aa"
                       >-</span
                     >
                   </template>
@@ -228,7 +247,8 @@
 
         <!-- Print Footer Signature -->
         <div
-          class="mt-12 flex justify-between text-xs text-zinc-400 print:text-black"
+          class="mt-12 flex justify-between text-xs print:text-black"
+          style="color: #71717a"
         >
           <div class="text-left font-mono">
             Dicetak pada: {{ new Date().toLocaleString("id-ID") }}

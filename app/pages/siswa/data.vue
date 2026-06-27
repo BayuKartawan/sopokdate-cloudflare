@@ -6,7 +6,8 @@
         <div class="flex flex-wrap items-center gap-4">
           <div>
             <h2
-              class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
+              :style="{ color: 'var(--text-heading)' }"
             >
               <GraduationCap class="w-7 h-7 text-emerald-400" />
               Data Siswa
@@ -236,7 +237,7 @@
               <div class="flex items-start gap-4">
                 <!-- Avatar Icon -->
                 <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-700/40 text-emerald-400 transition-colors group-hover:bg-emerald-950/40 shrink-0"
+                  class="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-700/20 dark:bg-zinc-700/40 text-emerald-600 dark:text-emerald-400 transition-colors group-hover:bg-emerald-500/15 dark:group-hover:bg-emerald-500/20 shrink-0"
                   @click="navigateToDetail(item)"
                 >
                   <UserCircle class="w-6 h-6" />
@@ -260,7 +261,7 @@
                     <p class="flex items-center gap-1.5">
                       <span class="w-16 text-zinc-500 shrink-0">Kelas:</span>
                       <span
-                        class="bg-zinc-700/50 text-emerald-300 px-1.5 py-0.5 rounded text-[10px] w-fit font-medium"
+                        class="bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-1.5 py-0.5 rounded text-[10px] w-fit font-medium"
                       >
                         {{ getClassName(item.kelas) }}
                       </span>

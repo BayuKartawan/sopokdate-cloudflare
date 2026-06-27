@@ -5,126 +5,74 @@
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center items-center py-16">
         <div class="flex items-center gap-3">
-          <svg
-            class="w-6 h-6 animate-spin text-indigo-500"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8z"
-            />
+          <svg class="w-6 h-6 animate-spin text-indigo-500" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
           </svg>
-          <span class="text-zinc-400 font-medium text-base"
-            >Memuat detail profil alumni...</span
-          >
+          <span class="text-zinc-400 font-medium text-base">Memuat detail profil alumni...</span>
         </div>
       </div>
 
       <!-- Error State -->
-      <div
-        v-else-if="error"
-        class="text-center p-6 rounded-xl bg-red-950/20 border border-red-900/30 text-red-400 max-w-lg mx-auto mt-8"
-      >
+      <div v-else-if="error"
+        class="text-center p-6 rounded-xl bg-red-950/20 border border-red-900/30 text-red-400 max-w-lg mx-auto mt-8">
         <h3 class="text-lg font-bold mb-2">Data tidak ditemukan</h3>
         <p class="text-sm text-zinc-400 mb-4">{{ error }}</p>
-        <BaseButton
-          text="Kembali ke Daftar"
-          @click="goBack"
-          class="!bg-indigo-600 hover:!bg-indigo-500"
-        />
+        <BaseButton text="Kembali ke Daftar" @click="goBack" class="!bg-indigo-600 hover:!bg-indigo-500" />
       </div>
 
       <!-- Detail Content -->
       <div v-else-if="alumniDetail" class="space-y-6">
         <!-- Breadcrumb / Back Navigation -->
         <div class="flex items-center gap-2 text-zinc-400 text-sm">
-          <NuxtLink
-            to="/akademik/alumni"
-            class="hover:text-indigo-400 transition-colors"
-            >Data Alumni</NuxtLink
-          >
+          <NuxtLink to="/akademik/alumni" class="hover:text-indigo-400 transition-colors">Data Alumni</NuxtLink>
           <span>/</span>
           <span class="text-zinc-200 font-medium">{{
             toTitleCase(alumniDetail.nama)
-          }}</span>
+            }}</span>
         </div>
 
         <!-- Header Card -->
-        <div
-          class="rounded-xl p-6 bg-zinc-900/30 border border-zinc-800/60 shadow-md relative overflow-hidden"
-        >
+        <div class="rounded-xl p-6 bg-zinc-900/30 border border-zinc-800/60 shadow-md relative overflow-hidden">
           <!-- Decorative glass highlight -->
-          <div
-            class="absolute -right-16 -top-16 w-32 h-32 rounded-full bg-indigo-500/5 blur-2xl"
-          ></div>
+          <div class="absolute -right-16 -top-16 w-32 h-32 rounded-full bg-indigo-500/5 blur-2xl"></div>
 
-          <div
-            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10"
-          >
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
             <div class="flex items-center gap-4">
               <!-- Photo / Avatar Block -->
               <div
-                class="w-14 h-14 rounded-xl flex items-center justify-center bg-zinc-800 text-zinc-200 shrink-0 overflow-hidden border border-zinc-700/50"
-              >
-                <img
-                  v-if="
-                    alumniDetail.foto && alumniDetail.foto.startsWith('http')
-                  "
-                  :src="alumniDetail.foto"
-                  alt="Foto Alumni"
-                  class="w-full h-full object-cover"
-                />
-                <div
-                  v-else
-                  class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-600/30 to-violet-600/20 text-indigo-300 font-bold text-2xl"
-                >
+                class="w-14 h-14 rounded-xl flex items-center justify-center bg-zinc-800 text-zinc-200 shrink-0 overflow-hidden border border-zinc-700/50">
+                <img v-if="
+                  alumniDetail.foto && alumniDetail.foto.startsWith('http')
+                " :src="alumniDetail.foto" alt="Foto Alumni" class="w-full h-full object-cover" />
+                <div v-else
+                  class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-600/30 to-violet-600/20 text-indigo-300 font-bold text-2xl">
                   {{ getInitials(alumniDetail.nama) }}
                 </div>
               </div>
 
               <div>
-                <h1 class="text-2xl font-bold text-white mb-1">
+                <h1 class="text-2xl font-bold text-[var(--text-heading)] mb-1">
                   {{ toTitleCase(alumniDetail.nama) }}
                 </h1>
                 <div class="flex flex-wrap gap-2 items-center text-sm">
-                  <span class="text-zinc-400"
-                    >NISN: {{ alumniDetail.nisn || "-" }}</span
-                  >
+                  <span class="text-zinc-400">NISN: {{ alumniDetail.nisn || "-" }}</span>
                   <span class="text-zinc-600">•</span>
                   <span
-                    class="bg-indigo-950/50 border border-indigo-900/30 text-indigo-300 px-2 py-0.5 rounded text-xs font-semibold"
-                  >
+                    class="bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded text-xs font-semibold border border-indigo-500/20 dark:border-indigo-900/30">
                     Lulus Tahun {{ alumniDetail.thn_lulus || "-" }}
                   </span>
                 </div>
               </div>
             </div>
             <div class="shrink-0 flex gap-2">
-              <BaseButton
-                v-if="alumniDetail.no_hp"
-                text="Hubungi Alumni"
-                @click="callAlumni(alumniDetail.no_hp)"
-                class="!bg-indigo-600 hover:!bg-indigo-500"
-              >
+              <BaseButton v-if="alumniDetail.no_hp" text="Hubungi Alumni" @click="callAlumni(alumniDetail.no_hp)"
+                class="!bg-indigo-600 hover:!bg-indigo-500">
                 <template #icon>
                   <Phone class="w-4 h-4" />
                 </template>
               </BaseButton>
-              <BaseButton
-                text="Kembali"
-                @click="goBack"
-                class="!bg-zinc-800 hover:!bg-zinc-700 w-full sm:w-auto"
-              />
+              <BaseButton text="Kembali" @click="goBack" class="!bg-zinc-800 hover:!bg-zinc-700 w-full sm:w-auto" />
             </div>
           </div>
         </div>
@@ -134,25 +82,18 @@
           <!-- Left Columns - Detail Biodata (3/4 width) -->
           <div class="lg:col-span-3 space-y-6">
             <!-- Profil Alumni Card -->
-            <div
-              class="rounded-xl p-6 bg-zinc-900/30 border border-zinc-800/60 shadow-sm"
-            >
-              <div
-                class="flex items-center gap-2 mb-6 border-b border-zinc-800 pb-3"
-              >
+            <div class="rounded-xl p-6 bg-zinc-900/30 border border-zinc-800/60 shadow-sm">
+              <div class="flex items-center gap-2 mb-6 border-b border-zinc-800 pb-3">
                 <Info class="w-5 h-5 text-indigo-400" />
-                <h2 class="text-lg font-bold text-white">
+                <h2 class="text-lg font-bold text-[var(--text-heading)]">
                   Biodata Lengkap Alumni
                 </h2>
               </div>
 
               <div class="divide-y divide-zinc-800/60">
                 <!-- Dynamic Fields Render -->
-                <div
-                  v-for="(item, index) in biodataFields"
-                  :key="index"
-                  class="py-3 grid grid-cols-1 sm:grid-cols-3 gap-1.5 sm:gap-4 text-sm"
-                >
+                <div v-for="(item, index) in biodataFields" :key="index"
+                  class="py-3 grid grid-cols-1 sm:grid-cols-3 gap-1.5 sm:gap-4 text-sm">
                   <dt class="text-zinc-400 font-medium">
                     {{ item.label }}
                   </dt>
@@ -164,9 +105,7 @@
                           alumniDetail[item.key] || '-',
                           item.label,
                         )
-                      "
-                      title="Klik untuk menyalin"
-                    >
+                        " title="Klik untuk menyalin">
                       {{ alumniDetail[item.key] || "-" }}
                     </span>
                     <span
@@ -176,8 +115,7 @@
                           alumniDetail[item.key] || '-',
                           item.label,
                         )
-                      "
-                    >
+                        ">
                       Salin
                     </span>
                   </dd>
@@ -188,40 +126,26 @@
 
           <!-- Right Column - Year Classmates Sidebar (1/4 width) -->
           <div>
-            <div
-              class="rounded-xl p-4 bg-zinc-900/30 border border-zinc-800/60 shadow-sm sticky top-20"
-            >
-              <div
-                class="flex items-center gap-2 mb-4 pb-2 border-b border-zinc-800"
-              >
+            <div class="rounded-xl p-4 bg-zinc-900/30 border border-zinc-800/60 shadow-sm sticky top-20">
+              <div class="flex items-center gap-2 mb-4 pb-2 border-b border-zinc-800">
                 <Users class="w-4 h-4 text-indigo-400" />
-                <h3 class="text-sm font-bold text-white">
+                <h3 class="text-sm font-bold text-[var(--text-heading)]">
                   Lulus Seangkatan ({{ alumniDetail.thn_lulus || "-" }})
                 </h3>
               </div>
 
               <!-- List of classmates -->
-              <div
-                class="space-y-1 max-h-[400px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-800"
-              >
-                <button
-                  v-for="(item, index) in relatedItems"
-                  :key="index"
-                  @click="navigateToDetail(item)"
-                  class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all hover:bg-zinc-800/60 text-zinc-400 hover:text-indigo-400 flex items-center justify-between"
-                >
+              <div class="space-y-1 max-h-[400px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-800">
+                <button v-for="(item, index) in relatedItems" :key="index" @click="navigateToDetail(item)"
+                  class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all hover:bg-zinc-800/60 text-zinc-400 hover:text-indigo-400 flex items-center justify-between">
                   <span class="truncate pr-2">{{ item.displayTitle }}</span>
                   <span
-                    class="text-[9px] bg-zinc-800 border border-zinc-700/30 text-zinc-400 px-1 rounded font-mono shrink-0"
-                  >
+                    class="text-[9px] bg-zinc-800 border border-zinc-700/30 text-zinc-400 px-1 rounded font-mono shrink-0">
                     {{ item.genderAbbr }}
                   </span>
                 </button>
 
-                <p
-                  v-if="relatedItems.length === 0"
-                  class="text-xs text-center py-6 text-zinc-500"
-                >
+                <p v-if="relatedItems.length === 0" class="text-xs text-center py-6 text-zinc-500">
                   Tidak ada alumni seangkatan lainnya
                 </p>
               </div>
@@ -399,13 +323,16 @@ onMounted(() => {
 .scrollbar-thin::-webkit-scrollbar {
   width: 4px;
 }
+
 .scrollbar-thin::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .scrollbar-thin::-webkit-scrollbar-thumb {
   background-color: rgb(63 63 70);
   border-radius: 2px;
 }
+
 .scrollbar-thin:hover::-webkit-scrollbar-thumb {
   background-color: rgb(82 82 91);
 }

@@ -36,9 +36,9 @@
 
         <!-- Info banner -->
         <div
-          class="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/40"
+          class="p-3 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20"
         >
-          <p class="text-emerald-300 text-xs sm:text-sm">
+          <p class="text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm">
             <strong>Info:</strong> Klik "Buat Akun Otomatis" untuk membuat akun
             login bagi semua guru yang ada di Data GTK (menggunakan Peg ID
             sebagai username dan password acak). Password bisa dilihat dan
@@ -148,7 +148,7 @@
                   </td>
                   <td class="px-4 py-3">
                     <code
-                      class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 text-xs font-mono"
+                      class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-600 dark:text-emerald-400 text-xs font-mono"
                       >{{ user.username }}</code
                     >
                   </td>
@@ -181,8 +181,8 @@
                       class="px-2 py-0.5 rounded-md text-xs font-semibold border"
                       :class="
                         user.role === 'admin'
-                          ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-                          : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                          ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30'
+                          : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30'
                       "
                     >
                       {{ user.role === "admin" ? "Admin" : "Guru" }}
@@ -193,8 +193,8 @@
                       class="px-2 py-0.5 rounded-md text-xs font-semibold"
                       :class="
                         user.is_active
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-red-500/20 text-red-400'
+                          ? 'bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-400'
+                          : 'bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-400'
                       "
                     >
                       {{ user.is_active ? "Aktif" : "Nonaktif" }}
@@ -283,8 +283,8 @@
                     class="px-2 py-0.5 rounded-md text-[10px] font-semibold border leading-tight"
                     :class="
                       user.role === 'admin'
-                        ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-                        : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                        ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30'
+                        : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30'
                     "
                   >
                     {{ user.role === "admin" ? "Admin" : "Guru" }}
@@ -293,8 +293,8 @@
                     class="px-2 py-0.5 rounded-md text-[10px] font-semibold leading-tight"
                     :class="
                       user.is_active
-                        ? 'bg-green-500/20 text-green-400'
-                        : 'bg-red-500/20 text-red-400'
+                        ? 'bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-400'
+                        : 'bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-400'
                     "
                   >
                     {{ user.is_active ? "Aktif" : "Nonaktif" }}
@@ -309,7 +309,7 @@
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-zinc-500">Username</span>
                   <code
-                    class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 font-mono select-all"
+                    class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-600 dark:text-emerald-400 font-mono select-all"
                   >
                     {{ user.username }}
                   </code>

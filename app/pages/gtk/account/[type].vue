@@ -28,6 +28,6 @@ const currentConfig = computed(() => {
 });
 
 const tableName = computed(() => currentConfig.value.name);
-const pageTitle = computed(() => `Daftar ${currentConfig.value.label}`);
+const pageTitle = computed(() => `Daftar Akun ${currentConfig.value.label}`);
 const tableKey = computed(() => currentConfig.value.name);
 </script>

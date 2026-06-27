@@ -7,9 +7,10 @@
           <div class="flex flex-wrap items-center gap-4">
             <div>
               <h2
-                class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+                class="text-xl sm:text-2xl font-bold flex items-center gap-2"
+                :style="{ color: 'var(--text-heading)' }"
               >
-                <Building2 class="w-7 h-7 text-emerald-400" />
+                <Building2 class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
                 Data Rombel
               </h2>
               <p class="text-sm text-zinc-400 mt-1">
@@ -99,9 +100,9 @@
               <div class="flex items-start gap-4">
                 <!-- Class Badge -->
                 <div
-                  class="w-12 h-12 rounded-xl flex flex-col items-center justify-center bg-emerald-950/40 text-emerald-400 shrink-0 font-bold"
+                  class="w-12 h-12 rounded-xl flex flex-col items-center justify-center bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0 font-bold"
                 >
-                  <span class="text-xs uppercase text-zinc-500 font-medium"
+                  <span class="text-[9px] uppercase text-zinc-500 font-semibold"
                     >Tkt</span
                   >
                   <span class="text-lg leading-tight">{{
@@ -121,7 +122,7 @@
                     <p class="flex items-center gap-1.5">
                       <span class="text-zinc-500 shrink-0">Wali Kelas:</span>
                       <span
-                        class="bg-zinc-700/50 text-emerald-300 px-2 py-0.5 rounded text-[10px] w-fit font-medium"
+                        class="bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded text-[10px] w-fit font-medium"
                       >
                         {{ getTeacherName(item.wali_kelas) }}
                       </span>
@@ -162,11 +163,11 @@
           <div class="space-y-2">
             <div class="flex items-center gap-3">
               <span
-                class="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-900/30"
+                class="px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-500/30"
               >
                 Tingkat {{ selectedRombel.tingkat }}
               </span>
-              <h2 class="text-xl sm:text-2xl font-bold text-white">
+              <h2 class="text-xl sm:text-2xl font-bold text-[var(--text-heading)]">
                 Rombel {{ selectedRombel.nama_kelas }}
               </h2>
             </div>
@@ -204,7 +205,7 @@
               </button>
               <button
                 @click="handleDelete(selectedRombel)"
-                class="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-red-950/20 hover:bg-red-950/40 border border-red-900/30 text-red-400 hover:text-red-300 transition-all"
+                class="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-red-500/10 hover:bg-red-500/20 dark:bg-red-950/20 dark:hover:bg-red-950/40 border border-red-500/25 dark:border-red-900/30 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-all"
               >
                 <Trash2 class="w-3.5 h-3.5" />
                 Hapus Rombel
@@ -313,14 +314,14 @@
                     {{ toTitleCase(student.nama) }}
                     <span
                       v-if="student.status_promosi === 'Sudah'"
-                      class="ml-2 bg-blue-950/60 text-blue-400 border border-blue-900/30 px-1.5 py-0.5 rounded text-[10px] font-medium inline-block shrink-0"
+                      class="ml-2 bg-blue-500/10 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-500/20 dark:border-blue-500/30 px-1.5 py-0.5 rounded text-[10px] font-medium inline-block shrink-0"
                     >
                       Baru Naik Kelas
                     </span>
                     <button
                       v-if="student.status_promosi === 'Sudah' && isAdmin"
                       @click="handleCancelPromotion(student)"
-                      class="ml-2 bg-red-950/60 text-red-400 hover:bg-red-900/20 border border-red-900/30 px-1.5 py-0.5 rounded text-[10px] font-medium transition-all shrink-0 cursor-pointer"
+                      class="ml-2 bg-red-500/10 hover:bg-red-500/20 dark:bg-red-950/60 text-red-700 dark:text-red-400 border border-red-500/20 dark:border-red-900/30 px-1.5 py-0.5 rounded text-[10px] font-medium transition-all shrink-0 cursor-pointer"
                       title="Batalkan Kenaikan Kelas"
                     >
                       Batal Naik
@@ -368,7 +369,7 @@
               v-if="isAdmin"
               @click="handleRemoveStudentsBulk"
               :disabled="isPromoting || isGraduating"
-              class="px-4 py-2.5 text-sm font-medium rounded-lg bg-red-950/30 hover:bg-red-950/60 border border-red-900/40 text-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0"
+              class="px-4 py-2.5 text-sm font-medium rounded-lg bg-red-500/10 hover:bg-red-500/20 dark:bg-red-950/30 dark:hover:bg-red-950/60 border border-red-500/25 dark:border-red-900/40 text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shrink-0"
             >
               <UserMinus class="w-4 h-4" />
               Keluarkan

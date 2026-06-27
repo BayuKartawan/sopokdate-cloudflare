@@ -7,9 +7,10 @@
         <div class="flex flex-wrap items-center gap-4">
           <div>
             <h2
-              class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
+              :style="{ color: 'var(--text-heading)' }"
             >
-              <GraduationCap class="w-8 h-8 text-indigo-400" />
+              <GraduationCap class="w-8 h-8 text-indigo-650 dark:text-indigo-400" />
               Data Alumni
             </h2>
             <p class="text-sm text-zinc-400 mt-1">
@@ -186,10 +187,10 @@
               >Total Alumni</span
             >
             <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-2xl sm:text-3xl font-bold text-white">{{
+              <span class="text-2xl sm:text-3xl font-bold text-[var(--text-heading)]">{{
                 stats.total
               }}</span>
-              <span class="text-xs text-indigo-400 font-medium">orang</span>
+              <span class="text-xs text-indigo-650 dark:text-indigo-400 font-medium">orang</span>
             </div>
           </div>
           <div
@@ -200,7 +201,7 @@
               >Melanjutkan Studi</span
             >
             <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-2xl sm:text-3xl font-bold text-emerald-400">{{
+              <span class="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{
                 stats.continuing
               }}</span>
               <span class="text-xs text-zinc-500 font-medium"
@@ -216,7 +217,7 @@
               >Tahun Lulus Terbanyak</span
             >
             <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-2xl sm:text-3xl font-bold text-violet-400">{{
+              <span class="text-2xl sm:text-3xl font-bold text-violet-650 dark:text-violet-400">{{
                 stats.topYear
               }}</span>
               <span class="text-xs text-zinc-500 font-medium"
@@ -233,7 +234,7 @@
             >
             <div class="flex items-baseline gap-2 mt-2">
               <span
-                class="text-xl sm:text-2xl font-bold text-amber-400 truncate max-w-full"
+                class="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400 truncate max-w-full"
                 :title="stats.topDestination"
               >
                 {{ stats.topDestination }}
@@ -326,7 +327,7 @@
               <div class="flex items-start gap-4">
                 <!-- Avatar block -->
                 <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-700/40 text-indigo-400 transition-colors group-hover:bg-indigo-950/40 shrink-0 overflow-hidden border border-zinc-700/50"
+                  class="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-700/20 dark:bg-zinc-700/40 text-indigo-600 dark:text-indigo-400 transition-colors group-hover:bg-indigo-500/15 dark:group-hover:bg-indigo-500/20 shrink-0 overflow-hidden border border-zinc-700/50"
                   @click="navigateToDetail(item)"
                 >
                   <img
@@ -339,11 +340,11 @@
                   />
                   <UserCircle v-else class="w-6 h-6" />
                 </div>
-
+ 
                 <!-- Info Column -->
                 <div class="flex-1 min-w-0" @click="navigateToDetail(item)">
                   <h3
-                    class="font-bold text-base text-zinc-100 truncate group-hover:text-indigo-400 transition-colors"
+                    class="font-bold text-base text-zinc-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
                   >
                     {{ toTitleCase(item.nama) }}
                   </h3>
@@ -358,7 +359,7 @@
                     <p class="flex items-center gap-1.5">
                       <span class="w-16 text-zinc-500 shrink-0">Lulus:</span>
                       <span
-                        class="bg-zinc-700/50 text-indigo-300 px-1.5 py-0.5 rounded text-[10px] w-fit font-medium border border-indigo-900/30"
+                        class="bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded text-[10px] w-fit font-medium border border-indigo-500/20 dark:border-indigo-900/30"
                       >
                         Tahun {{ item.thn_lulus || "-" }}
                       </span>
@@ -771,16 +772,16 @@ const kepalaMadrasahNIP = computed(() => {
 // Destination badge colors utility
 const getDestinationBadgeClass = (dest) => {
   if (!dest || String(dest).toLowerCase().includes("tidak")) {
-    return "bg-zinc-800/40 border-zinc-700/30 text-zinc-400";
+    return "bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-secondary)]";
   }
   const lowDest = String(dest).toLowerCase();
   if (lowDest.includes("smp")) {
-    return "bg-blue-950/40 border-blue-900/30 text-blue-400";
+    return "bg-blue-500/10 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-500/20 dark:border-blue-900/30";
   }
   if (lowDest.includes("mts")) {
-    return "bg-emerald-950/40 border-emerald-900/30 text-emerald-400";
+    return "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-900/30";
   }
-  return "bg-amber-950/40 border-amber-900/30 text-amber-400";
+  return "bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/20 dark:border-amber-900/30";
 };
 
 // Filtering logic

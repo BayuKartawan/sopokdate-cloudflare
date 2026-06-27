@@ -6,13 +6,14 @@
         <div class="flex flex-wrap items-center gap-4">
           <div>
             <h2
-              class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
+              :style="{ color: 'var(--text-heading)' }"
             >
               <BookOpen
                 v-if="activeTab === 'kurikulum'"
-                class="w-7 h-7 text-emerald-400"
+                class="w-7 h-7 text-emerald-650 dark:text-emerald-400"
               />
-              <CalendarRange v-else class="w-7 h-7 text-emerald-400" />
+              <CalendarRange v-else class="w-7 h-7 text-emerald-650 dark:text-emerald-400" />
               {{
                 activeTab === "kurikulum"
                   ? "Kurikulum Pelajaran"
@@ -47,7 +48,7 @@
           @click="activeTab = 'kurikulum'"
           :class="[
             activeTab === 'kurikulum'
-              ? 'border-emerald-500 text-emerald-400'
+              ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
               : 'border-transparent text-zinc-400 hover:text-zinc-200',
           ]"
           class="px-5 py-3 border-b-2 font-medium text-sm transition-colors flex items-center gap-2"
@@ -59,7 +60,7 @@
           @click="activeTab = 'mapping'"
           :class="[
             activeTab === 'mapping'
-              ? 'border-emerald-500 text-emerald-400'
+              ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
               : 'border-transparent text-zinc-400 hover:text-zinc-200',
           ]"
           class="px-5 py-3 border-b-2 font-medium text-sm transition-colors flex items-center gap-2"
@@ -134,7 +135,7 @@
                     :key="row.rowId"
                     :class="[
                       editingRowId === row.rowId
-                        ? 'bg-emerald-950/20 border-y border-emerald-500/30'
+                        ? 'bg-emerald-500/10 dark:bg-emerald-950/20 border-y border-emerald-500/30'
                         : 'hover:bg-zinc-900/10',
                       'transition-colors',
                     ]"
@@ -249,7 +250,7 @@
                     <td
                       v-for="t in tingkatList"
                       :key="t"
-                      class="p-4 text-center text-sm font-bold text-emerald-400 border-r border-zinc-800/60"
+                      class="p-4 text-center text-sm font-bold text-emerald-600 dark:text-emerald-400 border-r border-zinc-800/60"
                     >
                       {{ getTotalHours(t) }}
                     </td>
@@ -278,7 +279,7 @@
             <div
               class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-5 shadow-lg flex items-center gap-4"
             >
-              <div class="p-3.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+              <div class="p-3.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                 <Clock class="w-6 h-6" />
               </div>
               <div>
@@ -287,7 +288,7 @@
                 >
                   Total JP Terjadwal
                 </p>
-                <h3 class="text-2xl font-bold text-white mt-1">
+                <h3 class="text-2xl font-bold text-[var(--text-heading)] mt-1">
                   {{ totalSelectedJP }}
                   <span class="text-sm font-normal text-zinc-400">JP</span>
                 </h3>
@@ -304,13 +305,13 @@
                 >
                   Keterisian Slot Mingguan
                 </p>
-                <span class="text-xs font-bold text-emerald-400"
+                <span class="text-xs font-bold text-emerald-650 dark:text-emerald-400"
                   >{{ occupancyPercentage }}%</span
                 >
               </div>
               <div class="w-full bg-zinc-850 rounded-full h-2">
                 <div
-                  class="bg-emerald-505 bg-emerald-500 h-2 rounded-full transition-all duration-300"
+                  class="bg-emerald-500 h-2 rounded-full transition-all duration-300"
                   :style="{ width: `${occupancyPercentage}%` }"
                 ></div>
               </div>
@@ -329,7 +330,7 @@
                 >
                   Rata-rata JP Harian
                 </p>
-                <h3 class="text-2xl font-bold text-white mt-1">
+                <h3 class="text-2xl font-bold text-[var(--text-heading)] mt-1">
                   {{ averageJPHarian }}
                   <span class="text-sm font-normal text-zinc-400"
                     >JP / hari</span
@@ -428,7 +429,7 @@
                     <td
                       v-for="day in days"
                       :key="day"
-                      class="p-4 text-center text-sm font-bold text-emerald-400 border-r border-zinc-800/60"
+                      class="p-4 text-center text-sm font-bold text-emerald-600 dark:text-emerald-400 border-r border-zinc-800/60"
                     >
                       {{ getDailyTotal(day) }} JP
                     </td>
@@ -442,7 +443,7 @@
           <div
             class="bg-zinc-950/40 border border-zinc-800/50 rounded-xl p-4 flex gap-3 text-zinc-400 text-xs"
           >
-            <Sparkles class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <Sparkles class="w-5 h-5 text-emerald-605 dark:text-emerald-400 shrink-0 mt-0.5" />
             <div class="space-y-1">
               <p class="font-semibold text-zinc-300">Tips Simulasi</p>
               <p>

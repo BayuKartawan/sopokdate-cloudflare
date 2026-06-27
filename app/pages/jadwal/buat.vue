@@ -6,9 +6,10 @@
         <div class="flex flex-wrap items-center gap-4">
           <div>
             <h2
-              class="text-xl text-white sm:text-2xl font-bold flex items-center gap-2"
+              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
+              :style="{ color: 'var(--text-heading)' }"
             >
-              <Calendar class="w-7 h-7 text-emerald-400" />
+              <Calendar class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
               Susun Jadwal Pelajaran (Mode Draft)
             </h2>
             <p class="text-sm text-zinc-400 mt-1">
@@ -64,12 +65,12 @@
 
         <div
           v-if="selectedKelas"
-          class="text-xs text-zinc-400 mt-2 sm:mt-0 flex flex-wrap gap-4 items-center sm:ml-auto"
+          class="text-xs text-zinc-500 dark:text-zinc-400 mt-2 sm:mt-0 flex flex-wrap gap-4 items-center sm:ml-auto"
         >
           <!-- Selection tip -->
           <span
             v-if="selectedAllocationForPlacement"
-            class="text-emerald-400 font-semibold bg-emerald-950/40 border border-emerald-500/20 px-3 py-1.5 rounded-lg animate-pulse"
+            class="text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/20 px-3 py-1.5 rounded-lg animate-pulse"
           >
             Menempatkan:
             {{ getMapelName(selectedAllocationForPlacement.mapel_id) }} ({{
@@ -85,7 +86,7 @@
 
           <div class="flex gap-4">
             <span
-              class="flex items-center gap-1.5 text-emerald-400 font-medium"
+              class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium"
             >
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
               Terjadwal
@@ -106,7 +107,7 @@
             <h3
               class="font-bold text-sm text-zinc-300 mb-4 flex items-center gap-2"
             >
-              <BookOpen class="w-4 h-4 text-emerald-400" />
+              <BookOpen class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               Sisa Alokasi Kelas
             </h3>
 
@@ -125,8 +126,8 @@
                 class="p-3 rounded-lg border transition-all select-none"
                 :class="[
                   selectedAllocationForPlacement?.id === alloc.id
-                    ? 'border-emerald-500 bg-emerald-950/20 ring-1 ring-emerald-500/50 shadow-md shadow-emerald-950/10'
-                    : 'bg-zinc-850 border-zinc-800/80 hover:border-zinc-700/60',
+                    ? 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-950/20 ring-1 ring-emerald-500/50 shadow-md shadow-emerald-950/10'
+                    : 'bg-zinc-500/5 dark:bg-zinc-850 border-zinc-300 dark:border-zinc-800/80 hover:border-zinc-400 dark:hover:border-zinc-700/60',
                   getAllocatedCount(alloc.id) >= alloc.jam_mengajar
                     ? 'opacity-60 cursor-not-allowed'
                     : 'cursor-pointer',
@@ -139,7 +140,7 @@
                   <span class="truncate pr-1">{{
                     getMapelName(alloc.mapel_id)
                   }}</span>
-                  <span class="shrink-0 text-emerald-400">
+                  <span class="shrink-0 text-emerald-600 dark:text-emerald-400">
                     {{ getAllocatedCount(alloc.id) }} /
                     {{ alloc.jam_mengajar }} JP
                   </span>
@@ -151,14 +152,14 @@
                   <!-- Active Status Badge -->
                   <span
                     v-if="selectedAllocationForPlacement?.id === alloc.id"
-                    class="bg-emerald-500/20 text-emerald-400 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse shrink-0"
+                    class="bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse shrink-0"
                   >
                     Aktif
                   </span>
                 </div>
                 <!-- Progress Bar -->
                 <div
-                  class="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden mt-2.5"
+                  class="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden mt-2.5"
                 >
                   <div
                     class="h-1.5 rounded-full transition-all duration-300"
@@ -224,11 +225,11 @@
                       <!-- Scheduled Subject -->
                       <div
                         v-if="getScheduleAt(day, hour)"
-                        class="p-2 bg-emerald-950/30 border border-emerald-500/20 rounded-lg text-left flex flex-col justify-between h-full group"
+                        class="p-2 bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/20 rounded-lg text-left flex flex-col justify-between h-full group"
                       >
                         <div>
                           <div
-                            class="text-xs font-bold text-emerald-400 leading-tight"
+                            class="text-xs font-bold text-emerald-600 dark:text-emerald-400 leading-tight"
                           >
                             {{
                               getMapelName(getScheduleAt(day, hour).mapel_id)

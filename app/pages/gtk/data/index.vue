@@ -8,7 +8,7 @@
       <div class="flex flex-col gap-4 sm:gap-6">
         <!-- Title and Action Buttons Row -->
         <div class="flex flex-wrap items-center gap-4">
-          <h2 class="text-xl text-white sm:text-2xl">Data GTK</h2>
+          <h2 class="text-xl sm:text-2xl" :style="{ color: 'var(--text-heading)' }">Data GTK</h2>
           <div class="flex items-center gap-2 ml-auto">
             <!-- Tambah GTK Button (Admin Only) -->
             <BaseButton
