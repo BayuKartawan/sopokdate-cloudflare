@@ -36,17 +36,17 @@
             <div class="flex-shrink-0 mr-3">
               <CheckCircle
                 v-if="toast.type === 'success'"
-                class="w-6 h-6 text-emerald-400"
+                class="w-6 h-6 text-emerald-600"
               />
               <CircleX
                 v-else-if="toast.type === 'failure' || toast.type === 'error'"
-                class="w-6 h-6 text-red-400"
+                class="w-6 h-6 text-red-600"
               />
               <TriangleAlert
                 v-else-if="toast.type === 'warning'"
-                class="w-6 h-6 text-amber-400"
+                class="w-6 h-6 text-amber-600"
               />
-              <Info v-else class="w-6 h-6 text-blue-400" />
+              <Info v-else class="w-6 h-6 text-blue-600" />
             </div>
             <p class="toast__message">{{ toast.message }}</p>
             <button
@@ -280,24 +280,24 @@ onUnmounted(() => {
     0 8px 16px -6px var(--shadow-card);
 }
 .toast--success {
-  background: #064e3b;
-  border-color: #10b981;
-  color: #ecfdf5;
+  background: var(--toast-success-bg, #064e3b);
+  border-color: var(--toast-success-border, #10b981);
+  color: var(--toast-success-text, #ecfdf5);
 }
 .toast--failure {
-  background: #7f1d1d;
-  border-color: #ef4444;
-  color: #fef2f2;
+  background: var(--toast-failure-bg, #7f1d1d);
+  border-color: var(--toast-failure-border, #ef4444);
+  color: var(--toast-failure-text, #fef2f2);
 }
 .toast--warning {
-  background: #78350f;
-  border-color: #f59e0b;
-  color: #fffbeb;
+  background: var(--toast-warning-bg, #78350f);
+  border-color: var(--toast-warning-border, #f59e0b);
+  color: var(--toast-warning-text, #fffbeb);
 }
 .toast--info {
-  background: #1e3a8a;
-  border-color: #3b82f6;
-  color: #eff6ff;
+  background: var(--toast-info-bg, #1e3a8a);
+  border-color: var(--toast-info-border, #3b82f6);
+  color: var(--toast-info-text, #eff6ff);
 }
 .toast__message {
   flex: 1;
