@@ -25,9 +25,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     // URL Cloudflare Worker
-    apiWorkerUrl: process.env.NUXT_API_WORKER_URL || "http://localhost:8787",
+    apiWorkerUrl: process.env.NUXT_API_WORKER_URL,
     apiWorkerToken:
-      process.env.NUXT_API_WORKER_TOKEN || "sopokdate_secret_token_123",
+      process.env.NUXT_API_WORKER_TOKEN,
     // Mengaktifkan/menonaktifkan cache server (in-memory cache tidak cocok untuk deploy serverless/multi-isolate)
     enableServerCache: process.env.NUXT_ENABLE_SERVER_CACHE === "true",
     public: {
@@ -49,11 +49,13 @@ export default defineNuxtConfig({
           name: "apple-mobile-web-app-status-bar-style",
           content: "black-translucent",
         },
-        { name: "theme-color", content: "#10b981" },
+        // theme-color: notifbar ikut warna bg app, support light & dark
+        { name: "theme-color", content: "#ffffff", media: "(prefers-color-scheme: light)" },
+        { name: "theme-color", content: "#18181b", media: "(prefers-color-scheme: dark)" },
         { name: "mobile-web-app-capable", content: "yes" },
       ],
       link: [
-        { rel: "icon", type: "image/webp", href: "/logoMadrasah.webp" },
+        { rel: "icon", type: "image/webp", href: "/sopokdate.webp" },
         { rel: "manifest", href: "/manifest.json" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         {

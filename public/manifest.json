@@ -1,29 +1,29 @@
 {
   "name": "SopokDate",
   "short_name": "SopokDate",
-  "description": "Aplikasi Manajemen Surat dan Cetak Sertifikat Madrasah",
+  "description": "Aplikasi administrasi sekolah",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#09090b",
-  "theme_color": "#10b981",
+  "background_color": "#18181b",
+  "theme_color": "#18181b",
   "icons": [
     {
-      "src": "/assets/images/logo-madrasah.svg",
+      "src": "/sopokdate.webp",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/webp",
       "purpose": "any"
     },
     {
-      "src": "/assets/images/logo-madrasah.svg",
+      "src": "/sopokdate.webp",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/webp",
       "purpose": "maskable"
     },
     {
-      "src": "/assets/images/logo-madrasah.svg",
+      "src": "/sopokdate.webp",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/webp",
       "purpose": "any"
     }
   ]

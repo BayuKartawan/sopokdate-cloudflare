@@ -131,6 +131,12 @@
 }
 
 @layer base {
+  html {
+    height: 100%;
+    /* Prevent overscroll bounce / rubber band gap on iOS & Android */
+    overscroll-behavior: none;
+  }
+
   body {
     font-family: Arial, Helvetica, sans-serif;
     background-color: var(--bg-primary);
@@ -138,6 +144,12 @@
     transition:
       background-color 0.2s ease,
       color 0.2s ease;
+    /* Fill full viewport — eliminates blank space at bottom in PWA */
+    min-height: 100%;
+    min-height: 100dvh;
+    overscroll-behavior: none;
+    /* Prevent pull-to-refresh gap */
+    overscroll-behavior-y: contain;
   }
 
   .page-layout {
@@ -232,7 +244,7 @@
    PWA & Safe Area Layout Customization
    ============================================ */
 
-/* Safe area support on main navigation bar */
+/* Status bar area — background mengikuti warna app */
 header {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -243,14 +255,19 @@ header {
   }
 }
 
-/* Safe area support for main content area layout */
+/* Main content: fullscreen PWA tanpa ruang kosong di bawah */
 .safe-area-main {
+  /* Mobile: navbar bawah ~4rem + safe area bawah */
   padding-top: env(safe-area-inset-top, 0px) !important;
   padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px)) !important;
+  /* Gunakan dvh agar fullscreen di mobile browser/PWA */
+  min-height: 100dvh;
 }
 @media (min-width: 1024px) {
   .safe-area-main {
+    /* Desktop: navbar atas ~4rem, tidak ada navbar bawah */
     padding-top: calc(4rem + env(safe-area-inset-top, 0px)) !important;
-    padding-bottom: 0px !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    min-height: 100dvh;
   }
 }
