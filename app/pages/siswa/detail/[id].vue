@@ -3,10 +3,10 @@
   <div class="min-h-screen">
     <div class="page-layout">
       <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center items-center py-16">
+      <div v-if="loading" class="flex justify-center items-center py-20">
         <div class="flex items-center gap-3">
           <svg
-            class="w-6 h-6 animate-spin text-emerald-500"
+            class="w-5 h-5 animate-spin text-emerald-500"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -24,9 +24,7 @@
               d="M4 12a8 8 0 018-8v8z"
             />
           </svg>
-          <span class="text-zinc-400 font-medium text-base"
-            >Memuat detail profil siswa...</span
-          >
+          <span class="text-zinc-400 font-medium text-sm">Memuat detail profil siswa...</span>
         </div>
       </div>
 
@@ -35,189 +33,270 @@
         v-else-if="error"
         class="text-center p-6 rounded-xl bg-red-950/20 border border-red-900/30 text-red-400 max-w-lg mx-auto mt-8"
       >
-        <h3 class="text-lg font-bold mb-2">Data tidak ditemukan</h3>
+        <h3 class="text-base font-bold mb-2">Data tidak ditemukan</h3>
         <p class="text-sm text-zinc-400 mb-4">{{ error }}</p>
         <BaseButton text="Kembali ke Daftar" @click="goBack" />
       </div>
 
       <!-- Detail Content -->
-      <div v-else-if="siswaDetail" class="space-y-6">
-        <!-- Breadcrumb / Back Navigation -->
-        <div class="flex items-center gap-2 text-zinc-400 text-sm">
+      <div v-else-if="siswaDetail" class="space-y-4">
+
+        <!-- Breadcrumb -->
+        <div class="flex items-center gap-1.5 text-zinc-400 text-xs">
           <NuxtLink
             to="/akademik/siswa"
             class="hover:text-emerald-400 transition-colors"
-            >Data Siswa</NuxtLink
-          >
-          <span>/</span>
-          <span class="text-zinc-200 font-medium">{{
-            toTitleCase(siswaDetail.nama)
-          }}</span>
+          >Data Siswa</NuxtLink>
+          <span class="text-zinc-600">/</span>
+          <span class="text-zinc-300 font-medium truncate">{{ toTitleCase(siswaDetail.nama) }}</span>
         </div>
 
         <!-- Header Card -->
-        <div
-          class="rounded-xl p-6 bg-zinc-800/40 border border-zinc-700/30 shadow-md"
-        >
-          <div
-            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-          >
-            <div class="flex items-center gap-4">
+        <div class="rounded-xl p-4 sm:p-5 bg-zinc-800/40 border border-zinc-700/30 shadow-md">
+          <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+            <!-- Avatar + Info -->
+            <div class="flex items-center gap-3 flex-1 min-w-0">
               <div
-                class="w-14 h-14 rounded-xl flex items-center justify-center bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex-shrink-0 flex items-center justify-center bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
               >
-                <UserCircle class="h-9 w-9" />
+                <UserCircle class="h-8 w-8 sm:h-9 sm:w-9" />
               </div>
-              <div>
-                <h1 class="text-2xl font-bold text-[var(--text-heading)] mb-1">
+              <div class="min-w-0">
+                <h1 class="text-lg sm:text-xl font-bold text-[var(--text-heading)] leading-tight truncate">
                   {{ toTitleCase(siswaDetail.nama) }}
                 </h1>
-                <div class="flex flex-wrap gap-2 items-center text-sm">
-                  <span class="text-zinc-400"
-                    >NISN: {{ siswaDetail.nisn || "-" }}</span
-                  >
-                  <span class="text-zinc-600">•</span>
-                  <span
-                    class="bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded text-xs font-semibold"
-                  >
+                <div class="flex flex-wrap gap-2 items-center mt-1">
+                  <span class="text-zinc-400 text-xs">NISN: {{ siswaDetail.nisn || "-" }}</span>
+                  <span class="text-zinc-600 text-xs">•</span>
+                  <span class="bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded text-xs font-semibold">
                     Kelas {{ getClassName(siswaDetail["tingkat - rombel"]) }}
                   </span>
                 </div>
               </div>
             </div>
-            <div class="shrink-0">
+
+            <!-- Actions -->
+            <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
+              <template v-if="isAdmin">
+                <button
+                  @click="openEditModal(siswaDetail)"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-amber-400 border border-amber-500/30 hover:bg-amber-500/10 transition-all"
+                >
+                  <Pencil class="w-3.5 h-3.5" />
+                  Edit
+                </button>
+                <button
+                  @click="handleDelete(siswaDetail)"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all"
+                >
+                  <Trash2 class="w-3.5 h-3.5" />
+                  Hapus
+                </button>
+              </template>
               <BaseButton
-                text="Kembali ke Daftar"
+                text="Kembali"
                 @click="goBack"
-                class="w-full sm:w-auto"
+                class="text-xs"
               />
             </div>
           </div>
         </div>
 
         <!-- Main Details Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <!-- Left Columns - Detail Biodata (3/4 width) -->
-          <div class="lg:col-span-3 space-y-6">
-            <!-- Profil Siswa Card -->
-            <div
-              class="rounded-xl p-6 bg-zinc-800/40 border border-zinc-700/30 shadow-sm"
-            >
-              <div
-                class="flex items-center gap-2 mb-6 border-b border-zinc-700/50 pb-3"
-              >
-                <Info class="w-5 h-5 text-emerald-400" />
-                <h2 class="text-lg font-bold text-[var(--text-heading)]">
-                  Biodata Lengkap Siswa
-                </h2>
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
+
+          <!-- Left - Biodata (3/4) -->
+          <div class="xl:col-span-3">
+            <div class="rounded-xl bg-zinc-800/40 border border-zinc-700/30 shadow-sm overflow-hidden">
+              <!-- Card Header -->
+              <div class="flex items-center gap-2 px-4 sm:px-5 py-3 border-b border-zinc-700/50">
+                <Info class="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <h2 class="text-sm font-bold text-[var(--text-heading)]">Biodata Lengkap Siswa</h2>
               </div>
 
-              <div class="divide-y divide-zinc-700/50">
-                <!-- Dynamic Fields Render -->
-                <div
-                  v-for="(item, index) in biodataFields"
-                  :key="index"
-                  class="py-3 grid grid-cols-1 sm:grid-cols-3 gap-1.5 sm:gap-4 text-sm"
-                >
-                  <dt class="text-zinc-400 font-medium">
-                    {{ item.label }}
-                  </dt>
-                  <dd class="sm:col-span-2 flex items-center gap-2 group">
-                    <span
-                      class="flex-1 select-all cursor-pointer text-zinc-100 hover:text-emerald-400 transition-colors font-medium break-all"
-                      @click="
-                        copyToClipboard(
+              <!-- Fields — 2-col grid on md+, stacked on mobile -->
+              <div class="p-4 sm:p-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-0 divide-y divide-zinc-700/30 md:divide-y-0">
+                  <div
+                    v-for="(item, index) in biodataFields"
+                    :key="index"
+                    class="py-2.5 md:border-b md:border-zinc-700/30"
+                  >
+                    <dt class="text-[11px] uppercase tracking-wide text-zinc-500 font-medium mb-0.5">
+                      {{ item.label }}
+                    </dt>
+                    <dd class="flex items-center gap-2 group">
+                      <span
+                        class="flex-1 text-sm text-zinc-100 hover:text-emerald-400 transition-colors font-medium break-all select-all cursor-pointer leading-snug"
+                        @click="copyToClipboard(
                           item.key === 'tingkat - rombel'
                             ? getClassName(siswaDetail[item.key])
                             : siswaDetail[item.key] || '-',
                           item.label,
-                        )
-                      "
-                      title="Klik untuk menyalin"
-                    >
-                      {{
-                        item.key === "tingkat - rombel"
-                          ? getClassName(siswaDetail[item.key])
-                          : siswaDetail[item.key] || "-"
-                      }}
-                    </span>
-                    <span
-                      class="text-[10px] bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shrink-0"
-                      @click="
-                        copyToClipboard(
+                        )"
+                        title="Klik untuk menyalin"
+                      >
+                        {{
+                          item.key === "tingkat - rombel"
+                            ? getClassName(siswaDetail[item.key])
+                            : siswaDetail[item.key] || "-"
+                        }}
+                      </span>
+                      <span
+                        class="text-[9px] bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shrink-0"
+                        @click="copyToClipboard(
                           item.key === 'tingkat - rombel'
                             ? getClassName(siswaDetail[item.key])
                             : siswaDetail[item.key] || '-',
                           item.label,
-                        )
-                      "
-                    >
-                      Salin
-                    </span>
-                  </dd>
+                        )"
+                      >
+                        Salin
+                      </span>
+                    </dd>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Right Column - Classmates Sidebar (1/4 width) -->
-          <div>
-            <div
-              class="rounded-xl p-4 bg-zinc-800/40 border border-zinc-700/30 shadow-sm sticky top-20"
-            >
-              <div
-                class="flex items-center gap-2 mb-4 pb-2 border-b border-zinc-700/50"
-              >
-                <Users class="w-4 h-4 text-emerald-400" />
-                <h3 class="text-sm font-bold text-[var(--text-heading)]">
-                  Siswa Sekelas ({{
-                    getClassName(siswaDetail["tingkat - rombel"])
-                  }})
+          <!-- Right - Classmates Sidebar (1/4) -->
+          <div class="xl:col-span-1">
+            <div class="rounded-xl bg-zinc-800/40 border border-zinc-700/30 shadow-sm xl:sticky xl:top-20">
+              <!-- Sidebar Header -->
+              <div class="flex items-center gap-2 px-4 py-3 border-b border-zinc-700/50">
+                <Users class="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <h3 class="text-xs font-bold text-[var(--text-heading)] leading-tight">
+                  Siswa Sekelas
+                  <span class="block text-zinc-400 font-normal">({{ getClassName(siswaDetail["tingkat - rombel"]) }})</span>
                 </h3>
               </div>
 
-              <!-- List of classmates -->
-              <div
-                class="space-y-1 max-h-[400px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-700"
-              >
+              <!-- List -->
+              <div class="p-2 max-h-72 xl:max-h-[420px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700">
                 <button
                   v-for="(item, index) in relatedItems"
                   :key="index"
                   @click="navigateToDetail(item)"
-                  class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all hover:bg-zinc-700/40 text-zinc-400 hover:text-emerald-400 flex items-center justify-between"
+                  class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all hover:bg-zinc-700/40 text-zinc-400 hover:text-emerald-400 flex items-center justify-between gap-2"
                 >
-                  <span class="truncate pr-2">{{ item.displayTitle }}</span>
-                  <span
-                    class="text-[9px] bg-zinc-700 text-zinc-400 px-1 rounded font-mono shrink-0"
-                  >
+                  <span class="truncate">{{ item.displayTitle }}</span>
+                  <span class="text-[9px] bg-zinc-700/80 text-zinc-400 px-1.5 py-0.5 rounded font-mono shrink-0">
                     {{ item.genderAbbr }}
                   </span>
                 </button>
 
                 <p
                   v-if="relatedItems.length === 0"
-                  class="text-xs text-center py-6 text-zinc-500"
+                  class="text-xs text-center py-8 text-zinc-500"
                 >
                   Tidak ada siswa sekelas lainnya
                 </p>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
+
+    <!-- CRUD Modal -->
+    <CrudModal
+      :show="showModal"
+      :mode="modalMode"
+      :title="modalMode === 'create' ? 'Tambah Data Siswa' : 'Edit Data Siswa'"
+      :fields="siswaFields"
+      :initialData="editingItem"
+      :isSaving="isSaving"
+      @submit="handleFormSubmit"
+      @close="showModal = false"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { Info, UserCircle, Users } from "lucide-vue-next";
+import { Info, UserCircle, Users, Pencil, Trash2 } from "lucide-vue-next";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import CrudModal from "~/components/ui/CrudModal.vue";
 import { useTableData } from "~/composables/data/useTableData";
+import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 
 const { cardData: dataSiswa, loadData } = useTableData();
 const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
+
+const { isAdmin, isSaving, updateItem, deleteItem } = useCrud(
+  "data_siswa",
+  () => loadSiswaDetail(),
+);
+
+// CRUD Modal state
+const showModal = ref(false);
+const modalMode = ref("edit");
+const editingItem = ref({});
+
+const siswaFields = [
+  { key: "nama", label: "Nama", required: true },
+  { key: "nisn", label: "NISN" },
+  { key: "nis_lokal", label: "NIS Lokal" },
+  { key: "nik", label: "NIK" },
+  { key: "no_kk", label: "No KK" },
+  { key: "tempat_lahir", label: "Tempat Lahir" },
+  { key: "tanggal_lahir", label: "Tanggal Lahir", type: "date" },
+  { key: "kelas", label: "Kelas" },
+  { key: "umur", label: "Umur" },
+  {
+    key: "jenis_kelamin",
+    label: "Jenis Kelamin",
+    type: "select",
+    options: ["Laki-Laki", "Perempuan"],
+  },
+  { key: "alamat", label: "Alamat", type: "textarea" },
+  { key: "no_hp", label: "No HP" },
+  { key: "no_kip", label: "No KIP" },
+  { key: "nama_ayah_kandung", label: "Nama Ayah Kandung" },
+  { key: "nama_ibu_kandung", label: "Nama Ibu Kandung" },
+  { key: "nama_wali", label: "Nama Wali" },
+];
+
+const openEditModal = (item) => {
+  modalMode.value = "edit";
+  editingItem.value = {
+    _id: item.id || item._id,
+    nama: item.nama || "",
+    nisn: item.nisn || "",
+    nis_lokal: item["nis lokal"] || item.nis_lokal || "",
+    nik: item.nik || "",
+    no_kk: item["no kk"] || item.no_kk || "",
+    tempat_lahir: item["tempat lahir"] || item.tempat_lahir || "",
+    tanggal_lahir: item["tanggal lahir"] || item.tanggal_lahir || "",
+    kelas: item["tingkat - rombel"] || item.kelas || "",
+    umur: item.umur || "",
+    jenis_kelamin: item["jenis kelamin"] || item.jenis_kelamin || "",
+    alamat: item.alamat || "",
+    no_hp: item["no telepon"] || item.no_hp || "",
+    no_kip: item["no kip"] || item.no_kip || "",
+    nama_ayah_kandung: item["nama ayah kandung"] || item.nama_ayah_kandung || "",
+    nama_ibu_kandung: item["nama ibu kandung"] || item.nama_ibu_kandung || "",
+    nama_wali: item["nama wali"] || item.nama_wali || "",
+  };
+  showModal.value = true;
+};
+
+const handleFormSubmit = async (formData) => {
+  const id = editingItem.value._id;
+  const success = await updateItem(id, formData);
+  if (success) {
+    showModal.value = false;
+  }
+};
+
+const handleDelete = (item) => {
+  const id = item.id || item._id;
+  deleteItem(id, toTitleCase(item.nama));
+  router.push("/akademik/siswa");
+};
 
 const route = useRoute();
 const router = useRouter();

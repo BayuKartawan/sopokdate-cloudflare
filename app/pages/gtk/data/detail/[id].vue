@@ -2,156 +2,158 @@
 <template>
   <div class="min-h-screen">
     <div class="page-layout">
-      <!-- Breadcrumb Components -->
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center items-center py-8">
-        <div class="flex items-center gap-2">
+      <div v-if="loading" class="flex justify-center items-center py-20">
+        <div class="flex items-center gap-3">
           <svg
             class="w-5 h-5 animate-spin text-gray-500"
             fill="none"
             viewBox="0 0 24 24"
           >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8z"
-            />
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
           </svg>
-          <span class="text-gray-500">Memuat detail...</span>
+          <span class="text-gray-500 text-sm">Memuat detail...</span>
         </div>
       </div>
 
       <!-- Error State -->
       <div
         v-else-if="error"
-        class="text-center p-4 rounded-lg bg-red-900/20 text-red-400"
+        class="text-center p-5 rounded-xl bg-red-900/20 border border-red-800/30 text-red-400 max-w-md mx-auto mt-8"
       >
-        <h3 class="text-lg font-medium mb-1">Data tidak ditemukan</h3>
-        <p class="text-sm">{{ error }}</p>
+        <h3 class="text-base font-semibold mb-1">Data tidak ditemukan</h3>
+        <p class="text-sm text-zinc-400">{{ error }}</p>
       </div>
 
       <!-- Detail Content -->
-      <div v-else-if="gtkDetail" class="space-y-6">
-        <!-- Header -->
-        <div class="rounded-lg p-6 bg-zinc-800">
-          <div
-            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-          >
-            <div class="flex items-center gap-4">
-              <UserCircle class="h-8 w-8 text-emerald-400" />
-              <div>
-                <h1 class="text-2xl font-semibold mb-1 text-[var(--text-heading)]">
+      <div v-else-if="gtkDetail" class="space-y-4">
+
+        <!-- Header Card -->
+        <div class="rounded-xl p-4 sm:p-5 bg-zinc-800 shadow-md">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+
+            <!-- Avatar + Name -->
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center bg-emerald-500/10 text-emerald-400">
+                <UserCircle class="h-7 w-7" />
+              </div>
+              <div class="min-w-0">
+                <h1 class="text-base sm:text-lg font-semibold text-[var(--text-heading)] leading-tight truncate">
                   {{ gtkDetail.title }}
                 </h1>
-                <p class="text-sm text-zinc-400">
-                  {{ gtkDetail.Tugas }}
-                </p>
+                <p class="text-xs text-zinc-400 mt-0.5 truncate">{{ gtkDetail.Tugas || "-" }}</p>
               </div>
             </div>
 
             <!-- Admin Actions -->
-            <div v-if="isAdmin" class="flex items-center gap-2">
+            <div v-if="isAdmin" class="flex items-center gap-2 flex-shrink-0">
               <button
                 @click="openEditModal(gtkDetail)"
-                class="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors"
                 title="Edit"
               >
-                <Pencil class="w-4 h-4" />
-                <span>Edit</span>
+                <Pencil class="w-3.5 h-3.5" />
+                Edit
               </button>
               <button
                 @click="handleDelete(gtkDetail)"
-                class="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-red-600 hover:bg-red-500 text-white transition-colors"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600 hover:bg-red-500 text-white transition-colors"
                 title="Hapus"
               >
-                <Trash2 class="w-4 h-4" />
-                <span>Hapus</span>
+                <Trash2 class="w-3.5 h-3.5" />
+                Hapus
               </button>
             </div>
           </div>
         </div>
 
         <!-- Main Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <!-- Left Column - Details -->
-          <div class="lg:col-span-3">
-            <!-- Information Card -->
-            <div class="rounded-lg p-6 bg-zinc-800">
-              <div class="flex items-center gap-2 mb-4">
-                <Info class="w-5 h-5 text-emerald-400" />
-                <h2 class="text-lg font-medium text-[var(--text-heading)]">Informasi Detail</h2>
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
+
+          <!-- Left Column - Details (3/4) -->
+          <div class="xl:col-span-3">
+            <div class="rounded-xl bg-zinc-800 shadow-sm overflow-hidden">
+
+              <!-- Card Header -->
+              <div class="flex items-center gap-2 px-4 sm:px-5 py-3 border-b border-zinc-700/60">
+                <Info class="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <h2 class="text-sm font-semibold text-[var(--text-heading)]">Informasi Detail</h2>
               </div>
 
-              <div class="divide-y divide-zinc-700">
-                <!-- Nama -->
-                <div class="py-3 grid grid-cols-3 gap-4 text-sm">
-                  <dt class="text-zinc-300">Nama</dt>
-                  <dd class="col-span-2 flex items-center gap-2">
-                    <span
-                      class="flex-1 select-all cursor-pointer text-[var(--text-primary)]"
-                      @click="copyToClipboard(gtkDetail.title)"
-                      title="Klik untuk menyalin"
-                    >
-                      {{ gtkDetail.title }}
-                    </span>
-                  </dd>
-                </div>
+              <!-- Fields — 2-col grid on md+, stacked on mobile -->
+              <div class="p-4 sm:p-5">
+                <!-- Nama row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-0 divide-y divide-zinc-700/40 md:divide-y-0">
+                  <!-- Nama -->
+                  <div class="py-2.5 md:border-b md:border-zinc-700/40">
+                    <dt class="text-[11px] uppercase tracking-wide text-zinc-500 font-medium mb-0.5">Nama</dt>
+                    <dd>
+                      <span
+                        class="text-sm text-[var(--text-primary)] select-all cursor-pointer hover:text-emerald-400 transition-colors font-medium"
+                        @click="copyToClipboard(gtkDetail.title)"
+                        title="Klik untuk menyalin"
+                      >
+                        {{ gtkDetail.title }}
+                      </span>
+                    </dd>
+                  </div>
 
-                <!-- Dynamic Fields -->
-                <div
-                  v-for="(item, index) in biodataFields"
-                  :key="index"
-                  class="py-3 grid grid-cols-3 gap-4 text-sm"
-                >
-                  <dt class="text-zinc-300">
-                    {{ item.label }}
-                  </dt>
-                  <dd class="col-span-2 flex items-center gap-2">
-                    <span
-                      class="flex-1 select-all cursor-pointer text-[var(--text-primary)]"
-                      @click="copyToClipboard(gtkDetail[item.key] || '-')"
-                      title="Klik untuk menyalin"
-                    >
-                      {{ gtkDetail[item.key] || "-" }}
-                    </span>
-                  </dd>
+                  <!-- Dynamic Fields -->
+                  <div
+                    v-for="(item, index) in biodataFields"
+                    :key="index"
+                    class="py-2.5 md:border-b md:border-zinc-700/40"
+                  >
+                    <dt class="text-[11px] uppercase tracking-wide text-zinc-500 font-medium mb-0.5">
+                      {{ item.label }}
+                    </dt>
+                    <dd>
+                      <span
+                        class="text-sm text-[var(--text-primary)] select-all cursor-pointer hover:text-emerald-400 transition-colors font-medium break-all"
+                        @click="copyToClipboard(gtkDetail[item.key] || '-')"
+                        title="Klik untuk menyalin"
+                      >
+                        {{ gtkDetail[item.key] || "-" }}
+                      </span>
+                    </dd>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Right Column - Related Items -->
-          <div>
-            <div class="rounded-lg p-4 bg-zinc-800">
-              <h3 class="text-sm font-medium mb-3 text-[var(--text-heading)]">GTK Terkait</h3>
-              <div class="space-y-2">
+          <!-- Right Column - Related Items (1/4) -->
+          <div class="xl:col-span-1">
+            <div class="rounded-xl bg-zinc-800 shadow-sm xl:sticky xl:top-20">
+              <!-- Sidebar Header -->
+              <div class="flex items-center gap-2 px-4 py-3 border-b border-zinc-700/60">
+                <h3 class="text-xs font-semibold text-[var(--text-heading)]">GTK Lainnya</h3>
+                <span class="ml-auto text-[10px] text-zinc-500 font-mono">{{ relatedItems.length }}</span>
+              </div>
+
+              <!-- List -->
+              <div class="p-2 max-h-64 xl:max-h-[440px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700">
                 <button
                   v-for="(item, index) in relatedItems"
                   :key="index"
                   @click="navigateToDetail(item)"
-                  class="w-full text-left px-3 py-2 rounded text-sm transition-colors hover:bg-zinc-700 text-zinc-300"
+                  class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all hover:bg-zinc-700/50 text-zinc-400 hover:text-emerald-400 truncate block"
                 >
                   {{ item.displayTitle }}
                 </button>
 
                 <p
                   v-if="relatedItems.length === 0"
-                  class="text-sm text-center py-2 text-zinc-500"
+                  class="text-xs text-center py-8 text-zinc-500"
                 >
                   Tidak ada item terkait
                 </p>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -276,37 +278,31 @@ const handleDelete = (item) => {
   deleteItem(id, toTitleCase(item.title));
 };
 
-// TAMBAHKAN BLOK DI BAWAH INI
 watch(
   () => route.params.id,
   (newId, oldId) => {
-    // Pastikan fungsi untuk memuat data dipanggil lagi saat ID berubah
-    // Pengecekan newId !== oldId mencegah pemanggilan ulang yang tidak perlu.
     if (newId && newId !== oldId) {
       loadGtkDetail();
     }
   },
 );
+
 async function loadGtkDetail() {
   loading.value = true;
   error.value = null;
 
   try {
-    // Tunggu sampai data selesai dimuat oleh komposabel
     await loadData("DataGtk");
 
-    // Gunakan data dari komposabel jika tersedia
     if (cardData.value && cardData.value.length > 0) {
       dataGtk.value = cardData.value;
     } else {
-      // Fallback ke local storage langsung jika komposabel tidak berhasil
       const storedDataGtk = localStorage.getItem("DataGtk");
       if (storedDataGtk) {
         dataGtk.value = JSON.parse(storedDataGtk);
       }
     }
 
-    // Cari item berdasarkan parameter route (PegID atau database ID)
     const pegId = route.params.id;
 
     let foundItem = null;
@@ -332,7 +328,6 @@ async function loadGtkDetail() {
   }
 }
 
-// Format teks menjadi huruf besar di awal kata
 function toTitleCase(str) {
   return str.replace(
     /\w\S*/g,
@@ -340,12 +335,9 @@ function toTitleCase(str) {
   );
 }
 
-// Menampilkan SEMUA item terkait dengan format teks yang dimodifikasi
 const relatedItems = computed(() => {
   if (!gtkDetail.value) return [];
 
-  // Hapus .slice(0, 3) untuk menampilkan semua data yang relevan
-  // Kita tetap menggunakan .filter agar item yang sedang dibuka tidak muncul lagi di daftar "terkait".
   return dataGtk.value
     .filter((item) => item.title !== gtkDetail.value.title)
     .map((item) => ({
@@ -383,7 +375,6 @@ const biodataFields = [
   { label: "Mata Pelajaran", key: "MataPelajaran" },
 ];
 
-// Fungsi untuk menyalin teks ke clipboard
 const copyToClipboard = async (text) => {
   try {
     await navigator.clipboard.writeText(text);
@@ -397,3 +388,19 @@ onMounted(() => {
   loadGtkDetail();
 });
 </script>
+
+<style scoped>
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgb(63 63 70);
+  border-radius: 2px;
+}
+.scrollbar-thin:hover::-webkit-scrollbar-thumb {
+  background-color: rgb(82 82 91);
+}
+</style>

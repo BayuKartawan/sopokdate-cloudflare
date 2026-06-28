@@ -229,82 +229,14 @@
           <ul
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
           >
-            <li
+            <PersonCard
               v-for="(item, index) in visibleData"
               :key="item.id || index"
-              class="cursor-pointer rounded-xl border p-5 transition-all duration-200 shadow-sm bg-zinc-800/30 border-zinc-700/40 hover:bg-zinc-700/40 hover:border-emerald-500/30 hover:shadow-emerald-950/20 group"
-            >
-              <div class="flex items-start gap-4">
-                <!-- Avatar Icon -->
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-700/20 dark:bg-zinc-700/40 text-emerald-600 dark:text-emerald-400 transition-colors group-hover:bg-emerald-500/15 dark:group-hover:bg-emerald-500/20 shrink-0"
-                  @click="navigateToDetail(item)"
-                >
-                  <UserCircle class="w-6 h-6" />
-                </div>
-
-                <!-- Info Column -->
-                <div class="flex-1 min-w-0" @click="navigateToDetail(item)">
-                  <h3
-                    class="font-bold text-base text-zinc-100 truncate group-hover:text-emerald-400 transition-colors"
-                  >
-                    {{ toTitleCase(item.nama) }}
-                  </h3>
-
-                  <div
-                    class="flex flex-col gap-0.5 mt-1.5 text-xs text-zinc-400"
-                  >
-                    <p class="flex items-center gap-1.5">
-                      <span class="w-16 text-zinc-500 shrink-0">NISN:</span>
-                      <span class="font-mono">{{ item.nisn || "-" }}</span>
-                    </p>
-                    <p class="flex items-center gap-1.5">
-                      <span class="w-16 text-zinc-500 shrink-0">Kelas:</span>
-                      <span
-                        class="bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-1.5 py-0.5 rounded text-[10px] w-fit font-medium"
-                      >
-                        {{ getClassName(item.kelas) }}
-                      </span>
-                    </p>
-                    <p class="flex items-center gap-1.5">
-                      <span class="w-16 text-zinc-500 shrink-0"
-                        >NIS Lokal:</span
-                      >
-                      <span class="truncate text-zinc-300">{{
-                        item.nis_lokal || "-"
-                      }}</span>
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Admin Actions -->
-                <div
-                  v-if="isAdmin"
-                  class="flex items-center gap-1 shrink-0 mt-0.5"
-                >
-                  <button
-                    @click.stop="openEditModal(item)"
-                    class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-700/60 transition-all"
-                    title="Edit"
-                  >
-                    <Pencil class="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    @click.stop="handleDelete(item)"
-                    class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-700/60 transition-all"
-                    title="Hapus"
-                  >
-                    <Trash2 class="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <!-- Arrow Icon -->
-                <ChevronRight
-                  class="w-5 h-5 text-zinc-600 mt-0.5 group-hover:text-emerald-400 transition-colors shrink-0"
-                  @click="navigateToDetail(item)"
-                />
-              </div>
-            </li>
+              :item="item"
+              :title="item.nama"
+              :subtitle="item.nisn ? 'NISN: ' + item.nisn : '-'"
+              @click="navigateToDetail"
+            />
           </ul>
 
           <!-- Load More Button -->
@@ -340,18 +272,15 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import {
   Database,
-  UserCircle,
-  ChevronRight,
   GraduationCap,
   Plus,
-  Pencil,
-  Trash2,
 } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
+import PersonCard from "~/components/data/PersonCard.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { fetchFromApi } from "~/utils/api";

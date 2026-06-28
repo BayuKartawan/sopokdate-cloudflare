@@ -197,36 +197,14 @@
           v-else
           class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
         >
-          <li
+          <PersonCard
             v-for="(item, index) in visibleData"
             :key="index"
-            class="cursor-pointer rounded-lg border p-4 transition-colors duration-150 shadow-sm bg-zinc-800/30 border-zinc-700/50 hover:bg-zinc-700/50"
-          >
-            <div class="flex items-center gap-3">
-              <!-- Icon -->
-              <div
-                class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-700/50 text-emerald-400"
-                @click="navigateToDetail(item)"
-              >
-                <UserCircle class="w-5 h-5" />
-              </div>
-
-              <!-- Content -->
-              <div class="flex-1 min-w-0" @click="navigateToDetail(item)">
-                <h3 class="font-medium text-base truncate text-zinc-100">
-                  {{ toTitleCase(item.title) }}
-                </h3>
-                <p class="text-sm truncate text-zinc-400">
-                  {{ item.Tugas || "Guru" }}
-                </p>
-              </div>
-
-              <ChevronRight
-                class="w-4 h-4 text-zinc-600"
-                @click="navigateToDetail(item)"
-              />
-            </div>
-          </li>
+            :item="item"
+            :title="item.title"
+            :subtitle="item.Tugas || 'Guru'"
+            @click="navigateToDetail"
+          />
         </ul>
 
         <!-- Load More Button -->
@@ -258,7 +236,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 
-import { Database, UserCircle, ChevronRight, Plus } from "lucide-vue-next";
+import { Database, Plus } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
@@ -266,6 +244,7 @@ import BaseButton from "~/components/ui/BaseButton.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
+import PersonCard from "~/components/data/PersonCard.vue";
 import * as XLSX from "xlsx";
 
 const router = useRouter();
