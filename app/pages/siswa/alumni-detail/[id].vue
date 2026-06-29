@@ -29,7 +29,7 @@
           <span>/</span>
           <span class="text-zinc-200 font-medium">{{
             toTitleCase(alumniDetail.nama)
-            }}</span>
+          }}</span>
         </div>
 
         <!-- Header Card -->
@@ -66,6 +66,22 @@
               </div>
             </div>
             <div class="shrink-0 flex gap-2">
+              <template v-if="isAdmin">
+                <button
+                  @click="openEditModal(alumniDetail)"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-amber-400 border border-amber-500/30 hover:bg-amber-500/10 transition-all"
+                >
+                  <Pencil class="w-3.5 h-3.5" />
+                  Edit
+                </button>
+                <button
+                  @click="handleDelete(alumniDetail)"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all"
+                >
+                  <Trash2 class="w-3.5 h-3.5" />
+                  Kembalikan ke Siswa
+                </button>
+              </template>
               <BaseButton v-if="alumniDetail.no_hp" text="Hubungi Alumni" @click="callAlumni(alumniDetail.no_hp)"
                 class="!bg-indigo-600 hover:!bg-indigo-500">
                 <template #icon>
@@ -155,20 +171,176 @@
       </div>
     </div>
   </div>
+
+  <!-- CRUD Modal -->
+  <CrudModal
+    :show="showModal"
+    :mode="modalMode"
+    title="Edit Data Alumni"
+    :fields="alumniFields"
+    :initialData="editingItem"
+    :isSaving="isSaving"
+    @submit="handleFormSubmit"
+    @close="showModal = false"
+  />
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { Info, UserCircle, Users, Phone } from "lucide-vue-next";
+import { Info, UserCircle, Users, Phone, Pencil, Trash2 } from "lucide-vue-next";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import CrudModal from "~/components/ui/CrudModal.vue";
 import { useTableData } from "~/composables/data/useTableData";
+import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
+import { fetchFromApi, postToApi, deleteFromApi } from "~/utils/api";
+import { clearTableSessionCache } from "~/composables/data/useTableData";
 
-const { cardData: dataAlumni, loadData } = useTableData();
+const { cardData: dataAlumni, loadData, refreshData } = useTableData();
 
 const route = useRoute();
 const router = useRouter();
-const { Notify } = useNotiflix();
+const { Notify, Confirm } = useNotiflix();
+
+const { isAdmin, isSaving, updateItem } = useCrud(
+  "alumni",
+  async () => {
+    await loadAlumniDetail();
+  },
+);
+
+// CRUD Modal state
+const showModal = ref(false);
+const modalMode = ref("edit");
+const editingItem = ref({});
+
+const alumniFields = [
+  { key: "nama", label: "Nama Lengkap", required: true },
+  { key: "foto", label: "Tautan Foto (URL)" },
+  { key: "nis_lokal", label: "NIS Lokal" },
+  { key: "nisn", label: "NISN" },
+  { key: "nik", label: "NIK" },
+  { key: "no_kk", label: "Nomor KK" },
+  { key: "tempat_lahir", label: "Tempat Lahir" },
+  { key: "tanggal_lahir", label: "Tanggal Lahir", type: "text" },
+  { key: "umur", label: "Umur saat Lulus" },
+  {
+    key: "jenis_kelamin",
+    label: "Jenis Kelamin",
+    type: "select",
+    options: ["Laki-laki", "Perempuan"],
+  },
+  {
+    key: "status",
+    label: "Status",
+    type: "select",
+    options: ["Lulus", "Berhenti", "Pindah"],
+  },
+  { key: "thn_lulus", label: "Tahun Lulus", required: true },
+  { key: "menjutkan_ke", label: "Melanjutkan Ke (Studi Lanjut)" },
+  { key: "alamat", label: "Alamat", type: "textarea" },
+  { key: "no_hp", label: "No Telepon / WhatsApp" },
+  { key: "no_kip", label: "Nomor KIP/PIP" },
+  { key: "nama_ayah_kandung", label: "Nama Ayah Kandung" },
+  { key: "nama_ibu_kandung", label: "Nama Ibu Kandung" },
+  { key: "nama_wali", label: "Nama Wali" },
+];
+
+const openEditModal = (item) => {
+  modalMode.value = "edit";
+  editingItem.value = {
+    _id: item.id || item._id,
+    nama: item.nama || "",
+    foto: item.foto || "",
+    nis_lokal: item.nis_lokal || "",
+    nisn: item.nisn || "",
+    nik: item.nik || "",
+    no_kk: item.no_kk || "",
+    tempat_lahir: item.tempat_lahir || "",
+    tanggal_lahir: item.tanggal_lahir || "",
+    umur: item.umur || "",
+    jenis_kelamin: item.jenis_kelamin || "Laki-laki",
+    status: item.status || "Lulus",
+    thn_lulus: item.thn_lulus || "",
+    menjutkan_ke: item.menjutkan_ke || "",
+    alamat: item.alamat || "",
+    no_hp: item.no_hp || "",
+    no_kip: item.no_kip || "",
+    nama_ayah_kandung: item.nama_ayah_kandung || "",
+    nama_ibu_kandung: item.nama_ibu_kandung || "",
+    nama_wali: item.nama_wali || "",
+  };
+  showModal.value = true;
+};
+
+const handleFormSubmit = async (formData) => {
+  const id = editingItem.value._id;
+  const success = await updateItem(id, formData);
+  if (success) {
+    showModal.value = false;
+  }
+};
+
+const handleDelete = (item) => {
+  const id = item.id || item._id;
+
+  Confirm?.show(
+    "Kembalikan Alumni Menjadi Siswa Aktif",
+    `Apakah Anda yakin ingin membatalkan status kelulusan ${toTitleCase(item.nama)}? Siswa ini akan dipindahkan kembali ke Kelas 6 aktif dan dihapus dari data Alumni.`,
+    "Ya, Kembalikan",
+    "Batal",
+    async () => {
+      try {
+        const classes = await fetchFromApi("data_kelas");
+        let targetClassId = "VI-A";
+
+        if (Array.isArray(classes)) {
+          const level6Class = classes.find(
+            (c) =>
+              String(c.tingkat) === "6" ||
+              String(c.tingkat).toUpperCase() === "VI",
+          );
+          if (level6Class && level6Class.id_kelas) {
+            targetClassId = level6Class.id_kelas;
+          }
+        }
+
+        const studentRecord = {
+          nama: item.nama,
+          nisn: item.nisn || "",
+          nis_lokal: item.nis_lokal || "",
+          nik: item.nik || "",
+          no_kk: item.no_kk || "",
+          tempat_lahir: item.tempat_lahir || "",
+          tanggal_lahir: item.tanggal_lahir || "",
+          kelas: targetClassId,
+          umur: item.umur || "",
+          jenis_kelamin: item.jenis_kelamin || "Laki-laki",
+          alamat: item.alamat || "",
+          no_hp: item.no_hp || "",
+          no_kip: item.no_kip || "",
+          nama_ayah_kandung: item.nama_ayah_kandung || "",
+          nama_ibu_kandung: item.nama_ibu_kandung || "",
+          nama_wali: item.nama_wali || "",
+          status_promosi: "Belum",
+        };
+
+        await postToApi("data_siswa", studentRecord);
+        await deleteFromApi("alumni", id);
+
+        Notify?.success?.(
+          `Berhasil mengembalikan ${toTitleCase(item.nama)} ke kelas ${targetClassId}.`,
+        );
+
+        clearTableSessionCache("data_siswa");
+        router.push("/akademik/alumni");
+      } catch (err) {
+        console.error("Gagal memproses pengembalian alumni:", err);
+        Notify?.failure?.("Gagal mengembalikan data alumni ke siswa aktif.");
+      }
+    },
+  );
+};
 
 const alumniDetail = ref(null);
 const loading = ref(true);

@@ -3,74 +3,39 @@
   <div class="min-h-screen">
     <div class="page-layout">
       <!-- Top Section: Title & Actions -->
-      <div class="flex flex-col gap-4 sm:gap-6 mb-6">
-        <div class="flex flex-wrap items-center gap-4">
-          <div>
-            <h2
-              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
-              :style="{ color: 'var(--text-heading)' }"
-            >
-              <GraduationCap class="w-8 h-8 text-indigo-650 dark:text-indigo-400" />
+      <div class="flex flex-col gap-4 sm:gap-5 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <div class="flex-1 min-w-0">
+            <h2 class="text-lg sm:text-xl font-bold flex items-center gap-2" :style="{ color: 'var(--text-heading)' }">
+              <GraduationCap class="w-5 h-5 sm:w-6 sm:h-6 shrink-0 text-indigo-650 dark:text-indigo-400" />
               Data Alumni
             </h2>
-            <p class="text-sm text-zinc-400 mt-1">
+            <p class="text-xs sm:text-sm text-zinc-400 mt-0.5">
               Informasi kelulusan dan penelusuran studi lanjut alumni madrasah
             </p>
           </div>
-          <div class="flex items-center gap-2 ml-auto">
+          <div class="flex items-center gap-2 shrink-0">
             <!-- Tambah Alumni Button (Admin Only) -->
-            <BaseButton
-              v-if="isAdmin"
-              text="Tambah Alumni"
-              @click="openCreateModal"
-              class="!bg-indigo-600 !text-white hover:!bg-indigo-500 shadow-lg shadow-indigo-950/30"
-            >
+            <BaseButton v-if="isAdmin" text="Tambah Alumni" @click="openCreateModal"
+              class="!bg-indigo-600 !text-white hover:!bg-indigo-500 shadow-lg shadow-indigo-950/30">
               <template #icon>
                 <Plus class="w-4 h-4" />
               </template>
             </BaseButton>
 
             <!-- Export Excel Button -->
-            <BaseButton
-              :text="isExporting ? 'Mengekspor...' : 'Export'"
-              @click="exportToExcel"
-              :disabled="isExporting || sortedData.length === 0"
-              class="!px-2.5 sm:!px-3 hover:bg-zinc-700"
-            >
+            <BaseButton :text="isExporting ? 'Mengekspor...' : 'Export'" @click="exportToExcel"
+              :disabled="isExporting || sortedData.length === 0" class="!px-2.5 sm:!px-3 hover:bg-zinc-700">
               <template #icon>
-                <svg
-                  v-if="!isExporting"
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
+                <svg v-if="!isExporting" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <svg
-                  v-else
-                  class="w-4 h-4 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
+                <svg v-else class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
                 </svg>
               </template>
             </BaseButton>
@@ -93,9 +58,7 @@
                 </div>
 
                 <!-- Tabel Cetak -->
-                <table
-                  class="w-full table-auto border border-gray-800 mb-4 text-xs"
-                >
+                <table class="w-full table-auto border border-gray-800 mb-4 text-xs">
                   <thead class="bg-gray-100">
                     <tr>
                       <th class="border border-gray-800 px-2 py-1.5 w-8">No</th>
@@ -116,10 +79,7 @@
                   </thead>
                   <tbody>
                     <tr v-if="!sortedData || sortedData.length === 0">
-                      <td
-                        colspan="6"
-                        class="border border-gray-800 px-2 py-4 text-center text-gray-500"
-                      >
+                      <td colspan="6" class="border border-gray-800 px-2 py-4 text-center text-gray-500">
                         {{
                           isLoading
                             ? "Memuat data..."
@@ -127,22 +87,14 @@
                         }}
                       </td>
                     </tr>
-                    <tr
-                      v-else
-                      v-for="(alumni, index) in sortedData"
-                      :key="alumni.id || index"
-                    >
+                    <tr v-else v-for="(alumni, index) in sortedData" :key="alumni.id || index">
                       <td class="border border-gray-800 px-2 py-1 text-center">
                         {{ index + 1 }}
                       </td>
-                      <td
-                        class="border border-gray-800 px-2 py-1 font-semibold"
-                      >
+                      <td class="border border-gray-800 px-2 py-1 font-semibold">
                         {{ toTitleCase(alumni.nama) }}
                       </td>
-                      <td
-                        class="border border-gray-800 px-2 py-1 text-center font-mono"
-                      >
+                      <td class="border border-gray-800 px-2 py-1 text-center font-mono">
                         {{ alumni.nisn || "-" }}
                       </td>
                       <td class="border border-gray-800 px-2 py-1 text-center">
@@ -178,65 +130,37 @@
         </div>
 
         <!-- Premium Stats Widgets -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between"
-          >
-            <span
-              class="text-xs font-semibold uppercase tracking-wider text-zinc-500"
-              >Total Alumni</span
-            >
-            <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-2xl sm:text-3xl font-bold text-[var(--text-heading)]">{{
-                stats.total
-              }}</span>
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2">
+            <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Total Alumni</span>
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--text-heading)]">{{ stats.total }}</span>
               <span class="text-xs text-indigo-650 dark:text-indigo-400 font-medium">orang</span>
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between"
-          >
-            <span
-              class="text-xs font-semibold uppercase tracking-wider text-zinc-500"
-              >Melanjutkan Studi</span
-            >
-            <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{
-                stats.continuing
-              }}</span>
-              <span class="text-xs text-zinc-500 font-medium"
-                >({{ stats.continuingPercent }}%)</span
-              >
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2">
+            <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Melanjutkan Studi</span>
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ stats.continuing }}</span>
+              <span class="text-xs text-zinc-500 font-medium">({{ stats.continuingPercent }}%)</span>
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between"
-          >
-            <span
-              class="text-xs font-semibold uppercase tracking-wider text-zinc-500"
-              >Tahun Lulus Terbanyak</span
-            >
-            <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-2xl sm:text-3xl font-bold text-violet-650 dark:text-violet-400">{{
-                stats.topYear
-              }}</span>
-              <span class="text-xs text-zinc-500 font-medium"
-                >({{ stats.topYearCount }} orang)</span
-              >
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2">
+            <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Tahun Lulus Terbanyak</span>
+            <div class="flex items-baseline gap-1.5 flex-wrap">
+              <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-violet-650 dark:text-violet-400">{{ stats.topYear }}</span>
+              <span class="text-[10px] sm:text-xs text-zinc-500 font-medium">({{ stats.topYearCount }} org)</span>
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-4 rounded-xl flex flex-col justify-between"
-          >
-            <span
-              class="text-xs font-semibold uppercase tracking-wider text-zinc-500"
-              >Tujuan Terpopuler</span
-            >
-            <div class="flex items-baseline gap-2 mt-2">
-              <span
-                class="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400 truncate max-w-full"
-                :title="stats.topDestination"
-              >
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2">
+            <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Tujuan Terpopuler</span>
+            <div class="flex items-end">
+              <span class="text-sm sm:text-base lg:text-lg font-bold text-amber-600 dark:text-amber-400 truncate max-w-full leading-snug"
+                :title="stats.topDestination">
                 {{ stats.topDestination }}
               </span>
             </div>
@@ -244,203 +168,78 @@
         </div>
 
         <!-- Filter and Search Row -->
-        <div class="flex flex-col md:flex-row gap-4 items-center w-full">
+        <div class="flex flex-col gap-3 w-full">
           <!-- Search Input -->
-          <div class="w-full md:flex-1">
-            <Search
-              @searchUpdated="handleSearch"
-              class="h-10 sm:h-11"
-              placeholder="Cari nama alumni, NISN, alamat..."
-            />
+          <div class="w-full">
+            <Search @searchUpdated="handleSearch" class="h-10"
+              placeholder="Cari nama alumni, NISN, alamat..." />
           </div>
 
           <!-- Filters Group -->
-          <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <div class="grid grid-cols-2 gap-2 w-full">
             <!-- Year Filter -->
-            <div class="w-full sm:w-44">
-              <select
-                v-model="selectedYear"
-                class="w-full h-10 sm:h-11 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm cursor-pointer"
-              >
-                <option value="Semua Tahun">Semua Tahun Lulus</option>
-                <option v-for="year in yearOptions" :key="year" :value="year">
-                  Tahun Lulus {{ year }}
-                </option>
-              </select>
-            </div>
+            <select v-model="selectedYear"
+              class="w-full h-9 sm:h-10 px-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-xs sm:text-sm cursor-pointer">
+              <option value="Semua Tahun">Semua Tahun Lulus</option>
+              <option v-for="year in yearOptions" :key="year" :value="year">
+                Lulus {{ year }}
+              </option>
+            </select>
 
             <!-- Destination Filter -->
-            <div class="w-full sm:w-48">
-              <select
-                v-model="selectedDestination"
-                class="w-full h-10 sm:h-11 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm cursor-pointer"
-              >
-                <option value="Semua Tujuan">Semua Studi Lanjut</option>
-                <option
-                  v-for="dest in destinationOptions"
-                  :key="dest"
-                  :value="dest"
-                >
-                  {{ dest }}
-                </option>
-              </select>
-            </div>
+            <select v-model="selectedDestination"
+              class="w-full h-9 sm:h-10 px-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-xs sm:text-sm cursor-pointer">
+              <option value="Semua Tujuan">Semua Studi Lanjut</option>
+              <option v-for="dest in destinationOptions" :key="dest" :value="dest">
+                {{ dest }}
+              </option>
+            </select>
           </div>
         </div>
       </div>
 
       <!-- Main Content Area -->
       <div class="pt-2">
-        <p
-          v-if="isLoading"
-          class="text-center text-zinc-500 text-lg font-semibold py-12"
-        >
+        <p v-if="isLoading" class="text-center text-zinc-500 text-sm sm:text-base font-semibold py-12">
           Memuat data alumni...
         </p>
 
-        <div
-          v-else-if="sortedData.length === 0"
-          class="text-center py-16 bg-zinc-800/10 rounded-xl border border-zinc-800"
-        >
-          <Database
-            class="w-16 h-16 mx-auto mb-4 text-zinc-600"
-            stroke-width="1.5"
-          />
-          <p class="text-zinc-400 text-lg font-medium">
+        <div v-else-if="sortedData.length === 0"
+          class="text-center py-16 bg-zinc-800/10 rounded-xl border border-zinc-800">
+          <Database class="w-16 h-16 mx-auto mb-4 text-zinc-600" stroke-width="1.5" />
+          <p class="text-zinc-400 text-sm sm:text-base font-medium">
             Tidak ada data alumni ditemukan
           </p>
-          <p class="text-zinc-500 text-sm mt-1">
+          <p class="text-zinc-500 text-xs sm:text-sm mt-1">
             Coba sesuaikan kata kunci pencarian atau filter pilihan Anda.
           </p>
         </div>
 
         <!-- Alumni Grid List -->
         <div v-else>
-          <ul
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
-          >
-            <li
+          <ul class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+            <PersonCard
               v-for="(item, index) in visibleData"
               :key="item.id || index"
-              class="cursor-pointer rounded-xl border p-5 transition-all duration-200 shadow-sm bg-zinc-800/30 border-zinc-700/40 hover:bg-zinc-700/40 hover:border-indigo-500/30 hover:shadow-indigo-950/20 group"
-            >
-              <div class="flex items-start gap-4">
-                <!-- Avatar block -->
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center bg-zinc-700/20 dark:bg-zinc-700/40 text-indigo-600 dark:text-indigo-400 transition-colors group-hover:bg-indigo-500/15 dark:group-hover:bg-indigo-500/20 shrink-0 overflow-hidden border border-zinc-700/50"
-                  @click="navigateToDetail(item)"
-                >
-                  <img
-                    v-if="item.foto && item.foto.startsWith('http')"
-                    :src="item.foto"
-                    alt="Foto Alumni"
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                    @error="handleImageError"
-                  />
-                  <UserCircle v-else class="w-6 h-6" />
-                </div>
- 
-                <!-- Info Column -->
-                <div class="flex-1 min-w-0" @click="navigateToDetail(item)">
-                  <h3
-                    class="font-bold text-base text-zinc-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
-                  >
-                    {{ toTitleCase(item.nama) }}
-                  </h3>
-
-                  <div
-                    class="flex flex-col gap-0.5 mt-1.5 text-xs text-zinc-400"
-                  >
-                    <p class="flex items-center gap-1.5">
-                      <span class="w-16 text-zinc-500 shrink-0">NISN:</span>
-                      <span class="font-mono">{{ item.nisn || "-" }}</span>
-                    </p>
-                    <p class="flex items-center gap-1.5">
-                      <span class="w-16 text-zinc-500 shrink-0">Lulus:</span>
-                      <span
-                        class="bg-indigo-500/10 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded text-[10px] w-fit font-medium border border-indigo-500/20 dark:border-indigo-900/30"
-                      >
-                        Tahun {{ item.thn_lulus || "-" }}
-                      </span>
-                    </p>
-                    <p class="flex items-center gap-1.5">
-                      <span class="w-16 text-zinc-500 shrink-0">Tujuan:</span>
-                      <span
-                        class="px-1.5 py-0.5 rounded text-[10px] w-fit font-semibold border"
-                        :class="getDestinationBadgeClass(item.menjutkan_ke)"
-                      >
-                        {{ item.menjutkan_ke || "Tidak Melanjutkan" }}
-                      </span>
-                    </p>
-                    <p class="flex items-center gap-1.5">
-                      <span class="w-16 text-zinc-500 shrink-0"
-                        >NIS Lokal:</span
-                      >
-                      <span class="truncate text-zinc-300 font-mono">{{
-                        item.nis_lokal || "-"
-                      }}</span>
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Admin Actions -->
-                <div
-                  v-if="isAdmin"
-                  class="flex items-center gap-1 shrink-0 mt-0.5"
-                  @click.stop
-                >
-                  <button
-                    @click="openEditModal(item)"
-                    class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-750/60 transition-all"
-                    title="Edit"
-                  >
-                    <Pencil class="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    @click="handleDelete(item)"
-                    class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-750/60 transition-all"
-                    title="Kembalikan ke Siswa Aktif"
-                  >
-                    <Trash2 class="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <!-- Arrow Icon -->
-                <ChevronRight
-                  class="w-5 h-5 text-zinc-600 mt-0.5 group-hover:text-indigo-400 transition-colors shrink-0"
-                  @click="navigateToDetail(item)"
-                />
-              </div>
-            </li>
+              :item="item"
+              :title="toTitleCase(item.nama)"
+              :subtitle="`Lulus Tahun ${item.thn_lulus || '-'}`"
+              @click="navigateToDetail(item)"
+            />
           </ul>
 
           <!-- Load More Button -->
           <div v-if="sortedData.length > 9" class="text-center mt-8">
-            <BaseButton
-              :text="
-                showAll ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Lebih Banyak'
-              "
-              @click="showAll = !showAll"
-              class="hover:bg-zinc-800"
-            />
+            <BaseButton :text="showAll ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Lebih Banyak'
+              " @click="showAll = !showAll" class="hover:bg-zinc-800" />
           </div>
         </div>
       </div>
 
       <!-- CRUD Modal -->
-      <CrudModal
-        :show="showModal"
-        :mode="modalMode"
-        :title="
-          modalMode === 'create' ? 'Tambah Data Alumni' : 'Edit Data Alumni'
-        "
-        :fields="alumniFields"
-        :initialData="editingItem"
-        :isSaving="isSaving"
-        @submit="handleFormSubmit"
-        @close="showModal = false"
-      />
+      <CrudModal :show="showModal" :mode="modalMode" :title="modalMode === 'create' ? 'Tambah Data Alumni' : 'Edit Data Alumni'
+        " :fields="alumniFields" :initialData="editingItem" :isSaving="isSaving" @submit="handleFormSubmit"
+        @close="showModal = false" />
     </div>
   </div>
 </template>
@@ -449,21 +248,15 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import {
   Database,
-  UserCircle,
   GraduationCap,
   Plus,
-  Pencil,
-  Trash2,
-  Phone,
-  ArrowLeft,
-  ChevronRight,
-  Info,
 } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
+import PersonCard from "~/components/data/PersonCard.vue";
 import {
   useTableData,
   clearTableSessionCache,
@@ -1032,13 +825,16 @@ onUnmounted(() => {
 .scrollbar-thin::-webkit-scrollbar {
   width: 4px;
 }
+
 .scrollbar-thin::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .scrollbar-thin::-webkit-scrollbar-thumb {
   background-color: rgb(63 63 70);
   border-radius: 2px;
 }
+
 .scrollbar-thin:hover::-webkit-scrollbar-thumb {
   background-color: rgb(82 82 91);
 }
