@@ -64,13 +64,37 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Cek role admin dari JWT
+    // Cek role admin dari JWT (kecuali untuk action 'get-my-menu-akses')
     const jwtPayload = decodeMockJWT(token);
-    if (!jwtPayload || jwtPayload.role !== "admin") {
-      throw createError({
-        statusCode: 403,
-        statusMessage: "Forbidden: Hanya admin yang bisa mengakses fitur ini",
+    if (action !== "get-my-menu-akses") {
+      if (!jwtPayload || jwtPayload.role !== "admin") {
+        throw createError({
+          statusCode: 403,
+          statusMessage: "Forbidden: Hanya admin yang bisa mengakses fitur ini",
+        });
+      }
+    } else {
+      if (!jwtPayload) {
+        throw createError({
+          statusCode: 401,
+          statusMessage: "Unauthorized: Sesi tidak valid atau telah kedaluwarsa",
+        });
+      }
+    }
+
+    // Action: get-my-menu-akses
+    if (action === "get-my-menu-akses") {
+      const response = await $fetch(`${cleanWorkerUrl}/api/menu-akses/my`, {
+        method: "GET",
+        query: {
+          user_id: jwtPayload.user_id,
+          role: jwtPayload.role,
+        },
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+        },
       });
+      return response;
     }
 
     // Action: seed-guru
@@ -139,6 +163,73 @@ export default defineEventHandler(async (event) => {
           },
         },
       );
+      return response;
+    }
+
+    // Action: get-menu-akses-role
+    if (action === "get-menu-akses-role") {
+      const { role } = payload;
+      const response = await $fetch(`${cleanWorkerUrl}/api/menu-akses/role`, {
+        method: "GET",
+        query: { role },
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+        },
+      });
+      return response;
+    }
+
+    // Action: save-menu-akses-role
+    if (action === "save-menu-akses-role") {
+      const { role, items } = payload;
+      const response = await $fetch(`${cleanWorkerUrl}/api/menu-akses/role`, {
+        method: "PUT",
+        body: { role, items },
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response;
+    }
+
+    // Action: get-menu-akses-user
+    if (action === "get-menu-akses-user") {
+      const { userId } = payload;
+      const response = await $fetch(`${cleanWorkerUrl}/api/menu-akses/user`, {
+        method: "GET",
+        query: { user_id: userId },
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+        },
+      });
+      return response;
+    }
+
+    // Action: save-menu-akses-user
+    if (action === "save-menu-akses-user") {
+      const { userId, items } = payload;
+      const response = await $fetch(`${cleanWorkerUrl}/api/menu-akses/user`, {
+        method: "PUT",
+        body: { user_id: userId, items },
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response;
+    }
+
+    // Action: reset-menu-akses-user
+    if (action === "reset-menu-akses-user") {
+      const { userId } = payload;
+      const response = await $fetch(`${cleanWorkerUrl}/api/menu-akses/user`, {
+        method: "DELETE",
+        query: { user_id: userId },
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+        },
+      });
       return response;
     }
 

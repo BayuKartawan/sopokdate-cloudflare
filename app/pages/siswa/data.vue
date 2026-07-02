@@ -29,6 +29,18 @@
               </template>
             </BaseButton>
 
+            <!-- Upload Excel Button (Admin Only) -->
+            <BaseButton
+              v-if="isAdmin"
+              text="Upload Excel"
+              @click="showUploadModal = true"
+              class="!bg-zinc-800 hover:!bg-zinc-700 !text-zinc-200 border !border-zinc-700"
+            >
+              <template #icon>
+                <FileSpreadsheet class="w-4 h-4" />
+              </template>
+            </BaseButton>
+
             <!-- Export Excel Button -->
             <BaseButton
               :text="isExporting ? 'Mengekspor...' : 'Export'"
@@ -264,6 +276,15 @@
         @submit="handleFormSubmit"
         @close="showModal = false"
       />
+
+      <!-- Upload Excel Modal -->
+      <UploadExcelModal
+        :show="showUploadModal"
+        :dataSiswa="dataSiswa"
+        :dataKelas="dataKelas"
+        @close="showUploadModal = false"
+        @success="refreshData('data_siswa')"
+      />
     </div>
   </div>
 </template>
@@ -274,8 +295,10 @@ import {
   Database,
   GraduationCap,
   Plus,
+  FileSpreadsheet,
 } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
+import UploadExcelModal from "~/components/siswa/UploadExcelModal.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
@@ -302,6 +325,7 @@ const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
 // CRUD Modal state
 const showModal = ref(false);
 const modalMode = ref("create");
+const showUploadModal = ref(false);
 const editingItem = ref({});
 
 // Field configuration for Siswa CRUD form

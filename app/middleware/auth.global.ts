@@ -1,5 +1,6 @@
 // middleware/auth.global.ts
 // Global middleware yang menggantikan router.beforeEach() dari router/index.js
+import { useMenuConfig } from "~/composables/ui/useMenuConfig";
 
 export default defineNuxtRouteMiddleware((to, from) => {
   // Skip middleware di server (SPA mode tetap, tapi safety check)
@@ -49,6 +50,16 @@ export default defineNuxtRouteMiddleware((to, from) => {
           : userRole === requiredRole;
 
         if (!hasAccess) {
+          alert("Anda tidak memiliki akses ke halaman ini.");
+          return navigateTo("/");
+        }
+      }
+
+      // Validasi akses menu dinamis dari database (kecuali admin dan halaman beranda)
+      const userRoleForAccess = getUserRole(currentUser.email);
+      if (userRoleForAccess && userRoleForAccess !== "admin" && to.path !== "/") {
+        const { hasRouteAccess } = useMenuConfig();
+        if (!hasRouteAccess(to.path, userRoleForAccess)) {
           alert("Anda tidak memiliki akses ke halaman ini.");
           return navigateTo("/");
         }
@@ -159,4 +170,5 @@ export function clearUserAndRole(): void {
   localStorage.removeItem("user-gtk-id");
   localStorage.removeItem("user-id");
   localStorage.removeItem("sessionExpiry");
+  localStorage.removeItem("user-menu-akses");
 }

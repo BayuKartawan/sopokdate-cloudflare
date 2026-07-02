@@ -33,4 +33,7 @@ export const VALID_TABLES: string[] = [
   "jadwal_pelajaran",
   "alumni",
   "riwayat_kelas_siswa",
+  "mutasi_siswa",
+  "menu_akses_role",
+  "menu_akses_user",
 ];

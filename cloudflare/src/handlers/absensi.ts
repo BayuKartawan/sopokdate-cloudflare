@@ -148,48 +148,83 @@ export async function handleGetAbsensiRekap(
   const kelasId = url.searchParams.get("kelas_id");
   const tahunPelajaran = url.searchParams.get("tahun_pelajaran");
   const semester = url.searchParams.get("semester");
+  const startDate = url.searchParams.get("start_date");
+  const endDate = url.searchParams.get("end_date");
 
-  if (!kelasId || !tahunPelajaran || !semester) {
+  if (!kelasId || !tahunPelajaran) {
     return errorResponse(
-      "Parameter 'kelas_id', 'tahun_pelajaran', dan 'semester' diperlukan",
+      "Parameter 'kelas_id' dan 'tahun_pelajaran' diperlukan",
+    );
+  }
+
+  if (!startDate && !endDate && !semester) {
+    return errorResponse(
+      "Parameter 'semester' atau 'start_date' & 'end_date' diperlukan",
     );
   }
 
   try {
-    const query = `
-      SELECT 
-        s.id as siswa_id,
-        s.nama,
-        s.nisn,
-        s.nis_lokal,
-        SUM(CASE WHEN a.status = 'H' THEN 1 ELSE 0 END) as total_hadir,
-        SUM(CASE WHEN a.status = 'S' THEN 1 ELSE 0 END) as total_sakit,
-        SUM(CASE WHEN a.status = 'I' THEN 1 ELSE 0 END) as total_izin,
-        SUM(CASE WHEN a.status = 'A' THEN 1 ELSE 0 END) as total_alpa,
-        COUNT(a.id) as total_hari_efektif
-      FROM riwayat_kelas_siswa r
-      INNER JOIN data_siswa s ON r.siswa_id = s.id
-      LEFT JOIN absensi_siswa a ON s.id = a.siswa_id
-        AND a.kelas_id = r.kelas_id
-        AND a.tahun_pelajaran = r.tahun_pelajaran 
-        AND a.semester = ?3
-      WHERE r.kelas_id = ?1 AND r.tahun_pelajaran = ?2
-      GROUP BY s.id, s.nama, s.nisn, s.nis_lokal
-      ORDER BY s.nama ASC;
-    `;
-    const result = await env.DB.prepare(query)
-      .bind(kelasId, tahunPelajaran, semester)
-      .all<{
-        siswa_id: number;
-        nama: string;
-        nisn: string | null;
-        nis_lokal: string | null;
-        total_hadir: number;
-        total_sakit: number;
-        total_izin: number;
-        total_alpa: number;
-        total_hari_efektif: number;
-      }>();
+    let query = "";
+    let stmt;
+    if (startDate && endDate) {
+      query = `
+        SELECT 
+          s.id as siswa_id,
+          s.nama,
+          s.nisn,
+          s.nis_lokal,
+          SUM(CASE WHEN a.status = 'H' THEN 1 ELSE 0 END) as total_hadir,
+          SUM(CASE WHEN a.status = 'S' THEN 1 ELSE 0 END) as total_sakit,
+          SUM(CASE WHEN a.status = 'I' THEN 1 ELSE 0 END) as total_izin,
+          SUM(CASE WHEN a.status = 'A' THEN 1 ELSE 0 END) as total_alpa,
+          COUNT(a.id) as total_hari_efektif
+        FROM riwayat_kelas_siswa r
+        INNER JOIN data_siswa s ON r.siswa_id = s.id
+        LEFT JOIN absensi_siswa a ON s.id = a.siswa_id
+          AND a.kelas_id = r.kelas_id
+          AND a.tanggal >= ?3
+          AND a.tanggal <= ?4
+        WHERE r.kelas_id = ?1 AND r.tahun_pelajaran = ?2
+        GROUP BY s.id, s.nama, s.nisn, s.nis_lokal
+        ORDER BY s.nama ASC;
+      `;
+      stmt = env.DB.prepare(query).bind(kelasId, tahunPelajaran, startDate, endDate);
+    } else {
+      query = `
+        SELECT 
+          s.id as siswa_id,
+          s.nama,
+          s.nisn,
+          s.nis_lokal,
+          SUM(CASE WHEN a.status = 'H' THEN 1 ELSE 0 END) as total_hadir,
+          SUM(CASE WHEN a.status = 'S' THEN 1 ELSE 0 END) as total_sakit,
+          SUM(CASE WHEN a.status = 'I' THEN 1 ELSE 0 END) as total_izin,
+          SUM(CASE WHEN a.status = 'A' THEN 1 ELSE 0 END) as total_alpa,
+          COUNT(a.id) as total_hari_efektif
+        FROM riwayat_kelas_siswa r
+        INNER JOIN data_siswa s ON r.siswa_id = s.id
+        LEFT JOIN absensi_siswa a ON s.id = a.siswa_id
+          AND a.kelas_id = r.kelas_id
+          AND a.tahun_pelajaran = r.tahun_pelajaran 
+          AND a.semester = ?3
+        WHERE r.kelas_id = ?1 AND r.tahun_pelajaran = ?2
+        GROUP BY s.id, s.nama, s.nisn, s.nis_lokal
+        ORDER BY s.nama ASC;
+      `;
+      stmt = env.DB.prepare(query).bind(kelasId, tahunPelajaran, semester);
+    }
+
+    const result = await stmt.all<{
+      siswa_id: number;
+      nama: string;
+      nisn: string | null;
+      nis_lokal: string | null;
+      total_hadir: number;
+      total_sakit: number;
+      total_izin: number;
+      total_alpa: number;
+      total_hari_efektif: number;
+    }>();
     return jsonResponse(result.results);
   } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);

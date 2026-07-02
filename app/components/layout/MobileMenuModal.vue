@@ -195,6 +195,7 @@ const childIconMap = {
   "EMIS GTK": { icon: markRaw(UserCog), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
   "SIMPATIKA": { icon: markRaw(BadgeCheck), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
   "Akun Madrasah": { icon: markRaw(Building), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
+  "Pengelola Akses": { icon: markRaw(ShieldCheck), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
   // Akademik
   "Guru Tendik": { icon: markRaw(UserCheck), activeColor: "text-sky-600 dark:text-sky-400", activeBg: "bg-sky-500/15 dark:bg-sky-500/20" },
   "Siswa": { icon: markRaw(Users), activeColor: "text-sky-600 dark:text-sky-400", activeBg: "bg-sky-500/15 dark:bg-sky-500/20" },

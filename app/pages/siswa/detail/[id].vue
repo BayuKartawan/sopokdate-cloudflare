@@ -86,11 +86,11 @@
                   Edit
                 </button>
                 <button
-                  @click="handleDelete(siswaDetail)"
-                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all"
+                  @click="handleMutasiKeluar(siswaDetail)"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-orange-400 border border-orange-500/30 hover:bg-orange-500/10 transition-all"
                 >
-                  <Trash2 class="w-3.5 h-3.5" />
-                  Hapus
+                  <LogOut class="w-3.5 h-3.5" />
+                  Mutasi Keluar
                 </button>
               </template>
               <BaseButton
@@ -216,12 +216,14 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { Info, UserCircle, Users, Pencil, Trash2 } from "lucide-vue-next";
+import { Info, UserCircle, Users, Pencil, LogOut } from "lucide-vue-next";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
+import { postToApi, deleteFromApi } from "~/utils/api";
+import { clearTableSessionCache } from "~/composables/data/useTableData";
 
 const { cardData: dataSiswa, loadData } = useTableData();
 const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
@@ -230,7 +232,6 @@ const { isAdmin, isSaving, updateItem, deleteItem } = useCrud(
   "data_siswa",
   () => loadSiswaDetail(),
 );
-
 // CRUD Modal state
 const showModal = ref(false);
 const modalMode = ref("edit");
@@ -292,6 +293,57 @@ const handleFormSubmit = async (formData) => {
   }
 };
 
+const handleMutasiKeluar = (item) => {
+  const id = item.id || item._id;
+
+  Confirm?.show(
+    "Mutasi Keluar Siswa",
+    `Apakah Anda yakin ingin memutasi keluar ${toTitleCase(item.nama)}? Data siswa akan dipindahkan ke menu Mutasi dan dihapus dari daftar siswa aktif.`,
+    "Ya, Mutasi Keluar",
+    "Batal",
+    async () => {
+      try {
+        const now = new Date();
+        const tanggalMutasi = now.toISOString().slice(0, 10);
+
+        const mutasiRecord = {
+          nama: item.nama || "",
+          nisn: item.nisn || item["nisn"] || "",
+          nis_lokal: item["nis lokal"] || item.nis_lokal || "",
+          nik: item.nik || "",
+          no_kk: item["no kk"] || item.no_kk || "",
+          tempat_lahir: item["tempat lahir"] || item.tempat_lahir || "",
+          tanggal_lahir: item["tanggal lahir"] || item.tanggal_lahir || "",
+          kelas: item["tingkat - rombel"] || item.kelas || "",
+          umur: item.umur || "",
+          jenis_kelamin: item["jenis kelamin"] || item.jenis_kelamin || "",
+          alamat: item.alamat || "",
+          no_hp: item["no telepon"] || item.no_hp || "",
+          no_kip: item["no kip"] || item.no_kip || "",
+          nama_ayah_kandung: item["nama ayah kandung"] || item.nama_ayah_kandung || "",
+          nama_ibu_kandung: item["nama ibu kandung"] || item.nama_ibu_kandung || "",
+          nama_wali: item["nama wali"] || item.nama_wali || "",
+          jenis_mutasi: "Pindah Keluar",
+          tanggal_mutasi: tanggalMutasi,
+          keterangan: "",
+          sekolah_tujuan: "",
+        };
+
+        await postToApi("mutasi_siswa", mutasiRecord);
+        await deleteFromApi("data_siswa", id);
+
+        Notify?.success?.(`${toTitleCase(item.nama)} berhasil dimutasi keluar dan data dipindahkan ke menu Mutasi.`);
+        clearTableSessionCache("data_siswa");
+        clearTableSessionCache("mutasi_siswa");
+        router.push("/akademik/siswa");
+      } catch (err) {
+        console.error("Gagal memproses mutasi keluar:", err);
+        Notify?.failure?.("Gagal memproses mutasi keluar siswa.");
+      }
+    },
+  );
+};
+
 const handleDelete = (item) => {
   const id = item.id || item._id;
   deleteItem(id, toTitleCase(item.nama));
@@ -300,7 +352,7 @@ const handleDelete = (item) => {
 
 const route = useRoute();
 const router = useRouter();
-const { Notify } = useNotiflix();
+const { Notify, Confirm } = useNotiflix();
 
 const siswaDetail = ref(null);
 

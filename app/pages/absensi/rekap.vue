@@ -14,7 +14,7 @@
             Rekap Absensi Siswa
           </h2>
           <p class="text-sm text-zinc-400 mt-1">
-            Laporan rekapitulasi kehadiran siswa per kelas per semester
+            Laporan rekapitulasi kehadiran siswa per kelas berdasarkan periode yang dipilih
           </p>
         </div>
 
@@ -42,9 +42,17 @@
                 <h1 class="font-bold uppercase text-lg">
                   REKAPITULASI PRESENSI SISWA
                 </h1>
-                <p class="text-sm font-semibold mt-1">
+                <p class="text-sm font-semibold mt-1" v-if="rekapType === 'semester'">
                   Kelas: {{ currentClassName }} | Semester:
                   {{ selectedSemester }} | Tahun Pelajaran: {{ selectedTapel }}
+                </p>
+                <p class="text-sm font-semibold mt-1" v-else-if="rekapType === 'bulanan'">
+                  Kelas: {{ currentClassName }} | Bulan:
+                  {{ monthNames[selectedMonth - 1] }} | Tahun Pelajaran: {{ selectedTapel }}
+                </p>
+                <p class="text-sm font-semibold mt-1" v-else-if="rekapType === 'mingguan'">
+                  Kelas: {{ currentClassName }} | Periode:
+                  {{ formatDateIndo(startDate) }} s.d. {{ formatDateIndo(endDate) }} | Tahun Pelajaran: {{ selectedTapel }}
                 </p>
               </div>
 
@@ -179,9 +187,9 @@
         </div>
       </div>
 
-      <!-- Filter Section (Kelas, Tapel, Semester) -->
+      <!-- Filter Section (Kelas, Tapel, Tipe, Sub-Filter) -->
       <div
-        class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 rounded-xl border bg-zinc-800/20 border-zinc-700/40 mb-6"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-5 rounded-xl border bg-zinc-800/20 border-zinc-700/40 mb-6"
       >
         <!-- Pilihan Kelas -->
         <div class="flex flex-col gap-1.5">
@@ -220,17 +228,67 @@
           </select>
         </div>
 
-        <!-- Semester -->
+        <!-- Tipe Rekap -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-semibold text-zinc-400">Semester</label>
+          <label class="text-xs font-semibold text-zinc-400">Tipe Rekap</label>
           <select
-            v-model="selectedSemester"
+            v-model="rekapType"
             :disabled="isLoading"
             class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
           >
-            <option value="Ganjil">Ganjil</option>
-            <option value="Genap">Genap</option>
+            <option value="semester">Per Semester</option>
+            <option value="bulanan">Per Bulan</option>
+            <option value="mingguan">Per Minggu / Kustom</option>
           </select>
+        </div>
+
+        <!-- Sub Filter (Semester / Bulan / Rentang Tanggal) -->
+        <div class="flex flex-col gap-1.5">
+          <!-- Jika Tipe Rekap = Semester -->
+          <template v-if="rekapType === 'semester'">
+            <label class="text-xs font-semibold text-zinc-400">Semester</label>
+            <select
+              v-model="selectedSemester"
+              :disabled="isLoading"
+              class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
+            >
+              <option value="Ganjil">Ganjil</option>
+              <option value="Genap">Genap</option>
+            </select>
+          </template>
+
+          <!-- Jika Tipe Rekap = Bulanan -->
+          <template v-else-if="rekapType === 'bulanan'">
+            <label class="text-xs font-semibold text-zinc-400">Pilih Bulan</label>
+            <select
+              v-model="selectedMonth"
+              :disabled="isLoading"
+              class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
+            >
+              <option v-for="(name, index) in monthNames" :key="index" :value="index + 1">
+                {{ name }}
+              </option>
+            </select>
+          </template>
+
+          <!-- Jika Tipe Rekap = Mingguan / Kustom -->
+          <template v-else-if="rekapType === 'mingguan'">
+            <label class="text-xs font-semibold text-zinc-400">Rentang Tanggal</label>
+            <div class="grid grid-cols-2 gap-2">
+              <input
+                type="date"
+                v-model="startDate"
+                :disabled="isLoading"
+                class="h-10 px-2 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-xs"
+              />
+              <input
+                type="date"
+                v-model="endDate"
+                :disabled="isLoading"
+                class="h-10 px-2 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-xs"
+              />
+            </div>
+          </template>
         </div>
       </div>
 
@@ -266,10 +324,18 @@
             stroke-width="1.5"
           />
           <p class="text-zinc-400 font-semibold text-lg">Tidak ada data</p>
-          <p class="text-zinc-500 text-sm mt-1">
+          <p class="text-zinc-500 text-sm mt-1" v-if="rekapType === 'semester'">
             Belum ada rekaman absensi terisi di kelas
             {{ currentClassName }} pada {{ selectedTapel }} -
             {{ selectedSemester }}.
+          </p>
+          <p class="text-zinc-500 text-sm mt-1" v-else-if="rekapType === 'bulanan'">
+            Belum ada rekaman absensi terisi di kelas
+            {{ currentClassName }} pada Bulan {{ monthNames[selectedMonth - 1] }} ({{ selectedTapel }}).
+          </p>
+          <p class="text-zinc-500 text-sm mt-1" v-else-if="rekapType === 'mingguan'">
+            Belum ada rekaman absensi terisi di kelas
+            {{ currentClassName }} pada Rentang {{ formatDateIndo(startDate) }} s.d. {{ formatDateIndo(endDate) }}.
           </p>
         </div>
 
@@ -419,6 +485,10 @@ const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
 const selectedClass = ref("");
 const selectedTapel = ref("");
 const selectedSemester = ref("Ganjil");
+const rekapType = ref("semester");
+const selectedMonth = ref(new Date().getMonth() + 1);
+const startDate = ref("");
+const endDate = ref("");
 const rekapData = ref([]);
 
 const userRole = ref("");
@@ -430,6 +500,71 @@ const isLoading = ref(false);
 const isLoadingKelas = ref(false);
 const isExporting = ref(false);
 const printTimestamp = ref("");
+
+const monthNames = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
+const getWeekRange = () => {
+  const now = new Date();
+  const day = now.getDay();
+  const diffToMonday = now.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(now.setDate(diffToMonday));
+  const sunday = new Date(now.setDate(diffToMonday + 6));
+  
+  const formatDate = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const date = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${date}`;
+  };
+  
+  return {
+    start: formatDate(monday),
+    end: formatDate(sunday),
+  };
+};
+
+const formatDateIndo = (dateStr) => {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+const monthRange = computed(() => {
+  if (!selectedTapel.value || !selectedMonth.value) return null;
+  const parts = selectedTapel.value.split("/");
+  if (parts.length !== 2) return null;
+  const year = selectedMonth.value >= 7 ? parseInt(parts[0]) : parseInt(parts[1]);
+  
+  const startDay = "01";
+  const formattedMonth = String(selectedMonth.value).padStart(2, "0");
+  const startDateStr = `${year}-${formattedMonth}-${startDay}`;
+  
+  const lastDay = new Date(year, selectedMonth.value, 0).getDate();
+  const endDateStr = `${year}-${formattedMonth}-${String(lastDay).padStart(2, "0")}`;
+  
+  return {
+    start: startDateStr,
+    end: endDateStr,
+  };
+});
 
 // --- Computed Options
 const tapelOptions = computed(() => {
@@ -467,9 +602,9 @@ const hitungPersentase = (hadir, total) => {
 
 // Fetch rekap when filters change
 watch(
-  [selectedClass, selectedTapel, selectedSemester],
-  async ([newClass, newTapel, newSem]) => {
-    if (!newClass || !newTapel || !newSem) {
+  [selectedClass, selectedTapel, selectedSemester, rekapType, selectedMonth, startDate, endDate],
+  async () => {
+    if (!selectedClass.value || !selectedTapel.value) {
       rekapData.value = [];
       return;
     }
@@ -480,9 +615,22 @@ watch(
 const fetchRekap = async () => {
   isLoading.value = true;
   try {
-    const response = await authenticatedFetch(
-      `/api/absensi/rekap?kelas_id=${encodeURIComponent(selectedClass.value)}&tahun_pelajaran=${encodeURIComponent(selectedTapel.value)}&semester=${encodeURIComponent(selectedSemester.value)}`,
-    );
+    let url = `/api/absensi/rekap?kelas_id=${encodeURIComponent(selectedClass.value)}&tahun_pelajaran=${encodeURIComponent(selectedTapel.value)}`;
+    
+    if (rekapType.value === "semester") {
+      url += `&semester=${encodeURIComponent(selectedSemester.value)}`;
+    } else if (rekapType.value === "bulanan" && monthRange.value) {
+      url += `&start_date=${encodeURIComponent(monthRange.value.start)}&end_date=${encodeURIComponent(monthRange.value.end)}`;
+    } else if (rekapType.value === "mingguan") {
+      if (!startDate.value || !endDate.value) {
+        rekapData.value = [];
+        isLoading.value = false;
+        return;
+      }
+      url += `&start_date=${encodeURIComponent(startDate.value)}&end_date=${encodeURIComponent(endDate.value)}`;
+    }
+    
+    const response = await authenticatedFetch(url);
     const data = await response.json();
     if (Array.isArray(data)) {
       rekapData.value = data;
@@ -612,7 +760,15 @@ const exportToExcel = async () => {
     XLSX.utils.book_append_sheet(wb, ws, "Rekap Absensi");
 
     const dateStr = new Date().toISOString().slice(0, 10);
-    const filename = `Rekap_Absensi_${currentClassName.value.replace(/[^a-zA-Z0-9]/g, "_")}_Smt_${selectedSemester.value}_${dateStr}.xlsx`;
+    let periodSuffix = "";
+    if (rekapType.value === "semester") {
+      periodSuffix = `Smt_${selectedSemester.value}`;
+    } else if (rekapType.value === "bulanan") {
+      periodSuffix = `Bulan_${monthNames[selectedMonth.value - 1]}`;
+    } else if (rekapType.value === "mingguan") {
+      periodSuffix = `Rentang_${startDate.value}_sd_${endDate.value}`;
+    }
+    const filename = `Rekap_Absensi_${currentClassName.value.replace(/[^a-zA-Z0-9]/g, "_")}_${periodSuffix}_${dateStr}.xlsx`;
 
     XLSX.writeFile(wb, filename);
 
@@ -631,10 +787,14 @@ const exportToExcel = async () => {
 onMounted(async () => {
   isLoadingKelas.value = true;
 
-  // Set default Tapel & Semester
+  // Set default Tapel, Semester & Dates
   const currentInfo = dapatkanTahunDanSemester(new Date());
   selectedTapel.value = currentInfo.tahunPelajaran;
   selectedSemester.value = currentInfo.semester;
+  
+  const week = getWeekRange();
+  startDate.value = week.start;
+  endDate.value = week.end;
 
   updatePrintTimestamp();
 

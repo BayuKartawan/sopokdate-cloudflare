@@ -182,10 +182,12 @@
                       :class="
                         user.role === 'admin'
                           ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30'
-                          : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30'
+                          : user.role === 'kepala_madrasah'
+                            ? 'bg-violet-500/10 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400 border-violet-500/20 dark:border-violet-500/30'
+                            : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30'
                       "
                     >
-                      {{ user.role === "admin" ? "Admin" : "Guru" }}
+                      {{ user.role === "admin" ? "Admin" : user.role === "kepala_madrasah" ? "Kepala Madrasah" : "Guru" }}
                     </span>
                   </td>
                   <td class="px-4 py-3">
@@ -284,10 +286,12 @@
                     :class="
                       user.role === 'admin'
                         ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30'
-                        : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30'
+                        : user.role === 'kepala_madrasah'
+                          ? 'bg-violet-500/10 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400 border-violet-500/20 dark:border-violet-500/30'
+                          : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30'
                     "
                   >
-                    {{ user.role === "admin" ? "Admin" : "Guru" }}
+                    {{ user.role === "admin" ? "Admin" : user.role === "kepala_madrasah" ? "Kepala M." : "Guru" }}
                   </span>
                   <span
                     class="px-2 py-0.5 rounded-md text-[10px] font-semibold leading-tight"
@@ -414,7 +418,7 @@
           Total: {{ users.length }} akun ({{
             users.filter((u) => u.role === "guru").length
           }}
-          guru, {{ users.filter((u) => u.role === "admin").length }} admin)
+          guru, {{ users.filter((u) => u.role === "kepala_madrasah").length }} kepala madrasah, {{ users.filter((u) => u.role === "admin").length }} admin)
         </div>
       </div>
 

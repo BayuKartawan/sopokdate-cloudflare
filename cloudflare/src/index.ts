@@ -16,6 +16,14 @@ import {
   handleDeleteUser,
 } from "./handlers/auth";
 import {
+  handleGetMenuAksesRole,
+  handleSaveMenuAksesRole,
+  handleGetMenuAksesUser,
+  handleSaveMenuAksesUser,
+  handleResetMenuAksesUser,
+  handleGetMyMenuAkses,
+} from "./handlers/menu-akses";
+import {
   handleGetAbsensi,
   handlePostAbsensi,
   handleGetAbsensiRekap,
@@ -81,6 +89,12 @@ app.get("/", (c) => {
       "GET  /api/auth/users",
       "PUT  /api/auth/users/:id",
       "DELETE /api/auth/users/:id",
+      "GET  /api/menu-akses/role",
+      "PUT  /api/menu-akses/role",
+      "GET  /api/menu-akses/user",
+      "PUT  /api/menu-akses/user",
+      "DELETE /api/menu-akses/user",
+      "GET  /api/menu-akses/my",
     ],
   });
 });
@@ -137,6 +151,31 @@ app.delete("/api/data", async (c) => {
 app.delete("/api/auth/users/:id", async (c) => {
   const id = c.req.param("id");
   return await handleDeleteUser(c.env, id);
+});
+
+// --- Menu Akses Routes ---
+app.get("/api/menu-akses/role", async (c) => {
+  return await handleGetMenuAksesRole(c.req.raw, c.env);
+});
+
+app.put("/api/menu-akses/role", async (c) => {
+  return await handleSaveMenuAksesRole(c.req.raw, c.env);
+});
+
+app.get("/api/menu-akses/user", async (c) => {
+  return await handleGetMenuAksesUser(c.req.raw, c.env);
+});
+
+app.put("/api/menu-akses/user", async (c) => {
+  return await handleSaveMenuAksesUser(c.req.raw, c.env);
+});
+
+app.delete("/api/menu-akses/user", async (c) => {
+  return await handleResetMenuAksesUser(c.req.raw, c.env);
+});
+
+app.get("/api/menu-akses/my", async (c) => {
+  return await handleGetMyMenuAkses(c.req.raw, c.env);
 });
 
 export default app;

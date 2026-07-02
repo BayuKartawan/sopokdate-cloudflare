@@ -135,6 +135,7 @@ export function useAuth() {
       "user-gtk-id",
       "user-id",
       "sessionExpiry",
+      "user-menu-akses",
     ];
 
     sessionKeys.forEach((k) => localStorage.removeItem(k));
@@ -257,6 +258,31 @@ export function useAuth() {
       });
 
       userDataCache.value.set(username, { role, displayName });
+
+      // Fetch akses menu dari database dan simpan di localStorage
+      try {
+        const menuResponse = await fetch("/api/auth-proxy", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ action: "get-my-menu-akses" }),
+        });
+
+        if (menuResponse.ok) {
+          const menuResult = await menuResponse.json();
+          if (menuResult.success && menuResult.allowed_menus) {
+            localStorage.setItem(
+              "user-menu-akses",
+              JSON.stringify(menuResult.allowed_menus),
+            );
+          }
+        }
+      } catch (menuErr) {
+        // Jika gagal fetch menu akses, biarkan — fallback ke static roles
+        console.warn("Gagal memuat pengaturan akses menu:", menuErr);
+      }
 
       Notify?.success?.(`Login berhasil, selamat datang ${displayName}!`, {
         timeout: 3000,

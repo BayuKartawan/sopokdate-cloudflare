@@ -30,156 +30,162 @@ export const useMenuConfig = () => {
       to: "/",
       label: "Beranda",
       icon: markRaw(Home),
-      roles: ["admin", "guru"],
+      roles: ["admin", "guru", "kepala_madrasah"],
     },
     {
       label: "Akun",
       icon: markRaw(Users),
-      roles: ["admin", "guru"],
+      roles: ["admin", "guru", "kepala_madrasah"],
       children: [
         { to: "/akun/gtk/kelola", label: "Akun Sopokdate", roles: ["admin"] },
-        { to: "/akun/gtk/emis", label: "EMIS 4.0", roles: ["admin", "guru"] },
+        { to: "/akun/gtk/emis", label: "EMIS 4.0", roles: ["admin", "guru", "kepala_madrasah"] },
         {
           to: "/akun/gtk/email",
           label: "Email Madrasah",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
-        { to: "/akun/gtk/rdm", label: "RDM", roles: ["admin", "guru"] },
+        { to: "/akun/gtk/rdm", label: "RDM", roles: ["admin", "guru", "kepala_madrasah"] },
         {
           to: "/akun/gtk/emis-gtk",
           label: "EMIS GTK",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
         {
           to: "/akun/gtk/simpatika",
           label: "SIMPATIKA",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
         { to: "/akun/madrasah", label: "Akun Madrasah", roles: ["admin"] },
+        { to: "/akun/gtk/pengelola-akses", label: "Pengelola Akses", roles: ["admin"] },
       ],
     },
     {
       label: "Akademik",
       icon: markRaw(GraduationCap),
-      roles: ["admin", "guru"],
+      roles: ["admin", "guru", "kepala_madrasah"],
       children: [
-        { to: "/akademik/gtk", label: "Guru Tendik", roles: ["admin"] },
-        { to: "/akademik/siswa", label: "Siswa", roles: ["admin", "guru"] },
+        { to: "/akademik/gtk", label: "Guru Tendik", roles: ["admin", "kepala_madrasah"] },
+        { to: "/akademik/siswa", label: "Siswa", roles: ["admin", "guru", "kepala_madrasah"] },
         {
           to: "/akademik/rombel",
           label: "Rombel",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
         {
           to: "/akademik/alumni",
           label: "Alumni",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
+        },
+        {
+          to: "/akademik/mutasi",
+          label: "Mutasi",
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
       ],
     },
     {
       label: "Jadwal",
       icon: markRaw(Calendar),
-      roles: ["admin", "guru"],
+      roles: ["admin", "guru", "kepala_madrasah"],
       children: [
         {
           to: "/jadwal/kurikulum",
           label: "Kurikulum",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
         {
           to: "/jadwal/alokasi",
           label: "Alokasi Jam",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
-        { to: "/jadwal/buat", label: "Buat Jadwal", roles: ["admin", "guru"] },
+        { to: "/jadwal/buat", label: "Buat Jadwal", roles: ["admin", "guru", "kepala_madrasah"] },
         {
           to: "/jadwal/cetak",
           label: "Cetak Jadwal",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
       ],
     },
     {
       label: "Absensi",
       icon: markRaw(CalendarCheck),
-      roles: ["admin", "guru"],
+      roles: ["admin", "guru", "kepala_madrasah"],
       children: [
         {
           to: "/absensi/kalender",
           label: "Kalender Pendidikan",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
         {
           to: "/absensi/siswa",
           label: "Absensi Siswa",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
         {
           to: "/absensi/rekap",
           label: "Rekap Absensi",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
       ],
     },
     {
       label: "Madrasah",
       icon: markRaw(Building2),
-      roles: ["admin", "guru"],
+      roles: ["admin", "guru", "kepala_madrasah"],
       children: [
         {
           to: "/madrasah/data",
           label: "Data Madrasah",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
         {
           to: "/madrasah/berkas",
           label: "Berkas Madrasah",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
         {
           to: "/madrasah/aplikasi",
           label: "Aplikasi Madrasah",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
       ],
     },
     {
       label: "Buat Dokumen",
       icon: markRaw(FileText),
-      roles: ["admin", "guru"],
+      roles: ["admin", "guru", "kepala_madrasah"],
       children: [
-        { to: "/dokumen/surat", label: "Surat", roles: ["admin", "guru"] },
+        { to: "/dokumen/surat", label: "Surat", roles: ["admin", "guru", "kepala_madrasah"] },
         {
           to: "/dokumen/sertifikat",
           label: "Sertifikat",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
-        { to: "/dokumen/sampul", label: "Sampul", roles: ["admin", "guru"] },
+        { to: "/dokumen/sampul", label: "Sampul", roles: ["admin", "guru", "kepala_madrasah"] },
         {
           to: "/dokumen/daftar-siswa",
           label: "Daftar Siswa",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
         {
           to: "/dokumen/pas-foto",
           label: "Cetak Pas Foto",
-          roles: ["admin", "guru"],
+          roles: ["admin", "guru", "kepala_madrasah"],
         },
       ],
     },
     {
       label: "Keuangan BOS",
       icon: markRaw(Banknote),
-      roles: ["admin"],
+      roles: ["admin", "kepala_madrasah"],
       children: [
         {
           to: "/bos/penerimaan-honor",
           label: "Penerimaan Honor",
-          roles: ["admin"],
+          roles: ["admin", "kepala_madrasah"],
         },
-        { to: "/bos/kuitansi", label: "Kuitansi", roles: ["admin"] },
-        { to: "/bos/nota", label: "Nota", roles: ["admin"] },
+        { to: "/bos/kuitansi", label: "Kuitansi", roles: ["admin", "kepala_madrasah"] },
+        { to: "/bos/nota", label: "Nota", roles: ["admin", "kepala_madrasah"] },
       ],
     },
   ]);
@@ -188,11 +194,34 @@ export const useMenuConfig = () => {
     return localStorage.getItem("user-role");
   };
 
+  const getMyAllowedMenus = (): string[] | null => {
+    try {
+      const allowed = localStorage.getItem("user-menu-akses");
+      return allowed ? JSON.parse(allowed) : null;
+    } catch {
+      return null;
+    }
+  };
+
   const filterMenuByRole = (userRole: string | null): MenuItem[] => {
     if (!userRole) return [];
 
+    const allowedMenus = getMyAllowedMenus();
+
     return allMenuItems.value
       .filter((item) => {
+        // Jika ada data menu akses dari DB di localStorage dan bukan admin
+        if (userRole !== "admin" && allowedMenus) {
+          if (item.to) {
+            return allowedMenus.includes(item.to);
+          }
+          if (item.children) {
+            return item.children.some((child) => allowedMenus.includes(child.to));
+          }
+          return false;
+        }
+
+        // Fallback ke check role statis
         if (!item.roles || !item.roles.includes(userRole)) {
           return false;
         }
@@ -201,12 +230,7 @@ export const useMenuConfig = () => {
           const filteredChildren = item.children.filter(
             (child) => child.roles && child.roles.includes(userRole),
           );
-
-          if (filteredChildren.length > 0) {
-            return true;
-          }
-
-          return false;
+          return filteredChildren.length > 0;
         }
 
         return true;
@@ -215,9 +239,15 @@ export const useMenuConfig = () => {
         const clonedItem = { ...item };
 
         if (clonedItem.children) {
-          clonedItem.children = clonedItem.children.filter(
-            (child) => child.roles && child.roles.includes(userRole),
-          );
+          if (userRole !== "admin" && allowedMenus) {
+            clonedItem.children = clonedItem.children.filter(
+              (child) => allowedMenus.includes(child.to)
+            );
+          } else {
+            clonedItem.children = clonedItem.children.filter(
+              (child) => child.roles && child.roles.includes(userRole),
+            );
+          }
         }
 
         return clonedItem;
@@ -286,10 +316,58 @@ export const useMenuConfig = () => {
     }
   };
 
+  // Helper untuk mengambil seluruh menu key (to) secara flat
+  const getAllMenuKeysFlat = (): Array<{ to: string; label: string; group: string }> => {
+    const flat: Array<{ to: string; label: string; group: string }> = [];
+    allMenuItems.value.forEach((item) => {
+      if (item.to) {
+        flat.push({ to: item.to, label: item.label, group: "General" });
+      }
+      if (item.children) {
+        item.children.forEach((child) => {
+          flat.push({ to: child.to, label: child.label, group: item.label });
+        });
+      }
+    });
+    return flat;
+  };
+
+  // Helper untuk mengecek apakah user memiliki akses ke path rute tertentu
+  // Mendukung sub-path: /akademik/siswa/tambah cocok dengan /akademik/siswa
+  const hasRouteAccess = (toPath: string, userRole: string | null): boolean => {
+    if (!userRole) return false;
+    if (userRole === "admin") return true;
+
+    const allowedMenus = getMyAllowedMenus();
+    if (allowedMenus) {
+      return allowedMenus.some(
+        (allowedPath) =>
+          toPath === allowedPath || toPath.startsWith(allowedPath + "/"),
+      );
+    }
+
+    // Fallback static check
+    let found = false;
+    allMenuItems.value.forEach((item) => {
+      if (item.to && (toPath === item.to || toPath.startsWith(item.to + "/"))) {
+        if (item.roles.includes(userRole)) found = true;
+      }
+      if (item.children) {
+        item.children.forEach((child) => {
+          if (toPath === child.to || toPath.startsWith(child.to + "/")) {
+            if (child.roles.includes(userRole)) found = true;
+          }
+        });
+      }
+    });
+    return found;
+  };
+
   return {
     menuItems,
     allMenuItems,
     getCurrentUserRole,
+    getMyAllowedMenus,
     filterMenuByRole,
     getMenuItemsWithChildren,
     getAllMenuLabels,
@@ -298,5 +376,7 @@ export const useMenuConfig = () => {
     removeMenuItem,
     updateMenuItem,
     addChildToMenuItem,
+    getAllMenuKeysFlat,
+    hasRouteAccess,
   };
 };

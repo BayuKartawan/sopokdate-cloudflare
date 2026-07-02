@@ -49,12 +49,22 @@ export default defineEventHandler(async (event) => {
   const kelasId = query.kelas_id as string;
   const tahunPelajaran = query.tahun_pelajaran as string;
   const semester = query.semester as string;
+  const startDate = query.start_date as string;
+  const endDate = query.end_date as string;
 
-  if (!kelasId || !tahunPelajaran || !semester) {
+  if (!kelasId || !tahunPelajaran) {
     throw createError({
       statusCode: 400,
       statusMessage:
-        "Bad Request: Parameter kelas_id, tahun_pelajaran, dan semester diperlukan",
+        "Bad Request: Parameter kelas_id dan tahun_pelajaran diperlukan",
+    });
+  }
+
+  if (!semester && (!startDate || !endDate)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage:
+        "Bad Request: Parameter semester atau (start_date dan end_date) diperlukan",
     });
   }
 
@@ -72,11 +82,16 @@ export default defineEventHandler(async (event) => {
   const cleanWorkerUrl = workerUrl.endsWith("/")
     ? workerUrl.slice(0, -1)
     : workerUrl;
-  const qs = new URLSearchParams({
+
+  const params: Record<string, string> = {
     kelas_id: kelasId,
     tahun_pelajaran: tahunPelajaran,
-    semester: semester,
-  }).toString();
+  };
+  if (semester) params.semester = semester;
+  if (startDate) params.start_date = startDate;
+  if (endDate) params.end_date = endDate;
+
+  const qs = new URLSearchParams(params).toString();
 
   const url = `${cleanWorkerUrl}/api/absensi/rekap?${qs}`;
 
