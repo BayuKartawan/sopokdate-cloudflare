@@ -675,17 +675,19 @@ const checkWaliKelasStatus = async () => {
             myRecord.nama_lengkap;
           waliKelasName.value = namaGuru;
 
-          // Match teacher name or Peg ID with wali_kelas in classes list
+          // Match teacher ID, Peg ID, or name with wali_kelas in classes list (backward compatibility)
           const classes = dataKelas.value;
           const myClass = classes.find((c) => {
             const cWali = c.waliKelas || c["Wali Kelas"] || c.wali_kelas;
             const myPegId =
               myRecord.PegID || myRecord["Peg ID"] || myRecord.peg_id;
+            const myId = myRecord.id || myRecord._id;
 
             const matchName = cleanName(cWali) === cleanName(namaGuru);
             const matchPegId = String(cWali).trim() === String(myPegId).trim();
+            const matchId = String(cWali).trim() === String(myId).trim();
 
-            return matchPegId || matchName;
+            return matchId || matchPegId || matchName;
           });
 
           if (myClass) {

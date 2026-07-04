@@ -5,22 +5,22 @@
       <div class="flex flex-col gap-4 sm:gap-5 mt-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 class="text-xl text-white sm:text-2xl">Pengelola Akses</h2>
-            <p class="text-zinc-400 text-xs sm:text-sm mt-1">
+            <h2 class="text-xl theme-text-heading sm:text-2xl">Pengelola Akses</h2>
+            <p class="theme-text-secondary text-xs sm:text-sm mt-1">
               Atur menu yang dapat diakses oleh setiap role atau per guru individu
             </p>
           </div>
         </div>
 
         <!-- Tab Switcher -->
-        <div class="flex rounded-xl overflow-hidden border border-zinc-700/50 bg-zinc-800/40">
+        <div class="flex rounded-xl overflow-hidden border theme-border theme-bg-secondary">
           <button
             @click="activeTab = 'role'"
             :class="[
               'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-all duration-200',
               activeTab === 'role'
                 ? 'bg-emerald-600 text-white'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-700/40',
+                : 'theme-text-secondary theme-bg-card-hover',
             ]"
           >
             <Shield class="w-4 h-4" />
@@ -32,7 +32,7 @@
               'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-all duration-200',
               activeTab === 'user'
                 ? 'bg-emerald-600 text-white'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-700/40',
+                : 'theme-text-secondary theme-bg-card-hover',
             ]"
           >
             <UserCog class="w-4 h-4" />
@@ -45,7 +45,7 @@
       <div v-if="activeTab === 'role'" class="mt-5">
         <!-- Role Selector -->
         <div class="flex items-center gap-3 mb-5">
-          <label class="text-sm text-zinc-300 font-medium">Pilih Role:</label>
+          <label class="text-sm theme-text font-medium">Pilih Role:</label>
           <div class="flex gap-2">
             <button
               v-for="r in managedRoles"
@@ -55,7 +55,7 @@
                 'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border',
                 selectedRole === r.value
                   ? 'bg-emerald-600 text-white border-emerald-500'
-                  : 'bg-zinc-800/50 text-zinc-400 border-zinc-700/50 hover:text-white hover:border-zinc-600',
+                  : 'theme-bg-input theme-text-secondary theme-border hover:theme-text hover:theme-border-secondary',
               ]"
             >
               {{ r.label }}
@@ -66,14 +66,14 @@
         <!-- Loading -->
         <div v-if="isLoadingRole" class="flex items-center justify-center py-16">
           <Loader2 class="w-8 h-8 text-emerald-500 animate-spin" />
-          <span class="ml-3 text-zinc-400">Memuat pengaturan akses...</span>
+          <span class="ml-3 theme-text-secondary">Memuat pengaturan akses...</span>
         </div>
 
         <!-- Menu Access Cards -->
         <div v-else-if="selectedRole">
           <!-- Select All -->
           <div
-            class="flex items-center justify-between mb-4 p-3 rounded-xl border border-zinc-700/50 bg-zinc-800/30"
+            class="flex items-center justify-between mb-4 p-3 rounded-xl border theme-border theme-bg-secondary"
           >
             <div class="flex items-center gap-2">
               <input
@@ -83,9 +83,9 @@
                 @change="toggleAllRole"
                 class="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
               />
-              <span class="text-sm font-semibold text-white">Pilih Semua Menu</span>
+              <span class="text-sm font-semibold theme-text">Pilih Semua Menu</span>
             </div>
-            <span class="text-xs text-zinc-500">
+            <span class="text-xs theme-text-muted">
               {{ roleCheckedCount }}/{{ allMenuFlat.length }} dipilih
             </span>
           </div>
@@ -95,11 +95,11 @@
             <div
               v-for="group in menuGroups"
               :key="group.label"
-              class="rounded-xl border border-zinc-700/50 bg-zinc-800/20 overflow-hidden"
+              class="rounded-xl border theme-border theme-bg-card overflow-hidden"
             >
               <!-- Group header -->
               <div
-                class="flex items-center justify-between px-4 py-3 bg-zinc-800/40 border-b border-zinc-700/30"
+                class="flex items-center justify-between px-4 py-3 theme-bg-card"
               >
                 <div class="flex items-center gap-2.5">
                   <input
@@ -109,19 +109,19 @@
                     @change="toggleGroupRole(group.label)"
                     class="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
                   />
-                  <span class="text-sm font-semibold text-white">{{ group.label }}</span>
+                  <span class="text-sm font-semibold theme-text">{{ group.label }}</span>
                 </div>
-                <span class="text-xs text-zinc-500">
+                <span class="text-xs theme-text-muted">
                   {{ getGroupRoleCheckedCount(group.label) }}/{{ group.items.length }}
                 </span>
               </div>
 
               <!-- Group items -->
-              <div class="divide-y divide-zinc-700/20">
+              <div class="group-items-divider">
                 <label
                   v-for="item in group.items"
                   :key="item.to"
-                  class="flex items-center gap-3 px-4 py-2.5 hover:bg-zinc-700/20 transition-colors cursor-pointer"
+                  class="flex items-center gap-3 px-4 py-2.5 theme-bg-card-hover transition-colors cursor-pointer"
                 >
                   <input
                     type="checkbox"
@@ -130,8 +130,8 @@
                     class="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
                   />
                   <div class="flex-1 min-w-0">
-                    <span class="text-sm text-zinc-200">{{ item.label }}</span>
-                    <span class="text-xs text-zinc-600 ml-2">{{ item.to }}</span>
+                    <span class="text-sm theme-text">{{ item.label }}</span>
+                    <span class="text-xs theme-text-muted ml-2">{{ item.to }}</span>
                   </div>
                 </label>
               </div>
@@ -159,17 +159,17 @@
         <div class="mb-5 space-y-3">
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="flex-1">
-              <label class="text-sm text-zinc-300 font-medium mb-1.5 block">Pilih Guru:</label>
-              <select
+              <label class="text-sm theme-text font-medium mb-1.5 block">Pilih Guru:</label>
+              <SearchableSelect
                 v-model="selectedUserId"
+                :options="guruUsersOptions"
+                option-label="display_name"
+                option-value="id"
+                placeholder="-- Pilih Guru --"
+                search-placeholder="Cari nama atau username..."
+                class="w-full"
                 @change="loadUserAccess"
-                class="w-full h-10 sm:h-11 px-3 rounded-lg border bg-zinc-800/30 text-white border-zinc-700/50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all text-sm"
-              >
-                <option value="" disabled>-- Pilih Guru --</option>
-                <option v-for="u in guruUsers" :key="u.id" :value="u.id">
-                  {{ u.display_name }} ({{ u.username }})
-                </option>
-              </select>
+              />
             </div>
             <!-- Reset Button -->
             <div v-if="selectedUserId && userHasCustom" class="flex items-end">
@@ -191,16 +191,16 @@
             class="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20"
           >
             <Sparkles class="w-4 h-4 text-violet-400" />
-            <span class="text-xs text-violet-300">
+            <span class="text-xs text-violet-600 dark:text-violet-300">
               Guru ini memiliki pengaturan akses <strong>custom</strong> — tidak mengikuti default role.
             </span>
           </div>
           <div
             v-else-if="selectedUserId && !userHasCustom && !isLoadingUser"
-            class="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-500/10 border border-zinc-500/20"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg theme-bg-secondary border theme-border"
           >
-            <Info class="w-4 h-4 text-zinc-400" />
-            <span class="text-xs text-zinc-400">
+            <Info class="w-4 h-4 theme-text-muted" />
+            <span class="text-xs theme-text-secondary">
               Guru ini menggunakan pengaturan akses <strong>default role</strong>. Ubah di bawah untuk membuat pengaturan custom.
             </span>
           </div>
@@ -209,13 +209,13 @@
         <!-- Loading -->
         <div v-if="isLoadingUser" class="flex items-center justify-center py-16">
           <Loader2 class="w-8 h-8 text-emerald-500 animate-spin" />
-          <span class="ml-3 text-zinc-400">Memuat pengaturan akses guru...</span>
+          <span class="ml-3 theme-text-secondary">Memuat pengaturan akses guru...</span>
         </div>
 
         <!-- Loading Users List -->
         <div v-else-if="isLoadingUsers" class="flex items-center justify-center py-16">
           <Loader2 class="w-8 h-8 text-emerald-500 animate-spin" />
-          <span class="ml-3 text-zinc-400">Memuat daftar guru...</span>
+          <span class="ml-3 theme-text-secondary">Memuat daftar guru...</span>
         </div>
 
         <!-- Empty: No guru selected -->
@@ -223,9 +223,9 @@
           v-else-if="!selectedUserId"
           class="text-center py-16"
         >
-          <UserCog class="w-16 h-16 mx-auto mb-4 text-zinc-600" />
-          <p class="text-zinc-400 mb-2">Pilih guru dari dropdown di atas</p>
-          <p class="text-zinc-600 text-sm">
+          <UserCog class="w-16 h-16 mx-auto mb-4 theme-text-muted" />
+          <p class="theme-text-secondary mb-2">Pilih guru dari dropdown di atas</p>
+          <p class="theme-text-muted text-sm">
             untuk mengatur akses menu secara individual
           </p>
         </div>
@@ -234,7 +234,7 @@
         <div v-else-if="selectedUserId">
           <!-- Select All -->
           <div
-            class="flex items-center justify-between mb-4 p-3 rounded-xl border border-zinc-700/50 bg-zinc-800/30"
+            class="flex items-center justify-between mb-4 p-3 rounded-xl border theme-border theme-bg-secondary"
           >
             <div class="flex items-center gap-2">
               <input
@@ -244,9 +244,9 @@
                 @change="toggleAllUser"
                 class="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
               />
-              <span class="text-sm font-semibold text-white">Pilih Semua Menu</span>
+              <span class="text-sm font-semibold theme-text">Pilih Semua Menu</span>
             </div>
-            <span class="text-xs text-zinc-500">
+            <span class="text-xs theme-text-muted">
               {{ userCheckedCount }}/{{ allMenuFlat.length }} dipilih
             </span>
           </div>
@@ -256,10 +256,10 @@
             <div
               v-for="group in menuGroups"
               :key="group.label"
-              class="rounded-xl border border-zinc-700/50 bg-zinc-800/20 overflow-hidden"
+              class="rounded-xl border theme-border theme-bg-card overflow-hidden"
             >
               <div
-                class="flex items-center justify-between px-4 py-3 bg-zinc-800/40 border-b border-zinc-700/30"
+                class="flex items-center justify-between px-4 py-3 theme-bg-card"
               >
                 <div class="flex items-center gap-2.5">
                   <input
@@ -269,18 +269,18 @@
                     @change="toggleGroupUser(group.label)"
                     class="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
                   />
-                  <span class="text-sm font-semibold text-white">{{ group.label }}</span>
+                  <span class="text-sm font-semibold theme-text">{{ group.label }}</span>
                 </div>
-                <span class="text-xs text-zinc-500">
+                <span class="text-xs theme-text-muted">
                   {{ getGroupUserCheckedCount(group.label) }}/{{ group.items.length }}
                 </span>
               </div>
 
-              <div class="divide-y divide-zinc-700/20">
+              <div class="group-items-divider">
                 <label
                   v-for="item in group.items"
                   :key="item.to"
-                  class="flex items-center gap-3 px-4 py-2.5 hover:bg-zinc-700/20 transition-colors cursor-pointer"
+                  class="flex items-center gap-3 px-4 py-2.5 theme-bg-card-hover transition-colors cursor-pointer"
                 >
                   <input
                     type="checkbox"
@@ -289,8 +289,8 @@
                     class="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
                   />
                   <div class="flex-1 min-w-0">
-                    <span class="text-sm text-zinc-200">{{ item.label }}</span>
-                    <span class="text-xs text-zinc-600 ml-2">{{ item.to }}</span>
+                    <span class="text-sm theme-text">{{ item.label }}</span>
+                    <span class="text-xs theme-text-muted ml-2">{{ item.to }}</span>
                   </div>
                 </label>
               </div>
@@ -326,6 +326,7 @@ import {
   Sparkles,
   Info,
 } from "lucide-vue-next";
+import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import { useAuth } from "~/composables/auth/useAuth";
 import { useMenuConfig } from "~/composables/ui/useMenuConfig";
 import { useNotiflix } from "~/composables/ui/useFeedback";
@@ -532,6 +533,9 @@ const isResettingUser = ref(false);
 const userHasCustom = ref(false);
 const userAccessMap = reactive({});
 const guruUsers = ref([]);
+
+// Format untuk SearchableSelect: tampilkan nama saja
+const guruUsersOptions = computed(() => guruUsers.value);
 
 const userCheckedCount = computed(() => {
   return allMenuFlat.value.filter((item) => userAccessMap[item.to]).length;

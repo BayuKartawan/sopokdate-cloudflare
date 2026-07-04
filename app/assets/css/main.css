@@ -229,6 +229,23 @@
     border-color: var(--border-subtle);
   }
 
+  /* Divide color for theme-aware dividers */
+  .divide-y.theme-border-subtle > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--border-subtle);
+  }
+
+  .divide-y.theme-border > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--border-primary);
+  }
+
+  /* Group items divider — semua border seragam */
+  .group-items-divider {
+    border-top: 1px solid var(--border-primary);
+  }
+  .group-items-divider > * + * {
+    border-top: 1px solid var(--border-primary);
+  }
+
   /* Theme-aware input styling — used by FormUniversal's getInputClass */
   .theme-input {
     color: var(--text-primary);

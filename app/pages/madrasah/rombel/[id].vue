@@ -393,24 +393,31 @@ const { Notify, Confirm } = useNotiflix();
 const showModal = ref(false);
 const editingItem = ref({});
 
+// Teacher map (supports lookup by both ID and old Peg ID/PegID for compatibility)
 const teacherMap = computed(() => {
   const map = {};
   if (Array.isArray(dataGtk.value)) {
-    dataGtk.value.forEach((t) => { if (t.peg_id) map[t.peg_id] = t; });
+    dataGtk.value.forEach((t) => {
+      if (t.id) map[t.id] = t;
+      if (t.peg_id) map[t.peg_id] = t;
+      if (t.PegID) map[t.PegID] = t;
+    });
   }
   return map;
 });
 
 const getTeacherName = (pegId) => {
   if (!pegId) return "Belum Ditentukan";
-  return teacherMap.value[pegId]?.nama_lengkap ?? pegId;
+  const teacher = teacherMap.value[pegId];
+  return teacher ? (teacher.title || teacher.nama_lengkap) : pegId;
 };
 
+// Teacher options for CRUD form (submits GTK ID as value)
 const teacherOptions = computed(() => {
   if (!Array.isArray(dataGtk.value)) return [];
   return dataGtk.value
-    .filter((t) => t.peg_id && t.nama_lengkap)
-    .map((t) => ({ value: t.peg_id, label: t.nama_lengkap }))
+    .filter((t) => t.id && (t.title || t.nama_lengkap))
+    .map((t) => ({ value: t.id, label: t.title || t.nama_lengkap }))
     .sort((a, b) => a.label.localeCompare(b.label));
 });
 

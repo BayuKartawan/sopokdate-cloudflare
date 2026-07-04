@@ -221,16 +221,18 @@ const handleFormUpdate = ({ formData, templateType }) => {
       studentInput.options = siswaOptions.value;
     }
 
-    // Auto-fill Wali Kelas dari DataKelas (Lookup via PegID)
+    // Auto-fill Wali Kelas dari DataKelas (Lookup via ID or PegID)
     if (Array.isArray(dataKelas.value) && Array.isArray(dataGtk.value)) {
       const classInfo = dataKelas.value.find(
         (k) => k.namaKelas === currentClass,
       );
       if (classInfo && classInfo.waliKelas) {
         const teacher = dataGtk.value.find(
-          (g) => g.PegID === classInfo.waliKelas,
+          (g) =>
+            String(g.id).trim() === String(classInfo.waliKelas).trim() ||
+            String(g.PegID).trim() === String(classInfo.waliKelas).trim()
         );
-        formData.wali_kelas = teacher ? teacher.title : classInfo.waliKelas;
+        formData.wali_kelas = teacher ? (teacher.title || teacher.nama_lengkap) : classInfo.waliKelas;
       } else {
         formData.wali_kelas = "";
       }
