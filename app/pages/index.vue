@@ -2,8 +2,45 @@
   <div class="min-h-screen">
     <!-- Main Container -->
     <div class="page-layout px-4 sm:px-6">
+      <!-- Welcome Header -->
+      <div class="mt-6 p-5 sm:p-6 rounded-2xl border transition-all duration-300 relative overflow-hidden group shadow-sm hover:shadow-md"
+        :style="{
+          backgroundColor: 'var(--bg-secondary)',
+          borderColor: 'var(--border-primary)',
+        }">
+        <!-- Background Glow effects -->
+        <div class="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
+        <div class="absolute -left-16 -bottom-16 w-48 h-48 rounded-full bg-violet-500/10 dark:bg-violet-500/5 blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div class="flex items-center gap-4">
+            <div class="p-3.5 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-md shadow-emerald-500/20 transform group-hover:scale-105 transition-transform duration-300">
+              <User class="w-6 h-6 sm:w-8 sm:h-8" />
+            </div>
+            <div>
+              <p class="text-xs uppercase tracking-wider font-semibold text-emerald-600 dark:text-emerald-400">
+                Selamat Datang, {{ userRoleLabel }}
+              </p>
+              <h1 class="text-xl sm:text-2xl font-bold mt-1 tracking-tight" :style="{ color: 'var(--text-heading)' }">
+                {{ userDisplayName || 'Pengguna Sopokdate' }}
+              </h1>
+              <p class="text-xs sm:text-sm mt-0.5" :style="{ color: 'var(--text-secondary)' }">
+                Senang melihat Anda kembali. Akses dan kelola data madrasah Anda dengan mudah.
+              </p>
+            </div>
+          </div>
+          
+          <div class="hidden sm:block text-right">
+            <div class="text-xs" :style="{ color: 'var(--text-muted)' }">Tanggal Hari Ini</div>
+            <div class="text-sm font-semibold mt-1" :style="{ color: 'var(--text-secondary)' }">
+              {{ currentFormattedDate }}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Announcement Section -->
-      <header class="mt-4 pb-12">
+      <header class="mt-6 pb-12">
         <div class="group relative overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-lg p-5"
           :style="{
             backgroundColor: 'var(--bg-secondary)',
@@ -111,10 +148,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { Bell, Plus, Pencil, Trash2 } from "lucide-vue-next";
+import { ref, onMounted, computed } from "vue";
+import { Bell, Plus, Pencil, Trash2, User } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
+import { useAuth } from "~/composables/auth/useAuth";
 import CrudModal from "~/components/ui/CrudModal.vue";
 
 definePageMeta({
@@ -131,8 +169,37 @@ const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
   "Pengumuman",
   () => refreshData("Pengumuman"),
 );
+const { getUserRole, getUserData } = useAuth();
+
+const userDisplayName = ref("");
+const userRole = ref("");
+
+const userRoleLabel = computed(() => {
+  const r = userRole.value;
+  if (r === "admin") return "Admin";
+  if (r === "guru") return "Guru";
+  if (r === "kepala_madrasah") return "Kepala Madrasah";
+  return r;
+});
+
+const currentFormattedDate = computed(() => {
+  return new Date().toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+});
 
 onMounted(() => {
+  const data = getUserData();
+  if (data) {
+    userDisplayName.value = data.displayName || "";
+    userRole.value = data.role || "";
+  } else {
+    userDisplayName.value = localStorage.getItem("user-displayName") || "";
+    userRole.value = localStorage.getItem("user-role") || "";
+  }
   loadData("Pengumuman");
 });
 

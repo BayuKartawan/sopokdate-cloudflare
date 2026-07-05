@@ -2,6 +2,7 @@ import { ref } from "vue";
 import { clearUserAndRole } from "~/middleware/auth.global";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { clearSessionCache } from "~/composables/data/useTableData";
+import { useMenuConfig } from "~/composables/ui/useMenuConfig";
 
 /**
  * Membuat token JWT tiruan di client-side agar tetap kompatibel dengan middleware dan helper decodeJWT
@@ -36,6 +37,7 @@ export function useAuth() {
   const isLoading = ref(false);
   const errorMessage = ref("");
   const { Loading } = useNotiflix();
+  const { setAllowedMenus } = useMenuConfig();
 
   const userDataCache = ref(
     new Map<string, { role: string; displayName: string }>(),
@@ -126,6 +128,7 @@ export function useAuth() {
   const clearUserStorage = (): void => {
     clearUserAndRole();
     clearSessionCache();
+    setAllowedMenus(null);
 
     const sessionKeys = [
       "user-token",
@@ -273,10 +276,7 @@ export function useAuth() {
         if (menuResponse.ok) {
           const menuResult = await menuResponse.json();
           if (menuResult.success && menuResult.allowed_menus) {
-            localStorage.setItem(
-              "user-menu-akses",
-              JSON.stringify(menuResult.allowed_menus),
-            );
+            setAllowedMenus(menuResult.allowed_menus);
           }
         }
       } catch (menuErr) {
@@ -425,6 +425,39 @@ export function useAuth() {
     return currentTime < expiryTime && isTokenValid();
   };
 
+  // --- Throttled refresh of menu access ---
+  let _lastMenuRefresh = 0;
+  const MENU_REFRESH_INTERVAL = 30_000; // 30 seconds
+
+  const refreshMenuAccess = async (): Promise<void> => {
+    const now = Date.now();
+    if (now - _lastMenuRefresh < MENU_REFRESH_INTERVAL) return;
+    _lastMenuRefresh = now;
+
+    try {
+      const token = localStorage.getItem("user-token");
+      if (!token) return;
+
+      const response = await fetch("/api/auth-proxy", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action: "get-my-menu-akses" }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.allowed_menus) {
+          setAllowedMenus(result.allowed_menus);
+        }
+      }
+    } catch (err) {
+      console.warn("Gagal refresh menu akses:", err);
+    }
+  };
+
   return {
     isLoading,
     errorMessage,
@@ -447,5 +480,6 @@ export function useAuth() {
     decodeJWT,
     clearError,
     clearCache,
+    refreshMenuAccess,
   };
 }

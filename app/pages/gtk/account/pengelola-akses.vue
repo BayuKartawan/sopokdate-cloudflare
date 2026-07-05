@@ -86,14 +86,14 @@
               <span class="text-sm font-semibold theme-text">Pilih Semua Menu</span>
             </div>
             <span class="text-xs theme-text-muted">
-              {{ roleCheckedCount }}/{{ allMenuFlat.length }} dipilih
+              {{ roleCheckedCount }}/{{ roleMenuFlat.length }} dipilih
             </span>
           </div>
 
           <!-- Groups -->
           <div class="space-y-3">
             <div
-              v-for="group in menuGroups"
+              v-for="group in roleMenuGroups"
               :key="group.label"
               class="rounded-xl border theme-border theme-bg-card overflow-hidden"
             >
@@ -247,14 +247,14 @@
               <span class="text-sm font-semibold theme-text">Pilih Semua Menu</span>
             </div>
             <span class="text-xs theme-text-muted">
-              {{ userCheckedCount }}/{{ allMenuFlat.length }} dipilih
+              {{ userCheckedCount }}/{{ userMenuFlat.length }} dipilih
             </span>
           </div>
 
           <!-- Groups (same structure as role tab) -->
           <div class="space-y-3">
             <div
-              v-for="group in menuGroups"
+              v-for="group in userMenuGroups"
               :key="group.label"
               class="rounded-xl border theme-border theme-bg-card overflow-hidden"
             >
@@ -356,17 +356,17 @@ const showToast = (message, type = "info") => {
 const activeTab = ref("role");
 const allMenuFlat = computed(() => getAllMenuKeysFlat());
 
-// Group menu items by parent/group
-const menuGroups = computed(() => {
+// Helper to group flat menu items
+const groupMenuItems = (flatItems) => {
   const groups = {};
-  allMenuFlat.value.forEach((item) => {
+  flatItems.forEach((item) => {
     if (!groups[item.group]) {
       groups[item.group] = { label: item.group, items: [] };
     }
     groups[item.group].items.push(item);
   });
   return Object.values(groups);
-});
+};
 
 const managedRoles = [
   { value: "guru", label: "Guru" },
@@ -379,46 +379,50 @@ const isLoadingRole = ref(false);
 const isSavingRole = ref(false);
 const roleAccessMap = reactive({});
 
+// Filtered menu list for the currently selected role
+const roleMenuFlat = computed(() => getAllMenuKeysFlat(selectedRole.value));
+const roleMenuGroups = computed(() => groupMenuItems(roleMenuFlat.value));
+
 const roleCheckedCount = computed(() => {
-  return allMenuFlat.value.filter((item) => roleAccessMap[item.to]).length;
+  return roleMenuFlat.value.filter((item) => roleAccessMap[item.to]).length;
 });
 
 const isAllRoleChecked = computed(() => {
-  return allMenuFlat.value.length > 0 && roleCheckedCount.value === allMenuFlat.value.length;
+  return roleMenuFlat.value.length > 0 && roleCheckedCount.value === roleMenuFlat.value.length;
 });
 
 const isRoleIndeterminate = computed(() => {
-  return roleCheckedCount.value > 0 && roleCheckedCount.value < allMenuFlat.value.length;
+  return roleCheckedCount.value > 0 && roleCheckedCount.value < roleMenuFlat.value.length;
 });
 
 const isGroupRoleChecked = (groupLabel) => {
-  const group = menuGroups.value.find((g) => g.label === groupLabel);
+  const group = roleMenuGroups.value.find((g) => g.label === groupLabel);
   if (!group) return false;
   return group.items.every((item) => roleAccessMap[item.to]);
 };
 
 const isGroupRoleIndeterminate = (groupLabel) => {
-  const group = menuGroups.value.find((g) => g.label === groupLabel);
+  const group = roleMenuGroups.value.find((g) => g.label === groupLabel);
   if (!group) return false;
   const checked = group.items.filter((item) => roleAccessMap[item.to]).length;
   return checked > 0 && checked < group.items.length;
 };
 
 const getGroupRoleCheckedCount = (groupLabel) => {
-  const group = menuGroups.value.find((g) => g.label === groupLabel);
+  const group = roleMenuGroups.value.find((g) => g.label === groupLabel);
   if (!group) return 0;
   return group.items.filter((item) => roleAccessMap[item.to]).length;
 };
 
 const toggleAllRole = () => {
   const newVal = !isAllRoleChecked.value;
-  allMenuFlat.value.forEach((item) => {
+  roleMenuFlat.value.forEach((item) => {
     roleAccessMap[item.to] = newVal;
   });
 };
 
 const toggleGroupRole = (groupLabel) => {
-  const group = menuGroups.value.find((g) => g.label === groupLabel);
+  const group = roleMenuGroups.value.find((g) => g.label === groupLabel);
   if (!group) return;
   const newVal = !isGroupRoleChecked(groupLabel);
   group.items.forEach((item) => {
@@ -455,25 +459,29 @@ const loadRoleAccess = async () => {
 
     const result = await response.json();
 
-    // Reset all to unchecked first
-    allMenuFlat.value.forEach((item) => {
+    // Reset all to unchecked first (only role-relevant menus)
+    roleMenuFlat.value.forEach((item) => {
       roleAccessMap[item.to] = false;
     });
 
     if (result.success && result.menu_akses) {
       if (result.menu_akses.length === 0) {
         // Belum ada pengaturan: default semua aktif
-        allMenuFlat.value.forEach((item) => {
+        roleMenuFlat.value.forEach((item) => {
           roleAccessMap[item.to] = true;
         });
       } else {
+        // Build a set of allowed keys for this role
+        const roleKeys = new Set(roleMenuFlat.value.map((i) => i.to));
         result.menu_akses.forEach((akses) => {
-          roleAccessMap[akses.menu_key] = akses.is_allowed === 1;
+          if (roleKeys.has(akses.menu_key)) {
+            roleAccessMap[akses.menu_key] = akses.is_allowed === 1;
+          }
         });
       }
     } else {
       // Default semua aktif jika belum diatur
-      allMenuFlat.value.forEach((item) => {
+      roleMenuFlat.value.forEach((item) => {
         roleAccessMap[item.to] = true;
       });
     }
@@ -491,9 +499,12 @@ const saveRoleAccess = async () => {
 
   try {
     const token = getToken();
+    // Build a set of role-relevant keys
+    const roleKeys = new Set(roleMenuFlat.value.map((i) => i.to));
+    // Send all menu keys, but force is_allowed=0 for menus outside this role
     const items = allMenuFlat.value.map((item) => ({
       menu_key: item.to,
-      is_allowed: roleAccessMap[item.to] ? 1 : 0,
+      is_allowed: roleKeys.has(item.to) && roleAccessMap[item.to] ? 1 : 0,
     }));
 
     const response = await fetch("/api/auth-proxy", {
@@ -537,46 +548,57 @@ const guruUsers = ref([]);
 // Format untuk SearchableSelect: tampilkan nama saja
 const guruUsersOptions = computed(() => guruUsers.value);
 
+// Get the role of the currently selected user
+const selectedUserRole = computed(() => {
+  if (!selectedUserId.value) return "guru";
+  const user = guruUsers.value.find((u) => u.id === Number(selectedUserId.value));
+  return user?.role || "guru";
+});
+
+// Filtered menu list for the selected user's role
+const userMenuFlat = computed(() => getAllMenuKeysFlat(selectedUserRole.value));
+const userMenuGroups = computed(() => groupMenuItems(userMenuFlat.value));
+
 const userCheckedCount = computed(() => {
-  return allMenuFlat.value.filter((item) => userAccessMap[item.to]).length;
+  return userMenuFlat.value.filter((item) => userAccessMap[item.to]).length;
 });
 
 const isAllUserChecked = computed(() => {
-  return allMenuFlat.value.length > 0 && userCheckedCount.value === allMenuFlat.value.length;
+  return userMenuFlat.value.length > 0 && userCheckedCount.value === userMenuFlat.value.length;
 });
 
 const isUserIndeterminate = computed(() => {
-  return userCheckedCount.value > 0 && userCheckedCount.value < allMenuFlat.value.length;
+  return userCheckedCount.value > 0 && userCheckedCount.value < userMenuFlat.value.length;
 });
 
 const isGroupUserChecked = (groupLabel) => {
-  const group = menuGroups.value.find((g) => g.label === groupLabel);
+  const group = userMenuGroups.value.find((g) => g.label === groupLabel);
   if (!group) return false;
   return group.items.every((item) => userAccessMap[item.to]);
 };
 
 const isGroupUserIndeterminate = (groupLabel) => {
-  const group = menuGroups.value.find((g) => g.label === groupLabel);
+  const group = userMenuGroups.value.find((g) => g.label === groupLabel);
   if (!group) return false;
   const checked = group.items.filter((item) => userAccessMap[item.to]).length;
   return checked > 0 && checked < group.items.length;
 };
 
 const getGroupUserCheckedCount = (groupLabel) => {
-  const group = menuGroups.value.find((g) => g.label === groupLabel);
+  const group = userMenuGroups.value.find((g) => g.label === groupLabel);
   if (!group) return 0;
   return group.items.filter((item) => userAccessMap[item.to]).length;
 };
 
 const toggleAllUser = () => {
   const newVal = !isAllUserChecked.value;
-  allMenuFlat.value.forEach((item) => {
+  userMenuFlat.value.forEach((item) => {
     userAccessMap[item.to] = newVal;
   });
 };
 
 const toggleGroupUser = (groupLabel) => {
-  const group = menuGroups.value.find((g) => g.label === groupLabel);
+  const group = userMenuGroups.value.find((g) => g.label === groupLabel);
   if (!group) return;
   const newVal = !isGroupUserChecked(groupLabel);
   group.items.forEach((item) => {
@@ -637,8 +659,9 @@ const loadUserAccess = async () => {
 
     const result = await response.json();
 
-    // Reset all
-    allMenuFlat.value.forEach((item) => {
+    // Reset all (only user-role-relevant menus)
+    const userRoleKeys = new Set(userMenuFlat.value.map((i) => i.to));
+    userMenuFlat.value.forEach((item) => {
       userAccessMap[item.to] = false;
     });
 
@@ -648,14 +671,13 @@ const loadUserAccess = async () => {
       if (result.has_custom && result.menu_akses) {
         // User memiliki custom akses
         result.menu_akses.forEach((akses) => {
-          userAccessMap[akses.menu_key] = akses.is_allowed === 1;
+          if (userRoleKeys.has(akses.menu_key)) {
+            userAccessMap[akses.menu_key] = akses.is_allowed === 1;
+          }
         });
       } else {
         // User mengikuti default role — ambil data role
-        const selectedUser = guruUsers.value.find(
-          (u) => u.id === Number(selectedUserId.value),
-        );
-        const userRole = selectedUser?.role || "guru";
+        const userRole = selectedUserRole.value;
 
         const roleResponse = await fetch("/api/auth-proxy", {
           method: "POST",
@@ -673,11 +695,13 @@ const loadUserAccess = async () => {
 
         if (roleResult.success && roleResult.menu_akses && roleResult.menu_akses.length > 0) {
           roleResult.menu_akses.forEach((akses) => {
-            userAccessMap[akses.menu_key] = akses.is_allowed === 1;
+            if (userRoleKeys.has(akses.menu_key)) {
+              userAccessMap[akses.menu_key] = akses.is_allowed === 1;
+            }
           });
         } else {
           // Default: semua aktif
-          allMenuFlat.value.forEach((item) => {
+          userMenuFlat.value.forEach((item) => {
             userAccessMap[item.to] = true;
           });
         }
@@ -697,9 +721,12 @@ const saveUserAccess = async () => {
 
   try {
     const token = getToken();
+    // Build a set of user-role-relevant keys
+    const userRoleKeys = new Set(userMenuFlat.value.map((i) => i.to));
+    // Send all menu keys, but force is_allowed=0 for menus outside the user's role
     const items = allMenuFlat.value.map((item) => ({
       menu_key: item.to,
-      is_allowed: userAccessMap[item.to] ? 1 : 0,
+      is_allowed: userRoleKeys.has(item.to) && userAccessMap[item.to] ? 1 : 0,
     }));
 
     const response = await fetch("/api/auth-proxy", {

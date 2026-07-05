@@ -24,6 +24,9 @@ export interface MenuItem {
   children?: MenuItemChild[];
 }
 
+// Shared state for allowed menus to ensure reactivity across components
+const allowedMenusState = ref<string[] | null>(null);
+
 export const useMenuConfig = () => {
   const allMenuItems = ref<MenuItem[]>([
     {
@@ -195,11 +198,27 @@ export const useMenuConfig = () => {
   };
 
   const getMyAllowedMenus = (): string[] | null => {
+    if (allowedMenusState.value !== null) {
+      return allowedMenusState.value;
+    }
     try {
       const allowed = localStorage.getItem("user-menu-akses");
-      return allowed ? JSON.parse(allowed) : null;
+      if (allowed) {
+        allowedMenusState.value = JSON.parse(allowed);
+        return allowedMenusState.value;
+      }
+      return null;
     } catch {
       return null;
+    }
+  };
+
+  const setAllowedMenus = (menus: string[] | null) => {
+    allowedMenusState.value = menus;
+    if (menus) {
+      localStorage.setItem("user-menu-akses", JSON.stringify(menus));
+    } else {
+      localStorage.removeItem("user-menu-akses");
     }
   };
 
@@ -208,15 +227,24 @@ export const useMenuConfig = () => {
 
     const allowedMenus = getMyAllowedMenus();
 
+    // Helper: menu is admin-only if its roles array is exactly ["admin"]
+    const isAdminOnly = (roles: string[]) => roles.length === 1 && roles[0] === "admin";
+
     return allMenuItems.value
       .filter((item) => {
         // Jika ada data menu akses dari DB di localStorage dan bukan admin
         if (userRole !== "admin" && allowedMenus) {
+          // Selalu sembunyikan item yang hanya untuk admin
+          if (item.roles && isAdminOnly(item.roles)) return false;
+
           if (item.to) {
             return allowedMenus.includes(item.to);
           }
           if (item.children) {
-            return item.children.some((child) => allowedMenus.includes(child.to));
+            return item.children.some((child) => {
+              if (child.roles && isAdminOnly(child.roles)) return false;
+              return allowedMenus.includes(child.to);
+            });
           }
           return false;
         }
@@ -241,7 +269,10 @@ export const useMenuConfig = () => {
         if (clonedItem.children) {
           if (userRole !== "admin" && allowedMenus) {
             clonedItem.children = clonedItem.children.filter(
-              (child) => allowedMenus.includes(child.to)
+              (child) => {
+                if (child.roles && isAdminOnly(child.roles)) return false;
+                return allowedMenus.includes(child.to);
+              }
             );
           } else {
             clonedItem.children = clonedItem.children.filter(
@@ -317,14 +348,25 @@ export const useMenuConfig = () => {
   };
 
   // Helper untuk mengambil seluruh menu key (to) secara flat
-  const getAllMenuKeysFlat = (): Array<{ to: string; label: string; group: string }> => {
+  // Jika role diberikan, exclude menu yang hanya untuk admin (roles = ["admin"])
+  // Menu seperti BOS (roles: ["admin", "kepala_madrasah"]) tetap muncul agar bisa dikonfigurasi
+  const getAllMenuKeysFlat = (role?: string | null): Array<{ to: string; label: string; group: string }> => {
+    // Helper: menu is admin-only if its roles array is exactly ["admin"]
+    const isAdminOnly = (roles: string[]) => roles.length === 1 && roles[0] === "admin";
+
     const flat: Array<{ to: string; label: string; group: string }> = [];
     allMenuItems.value.forEach((item) => {
+      if (role && item.roles && isAdminOnly(item.roles)) {
+        return;
+      }
       if (item.to) {
         flat.push({ to: item.to, label: item.label, group: "General" });
       }
       if (item.children) {
         item.children.forEach((child) => {
+          if (role && child.roles && isAdminOnly(child.roles)) {
+            return;
+          }
           flat.push({ to: child.to, label: child.label, group: item.label });
         });
       }
@@ -368,6 +410,7 @@ export const useMenuConfig = () => {
     allMenuItems,
     getCurrentUserRole,
     getMyAllowedMenus,
+    setAllowedMenus,
     filterMenuByRole,
     getMenuItemsWithChildren,
     getAllMenuLabels,

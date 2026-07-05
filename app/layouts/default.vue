@@ -48,7 +48,7 @@ import MobileMenuModal from "~/components/layout/MobileMenuModal.vue";
 import Footer from "~/components/layout/Footer.vue";
 
 const router = useRouter();
-const { logoutDirect, isTokenValid, decodeJWT, resetAllLocalStorage } =
+const { logoutDirect, isTokenValid, decodeJWT, resetAllLocalStorage, refreshMenuAccess } =
   useAuth();
 
 // --- State
@@ -186,9 +186,10 @@ onMounted(() => {
   // 4. Add resize listener
   window.addEventListener("resize", handleResize);
 
-  // 5. Re-check auth on route changes
+  // 5. Re-check auth on route changes and refresh menu access
   const stopWatchRoute = router.afterEach(() => {
     checkUserAuth();
+    refreshMenuAccess();
   });
 
   // 6. Listen to storage events (untuk multi-tab logout sync)
@@ -201,6 +202,9 @@ onMounted(() => {
     }
   };
   window.addEventListener("storage", handleStorageChange);
+
+  // 7. Initial menu access refresh
+  refreshMenuAccess();
 
   // Cleanup on unmount
   onUnmounted(() => {

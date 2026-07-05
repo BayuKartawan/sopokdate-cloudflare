@@ -298,7 +298,7 @@
                 </button>
 
                 <a
-                  :href="akun.link"
+                  :href="akun.link || defaultLink || '#'"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded text-xs font-medium no-underline bg-emerald-600 text-white hover:bg-emerald-500"
@@ -380,7 +380,8 @@ const props = defineProps({
   },
 });
 
-const { cardData, isLoading, loadData, refreshData } = useTableData();
+const { cardData: accountsData, isLoading, loadData, refreshData } = useTableData();
+const { cardData: aplikasiData, loadData: loadAplikasiData } = useTableData();
 const { exportToCSV } = useExportExcel();
 const { Notify } = useNotiflix();
 
@@ -408,6 +409,44 @@ const modalMode = ref("create");
 const editingItem = ref({});
 
 // Determine account fields based on table type
+// Helper to get fallback link from Aplikasi database table dynamically
+const getAppFallbackLink = (tableKey) => {
+  if (!aplikasiData.value || !Array.isArray(aplikasiData.value)) return "";
+  
+  const key = tableKey.toLowerCase();
+  let app = null;
+  
+  if (key === "akunemis") {
+    app = aplikasiData.value.find(a => {
+      const t = (a.title || "").toLowerCase();
+      return t.includes("emis") && !t.includes("gtk");
+    });
+  } else if (key === "akunemisgtk") {
+    app = aplikasiData.value.find(a => {
+      const t = (a.title || "").toLowerCase();
+      return t.includes("emis gtk") || t.includes("emis-gtk") || (t.includes("emis") && t.includes("gtk"));
+    });
+  } else if (key === "akunsimpatika") {
+    app = aplikasiData.value.find(a => (a.title || "").toLowerCase().includes("simpatika"));
+  } else if (key === "akunrdm") {
+    app = aplikasiData.value.find(a => (a.title || "").toLowerCase().includes("rdm") || (a.title || "").toLowerCase().includes("raport digital"));
+  } else if (key === "akunemail") {
+    app = aplikasiData.value.find(a => (a.title || "").toLowerCase().includes("email") || (a.title || "").toLowerCase().includes("gmail"));
+  }
+  
+  if (!app) {
+    app = aplikasiData.value.find(a => {
+      const t = (a.title || "").toLowerCase();
+      const label = props.title.toLowerCase();
+      return t.includes(label) || label.includes(t);
+    });
+  }
+  
+  return app?.link || "";
+};
+
+const defaultLink = computed(() => getAppFallbackLink(selectedTable.value));
+
 const accountFields = computed(() => {
   const table = selectedTable.value;
   // AkunEmail has no link field
@@ -418,12 +457,16 @@ const accountFields = computed(() => {
       { key: "password", label: "Password", required: true },
     ];
   }
-  // All others have link field
+  
   return [
     { key: "nama", label: "Nama", required: true },
     { key: "username", label: "Username", required: true },
     { key: "password", label: "Password", required: true },
-    { key: "link", label: "Link Login" },
+    { 
+      key: "link", 
+      label: "Link Login (Kosongkan untuk default)", 
+      placeholder: defaultLink.value ? `Default: ${defaultLink.value}` : "Link login khusus jika berbeda" 
+    },
   ];
 });
 
@@ -513,11 +556,11 @@ const handleDelete = async (akun) => {
 provide("selectedTable", selectedTable);
 
 const sortedData = computed(() => {
-  if (!cardData.value || !Array.isArray(cardData.value)) {
+  if (!accountsData.value || !Array.isArray(accountsData.value)) {
     return [];
   }
 
-  return cardData.value
+  return accountsData.value
     .filter((item) => {
       return (
         item &&
@@ -542,7 +585,7 @@ const visibleData = computed(() => {
 });
 
 const hasLocalData = computed(() => {
-  return cardData.value && cardData.value.length > 0;
+  return accountsData.value && accountsData.value.length > 0;
 });
 
 const handleDropdownUpdated = (newValue) => {
@@ -610,7 +653,8 @@ const handleShareAccount = async (akun, index) => {
   sharingCardId.value = index;
 
   const tableName = selectedTable.value || "Tidak Diketahui";
-  const message = `====DOKUMEN.MADRASAH====\n\nJenis Akun: ${tableName}\nNama: ${akun.nama}\n\nUser: ${akun.username}\nPass: ${akun.password}\n\nLink masuk ${tableName}:\n${akun.link}\nLogin SopokDate:\nhttps://sopokdate.netlify.app/\n\n=====SANGAT.RAHASIA=====`;
+  const targetLink = akun.link || defaultLink.value || "";
+  const message = `====DOKUMEN.MADRASAH====\n\nJenis Akun: ${tableName}\nNama: ${akun.nama}\n\nUser: ${akun.username}\nPass: ${akun.password}\n\nLink masuk ${tableName}:\n${targetLink}\nLogin SopokDate:\nhttps://sopokdate.netlify.app/\n\n=====SANGAT.RAHASIA=====`;
 
   try {
     if (
@@ -642,7 +686,7 @@ const handleShareAccount = async (akun, index) => {
 };
 
 const handleLinkClick = (event, akun) => {
-  if (!akun.link) {
+  if (!akun.link && !defaultLink.value) {
     event.preventDefault();
     Notify.failure("Link tidak tersedia!");
   }
@@ -655,5 +699,6 @@ watch([searchQuery, selectedTable, sortedData], () => {
 
 onMounted(() => {
   loadData(selectedTable.value);
+  loadAplikasiData("Aplikasi");
 });
 </script>
