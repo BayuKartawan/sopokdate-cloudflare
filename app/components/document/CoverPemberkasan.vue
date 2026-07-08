@@ -45,52 +45,42 @@
             <td class="w-1/3 py-1 align-top text-left">Madrasah</td>
             <td class="w-4 text-center py-1 align-top">:</td>
             <td class="py-1 align-top text-left">
-              {{ dataMadrasah?.Madrasah || "N/A" }}
+              {{ dataMadrasah?.madrasah || "N/A" }}
             </td>
           </tr>
           <tr>
             <td class="w-1/3 py-1 align-top text-left">NSM</td>
             <td class="w-4 text-center py-1 align-top">:</td>
             <td class="py-1 align-top text-left">
-              {{ dataMadrasah?.Nsm || "N/A" }}
+              {{ dataMadrasah?.nsm || "N/A" }}
             </td>
           </tr>
           <tr>
             <td class="w-1/3 py-1 align-top text-left">Siap Id Lembaga</td>
             <td class="w-4 text-center py-1 align-top">:</td>
             <td class="py-1 align-top text-left">
-              {{ dataMadrasah?.SiapID || "50222645" }}
+              {{ dataMadrasah?.siap_id || "N/A" }}
             </td>
           </tr>
           <tr>
             <td class="w-1/3 py-1 align-top text-left">NPSN</td>
             <td class="w-4 text-center py-1 align-top">:</td>
             <td class="py-1 align-top text-left">
-              {{ dataMadrasah?.Npsn || "N/A" }}
+              {{ dataMadrasah?.npsn || "N/A" }}
             </td>
           </tr>
           <tr>
             <td class="w-1/3 py-1 align-top text-left">Akreditasi</td>
             <td class="w-4 text-center py-1 align-top">:</td>
             <td class="py-1 align-top text-left">
-              {{ dataMadrasah?.Akreditasi || "N/A" }}
-            </td>
-          </tr>
-          <tr>
-            <td class="w-1/3 py-1 align-top text-left">Alamat</td>
-            <td class="w-4 text-center py-1 align-top">:</td>
-            <td class="py-1 align-top text-left">
-              {{
-                dataMadrasah?.Alamat ||
-                "Jl. H. Sinarah Ibrohim KM 1 Penyenggir, Desa Sikur Barat"
-              }}
+              {{ dataMadrasah?.akreditasi || "N/A" }}
             </td>
           </tr>
           <tr>
             <td class="w-1/3 py-1 align-top text-left">No HP Kamad</td>
             <td class="w-4 text-center py-1 align-top">:</td>
             <td class="py-1 align-top text-left">
-              {{ dataMadrasah?.["NoHp Kamad"] || "087752462570" }}
+              {{ dataMadrasah?.no_hp_kamad || "N/A" }}
             </td>
           </tr>
           <tr>
@@ -131,7 +121,7 @@
       </div>
       <div class="text-center">
         <QrcodeVue
-          :value="`https://${linkApp}/`"
+          :value="linkApp"
           :size="100"
           render-as="svg"
           class="mx-auto"
@@ -153,7 +143,13 @@ import { useTableData } from "~/composables/data/useTableData";
 
 const { cardData, loadData } = useTableData();
 const dataMadrasah = ref(null);
-const linkApp = useRuntimeConfig().public.appMadrasah;
+const runtimeConfig = useRuntimeConfig();
+const linkApp = computed(() => {
+  const configured = runtimeConfig.public.appMadrasah || runtimeConfig.public.appLink;
+  if (configured) return configured;
+  if (typeof window !== "undefined") return `https://${window.location.host}`;
+  return "";
+});
 
 const getCurrentYear = () => new Date().getFullYear();
 
