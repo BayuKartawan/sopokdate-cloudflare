@@ -1,6 +1,24 @@
 <template>
   <div class="page-layout">
-    <!-- Breadcrumb Components -->
+    <!-- Breadcrumb / Tab Components -->
+    <div v-if="isAdmin && !isLoading" class="flex border-b border-zinc-700 mb-6 space-x-6">
+      <button
+        @click="activeTab = 'generator'"
+        class="pb-3 text-sm font-semibold transition-all border-b-2 px-1 focus:outline-none flex items-center gap-2"
+        :class="activeTab === 'generator' ? 'border-blue-500 text-blue-400 font-bold' : 'border-transparent text-zinc-400 hover:text-zinc-200'"
+      >
+        <FileText class="w-4 h-4" />
+        Generator Surat
+      </button>
+      <button
+        @click="activeTab = 'crud'"
+        class="pb-3 text-sm font-semibold transition-all border-b-2 px-1 focus:outline-none flex items-center gap-2"
+        :class="activeTab === 'crud' ? 'border-blue-500 text-blue-400 font-bold' : 'border-transparent text-zinc-400 hover:text-zinc-200'"
+      >
+        <Settings class="w-4 h-4" />
+        Kelola Template (Admin)
+      </button>
+    </div>
 
     <div v-if="isLoading" class="flex justify-center items-center py-20">
       <div
@@ -8,39 +26,47 @@
       ></div>
     </div>
 
-    <div v-else class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
-      <!-- On mobile: show sidebar first, then main form. On xl and up: original order restored -->
-      <div class="xl:col-span-2 order-2 xl:order-1">
-        <div
-          class="rounded-xl shadow-sm border overflow-hidden bg-zinc-900 border-zinc-700"
-        >
-          <div class="p-6 md:p-8">
-            <FormUniversal
-              :suratConfigs="suratConfigs"
-              @generateSurat="handleGenerateSurat"
-              ref="formUniversalRef"
+    <div v-else>
+      <!-- Generator View -->
+      <div v-if="activeTab === 'generator'" class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
+        <!-- On mobile: show sidebar first, then main form. On xl and up: original order restored -->
+        <div class="xl:col-span-2 order-2 xl:order-1">
+          <div
+            class="rounded-xl shadow-sm border overflow-hidden bg-zinc-900 border-zinc-700"
+          >
+            <div class="p-6 md:p-8">
+              <FormUniversal
+                :suratConfigs="suratConfigs"
+                @generateSurat="handleGenerateSurat"
+                ref="formUniversalRef"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="xl:col-span-1 order-1 xl:order-2">
+          <div class="sticky top-16 space-y-6">
+            <div
+              class="rounded-xl shadow-sm border overflow-hidden p-5 bg-zinc-900 border-zinc-700"
+            >
+              <BaseButton text="Buat banyak surat" to="/dokumen/surat/massal" />
+            </div>
+
+            <SuratNavigation
+              :surat-configs="suratConfigs"
+              :filtered-surat-configs="filteredSuratConfigs"
+              :selected-surat-type="selectedSuratType"
+              v-model:searchQuery="searchQuery"
+              @select-surat-type="selectSuratType"
+              @clear-search="clearSearch"
             />
           </div>
         </div>
       </div>
 
-      <div class="xl:col-span-1 order-1 xl:order-2">
-        <div class="sticky top-16 space-y-6">
-          <div
-            class="rounded-xl shadow-sm border overflow-hidden p-5 bg-zinc-900 border-zinc-700"
-          >
-            <BaseButton text="Buat banyak surat" to="/dokumen/surat/massal" />
-          </div>
-
-          <SuratNavigation
-            :surat-configs="suratConfigs"
-            :filtered-surat-configs="filteredSuratConfigs"
-            :selected-surat-type="selectedSuratType"
-            v-model:searchQuery="searchQuery"
-            @select-surat-type="selectSuratType"
-            @clear-search="clearSearch"
-          />
-        </div>
+      <!-- Admin Template Manager -->
+      <div v-else-if="activeTab === 'crud' && isAdmin">
+        <SuratCrudManager @refresh="handleRefresh" />
       </div>
     </div>
   </div>
@@ -48,9 +74,11 @@
 
 <script setup>
 import { computed, onMounted, ref, onBeforeUnmount, nextTick } from "vue";
+import { FileText, Settings } from "lucide-vue-next";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import FormUniversal from "~/components/form/FormUniversal.vue";
 import SuratNavigation from "~/components/document/SuratNavigation.vue";
+import SuratCrudManager from "~/components/document/SuratCrudManager.vue";
 import { generateDocx } from "~/utils/generateDocx";
 import { useTableData } from "~/composables/data/useTableData";
 
@@ -65,6 +93,17 @@ const formUniversalRef = ref(null);
 const selectedSuratType = ref("");
 // State untuk search functionality
 const searchQuery = ref("");
+// Active tab state for admin
+const activeTab = ref("generator");
+
+const isAdmin = computed(() => {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem("user-role") === "admin";
+});
+
+const handleRefresh = () => {
+  loadData("surat", true);
+};
 // Computed untuk filtered surat configs berdasarkan search query
 const filteredSuratConfigs = computed(() => {
   if (!searchQuery.value) {

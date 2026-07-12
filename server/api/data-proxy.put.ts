@@ -79,16 +79,34 @@ export default defineEventHandler(async (event) => {
   const cleanWorkerUrl = workerUrl.endsWith("/")
     ? workerUrl.slice(0, -1)
     : workerUrl;
-  const url = `${cleanWorkerUrl}/api/data`;
+
+  let url: string;
+  if (body.type === "surat" && body.surat_type) {
+    url = `${cleanWorkerUrl}/api/surat/${encodeURIComponent(body.surat_type)}`;
+  } else {
+    url = `${cleanWorkerUrl}/api/data`;
+  }
 
   try {
+    const fetchBody =
+      body.type === "surat"
+        ? {
+            surat_type: body.new_surat_type,
+            template_path: body.template_path,
+            template_type: body.template_type,
+            description: body.description,
+            is_active: body.is_active,
+            placeholders: body.placeholders,
+          }
+        : {
+            table: body.table,
+            id: body.id,
+            data: body.data,
+          };
+
     const response = await $fetch(url, {
       method: "PUT",
-      body: {
-        table: body.table,
-        id: body.id,
-        data: body.data,
-      },
+      body: fetchBody,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${config.apiWorkerToken}`,
@@ -98,6 +116,9 @@ export default defineEventHandler(async (event) => {
     // Invalidate server cache untuk tabel ini
     if (body.table) {
       invalidateCache(body.table);
+    }
+    if (body.type === "surat") {
+      invalidateCache("surat");
     }
 
     return response;

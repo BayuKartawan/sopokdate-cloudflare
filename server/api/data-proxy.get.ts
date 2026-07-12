@@ -125,8 +125,9 @@ export default defineEventHandler(async (event) => {
     const qs = searchParams.toString();
     url = `${cleanWorkerUrl}/api/data${qs ? "?" + qs : ""}`;
   } else if (type === "surat") {
-    // Endpoint surat → Worker /api/surat
-    url = `${cleanWorkerUrl}/api/surat`;
+    // Endpoint surat → Worker /api/surat atau /api/surat/all
+    const isAll = query.all === "true";
+    url = isAll ? `${cleanWorkerUrl}/api/surat/all` : `${cleanWorkerUrl}/api/surat`;
   } else {
     throw createError({
       statusCode: 400,

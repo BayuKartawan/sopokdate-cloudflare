@@ -79,12 +79,18 @@ export default defineEventHandler(async (event) => {
   const cleanWorkerUrl = workerUrl.endsWith("/")
     ? workerUrl.slice(0, -1)
     : workerUrl;
-  const url = `${cleanWorkerUrl}/api/data`;
+  
+  let url: string;
+  if (body.type === "surat" && body.surat_type) {
+    url = `${cleanWorkerUrl}/api/surat/${encodeURIComponent(body.surat_type)}`;
+  } else {
+    url = `${cleanWorkerUrl}/api/data`;
+  }
 
   try {
     const response = await $fetch(url, {
       method: "DELETE",
-      body: {
+      body: body.type === "surat" ? undefined : {
         table: body.table,
         id: body.id,
       },
@@ -97,6 +103,9 @@ export default defineEventHandler(async (event) => {
     // Invalidate server cache untuk tabel ini
     if (body.table) {
       invalidateCache(body.table);
+    }
+    if (body.type === "surat") {
+      invalidateCache("surat");
     }
 
     return response;

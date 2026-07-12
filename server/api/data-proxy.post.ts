@@ -69,16 +69,32 @@ export default defineEventHandler(async (event) => {
     : workerUrl;
 
   // URL endpoint POST di Worker
-  const url = `${cleanWorkerUrl}/api/data`;
+  let url: string;
+  if (body.type === "surat") {
+    url = `${cleanWorkerUrl}/api/surat`;
+  } else {
+    url = `${cleanWorkerUrl}/api/data`;
+  }
 
   try {
     // 3. Lakukan request server-to-server ke Cloudflare Worker (POST)
+    const fetchBody =
+      body.type === "surat"
+        ? {
+            surat_type: body.surat_type,
+            template_path: body.template_path,
+            template_type: body.template_type,
+            description: body.description,
+            placeholders: body.placeholders,
+          }
+        : {
+            table: body.table,
+            data: body.data,
+          };
+
     const response = await $fetch(url, {
       method: "POST",
-      body: {
-        table: body.table,
-        data: body.data,
-      },
+      body: fetchBody,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${config.apiWorkerToken}`,
@@ -88,6 +104,9 @@ export default defineEventHandler(async (event) => {
     // Invalidate server cache untuk tabel ini
     if (body.table) {
       invalidateCache(body.table);
+    }
+    if (body.type === "surat") {
+      invalidateCache("surat");
     }
 
     return response;

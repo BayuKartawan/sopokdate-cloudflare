@@ -151,6 +151,171 @@ export const fetchFromSuratApi = async (
 };
 
 /**
+ * Fungsi fetch untuk mengambil SEMUA template surat (aktif & nonaktif) melalui proxy lokal Nuxt
+ */
+export const fetchFromSuratApiAll = async (
+  force: boolean = false,
+  signal: AbortSignal | null = null,
+): Promise<any> => {
+  const token = getAuthToken();
+
+  if (!token) {
+    handleUnauthorized();
+    throw new Error("No authentication token found");
+  }
+
+  // Validate token di client-side
+  const payload = decodeJWT(token);
+  if (!payload) {
+    handleUnauthorized();
+    throw new Error("Token expired or invalid");
+  }
+
+  const url = `/api/data-proxy?type=surat&all=true${force ? "&nocache=true" : ""}`;
+
+  // Fetch ke proxy lokal Nuxt dengan menyertakan token JWT
+  const response = await fetch(url, {
+    method: "GET",
+    signal,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(force ? { "Cache-Control": "no-cache" } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch all surat data from backend proxy");
+  }
+
+  return response.json();
+};
+
+/**
+ * Fungsi untuk menambahkan template surat baru beserta placeholders nya
+ */
+export const postSuratTemplate = async (data: any): Promise<any> => {
+  const token = getAuthToken();
+
+  if (!token) {
+    handleUnauthorized();
+    throw new Error("No authentication token found");
+  }
+
+  const payload = decodeJWT(token);
+  if (!payload) {
+    handleUnauthorized();
+    throw new Error("Token expired or invalid");
+  }
+
+  const url = "/api/data-proxy";
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      type: "surat",
+      ...data
+    }),
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error || "Failed to add template surat");
+  }
+
+  clearTableSessionCache("surat");
+  return response.json();
+};
+
+/**
+ * Fungsi untuk memperbarui template surat beserta placeholders nya
+ */
+export const putSuratTemplate = async (
+  suratType: string,
+  data: any,
+): Promise<any> => {
+  const token = getAuthToken();
+
+  if (!token) {
+    handleUnauthorized();
+    throw new Error("No authentication token found");
+  }
+
+  const payload = decodeJWT(token);
+  if (!payload) {
+    handleUnauthorized();
+    throw new Error("Token expired or invalid");
+  }
+
+  const url = "/api/data-proxy";
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      type: "surat",
+      surat_type: suratType,
+      ...data
+    }),
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.statusMessage || errData.error || "Failed to update template surat");
+  }
+
+  clearTableSessionCache("surat");
+  return response.json();
+};
+
+/**
+ * Fungsi untuk menghapus template surat beserta placeholders nya
+ */
+export const deleteSuratTemplate = async (suratType: string): Promise<any> => {
+  const token = getAuthToken();
+
+  if (!token) {
+    handleUnauthorized();
+    throw new Error("No authentication token found");
+  }
+
+  const payload = decodeJWT(token);
+  if (!payload) {
+    handleUnauthorized();
+    throw new Error("Token expired or invalid");
+  }
+
+  const url = "/api/data-proxy";
+
+  const response = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      type: "surat",
+      surat_type: suratType
+    }),
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.statusMessage || errData.error || "Failed to delete template surat");
+  }
+
+  clearTableSessionCache("surat");
+  return response.json();
+};
+
+
+/**
  * Fungsi untuk login (deprecated, handled locally now)
  */
 export const loginApi = async (

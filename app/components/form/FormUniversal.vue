@@ -78,7 +78,7 @@
           <!-- Connected Student Input (Loading State) -->
           <select
             v-else-if="
-              hasStudentAndClass && isStudentNameField(field) && isLoadingSiswa
+              isStudentNameField(field) && isLoadingSiswa
             "
             :id="field.key"
             disabled
@@ -90,7 +90,6 @@
           <!-- Connected Student Input (Dropdown State) -->
           <div
             v-else-if="
-              hasStudentAndClass &&
               isStudentNameField(field) &&
               !isManualStudentInput &&
               filteredStudents.length > 0
@@ -110,7 +109,7 @@
                 :key="siswa.id || siswa.nisn"
                 :value="siswa.nama"
               >
-                {{ siswa.nama }} (NISN: {{ siswa.nisn || "-" }})
+                {{ siswa.nama }} (Kelas: {{ siswa.kelas || '-' }}, NISN: {{ siswa.nisn || "-" }})
               </option>
               <option value="__manual__">-- Ketik manual... --</option>
             </select>
@@ -118,7 +117,7 @@
 
           <!-- Connected Student Input (Manual Text State) -->
           <div
-            v-else-if="hasStudentAndClass && isStudentNameField(field)"
+            v-else-if="isStudentNameField(field)"
             class="relative w-full"
           >
             <input
@@ -133,6 +132,71 @@
               type="button"
               @click="
                 isManualStudentInput = false;
+                formData[field.key] = '';
+              "
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-400 hover:text-blue-300 font-medium cursor-pointer"
+            >
+              Pilih dari daftar
+            </button>
+          </div>
+
+          <!-- Connected GTK/Guru Input (Loading State) -->
+          <select
+            v-else-if="
+              isGtkNameField(field) && isLoadingGtk
+            "
+            :id="field.key"
+            disabled
+            :class="getInputClass(field)"
+          >
+            <option value="" disabled selected>Memuat data guru...</option>
+          </select>
+
+          <!-- Connected GTK/Guru Input (Dropdown State) -->
+          <div
+            v-else-if="
+              isGtkNameField(field) &&
+              !isManualGtkInput[field.key] &&
+              sortedGtk.length > 0
+            "
+            class="flex gap-2"
+          >
+            <select
+              :id="field.key"
+              v-model="formData[field.key]"
+              :class="getInputClass(field)"
+              @change="handleGtkChange(field.key, $event)"
+              class="flex-1"
+            >
+              <option value="" disabled>Pilih {{ field.label }}</option>
+              <option
+                v-for="guru in sortedGtk"
+                :key="guru.id || guru.nip"
+                :value="guru.nama_lengkap"
+              >
+                {{ guru.nama_lengkap }} (NIP: {{ guru.nip || "-" }})
+              </option>
+              <option value="__manual__">-- Ketik manual... --</option>
+            </select>
+          </div>
+
+          <!-- Connected GTK/Guru Input (Manual Text State) -->
+          <div
+            v-else-if="isGtkNameField(field)"
+            class="relative w-full"
+          >
+            <input
+              :id="field.key"
+              type="text"
+              v-model="formData[field.key]"
+              :placeholder="getPlaceholderText(field)"
+              :class="getInputClass(field)"
+            />
+            <button
+              v-if="sortedGtk.length > 0"
+              type="button"
+              @click="
+                isManualGtkInput[field.key] = false;
                 formData[field.key] = '';
               "
               class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-blue-400 hover:text-blue-300 font-medium cursor-pointer"
@@ -551,10 +615,18 @@ const {
   loadData: loadDataSiswa,
 } = useTableData();
 const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
+const {
+  cardData: dataGtk,
+  isLoading: isLoadingGtk,
+  loadData: loadDataGtk,
+} = useTableData();
+
+const isManualGtkInput = ref({});
 
 onMounted(() => {
   loadDataSiswa("data_siswa");
   loadDataKelas("data_kelas");
+  loadDataGtk("data_gtk");
 });
 
 const isClassField = (field) => {
@@ -587,7 +659,29 @@ const isStudentNameField = (field) => {
       !key.includes("ibu") &&
       !key.includes("kepala") &&
       !key.includes("kamad") &&
-      !key.includes("sekolah"))
+      !key.includes("sekolah") &&
+      !key.includes("gtk"))
+  );
+};
+
+const isGtkNameField = (field) => {
+  if (!field) return false;
+  const key = field.key.toLowerCase();
+  return (
+    key === "nama_guru" ||
+    key === "nama_wali_kelas" ||
+    key === "nama_kamad" ||
+    key === "nama_kepala" ||
+    key === "nama_kepala_madrasah" ||
+    key === "nama_kepala_sekolah" ||
+    key === "wali_kelas" ||
+    key === "guru" ||
+    (key.includes("nama") &&
+      (key.includes("guru") ||
+        key.includes("kamad") ||
+        key.includes("wali") ||
+        key.includes("kepala") ||
+        key.includes("gtk")))
   );
 };
 
@@ -615,32 +709,46 @@ const dynamicClassOptions = computed(() => {
 
 const isManualStudentInput = ref(false);
 
+const sortedGtk = computed(() => {
+  if (!Array.isArray(dataGtk.value)) return [];
+  return [...dataGtk.value].sort((a, b) =>
+    (a.nama_lengkap || "").localeCompare(b.nama_lengkap || "")
+  );
+});
+
 const filteredStudents = computed(() => {
-  if (!hasStudentAndClass.value || !classField.value) return [];
+  if (!Array.isArray(dataSiswa.value)) return [];
 
-  const selectedClassName = formData[classField.value.key];
-  if (!selectedClassName) return [];
+  // Jika ada field kelas dan siswa, filter siswa berdasarkan kelas tersebut
+  if (hasStudentAndClass.value && classField.value) {
+    const selectedClassName = formData[classField.value.key];
+    if (!selectedClassName) return [];
 
-  const targetClassIds = [];
-  if (Array.isArray(dataKelas.value)) {
-    dataKelas.value.forEach((k) => {
-      const name = k.nama_kelas || k.namaKelas;
-      const id = k.id_kelas || k.idKelas;
-      if (name && name.toLowerCase() === selectedClassName.toLowerCase()) {
-        if (id) targetClassIds.push(id);
-      }
+    const targetClassIds = [];
+    if (Array.isArray(dataKelas.value)) {
+      dataKelas.value.forEach((k) => {
+        const name = k.nama_kelas || k.namaKelas;
+        const id = k.id_kelas || k.idKelas;
+        if (name && name.toLowerCase() === selectedClassName.toLowerCase()) {
+          if (id) targetClassIds.push(id);
+        }
+      });
+    }
+
+    return dataSiswa.value.filter((s) => {
+      const sClass = s.kelas || s.kelas_db;
+      if (!sClass) return false;
+      return (
+        targetClassIds.includes(sClass) ||
+        sClass.toLowerCase() === selectedClassName.toLowerCase()
+      );
     });
   }
 
-  if (!Array.isArray(dataSiswa.value)) return [];
-  return dataSiswa.value.filter((s) => {
-    const sClass = s.kelas || s.kelas_db;
-    if (!sClass) return false;
-    return (
-      targetClassIds.includes(sClass) ||
-      sClass.toLowerCase() === selectedClassName.toLowerCase()
-    );
-  });
+  // Jika hanya ada field siswa tanpa field kelas, tampilkan semua siswa terurut alfabet
+  return [...dataSiswa.value].sort((a, b) =>
+    (a.nama || "").localeCompare(b.nama || "")
+  );
 });
 
 const formatDateForField = (dateStr, isDateInput) => {
@@ -822,6 +930,46 @@ const handleStudentChange = (key, event) => {
   } else {
     formData[key] = val;
     handleStudentSelect(val);
+  }
+};
+
+const handleGtkSelect = (selectedName, targetKey) => {
+  if (!selectedName || selectedName === "__manual__") return;
+  if (!Array.isArray(dataGtk.value)) return;
+
+  const guru = dataGtk.value.find((g) => g.nama_lengkap === selectedName);
+  if (!guru) return;
+
+  placeholders.value.forEach((field) => {
+    if (field.key === targetKey) return;
+
+    const key = field.key.toLowerCase();
+    
+    // Auto-fill berdasarkan kecocokan key
+    if (key === "nip" || key === "nip_guru" || key.includes("nip")) {
+      formData[field.key] = guru.nip || "";
+    } else if (key === "nuptk" || key === "nuptk_guru" || key.includes("nuptk")) {
+      formData[field.key] = guru.nuptk || "";
+    } else if (key === "npk" || key.includes("npk")) {
+      formData[field.key] = guru.npk || "";
+    } else if (key === "jabatan" || key === "tugas" || key.includes("jabatan") || key.includes("tugas")) {
+      formData[field.key] = guru.tugas || "";
+    } else if (key.includes("tel") || key.includes("hp")) {
+      formData[field.key] = guru.no_hp || "";
+    } else if (key.includes("email")) {
+      formData[field.key] = guru.email || "";
+    }
+  });
+};
+
+const handleGtkChange = (key, event) => {
+  const val = event.target.value;
+  if (val === "__manual__") {
+    isManualGtkInput.value[key] = true;
+    formData[key] = "";
+  } else {
+    formData[key] = val;
+    handleGtkSelect(val, key);
   }
 };
 

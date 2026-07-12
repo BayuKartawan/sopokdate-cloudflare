@@ -38,4 +38,6 @@ export const VALID_TABLES: string[] = [
   "menu_akses_role",
   "menu_akses_user",
   "emis_mapel_gtk",
+  "template_path",
+  "placeholders",
 ];

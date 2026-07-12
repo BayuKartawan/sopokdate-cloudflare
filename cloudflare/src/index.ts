@@ -7,7 +7,13 @@ import {
   handlePutData,
   handleDeleteData,
 } from "./handlers/data";
-import { handleGetSurat } from "./handlers/surat";
+import {
+  handleGetSurat,
+  handleGetAllSurat,
+  handlePostSurat,
+  handlePutSurat,
+  handleDeleteSurat,
+} from "./handlers/surat";
 import {
   handleAuthLogin,
   handleSeedGuru,
@@ -82,6 +88,10 @@ app.get("/", (c) => {
       "GET  /api/absensi?tanggal=2026-06-17&kelas_id=VII-A",
       "GET  /api/absensi/rekap?kelas_id=VII-A&tahun_pelajaran=2025/2026&semester=Genap",
       "GET  /api/surat",
+      "GET  /api/surat/all",
+      "POST /api/surat",
+      "PUT  /api/surat/:suratType",
+      "DELETE /api/surat/:suratType",
       "POST /api/data",
       "POST /api/absensi",
       "POST /api/auth/login",
@@ -113,6 +123,24 @@ app.get("/api/absensi/rekap", async (c) => {
 
 app.get("/api/surat", async (c) => {
   return await handleGetSurat(c.env);
+});
+
+app.get("/api/surat/all", async (c) => {
+  return await handleGetAllSurat(c.env);
+});
+
+app.post("/api/surat", async (c) => {
+  return await handlePostSurat(c.req.raw, c.env);
+});
+
+app.put("/api/surat/:suratType", async (c) => {
+  const suratType = c.req.param("suratType");
+  return await handlePutSurat(c.req.raw, c.env, suratType);
+});
+
+app.delete("/api/surat/:suratType", async (c) => {
+  const suratType = c.req.param("suratType");
+  return await handleDeleteSurat(c.env, suratType);
 });
 
 app.get("/api/auth/users", async (c) => {
