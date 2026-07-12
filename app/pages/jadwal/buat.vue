@@ -63,13 +63,43 @@
           </button>
         </div>
 
+        <!-- Toggle Slot Edit Mode Button (Admin Only) -->
+        <div
+          v-if="selectedKelas && isAdmin"
+          class="flex flex-col gap-1.5 w-full sm:w-auto"
+        >
+          <label
+            class="text-xs font-semibold text-zinc-400 opacity-0 sm:block hidden"
+            >Mode</label
+          >
+          <button
+            @click="isSlotEditMode = !isSlotEditMode; if(isSlotEditMode) selectedAllocationForPlacement = null"
+            class="flex items-center justify-center gap-2 h-10 px-4 text-sm font-semibold rounded-lg transition-all shadow-lg"
+            :class="[
+              isSlotEditMode
+                ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-amber-950/20 ring-2 ring-amber-400/40'
+                : 'bg-zinc-700 hover:bg-zinc-600 text-zinc-200 shadow-zinc-950/20',
+            ]"
+          >
+            <ToggleRight v-if="isSlotEditMode" class="w-4 h-4" />
+            <ToggleLeft v-else class="w-4 h-4" />
+            {{ isSlotEditMode ? 'Mode Atur Batas' : 'Atur Batas Jam' }}
+          </button>
+        </div>
+
         <div
           v-if="selectedKelas"
           class="text-xs text-zinc-500 dark:text-zinc-400 mt-2 sm:mt-0 flex flex-wrap gap-4 items-center sm:ml-auto"
         >
           <!-- Selection tip -->
           <span
-            v-if="selectedAllocationForPlacement"
+            v-if="isSlotEditMode"
+            class="text-amber-500 font-semibold bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-lg animate-pulse"
+          >
+            Mode Atur Batas Jam — Klik sel untuk toggle aktif/nonaktif
+          </span>
+          <span
+            v-else-if="selectedAllocationForPlacement"
             class="text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/20 px-3 py-1.5 rounded-lg animate-pulse"
           >
             Menempatkan:
@@ -94,6 +124,10 @@
             <span class="flex items-center gap-1.5 text-zinc-500">
               <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
               Belum Terisi
+            </span>
+            <span class="flex items-center gap-1.5 text-amber-500">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
+              Nonaktif
             </span>
           </div>
         </div>
@@ -221,10 +255,45 @@
                       v-for="day in days"
                       :key="day"
                       class="p-2 border-r border-zinc-800 text-center relative group min-h-[72px]"
+                      :class="{ 'slot-disabled-bg': isSlotDisabled(day, hour) }"
                     >
+                      <!-- Disabled Slot (Non-active cell) -->
+                      <div
+                        v-if="isSlotDisabled(day, hour)"
+                        class="w-full h-full min-h-[50px] flex flex-col items-center justify-center rounded-lg transition-all"
+                        :class="[
+                          isSlotEditMode && isAdmin
+                            ? 'cursor-pointer hover:opacity-80'
+                            : '',
+                        ]"
+                        @click="isSlotEditMode && isAdmin ? toggleSlotDisabled(day, hour) : null"
+                      >
+                        <Ban class="w-4 h-4 text-amber-600/60 mb-1" />
+                        <span class="text-[9px] text-amber-600/60 font-medium">Nonaktif</span>
+                      </div>
+
+                      <!-- Slot Edit Mode: Toggle ON (enable/disable) -->
+                      <div
+                        v-else-if="isSlotEditMode && isAdmin"
+                        class="w-full h-full min-h-[50px] flex items-center justify-center rounded-lg border border-dashed border-amber-500/30 bg-amber-950/5 hover:border-amber-500 hover:bg-amber-950/15 transition-all cursor-pointer"
+                        @click="toggleSlotDisabled(day, hour)"
+                      >
+                        <div class="flex flex-col items-center gap-1">
+                          <template v-if="getScheduleAt(day, hour)">
+                            <div class="text-[9px] font-bold text-emerald-400 leading-tight">{{ getMapelName(getScheduleAt(day, hour).mapel_id) }}</div>
+                            <div class="text-[8px] text-zinc-500">{{ getGuruName(getScheduleAt(day, hour).guru_id) }}</div>
+                            <span class="text-[8px] text-amber-500 mt-0.5">Klik untuk nonaktifkan</span>
+                          </template>
+                          <template v-else>
+                            <ToggleLeft class="w-4 h-4 text-amber-400/60" />
+                            <span class="text-[8px] text-amber-400/60">Klik untuk nonaktifkan</span>
+                          </template>
+                        </div>
+                      </div>
+
                       <!-- Scheduled Subject -->
                       <div
-                        v-if="getScheduleAt(day, hour)"
+                        v-else-if="getScheduleAt(day, hour)"
                         class="p-2 bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/20 rounded-lg text-left flex flex-col justify-between h-full group"
                       >
                         <div>
@@ -349,6 +418,9 @@ import {
   Trash2,
   Loader2,
   Sparkles,
+  ToggleLeft,
+  ToggleRight,
+  Ban,
 } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
@@ -379,6 +451,12 @@ const dbSchedules = ref([]); // Initial state from database
 const localSchedules = ref([]); // Client draft state (modified locally)
 const isSavingChanges = ref(false);
 
+// Slot disabled management states
+const isSlotEditMode = ref(false); // Toggle mode for enabling/disabling cells
+const disabledSlots = ref(new Set()); // Set of "hari_jamKe" keys for current class
+const dbDisabledSlots = ref(new Set()); // Snapshot from DB for change tracking
+const { cardData: disabledSlotsData, loadData: loadDisabledSlots } = useTableData();
+
 // Constant configurations
 const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 const maxHours = 8; // Jam ke-1 s/d Jam ke-8
@@ -388,6 +466,8 @@ const loadClassSchedules = (kelasId) => {
   if (!kelasId) {
     dbSchedules.value = [];
     localSchedules.value = [];
+    dbDisabledSlots.value = new Set();
+    disabledSlots.value = new Set();
     return;
   }
   const filtered = (jadwalData.value || []).filter(
@@ -395,6 +475,14 @@ const loadClassSchedules = (kelasId) => {
   );
   dbSchedules.value = JSON.parse(JSON.stringify(filtered));
   localSchedules.value = JSON.parse(JSON.stringify(filtered));
+
+  // Load disabled slots for this class
+  const disabledFiltered = (disabledSlotsData.value || []).filter(
+    (slot) => slot.kelas_id === kelasId,
+  );
+  const dbSet = new Set(disabledFiltered.map((s) => `${s.hari}_${s.jam_ke}`));
+  dbDisabledSlots.value = new Set(dbSet);
+  disabledSlots.value = new Set(dbSet);
 };
 
 // Listen to global dataset fetches to update our view state
@@ -408,8 +496,20 @@ watch(
   { deep: true },
 );
 
+// Check if disabled slots have changed from DB state
+const hasDisabledSlotChanges = computed(() => {
+  if (dbDisabledSlots.value.size !== disabledSlots.value.size) return true;
+  for (const key of disabledSlots.value) {
+    if (!dbDisabledSlots.value.has(key)) return true;
+  }
+  return false;
+});
+
 // Check diff between local draft and database state
 const hasChanges = computed(() => {
+  // Check disabled slots changes
+  if (hasDisabledSlotChanges.value) return true;
+
   if (dbSchedules.value.length !== localSchedules.value.length) return true;
 
   const dbKeys = dbSchedules.value
@@ -422,6 +522,49 @@ const hasChanges = computed(() => {
   return JSON.stringify(dbKeys) !== JSON.stringify(localKeys);
 });
 
+// Helper: check if a slot is disabled
+const isSlotDisabled = (day, hour) => {
+  return disabledSlots.value.has(`${day}_${hour}`);
+};
+
+// Toggle a slot disabled/enabled
+const toggleSlotDisabled = (day, hour) => {
+  const key = `${day}_${hour}`;
+  const newSet = new Set(disabledSlots.value);
+
+  if (newSet.has(key)) {
+    // Re-enable the slot
+    newSet.delete(key);
+    disabledSlots.value = newSet;
+    Notify.info(`Sel ${day} jam ke-${hour} diaktifkan kembali.`);
+  } else {
+    // Check if there's a schedule in this slot — must remove first
+    const existingSchedule = getScheduleAt(day, hour);
+    if (existingSchedule) {
+      Confirm.show(
+        'Jadwal Akan Dihapus',
+        `Sel ini berisi jadwal ${getMapelName(existingSchedule.mapel_id)}. Menonaktifkan sel ini akan menghapus jadwal tersebut dari draft. Lanjutkan?`,
+        'Ya, Nonaktifkan',
+        'Batal',
+        () => {
+          // Remove the schedule first
+          localSchedules.value = localSchedules.value.filter((s) => s.id !== existingSchedule.id);
+          const newSetInner = new Set(disabledSlots.value);
+          newSetInner.add(key);
+          disabledSlots.value = newSetInner;
+          Notify.warning(`Sel ${day} jam ke-${hour} dinonaktifkan. Jadwal dihapus dari draft.`);
+        },
+        () => {},
+      );
+      return;
+    }
+
+    newSet.add(key);
+    disabledSlots.value = newSet;
+    Notify.warning(`Sel ${day} jam ke-${hour} dinonaktifkan.`);
+  }
+};
+
 // Prompt class change if unsaved changes exist
 const onClassSelectChange = (newKelas) => {
   if (hasChanges.value) {
@@ -432,6 +575,7 @@ const onClassSelectChange = (newKelas) => {
       "Batal",
       () => {
         selectedAllocationForPlacement.value = null;
+        isSlotEditMode.value = false;
         selectedKelas.value = newKelas;
         loadClassSchedules(newKelas);
       },
@@ -439,6 +583,7 @@ const onClassSelectChange = (newKelas) => {
     );
   } else {
     selectedAllocationForPlacement.value = null;
+    isSlotEditMode.value = false;
     selectedKelas.value = newKelas;
     loadClassSchedules(newKelas);
   }
@@ -498,6 +643,12 @@ const handleSelectAllocation = (alloc) => {
 
 const handleSlotClick = (day, hour) => {
   if (!isAdmin.value) return;
+
+  // Reject click on disabled slots
+  if (isSlotDisabled(day, hour)) {
+    Notify.warning('Sel ini telah dinonaktifkan. Aktifkan terlebih dahulu melalui mode "Atur Batas Jam".');
+    return;
+  }
 
   if (!selectedAllocationForPlacement.value) {
     Notify.warning(
@@ -647,7 +798,12 @@ const autoGenerateSchedule = () => {
   const grid = {};
   days.forEach((day) => {
     for (let hour = 1; hour <= maxHours; hour++) {
-      grid[`${day}_${hour}`] = null;
+      // Mark disabled slots as "blocked" so solver skips them
+      if (isSlotDisabled(day, hour)) {
+        grid[`${day}_${hour}`] = 'DISABLED';
+      } else {
+        grid[`${day}_${hour}`] = null;
+      }
     }
   });
 
@@ -698,7 +854,7 @@ const autoGenerateSchedule = () => {
     for (let d = 0; d < days.length; d++) {
       const day = days[d];
 
-      // Check if hours 1-4 are free in current class
+      // Check if hours 1-4 are free in current class (null means available, 'DISABLED' means blocked)
       let free = true;
       for (let h = 1; h <= 4; h++) {
         if (grid[`${day}_${h}`] !== null) {
@@ -769,7 +925,7 @@ const autoGenerateSchedule = () => {
         const hour = allowedHours[h];
         const key = `${day}_${hour}`;
 
-        if (grid[key] !== null) continue;
+        if (grid[key] !== null) continue; // skip occupied or DISABLED slots
         if (isTeacherConflictingExternally(day, hour, item.guru_id)) continue;
 
         // Single subject per block per day constraint check
@@ -821,7 +977,7 @@ const autoGenerateSchedule = () => {
     const newSchedules = [];
     Object.keys(grid).forEach((key) => {
       const item = grid[key];
-      if (item) {
+      if (item && item !== 'DISABLED') {
         const [day, hourStr] = key.split("_");
         const hour = Number(hourStr);
         newSchedules.push({
@@ -848,7 +1004,9 @@ const autoGenerateSchedule = () => {
 // Reset local states to original database snapshot
 const discardChanges = () => {
   localSchedules.value = JSON.parse(JSON.stringify(dbSchedules.value));
+  disabledSlots.value = new Set(dbDisabledSlots.value);
   selectedAllocationForPlacement.value = null;
+  isSlotEditMode.value = false;
   Notify.info("Perubahan draft dibatalkan.");
 };
 
@@ -885,14 +1043,54 @@ const saveChanges = async () => {
         }),
       );
 
+    // 3. Disabled slots: identify inserts and deletes
+    const disabledSlotDeletes = [];
+    const disabledSlotInserts = [];
+
+    if (hasDisabledSlotChanges.value) {
+      // Find slots to delete (were in DB, no longer disabled)
+      const dbSlotRecords = (disabledSlotsData.value || []).filter(
+        (s) => s.kelas_id === selectedKelas.value,
+      );
+      for (const record of dbSlotRecords) {
+        const key = `${record.hari}_${record.jam_ke}`;
+        if (!disabledSlots.value.has(key)) {
+          disabledSlotDeletes.push(deleteFromApi("jadwal_slot_disabled", record.id));
+        }
+      }
+
+      // Find slots to insert (new disabled, not in DB)
+      for (const key of disabledSlots.value) {
+        if (!dbDisabledSlots.value.has(key)) {
+          const [hari, jamKe] = key.split("_");
+          disabledSlotInserts.push(
+            postToApi("jadwal_slot_disabled", {
+              kelas_id: selectedKelas.value,
+              hari,
+              jam_ke: Number(jamKe),
+            }),
+          );
+        }
+      }
+    }
+
     // Execute all API operations
-    await Promise.all([...deletes, ...inserts]);
+    await Promise.all([
+      ...deletes,
+      ...inserts,
+      ...disabledSlotDeletes,
+      ...disabledSlotInserts,
+    ]);
     Notify.success("Semua perubahan jadwal berhasil disimpan ke database!");
 
     // Refresh raw database cache
-    await refreshJadwal("jadwal_pelajaran");
+    await Promise.all([
+      refreshJadwal("jadwal_pelajaran"),
+      loadDisabledSlots("jadwal_slot_disabled"),
+    ]);
 
     // Update local base references
+    isSlotEditMode.value = false;
     loadClassSchedules(selectedKelas.value);
   } catch (err) {
     console.error("Gagal menyimpan perubahan jadwal:", err);
@@ -908,6 +1106,7 @@ onMounted(() => {
   loadKurikulum("kurikulum");
   loadGtk("data_gtk");
   loadJadwal("jadwal_pelajaran");
+  loadDisabledSlots("jadwal_slot_disabled");
 });
 </script>
 
@@ -930,5 +1129,16 @@ onMounted(() => {
 
 .bg-zinc-850 {
   background-color: rgb(24 24 27 / 0.5);
+}
+
+/* Disabled slot hatched background */
+.slot-disabled-bg {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(245, 158, 11, 0.04),
+    rgba(245, 158, 11, 0.04) 4px,
+    rgba(245, 158, 11, 0.08) 4px,
+    rgba(245, 158, 11, 0.08) 8px
+  );
 }
 </style>

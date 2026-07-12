@@ -34,6 +34,7 @@ const TABLE_MAPPING: Record<string, string> = {
   alumni: "alumni",
   riwayatkelassiswa: "riwayat_kelas_siswa",
   mutasisiswa: "mutasi_siswa",
+  emismapelgtk: "emis_mapel_gtk",
 };
 
 // Helper to validate table name to prevent SQL injection on table identifiers
@@ -355,6 +356,22 @@ export async function handlePutData(
             .bind(studentId, newClass, tapel)
             .run();
         }
+      }
+    }
+
+    // Sync kurikulum alokasi_jam to alokasi_jam table
+    if (d1Table === "kurikulum") {
+      const updates: Record<string, any> = {};
+      for (const [key, val] of Object.entries(data)) {
+        updates[toSnakeCase(key)] = val;
+      }
+      if (updates["alokasi_jam"] !== undefined) {
+        const mapelId = typeof id === "string" ? parseInt(id) : id;
+        await env.DB.prepare(
+          "UPDATE alokasi_jam SET jam_mengajar = ? WHERE mapel_id = ?"
+        )
+          .bind(Number(updates["alokasi_jam"]), mapelId)
+          .run();
       }
     }
 

@@ -40,20 +40,16 @@
           <label class="text-xs font-semibold text-zinc-400"
             >Kelas / Rombel</label
           >
-          <select
-            v-model="selectedClass"
-            :disabled="isDisabledDropdown"
-            class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            <option value="" disabled>-- Pilih Kelas --</option>
-            <option
-              v-for="kelas in accessibleClasses"
-              :key="kelas.id_kelas"
-              :value="kelas.id_kelas"
-            >
-              {{ kelas.nama_kelas }}
-            </option>
-          </select>
+          <div :class="isDisabledDropdown ? 'opacity-60 pointer-events-none' : ''">
+            <SearchableSelect
+              v-model="selectedClass"
+              :options="sortedAccessibleClasses"
+              option-label="nama_kelas"
+              option-value="id_kelas"
+              placeholder="-- Pilih Kelas --"
+              search-placeholder="Cari kelas..."
+            />
+          </div>
         </div>
 
         <!-- Date Navigation Bar -->
@@ -472,6 +468,7 @@ import {
   Send,
 } from "lucide-vue-next";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useAuth } from "~/composables/auth/useAuth";
 import { useNotiflix } from "~/composables/ui/useFeedback";
@@ -709,6 +706,15 @@ const accessibleClasses = computed(() => {
     return list;
   }
   return [];
+});
+
+const sortedAccessibleClasses = computed(() => {
+  return [...accessibleClasses.value].sort((a, b) => {
+    const levelA = Number(a.tingkat) || 0;
+    const levelB = Number(b.tingkat) || 0;
+    if (levelA !== levelB) return levelA - levelB;
+    return (a.nama_kelas || "").localeCompare(b.nama_kelas || "", undefined, { numeric: true });
+  });
 });
 
 const isDisabledDropdown = computed(() => {

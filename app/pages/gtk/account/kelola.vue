@@ -3,41 +3,49 @@
     <div class="page-layout px-4 sm:px-6">
       <!-- Header -->
       <div class="flex flex-col gap-4 sm:gap-6 mt-4">
-        <div
-          class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-        >
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 class="text-xl text-white sm:text-2xl">Kelola Akun Guru</h2>
-          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <!-- Seed Accounts Button -->
-            <button
-              @click="handleSeedGuru"
-              :disabled="isSeeding"
-              class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto">
+            <!-- Row 1 (mobile): Buat Akun Otomatis full width -->
+            <button @click="handleSeedGuru" :disabled="isSeeding"
+              class="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 disabled:cursor-not-allowed">
               <UserPlus v-if="!isSeeding" class="w-4 h-4 flex-shrink-0" />
               <Loader2 v-else class="w-4 h-4 animate-spin flex-shrink-0" />
-              <span>{{ isSeeding ? "Membuat..." : "Buat Akun Otomatis" }}</span>
+              <span class="leading-none">{{ isSeeding ? "Membuat..." : "Buat Akun Otomatis" }}</span>
             </button>
 
-            <!-- Refresh Button -->
-            <button
-              @click="loadUsers"
-              :disabled="isLoading"
-              class="flex items-center justify-center p-2 rounded-lg transition-all duration-200 bg-zinc-700 hover:bg-zinc-600 text-zinc-200 disabled:opacity-50"
-              title="Refresh"
-            >
-              <RefreshCw
-                class="w-5 h-5 flex-shrink-0"
-                :class="{ 'animate-spin': isLoading }"
-              />
-            </button>
+            <!-- Row 2 (mobile): Ekspor, Cetak, Refresh sejajar -->
+            <div class="flex items-center gap-2">
+              <!-- Export Excel Button -->
+              <button @click="exportToExcel" :disabled="filteredUsers.length === 0"
+                class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-teal-600 hover:bg-teal-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Ekspor ke Excel">
+                <FileSpreadsheet class="w-4 h-4 flex-shrink-0" />
+                <span class="leading-none">Ekspor</span>
+              </button>
+
+              <!-- Print Button -->
+              <button @click="printAccounts" :disabled="filteredUsers.length === 0"
+                class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Cetak Akun">
+                <Printer class="w-4 h-4 flex-shrink-0" />
+                <span class="leading-none">Cetak</span>
+              </button>
+
+              <!-- Refresh Button -->
+              <button @click="loadUsers" :disabled="isLoading"
+                class="flex items-center justify-center p-2 rounded-lg transition-all duration-200 bg-zinc-700 hover:bg-zinc-600 text-zinc-200 disabled:opacity-50"
+                title="Refresh">
+                <RefreshCw class="w-5 h-5 flex-shrink-0" :class="{ 'animate-spin': isLoading }" />
+              </button>
+            </div>
           </div>
         </div>
 
         <!-- Info banner -->
-        <div
-          class="p-3 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20"
-        >
+        <div class="p-3 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20">
           <p class="text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm">
             <strong>Info:</strong> Klik "Buat Akun Otomatis" untuk membuat akun
             login bagi semua guru yang ada di Data GTK (menggunakan Peg ID
@@ -49,15 +57,9 @@
         <!-- Search -->
         <div class="w-full">
           <div class="relative">
-            <Search
-              class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400"
-            />
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Cari berdasarkan nama atau username..."
-              class="w-full h-10 sm:h-11 pl-10 pr-4 rounded-lg border bg-zinc-800/30 text-white placeholder-zinc-500 border-zinc-700/50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all duration-300 text-sm"
-            />
+            <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+            <input v-model="searchQuery" type="text" placeholder="Cari berdasarkan nama atau username..."
+              class="w-full h-10 sm:h-11 pl-10 pr-4 rounded-lg border bg-zinc-800/30 text-white placeholder-zinc-500 border-zinc-700/50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all duration-300 text-sm" />
           </div>
         </div>
       </div>
@@ -71,10 +73,7 @@
         </div>
 
         <!-- Empty State -->
-        <div
-          v-else-if="filteredUsers.length === 0 && !isLoading"
-          class="text-center py-16"
-        >
+        <div v-else-if="filteredUsers.length === 0 && !isLoading" class="text-center py-16">
           <KeyRound class="w-16 h-16 mx-auto mb-4 text-zinc-600" />
           <p class="text-zinc-400 mb-2">
             {{
@@ -91,55 +90,36 @@
         <!-- Table & Mobile Cards -->
         <template v-else>
           <!-- Table (Desktop View) -->
-          <div
-            class="hidden md:block rounded-xl border border-zinc-700/50 overflow-x-auto"
-          >
+          <div class="hidden md:block rounded-xl border border-zinc-700/50 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-zinc-800/60 border-b border-zinc-700/50">
-                  <th
-                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                  >
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                     No
                   </th>
-                  <th
-                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                  >
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                     Nama
                   </th>
-                  <th
-                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                  >
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                     Username
                   </th>
-                  <th
-                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                  >
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                     Password
                   </th>
-                  <th
-                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                  >
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                     Role
                   </th>
-                  <th
-                    class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                  >
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                     Status
                   </th>
-                  <th
-                    class="px-4 py-3 text-center text-xs font-semibold text-zinc-400 uppercase tracking-wider"
-                  >
+                  <th class="px-4 py-3 text-center text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                     Aksi
                   </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-zinc-800/50">
-                <tr
-                  v-for="(user, index) in filteredUsers"
-                  :key="user.id"
-                  class="hover:bg-zinc-800/30 transition-colors"
-                >
+                <tr v-for="(user, index) in filteredUsers" :key="user.id"
+                  class="hover:bg-zinc-800/30 transition-colors">
                   <td class="px-4 py-3 text-zinc-400">{{ index + 1 }}</td>
                   <td class="px-4 py-3">
                     <span class="text-zinc-100 font-medium text-sm">
@@ -147,110 +127,98 @@
                     </span>
                   </td>
                   <td class="px-4 py-3">
-                    <code
-                      class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-600 dark:text-emerald-400 text-xs font-mono"
-                      >{{ user.username }}</code
-                    >
-                  </td>
-                  <td class="px-4 py-3">
-                    <div class="flex items-center gap-2">
-                      <code
-                        class="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 text-xs font-mono"
-                      >
-                        {{
-                          showPasswordMap[user.id] ? user.password : "••••••••"
-                        }}
+                    <div class="flex items-center gap-1.5 group/copy">
+                      <code @click="copyToClipboard(user.username, 'Username')"
+                        class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-600 dark:text-emerald-400 text-xs font-mono cursor-pointer hover:bg-zinc-700/80 transition-colors select-all"
+                        title="Klik untuk menyalin username">
+                        {{ user.username }}
                       </code>
-                      <button
-                        @click="toggleShowPassword(user.id)"
-                        class="text-zinc-500 hover:text-zinc-300 transition-colors"
-                        :title="
-                          showPasswordMap[user.id] ? 'Sembunyikan' : 'Tampilkan'
-                        "
-                      >
-                        <Eye
-                          v-if="!showPasswordMap[user.id]"
-                          class="w-3.5 h-3.5"
-                        />
-                        <EyeOff v-else class="w-3.5 h-3.5" />
+                      <button @click="copyToClipboard(user.username, 'Username')"
+                        class="text-zinc-500 hover:text-zinc-300 opacity-0 group-hover/copy:opacity-100 transition-opacity p-0.5"
+                        title="Salin Username">
+                        <Copy class="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>
                   <td class="px-4 py-3">
-                    <span
-                      class="px-2 py-0.5 rounded-md text-xs font-semibold border"
-                      :class="
-                        user.role === 'admin'
-                          ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30'
-                          : user.role === 'kepala_madrasah'
-                            ? 'bg-violet-500/10 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400 border-violet-500/20 dark:border-violet-500/30'
-                            : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30'
-                      "
-                    >
-                      {{ user.role === "admin" ? "Admin" : user.role === "kepala_madrasah" ? "Kepala Madrasah" : "Guru" }}
+                    <div class="flex items-center gap-2 group/copy">
+                      <code @click="copyToClipboard(user.password, 'Password')"
+                        class="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 text-xs font-mono cursor-pointer hover:bg-zinc-700/80 transition-colors select-all"
+                        title="Klik untuk menyalin password">
+                        {{
+                          showPasswordMap[user.id] ? user.password : "••••••••"
+                        }}
+                      </code>
+                      <button @click="toggleShowPassword(user.id)"
+                        class="text-zinc-500 hover:text-zinc-300 transition-colors" :title="showPasswordMap[user.id] ? 'Sembunyikan' : 'Tampilkan'
+                          ">
+                        <Eye v-if="!showPasswordMap[user.id]" class="w-3.5 h-3.5" />
+                        <EyeOff v-else class="w-3.5 h-3.5" />
+                      </button>
+                      <button @click="copyToClipboard(user.password, 'Password')"
+                        class="text-zinc-500 hover:text-zinc-300 opacity-0 group-hover/copy:opacity-100 transition-opacity p-0.5"
+                        title="Salin Password">
+                        <Copy class="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span class="px-2 py-0.5 rounded-md text-xs font-semibold border" :class="user.role === 'admin'
+                        ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30'
+                        : user.role === 'kepala_madrasah'
+                          ? 'bg-violet-500/10 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400 border-violet-500/20 dark:border-violet-500/30'
+                          : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30'
+                      ">
+                      {{ user.role === "admin" ? "Admin" : user.role === "kepala_madrasah" ? "Kepala Madrasah" : "Guru"
+                      }}
                     </span>
                   </td>
                   <td class="px-4 py-3">
-                    <span
-                      class="px-2 py-0.5 rounded-md text-xs font-semibold"
-                      :class="
-                        user.is_active
-                          ? 'bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-400'
-                          : 'bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-400'
-                      "
-                    >
+                    <span class="px-2 py-0.5 rounded-md text-xs font-semibold" :class="user.is_active
+                        ? 'bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-400'
+                        : 'bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-400'
+                      ">
                       {{ user.is_active ? "Aktif" : "Nonaktif" }}
                     </span>
                   </td>
                   <td class="px-4 py-3">
                     <div class="flex items-center justify-center gap-1">
+                      <!-- QR Code Login -->
+                      <button @click="openQrModal(user)"
+                        class="p-1.5 rounded-md text-zinc-400 hover:text-blue-400 hover:bg-zinc-800 transition-all"
+                        title="QR Login">
+                        <QrCode class="w-3.5 h-3.5" />
+                      </button>
+
                       <!-- Edit Password Manual -->
-                      <button
-                        @click="openEditPasswordModal(user)"
-                        :disabled="actionLoading === user.id"
+                      <button @click="openEditPasswordModal(user)" :disabled="actionLoading === user.id"
                         class="p-1.5 rounded-md text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800 transition-all disabled:opacity-50"
-                        title="Edit Password Manual"
-                      >
+                        title="Edit Password Manual">
                         <Key class="w-3.5 h-3.5" />
                       </button>
 
                       <!-- Reset Password -->
-                      <button
-                        @click="resetPassword(user)"
-                        :disabled="actionLoading === user.id"
+                      <button @click="resetPassword(user)" :disabled="actionLoading === user.id"
                         class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 transition-all disabled:opacity-50"
-                        title="Reset Password"
-                      >
+                        title="Reset Password">
                         <RefreshCw class="w-3.5 h-3.5" />
                       </button>
 
                       <!-- Toggle Active -->
-                      <button
-                        @click="toggleActive(user)"
-                        :disabled="
-                          actionLoading === user.id || user.role === 'admin'
-                        "
-                        class="p-1.5 rounded-md transition-all disabled:opacity-30"
-                        :class="
-                          user.is_active
+                      <button @click="toggleActive(user)" :disabled="actionLoading === user.id || user.role === 'admin'
+                        " class="p-1.5 rounded-md transition-all disabled:opacity-30" :class="user.is_active
                             ? 'text-zinc-400 hover:text-red-400 hover:bg-zinc-800'
                             : 'text-zinc-400 hover:text-green-400 hover:bg-zinc-800'
-                        "
-                        :title="user.is_active ? 'Nonaktifkan' : 'Aktifkan'"
-                      >
+                          " :title="user.is_active ? 'Nonaktifkan' : 'Aktifkan'">
                         <Ban v-if="user.is_active" class="w-3.5 h-3.5" />
                         <Check v-else class="w-3.5 h-3.5" />
                       </button>
 
                       <!-- Delete -->
-                      <button
-                        @click="deleteUser(user)"
-                        :disabled="
-                          actionLoading === user.id || user.role === 'admin'
+                      <button @click="deleteUser(user)" :disabled="actionLoading === user.id || user.role === 'admin'
                         "
                         class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-all disabled:opacity-30"
-                        title="Hapus Akun"
-                      >
+                        title="Hapus Akun">
                         <Trash2 class="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -262,18 +230,13 @@
 
           <!-- Cards (Mobile View) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
-            <div
-              v-for="(user, index) in filteredUsers"
-              :key="user.id"
-              class="rounded-xl border border-zinc-700/50 bg-zinc-800/10 p-4 transition-all duration-200 hover:border-zinc-600/50"
-            >
+            <div v-for="(user, index) in filteredUsers" :key="user.id"
+              class="rounded-xl border border-zinc-700/50 bg-zinc-800/10 p-4 transition-all duration-200 hover:border-zinc-600/50">
               <!-- Card Header -->
               <div class="flex items-start justify-between gap-3 mb-4">
                 <div class="flex items-center gap-3">
                   <div>
-                    <h3
-                      class="text-zinc-100 font-medium text-sm sm:text-base leading-snug"
-                    >
+                    <h3 class="text-zinc-100 font-medium text-sm sm:text-base leading-snug">
                       {{ user.display_name || "-" }}
                     </h3>
                   </div>
@@ -281,111 +244,99 @@
 
                 <!-- Badges -->
                 <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
-                  <span
-                    class="px-2 py-0.5 rounded-md text-[10px] font-semibold border leading-tight"
-                    :class="
-                      user.role === 'admin'
-                        ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30'
-                        : user.role === 'kepala_madrasah'
-                          ? 'bg-violet-500/10 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400 border-violet-500/20 dark:border-violet-500/30'
-                          : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30'
-                    "
-                  >
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold border leading-tight" :class="user.role === 'admin'
+                      ? 'bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30'
+                      : user.role === 'kepala_madrasah'
+                        ? 'bg-violet-500/10 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400 border-violet-500/20 dark:border-violet-500/30'
+                        : 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30'
+                    ">
                     {{ user.role === "admin" ? "Admin" : user.role === "kepala_madrasah" ? "Kepala M." : "Guru" }}
                   </span>
-                  <span
-                    class="px-2 py-0.5 rounded-md text-[10px] font-semibold leading-tight"
-                    :class="
-                      user.is_active
-                        ? 'bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-400'
-                        : 'bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-400'
-                    "
-                  >
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold leading-tight" :class="user.is_active
+                      ? 'bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-400'
+                      : 'bg-red-500/10 dark:bg-red-500/20 text-red-700 dark:text-red-400'
+                    ">
                     {{ user.is_active ? "Aktif" : "Nonaktif" }}
                   </span>
                 </div>
               </div>
 
               <!-- Credentials Section -->
-              <div
-                class="space-y-2.5 bg-zinc-900/40 p-3 rounded-lg border border-zinc-800/80 mb-4 text-xs"
-              >
+              <div class="space-y-2.5 bg-zinc-900/40 p-3 rounded-lg border border-zinc-800/80 mb-4 text-xs">
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-zinc-500">Username</span>
-                  <code
-                    class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-600 dark:text-emerald-400 font-mono select-all"
-                  >
-                    {{ user.username }}
-                  </code>
+                  <div class="flex items-center gap-1.5">
+                    <code @click="copyToClipboard(user.username, 'Username')"
+                      class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-600 dark:text-emerald-400 font-mono cursor-pointer hover:bg-zinc-750 transition-colors select-all"
+                      title="Klik untuk menyalin username">
+                      {{ user.username }}
+                    </code>
+                    <button @click="copyToClipboard(user.username, 'Username')"
+                      class="text-zinc-500 hover:text-zinc-300 p-1 rounded transition-colors" title="Salin Username">
+                      <Copy class="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-zinc-500">Password</span>
                   <div class="flex items-center gap-1.5">
-                    <code
-                      class="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono select-all"
-                    >
+                    <code @click="copyToClipboard(user.password, 'Password')"
+                      class="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono cursor-pointer hover:bg-zinc-750 transition-colors select-all"
+                      title="Klik untuk menyalin password">
                       {{
                         showPasswordMap[user.id] ? user.password : "••••••••"
                       }}
                     </code>
-                    <button
-                      @click="toggleShowPassword(user.id)"
-                      class="text-zinc-500 hover:text-zinc-300 p-1 rounded transition-colors"
-                    >
-                      <Eye
-                        v-if="!showPasswordMap[user.id]"
-                        class="w-3.5 h-3.5"
-                      />
+                    <button @click="toggleShowPassword(user.id)"
+                      class="text-zinc-500 hover:text-zinc-300 p-1 rounded transition-colors" :title="showPasswordMap[user.id] ? 'Sembunyikan' : 'Tampilkan'
+                        ">
+                      <Eye v-if="!showPasswordMap[user.id]" class="w-3.5 h-3.5" />
                       <EyeOff v-else class="w-3.5 h-3.5" />
+                    </button>
+                    <button @click="copyToClipboard(user.password, 'Password')"
+                      class="text-zinc-500 hover:text-zinc-300 p-1 rounded transition-colors" title="Salin Password">
+                      <Copy class="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
               </div>
 
               <!-- Action Section -->
-              <div
-                class="flex items-center justify-between pt-2 border-t border-zinc-800/80"
-              >
+              <div class="flex items-center justify-between pt-2 border-t border-zinc-800/80">
                 <span class="text-xs text-zinc-500">Aksi Akun</span>
                 <div class="flex items-center gap-1">
+                  <!-- QR Code Login -->
+                  <button @click="openQrModal(user)"
+                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-blue-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-all"
+                    title="QR Login">
+                    <QrCode class="w-3 h-3" />
+                    <span>QR</span>
+                  </button>
+
                   <!-- Edit Password Manual -->
-                  <button
-                    @click="openEditPasswordModal(user)"
-                    :disabled="actionLoading === user.id"
+                  <button @click="openEditPasswordModal(user)" :disabled="actionLoading === user.id"
                     class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-emerald-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-all disabled:opacity-50"
-                    title="Edit Password Manual"
-                  >
+                    title="Edit Password Manual">
                     <Key class="w-3 h-3" />
                     <span>Edit</span>
                   </button>
 
                   <!-- Reset Password -->
-                  <button
-                    @click="resetPassword(user)"
-                    :disabled="actionLoading === user.id"
+                  <button @click="resetPassword(user)" :disabled="actionLoading === user.id"
                     class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-amber-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-all disabled:opacity-50"
-                    title="Reset Password"
-                  >
-                    <RefreshCw
-                      class="w-3 h-3"
-                      :class="{ 'animate-spin': actionLoading === user.id }"
-                    />
+                    title="Reset Password">
+                    <RefreshCw class="w-3 h-3" :class="{ 'animate-spin': actionLoading === user.id }" />
                     <span>Reset</span>
                   </button>
 
                   <!-- Toggle Active -->
-                  <button
-                    @click="toggleActive(user)"
-                    :disabled="
-                      actionLoading === user.id || user.role === 'admin'
+                  <button @click="toggleActive(user)" :disabled="actionLoading === user.id || user.role === 'admin'
                     "
                     class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border transition-all disabled:opacity-30"
-                    :class="
-                      user.is_active
+                    :class="user.is_active
                         ? 'bg-zinc-800 text-red-400 border-zinc-700/50 hover:bg-zinc-700/80'
                         : 'bg-zinc-800 text-green-400 border-zinc-700/50 hover:bg-zinc-700/80'
-                    "
-                  >
+                      ">
                     <template v-if="user.is_active">
                       <Ban class="w-3 h-3" />
                       <span>Nonaktif</span>
@@ -397,14 +348,10 @@
                   </button>
 
                   <!-- Delete -->
-                  <button
-                    @click="deleteUser(user)"
-                    :disabled="
-                      actionLoading === user.id || user.role === 'admin'
+                  <button @click="deleteUser(user)" :disabled="actionLoading === user.id || user.role === 'admin'
                     "
                     class="p-1 rounded-md bg-zinc-800 text-zinc-400 hover:text-red-400 hover:bg-zinc-700 border border-zinc-700/50 transition-all disabled:opacity-30"
-                    title="Hapus Akun"
-                  >
+                    title="Hapus Akun">
                     <Trash2 class="w-3 h-3" />
                   </button>
                 </div>
@@ -418,46 +365,85 @@
           Total: {{ users.length }} akun ({{
             users.filter((u) => u.role === "guru").length
           }}
-          guru, {{ users.filter((u) => u.role === "kepala_madrasah").length }} kepala madrasah, {{ users.filter((u) => u.role === "admin").length }} admin)
+          guru, {{users.filter((u) => u.role === "kepala_madrasah").length}} kepala madrasah, {{users.filter((u) =>
+            u.role
+            === "admin").length }} admin)
+        </div>
+      </div>
+
+      <!-- QR Code Modal -->
+      <div v-if="isQrModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+        @click.self="closeQrModal">
+        <div
+          class="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform scale-100">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4 border-b border-zinc-800 pb-3">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+              <QrCode class="w-5 h-5 text-blue-500" />
+              <span>QR Code Login</span>
+            </h3>
+            <button @click="closeQrModal" class="text-zinc-400 hover:text-zinc-200 transition-colors p-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="flex flex-col items-center gap-4 text-center" v-if="selectedUserForQr">
+            <div>
+              <p class="text-sm font-semibold text-zinc-200">
+                {{ selectedUserForQr.display_name || "-" }}
+              </p>
+              <p class="text-xs text-zinc-500 mt-1">
+                Username: <code class="text-emerald-400 font-mono px-1 py-0.5 rounded bg-zinc-800">{{
+                  selectedUserForQr.username }}</code>
+              </p>
+            </div>
+
+            <!-- QR Container -->
+            <div class="p-4 bg-white rounded-xl shadow-inner border border-zinc-700">
+              <div id="qr-code-svg-container">
+                <QrcodeVue :value="`${selectedUserForQr.username}|${selectedUserForQr.password}`" :size="200" level="H"
+                  render-as="svg" />
+              </div>
+            </div>
+
+            <p class="text-xs text-zinc-400">
+              Scan QR code di atas menggunakan fitur scan kamera pada halaman login aplikasi untuk masuk otomatis.
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex items-center justify-end gap-3 mt-6 pt-3 border-t border-zinc-800">
+            <button @click="closeQrModal"
+              class="px-4 py-2 text-sm font-medium rounded-lg text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-750 transition-all">
+              Tutup
+            </button>
+            <button @click="downloadQrCodeSvg"
+              class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all duration-200">
+              <span>Unduh SVG</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Edit Password Modal -->
-      <div
-        v-if="isEditPasswordModalOpen"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-        @click.self="closeEditPasswordModal"
-      >
+      <div v-if="isEditPasswordModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+        @click.self="closeEditPasswordModal">
         <div
-          class="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform scale-100"
-        >
+          class="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform scale-100">
           <!-- Header -->
-          <div
-            class="flex items-center justify-between mb-4 border-b border-zinc-800 pb-3"
-          >
-            <h3
-              class="text-lg font-semibold text-white flex items-center gap-2"
-            >
+          <div class="flex items-center justify-between mb-4 border-b border-zinc-800 pb-3">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
               <Key class="w-5 h-5 text-emerald-500" />
               <span>Edit Password Manual</span>
             </h3>
-            <button
-              @click="closeEditPasswordModal"
-              class="text-zinc-400 hover:text-zinc-200 transition-colors p-1"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
+            <button @click="closeEditPasswordModal" class="text-zinc-400 hover:text-zinc-200 transition-colors p-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
@@ -472,44 +458,29 @@
             </div>
             <div>
               <p class="text-xs text-zinc-500">Username</p>
-              <code
-                class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 text-xs font-mono"
-              >
-                {{ selectedUserForPassword.username }}
-              </code>
+              <code class="px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 text-xs font-mono">
+          {{ selectedUserForPassword.username }}
+        </code>
             </div>
 
             <!-- Password Input -->
             <div class="space-y-1.5">
-              <label class="text-xs text-zinc-400 font-medium"
-                >Password Baru</label
-              >
+              <label class="text-xs text-zinc-400 font-medium">Password Baru</label>
               <div class="relative">
-                <input
-                  v-model="manualPasswordInput"
-                  :type="showManualPassword ? 'text' : 'password'"
+                <input v-model="manualPasswordInput" :type="showManualPassword ? 'text' : 'password'"
                   placeholder="Masukkan password baru..."
                   class="w-full h-10 pl-3 pr-10 rounded-lg border bg-zinc-800/40 text-white placeholder-zinc-500 border-zinc-700/50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition-all duration-200 text-sm font-mono"
-                  @keyup.enter="saveManualPassword"
-                />
-                <button
-                  type="button"
-                  @click="showManualPassword = !showManualPassword"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors"
-                >
+                  @keyup.enter="saveManualPassword" />
+                <button type="button" @click="showManualPassword = !showManualPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors">
                   <Eye v-if="!showManualPassword" class="w-4 h-4" />
                   <EyeOff v-else class="w-4 h-4" />
                 </button>
               </div>
               <div class="flex items-center justify-between pt-1">
-                <span class="text-[11px] text-zinc-500"
-                  >Minimal 4 karakter</span
-                >
-                <button
-                  type="button"
-                  @click="generateSuggestedPassword"
-                  class="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
-                >
+                <span class="text-[11px] text-zinc-500">Minimal 4 karakter</span>
+                <button type="button" @click="generateSuggestedPassword"
+                  class="text-[11px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
                   Generate Acak
                 </button>
               </div>
@@ -517,25 +488,14 @@
           </div>
 
           <!-- Footer -->
-          <div
-            class="flex items-center justify-end gap-3 mt-6 pt-3 border-t border-zinc-800"
-          >
-            <button
-              @click="closeEditPasswordModal"
-              :disabled="isSubmittingManualPassword"
-              class="px-4 py-2 text-sm font-medium rounded-lg text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-750 transition-all"
-            >
+          <div class="flex items-center justify-end gap-3 mt-6 pt-3 border-t border-zinc-800">
+            <button @click="closeEditPasswordModal" :disabled="isSubmittingManualPassword"
+              class="px-4 py-2 text-sm font-medium rounded-lg text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-750 transition-all">
               Batal
             </button>
-            <button
-              @click="saveManualPassword"
-              :disabled="isSubmittingManualPassword"
-              class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 transition-all duration-200"
-            >
-              <Loader2
-                v-if="isSubmittingManualPassword"
-                class="w-4 h-4 animate-spin"
-              />
+            <button @click="saveManualPassword" :disabled="isSubmittingManualPassword"
+              class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 transition-all duration-200">
+              <Loader2 v-if="isSubmittingManualPassword" class="w-4 h-4 animate-spin" />
               <span>Simpan</span>
             </button>
           </div>
@@ -549,6 +509,8 @@
 import { ref, computed, onMounted } from "vue";
 import { useAuth } from "~/composables/auth/useAuth";
 import { useNotiflix } from "~/composables/ui/useFeedback";
+import QrcodeVue from "qrcode.vue";
+import * as XLSX from "xlsx";
 import {
   UserPlus,
   RefreshCw,
@@ -561,6 +523,10 @@ import {
   Check,
   Trash2,
   Search,
+  FileSpreadsheet,
+  Printer,
+  QrCode,
+  Copy,
 } from "lucide-vue-next";
 
 definePageMeta({
@@ -582,6 +548,149 @@ const isEditPasswordModalOpen = ref(false);
 const selectedUserForPassword = ref(null);
 const manualPasswordInput = ref("");
 const showManualPassword = ref(false);
+
+const isQrModalOpen = ref(false);
+const selectedUserForQr = ref(null);
+
+const copyToClipboard = async (text, label) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    Notify?.success?.(`${label} berhasil disalin ke clipboard`);
+  } catch (err) {
+    console.error("Gagal menyalin:", err);
+    Notify?.failure?.("Gagal menyalin ke clipboard");
+  }
+};
+
+const openQrModal = (user) => {
+  selectedUserForQr.value = user;
+  isQrModalOpen.value = true;
+};
+
+const closeQrModal = () => {
+  isQrModalOpen.value = false;
+  selectedUserForQr.value = null;
+};
+
+const downloadQrCodeSvg = () => {
+  const container = document.getElementById("qr-code-svg-container");
+  if (!container) return;
+  const svgEl = container.querySelector("svg");
+  if (!svgEl) return;
+
+  const serializer = new XMLSerializer();
+  let source = serializer.serializeToString(svgEl);
+
+  if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+    source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+  if (!source.match(/^<svg[^>]+xmlns:xlink="http:\/\/www\.w3\.org\/1999\/xlink"/)) {
+    source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+  }
+
+  source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+  const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+  const downloadLink = document.createElement("a");
+  downloadLink.href = url;
+  downloadLink.download = `QR_Login_${selectedUserForQr.value.username}.svg`;
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+  Notify?.success?.("QR Code berhasil diunduh");
+};
+
+const exportToExcel = () => {
+  try {
+    const dataToExport = filteredUsers.value.map((user, idx) => ({
+      No: idx + 1,
+      Nama: user.display_name || "-",
+      Username: user.username,
+      Password: user.password,
+      Role: user.role === "admin" ? "Admin" : user.role === "kepala_madrasah" ? "Kepala Madrasah" : "Guru",
+      Status: user.is_active ? "Aktif" : "Nonaktif",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Daftar Akun");
+
+    worksheet["!cols"] = [
+      { wch: 5 },  // No
+      { wch: 30 }, // Nama
+      { wch: 20 }, // Username
+      { wch: 20 }, // Password
+      { wch: 20 }, // Role
+      { wch: 15 }, // Status
+    ];
+
+    XLSX.writeFile(workbook, "Daftar_Akun_Guru.xlsx");
+    Notify?.success?.("Berhasil mengekspor data akun ke Excel");
+  } catch (err) {
+    console.error("Gagal ekspor excel:", err);
+    Notify?.failure?.("Gagal mengekspor data ke Excel");
+  }
+};
+
+const printAccounts = () => {
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    Notify?.failure?.("Gagal membuka jendela cetak. Pastikan pop-up tidak diblokir.");
+    return;
+  }
+
+  const htmlContent = `
+    <html>
+      <head>
+        <title>Daftar Akun Guru - ${new Date().toLocaleDateString('id-ID')}</title>
+        <style>
+          body { font-family: sans-serif; padding: 20px; color: #333; }
+          h1 { text-align: center; font-size: 20px; margin-bottom: 20px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; font-size: 13px; }
+          th { background-color: #f4f4f4; }
+          tr:nth-child(even) { background-color: #fafafa; }
+        </style>
+      </head>
+      <body>
+        <h1>Daftar Akun Guru / Staff</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama</th>
+              <th>Username</th>
+              <th>Password</th>
+              <th>Role</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredUsers.value.map((user, idx) => `
+              <tr>
+                <td>${idx + 1}</td>
+                <td>${user.display_name || "-"}</td>
+                <td><code>${user.username}</code></td>
+                <td><code>${user.password}</code></td>
+                <td>${user.role === 'admin' ? 'Admin' : user.role === 'kepala_madrasah' ? 'Kepala Madrasah' : 'Guru'}</td>
+                <td>${user.is_active ? 'Aktif' : 'Nonaktif'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <script>
+          window.onload = function() {
+            window.print();
+            window.onafterprint = function() { window.close(); };
+          };
+        <\/script>
+      </body>
+    </html>
+  `;
+
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+};
 
 const filteredUsers = computed(() => {
   if (!searchQuery.value) return users.value;
@@ -671,7 +780,7 @@ const handleSeedGuru = async () => {
         isSeeding.value = false;
       }
     },
-    () => {},
+    () => { },
   );
 };
 
@@ -734,7 +843,7 @@ const resetPassword = async (user) => {
         actionLoading.value = null;
       }
     },
-    () => {},
+    () => { },
   );
 };
 
@@ -924,7 +1033,7 @@ const deleteUser = async (user) => {
         actionLoading.value = null;
       }
     },
-    () => {},
+    () => { },
   );
 };
 

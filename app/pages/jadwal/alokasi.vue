@@ -62,112 +62,102 @@
           </p>
         </div>
 
-        <!-- Matrix Table -->
-        <div
-          v-else
-          class="bg-zinc-900/60 border border-zinc-800 rounded-xl overflow-hidden shadow-xl"
-        >
-          <div class="overflow-x-auto">
-            <table class="w-full border-collapse text-left">
-              <thead>
-                <tr
-                  class="border-b border-zinc-800 bg-zinc-950/40 text-[11px] font-bold tracking-wider text-zinc-400 uppercase"
-                >
-                  <th class="p-4 w-12 text-center border-r border-zinc-800/60">
-                    No
-                  </th>
-                  <th class="p-4 min-w-[240px] border-r border-zinc-800/60">
-                    Mata Pelajaran
-                  </th>
-                  <th
-                    v-for="k in sortedClasses"
-                    :key="k.id_kelas"
-                    class="p-4 text-center border-r border-zinc-800/60 min-w-[180px] text-zinc-200"
-                  >
-                    {{ k.nama_kelas || k.id_kelas }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-zinc-800/60">
-                <tr
-                  v-for="(subjectName, idx) in uniqueSubjects"
-                  :key="subjectName"
-                  class="hover:bg-zinc-900/10 transition-colors"
-                >
-                  <!-- Index -->
-                  <td
-                    class="p-4 text-center text-sm font-medium text-zinc-500 border-r border-zinc-800/60"
-                  >
-                    {{ idx + 1 }}
-                  </td>
+        <!-- Table Per Kelas -->
+        <div v-else class="flex flex-col gap-6">
+          <!-- Class Selection Card -->
+          <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex-1 max-w-md">
+              <label class="block text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
+                Pilih Rombongan Belajar (Kelas)
+              </label>
+              <SearchableSelect
+                v-model="selectedClassId"
+                :options="classOptions"
+                placeholder="-- Pilih Kelas --"
+                search-placeholder="Cari kelas..."
+              />
+            </div>
+            
+            <!-- Quick Info Badge/Card -->
+            <div v-if="selectedClassObj" class="flex items-center gap-4 bg-zinc-950/40 border border-zinc-800/80 px-4 py-3 rounded-lg">
+              <div>
+                <span class="text-[10px] font-bold text-zinc-500 uppercase block">Tingkat / Kelas</span>
+                <span class="text-sm font-semibold text-emerald-400">
+                  Tingkat {{ selectedClassObj.tingkat }} - {{ selectedClassObj.nama_kelas }}
+                </span>
+              </div>
+              <div class="w-px h-8 bg-zinc-800"></div>
+              <div>
+                <span class="text-[10px] font-bold text-zinc-500 uppercase block">Total Mata Pelajaran</span>
+                <span class="text-sm font-semibold text-zinc-300 font-mono">
+                  {{ subjectsForSelectedClass.length }} Mapel
+                </span>
+              </div>
+            </div>
+          </div>
 
-                  <!-- Subject Name -->
-                  <td
-                    class="p-4 border-r border-zinc-800/60 font-semibold text-zinc-200 text-sm"
+          <!-- Allocation Table for Selected Class -->
+          <div v-if="selectedClassObj" class="bg-zinc-900/60 border border-zinc-800 rounded-xl overflow-hidden shadow-xl">
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse text-left">
+                <thead>
+                  <tr class="border-b border-zinc-800 bg-zinc-950/40 text-[11px] font-bold tracking-wider text-zinc-400 uppercase">
+                    <th class="p-4 w-16 text-center border-r border-zinc-800/60">No</th>
+                    <th class="p-4 min-w-[240px] border-r border-zinc-800/60">Mata Pelajaran</th>
+                    <th class="p-4 text-center border-r border-zinc-800/60 w-32">Alokasi Waktu</th>
+                    <th class="p-4 border-r border-zinc-800/60 min-w-[280px]">Guru Pengajar</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-800/60">
+                  <tr
+                    v-for="(item, idx) in subjectsForSelectedClass"
+                    :key="item.subjectName"
+                    class="hover:bg-zinc-900/10 transition-colors"
                   >
-                    {{ subjectName }}
-                  </td>
+                    <!-- Index -->
+                    <td class="p-4 text-center text-sm font-medium text-zinc-500 border-r border-zinc-800/60">
+                      {{ idx + 1 }}
+                    </td>
 
-                  <!-- Class Columns -->
-                  <td
-                    v-for="k in sortedClasses"
-                    :key="k.id_kelas"
-                    class="p-3 text-center border-r border-zinc-800/60"
-                  >
-                    <template v-if="getKurikulumForCell(subjectName, k)">
-                      <div
-                        class="flex flex-col gap-1.5 items-center justify-center"
-                      >
-                        <!-- Select dropdown for Admin -->
-                        <select
+                    <!-- Subject Name -->
+                    <td class="p-4 border-r border-zinc-800/60 font-semibold text-zinc-200 text-sm">
+                      {{ item.subjectName }}
+                    </td>
+
+                    <!-- Alokasi Waktu (JP) -->
+                    <td class="p-4 text-center border-r border-zinc-800/60 font-mono text-sm text-zinc-300">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-zinc-500/10 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400">
+                        {{ item.kurikulum?.alokasi_jam }} JP
+                      </span>
+                    </td>
+
+                    <!-- Guru Pengajar -->
+                    <td class="p-3 border-r border-zinc-800/60">
+                      <div class="max-w-xs">
+                        <SearchableSelect
                           v-if="isAdmin"
-                          v-model="
-                            localAllocations[
-                              `${k.id_kelas}_${getKurikulumForCell(subjectName, k).id}`
-                            ]
-                          "
-                          class="w-full px-2 py-1.5 rounded-lg border border-zinc-700 bg-zinc-900/50 text-zinc-200 text-xs outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all font-medium"
-                        >
-                          <option value="">-- Pilih Guru --</option>
-                          <option
-                            v-for="g in guruOptions"
-                            :key="g.value"
-                            :value="g.value"
-                          >
-                            {{ g.label }}
-                          </option>
-                        </select>
-
-                        <!-- Plain text for non-Admin -->
+                          v-model="localAllocations[`${selectedClassId}_${item.kurikulum?.id}`]"
+                          :options="guruOptions"
+                          placeholder="-- Pilih Guru --"
+                          search-placeholder="Cari guru..."
+                        />
                         <span
                           v-else
-                          class="text-xs font-semibold text-zinc-300 text-center line-clamp-1"
+                          class="text-xs font-semibold text-zinc-300 line-clamp-1"
                         >
-                          {{
-                            getGuruName(
-                              localAllocations[
-                                `${k.id_kelas}_${getKurikulumForCell(subjectName, k).id}`
-                              ],
-                            ) || "-"
-                          }}
+                          {{ getGuruName(localAllocations[`${selectedClassId}_${item.kurikulum?.id}`]) || "-" }}
                         </span>
-
-                        <!-- Hour count badge from curriculum -->
-                         <span
-                           class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-zinc-500/10 dark:bg-zinc-800 text-zinc-650 dark:text-zinc-400 font-mono"
-                         >
-                           {{ getKurikulumForCell(subjectName, k).alokasi_jam }}
-                           JP
-                         </span>
                       </div>
-                    </template>
-                    <template v-else>
-                      <span class="text-zinc-600 text-sm">-</span>
-                    </template>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    </td>
+                  </tr>
+                  <tr v-if="subjectsForSelectedClass.length === 0">
+                    <td colspan="4" class="p-8 text-center text-zinc-500 italic text-sm">
+                      Tidak ada mata pelajaran yang dikonfigurasi untuk tingkat {{ selectedClassObj.tingkat }} pada kurikulum.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -222,6 +212,7 @@ import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { postToApi, putToApi, deleteFromApi } from "~/utils/api";
+import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 
 const { Notify } = useNotiflix();
 
@@ -267,6 +258,7 @@ const isSaving = ref(false);
 const localAllocations = ref({});
 const initialAllocationsJson = ref("{}");
 
+
 // Sort classes naturally by grade (tingkat) and then by name
 const sortedClasses = computed(() => {
   return [...(kelasData.value || [])].sort((a, b) => {
@@ -306,6 +298,44 @@ const getKurikulumForCell = (subjectName, classObj) => {
       String(m.tingkat) === String(classObj.tingkat),
   );
 };
+
+// Selection for class layout
+const selectedClassId = ref(null);
+
+const selectedClassObj = computed(() => {
+  return sortedClasses.value.find((c) => c.id_kelas === selectedClassId.value);
+});
+
+const classOptions = computed(() => {
+  return sortedClasses.value.map((c) => ({
+    value: c.id_kelas,
+    label: c.nama_kelas || c.id_kelas,
+  }));
+});
+
+const subjectsForSelectedClass = computed(() => {
+  if (!selectedClassObj.value) return [];
+  return uniqueSubjects.value
+    .map((subjectName) => {
+      const kurikulum = getKurikulumForCell(subjectName, selectedClassObj.value);
+      return {
+        subjectName,
+        kurikulum,
+      };
+    })
+    .filter((item) => item.kurikulum !== null);
+});
+
+// Watch sortedClasses to auto-select the first class on load
+watch(
+  sortedClasses,
+  (newClasses) => {
+    if (newClasses && newClasses.length > 0 && !selectedClassId.value) {
+      selectedClassId.value = newClasses[0].id_kelas;
+    }
+  },
+  { immediate: true },
+);
 
 // Get teacher name by ID
 const getGuruName = (id) => {

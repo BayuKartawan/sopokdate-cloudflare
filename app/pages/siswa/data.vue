@@ -3,88 +3,50 @@
     <div class="page-layout">
       <!-- Top Section: Title & Actions -->
       <div class="flex flex-col gap-4 sm:gap-6 mb-6">
-        <div class="flex flex-wrap items-center gap-4">
-          <div>
-            <h2
-              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
-              :style="{ color: 'var(--text-heading)' }"
-            >
-              <GraduationCap class="w-7 h-7 text-emerald-400" />
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div class="min-w-0 flex-1">
+            <h2 class="text-xl sm:text-2xl font-bold flex items-center gap-2" :style="{ color: 'var(--text-heading)' }">
+              <GraduationCap class="w-7 h-7 text-emerald-400 shrink-0" />
               Data Siswa
             </h2>
             <p class="text-sm text-zinc-400 mt-1">
               Manajemen dan informasi seluruh siswa madrasah
             </p>
           </div>
-          <div class="flex items-center gap-2 ml-auto">
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap items-center gap-2">
             <!-- Tambah Siswa Button (Admin Only) -->
-            <BaseButton
-              v-if="isAdmin"
-              text="Tambah"
-              @click="openCreateModal"
-              class="!bg-emerald-600 !text-white hover:!bg-emerald-500"
-            >
+            <BaseButton v-if="isAdmin" text="Tambah" @click="openCreateModal"
+              class="!bg-emerald-600 !text-white hover:!bg-emerald-500 !border-emerald-600">
               <template #icon>
                 <Plus class="w-4 h-4" />
               </template>
             </BaseButton>
 
             <!-- Upload Excel Button (Admin Only) -->
-            <BaseButton
-              v-if="isAdmin"
-              text="Upload Excel"
-              @click="showUploadModal = true"
-              class="!bg-zinc-800 hover:!bg-zinc-700 !text-zinc-200 border !border-zinc-700"
-            >
+            <BaseButton v-if="isAdmin" text="Upload" @click="showUploadModal = true"
+              class="!bg-zinc-800 hover:!bg-zinc-700 !text-zinc-200 !border-zinc-700">
               <template #icon>
                 <FileSpreadsheet class="w-4 h-4" />
               </template>
             </BaseButton>
 
             <!-- Export Excel Button -->
-            <BaseButton
-              :text="isExporting ? 'Mengekspor...' : 'Export'"
-              @click="exportToExcel"
-              :disabled="isExporting || sortedData.length === 0"
-              class="!px-2.5 sm:!px-3"
-            >
-              <template #icon>
-                <svg
-                  v-if="!isExporting"
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                <svg
-                  v-else
-                  class="w-4 h-4 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              </template>
-            </BaseButton>
+            <button @click="exportToExcel" :disabled="isExporting || sortedData.length === 0"
+              class="flex items-center justify-center gap-1.5 border px-3 py-1.5 rounded-md text-sm hover:translate-y-[1px] focus:ring-1 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              :style="{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }">
+              <svg v-if="!isExporting" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <svg v-else class="w-4 h-4 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <span>{{ isExporting ? 'Ekspor...' : 'Ekspor' }}</span>
+            </button>
 
             <!-- Print Button -->
             <PrintButton>
@@ -99,9 +61,7 @@
                 </div>
 
                 <!-- Tabel Cetak -->
-                <table
-                  class="w-full table-auto border border-gray-800 mb-4 text-xs"
-                >
+                <table class="w-full table-auto border border-gray-800 mb-4 text-xs">
                   <thead class="bg-gray-100">
                     <tr>
                       <th class="border border-gray-800 px-2 py-1.5 w-8">No</th>
@@ -122,10 +82,7 @@
                   </thead>
                   <tbody>
                     <tr v-if="!sortedData || sortedData.length === 0">
-                      <td
-                        colspan="6"
-                        class="border border-gray-800 px-2 py-4 text-center text-gray-500"
-                      >
+                      <td colspan="6" class="border border-gray-800 px-2 py-4 text-center text-gray-500">
                         {{
                           isLoading
                             ? "Memuat data..."
@@ -133,17 +90,11 @@
                         }}
                       </td>
                     </tr>
-                    <tr
-                      v-else
-                      v-for="(siswa, index) in sortedData"
-                      :key="siswa.nisn || index"
-                    >
+                    <tr v-else v-for="(siswa, index) in sortedData" :key="siswa.nisn || index">
                       <td class="border border-gray-800 px-2 py-1 text-center">
                         {{ index + 1 }}
                       </td>
-                      <td
-                        class="border border-gray-800 px-2 py-1 font-semibold"
-                      >
+                      <td class="border border-gray-800 px-2 py-1 font-semibold">
                         {{ toTitleCase(siswa.nama) }}
                       </td>
                       <td class="border border-gray-800 px-2 py-1 text-center">
@@ -181,53 +132,37 @@
           </div>
         </div>
 
+
         <!-- Filter and Search Row -->
         <div class="flex flex-col md:flex-row gap-4 items-center w-full">
           <!-- Search Input -->
           <div class="w-full md:flex-1">
-            <Search
-              @searchUpdated="handleSearch"
-              class="h-10 sm:h-11"
-              placeholder="Cari nama, NISN, atau NIS lokal..."
-            />
+            <Search @searchUpdated="handleSearch" class="h-10 sm:h-11"
+              placeholder="Cari nama, NISN, atau NIS lokal..." />
           </div>
 
           <!-- Class Dropdown Filter -->
           <div class="w-full md:w-64">
-            <select
+            <SearchableSelect
               v-model="selectedClass"
-              class="w-full h-10 sm:h-11 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-            >
-              <option value="Semua Kelas">Semua Kelas</option>
-              <option
-                v-for="option in classOptions"
-                :key="option"
-                :value="option"
-              >
-                {{ option }}
-              </option>
-            </select>
+              :options="classOptionsWithAll"
+              placeholder="Pilih Kelas..."
+              searchPlaceholder="Cari kelas..."
+              class="!h-10 sm:!h-11 text-sm"
+            />
           </div>
         </div>
       </div>
 
       <!-- Main Content Area -->
       <div class="pt-2">
-        <p
-          v-if="isLoading"
-          class="text-center text-zinc-500 text-lg font-semibold py-12"
-        >
+        <p v-if="isLoading" class="text-center text-zinc-500 text-lg font-semibold py-12">
           Memuat data siswa secara realtime...
         </p>
 
-        <div
-          v-else-if="sortedData.length === 0"
-          class="text-center py-16 bg-zinc-800/10 rounded-xl border border-zinc-800"
-        >
-          <Database
-            class="w-16 h-16 mx-auto mb-4 text-zinc-600"
-            stroke-width="1.5"
-          />
+        <div v-else-if="sortedData.length === 0"
+          class="text-center py-16 bg-zinc-800/10 rounded-xl border border-zinc-800">
+          <Database class="w-16 h-16 mx-auto mb-4 text-zinc-600" stroke-width="1.5" />
           <p class="text-zinc-400 text-lg font-medium">
             Tidak ada data siswa ditemukan
           </p>
@@ -238,53 +173,27 @@
 
         <!-- Student Grid List -->
         <div v-else>
-          <ul
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
-          >
-            <PersonCard
-              v-for="(item, index) in visibleData"
-              :key="item.id || index"
-              :item="item"
-              :title="item.nama"
-              :subtitle="item.nisn ? 'NISN: ' + item.nisn : '-'"
-              @click="navigateToDetail"
-            />
+          <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <PersonCard v-for="(item, index) in visibleData" :key="item.id || index" :item="item" :title="item.nama"
+              :subtitle="item.nisn ? 'NISN: ' + item.nisn : '-'" @click="navigateToDetail" />
           </ul>
 
           <!-- Load More Button -->
           <div v-if="sortedData.length > 9" class="text-center mt-8">
-            <BaseButton
-              :text="
-                showAll ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Lebih Banyak'
-              "
-              @click="showAll = !showAll"
-            />
+            <BaseButton :text="showAll ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Lebih Banyak'
+              " @click="showAll = !showAll" />
           </div>
         </div>
       </div>
 
       <!-- CRUD Modal -->
-      <CrudModal
-        :show="showModal"
-        :mode="modalMode"
-        :title="
-          modalMode === 'create' ? 'Tambah Data Siswa' : 'Edit Data Siswa'
-        "
-        :fields="siswaFields"
-        :initialData="editingItem"
-        :isSaving="isSaving"
-        @submit="handleFormSubmit"
-        @close="showModal = false"
-      />
+      <CrudModal :show="showModal" :mode="modalMode" :title="modalMode === 'create' ? 'Tambah Data Siswa' : 'Edit Data Siswa'
+        " :fields="siswaFields" :initialData="editingItem" :isSaving="isSaving" @submit="handleFormSubmit"
+        @close="showModal = false" />
 
       <!-- Upload Excel Modal -->
-      <UploadExcelModal
-        :show="showUploadModal"
-        :dataSiswa="dataSiswa"
-        :dataKelas="dataKelas"
-        @close="showUploadModal = false"
-        @success="refreshData('data_siswa')"
-      />
+      <UploadExcelModal :show="showUploadModal" :dataSiswa="dataSiswa" :dataKelas="dataKelas"
+        @close="showUploadModal = false" @success="refreshData('data_siswa')" />
     </div>
   </div>
 </template>
@@ -304,6 +213,7 @@ import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
 import PersonCard from "~/components/data/PersonCard.vue";
+import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { fetchFromApi } from "~/utils/api";
@@ -463,6 +373,11 @@ const classOptions = computed(() => {
     .map((k) => k.nama_kelas)
     .filter((name) => name && String(name).trim() !== "")
     .sort();
+});
+
+// Options dengan "Semua Kelas" di awal untuk SearchableSelect
+const classOptionsWithAll = computed(() => {
+  return ["Semua Kelas", ...classOptions.value];
 });
 
 // Dynamic Kepala Madrasah from GTK data (local storage cache lookup or highly optimized filtered fetch)
