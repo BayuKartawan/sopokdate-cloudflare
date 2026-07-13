@@ -12,8 +12,7 @@
             Cetak Jadwal Pelajaran
           </h2>
           <p class="text-sm text-zinc-400 mt-1">
-            Ekspor dan cetak jadwal pelajaran berdasarkan kelas atau guru
-            pengajar
+            Ekspor dan cetak jadwal pelajaran berdasarkan kelas, guru pengajar, atau rekapitulasi JP
           </p>
         </div>
       </div>
@@ -41,6 +40,17 @@
           class="px-5 py-3 border-b-2 font-medium text-sm transition-colors"
         >
           Cetak per Guru
+        </button>
+        <button
+          @click="activeTab = 'rekap'"
+          :class="[
+            activeTab === 'rekap'
+              ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200',
+          ]"
+          class="px-5 py-3 border-b-2 font-medium text-sm transition-colors"
+        >
+          Rekap JP Guru
         </button>
       </div>
 
@@ -87,6 +97,20 @@
             </option>
           </select>
         </div>
+
+        <!-- Search GTK (only for rekap tab) -->
+        <div
+          v-if="activeTab === 'rekap'"
+          class="flex flex-col gap-1.5 w-full sm:w-72"
+        >
+          <label class="text-xs font-semibold text-zinc-400">Cari Guru</label>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Cari nama guru atau NIP..."
+            class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+          />
+        </div>
       </div>
 
       <!-- Action Buttons (Hidden on print) -->
@@ -115,7 +139,7 @@
             class="text-lg sm:text-2xl font-bold uppercase tracking-wider print:text-black"
             style="color: #09090b"
           >
-            Jadwal Pelajaran Mingguan
+            {{ activeTab === 'rekap' ? 'Rekapitulasi Alokasi Jam Mengajar (JP)' : 'Jadwal Pelajaran Mingguan' }}
           </h1>
           <p
             class="text-sm font-semibold print:text-zinc-700 uppercase mt-1"
@@ -141,12 +165,20 @@
             >
               GURU: {{ getSelectedGuruName }}
             </span>
+            <span
+              v-if="activeTab === 'rekap'"
+              class="font-bold print:text-black"
+              style="color: #18181b"
+            >
+              LAPORAN: REKAPITULASI TOTAL JP GURU
+            </span>
+            <span>Semester: {{ currentSemester }}</span>
             <span>Tahun Pelajaran: {{ activeTahunPelajaran }}</span>
           </div>
         </div>
 
-        <!-- Schedule Grid -->
-        <div class="overflow-x-auto">
+        <!-- Schedule Grid (non-rekap tab) -->
+        <div v-if="activeTab !== 'rekap'" class="overflow-x-auto">
           <table
             class="w-full border-collapse border border-[#d4d4d8] print:border-black text-xs"
           >
@@ -245,6 +277,48 @@
           </table>
         </div>
 
+        <!-- Rekap Table (rekap tab) -->
+        <div v-else class="overflow-x-auto">
+          <table
+            class="w-full border-collapse border border-[#d4d4d8] print:border-black text-xs"
+          >
+            <thead>
+              <tr
+                class="print:bg-zinc-100 font-bold uppercase border-b border-[#d4d4d8] print:border-black"
+                style="background: #f4f4f5; color: #3f3f46"
+              >
+                <th class="p-3 w-12 text-center border-r border-[#d4d4d8] print:border-black">No</th>
+                <th class="p-3 text-left border-r border-[#d4d4d8] print:border-black">Nama Guru</th>
+                <th class="p-3 text-center border-r border-[#d4d4d8] print:border-black">NIP</th>
+                <th class="p-3 w-28 text-center border-r border-[#d4d4d8] print:border-black">JP Sertifikasi</th>
+                <th class="p-3 w-28 text-center border-r border-[#d4d4d8] print:border-black">JP Terjadwal</th>
+                <th class="p-3 w-36 text-center border-r border-[#d4d4d8] print:border-black">Status / Selisih</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(guru, idx) in rekapGuruList"
+                :key="guru.id"
+                class="border-b border-[#d4d4d8] print:border-black hover:bg-zinc-50/50"
+              >
+                <td class="p-3 text-center border-r border-[#d4d4d8] print:border-black">{{ idx + 1 }}</td>
+                <td class="p-3 font-semibold border-r border-[#d4d4d8] print:border-black" style="color: #18181b">{{ guru.nama }}</td>
+                <td class="p-3 text-center font-mono border-r border-[#d4d4d8] print:border-black">{{ guru.nip }}</td>
+                <td class="p-3 text-center font-mono font-semibold border-r border-[#d4d4d8] print:border-black">{{ guru.certificationJP }} JP</td>
+                <td class="p-3 text-center font-mono font-semibold border-r border-[#d4d4d8] print:border-black">{{ guru.scheduledJP }} JP</td>
+                <td class="p-3 text-center border-r border-[#d4d4d8] print:border-black" :class="guru.statusClass">
+                  {{ guru.status }}
+                </td>
+              </tr>
+              <tr v-if="rekapGuruList.length === 0">
+                <td colspan="6" class="p-6 text-center text-zinc-500 font-medium border-b border-[#d4d4d8] print:border-black">
+                  Tidak ada data guru yang cocok dengan pencarian
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         <!-- Print Footer Signature -->
         <div
           class="mt-12 flex justify-between text-xs print:text-black"
@@ -287,10 +361,14 @@
 import { ref, computed, onMounted } from "vue";
 import { Printer } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
+import { useAcademicYear } from "~/composables/utils/useAcademicYear";
 
 const activeTab = ref("kelas");
 const selectedKelas = ref("");
 const selectedGuru = ref("");
+const searchQuery = ref("");
+
+const { currentAcademicYear, currentSemester } = useAcademicYear();
 
 const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 const maxHours = 8;
@@ -305,6 +383,7 @@ const { cardData: madrasahData, loadData: loadMadrasah } = useTableData();
 const hasSelection = computed(() => {
   if (activeTab.value === "kelas") return !!selectedKelas.value;
   if (activeTab.value === "guru") return !!selectedGuru.value;
+  if (activeTab.value === "rekap") return true;
   return false;
 });
 
@@ -315,10 +394,7 @@ const getMadrasahName = computed(() => {
   return "MADRASAH ALIYAH / TSANAWIYAH";
 });
 
-const activeTahunPelajaran = computed(() => {
-  // Try to default to the current active tapel or current year
-  return "2025/2026";
-});
+const activeTahunPelajaran = computed(() => currentAcademicYear.value);
 
 const getSelectedGuruName = computed(() => {
   if (!selectedGuru.value) return "";
@@ -326,6 +402,54 @@ const getSelectedGuruName = computed(() => {
     (g) => g.id === Number(selectedGuru.value),
   );
   return guru ? guru.nama_lengkap : "";
+});
+
+// Rekap JP per guru
+const rekapGuruList = computed(() => {
+  const teachers = gtkData.value || [];
+  const schedules = jadwalData.value || [];
+  const query = searchQuery.value.trim().toLowerCase();
+
+  const mapped = teachers.map((g) => {
+    const certificationJP = 24; // Default certification target
+
+    const scheduledJP = schedules
+      .filter((sch) => Number(sch.guru_id) === Number(g.id))
+      .length;
+
+    let status = "Sesuai";
+    let statusClass = "text-emerald-600 font-semibold";
+    if (scheduledJP < certificationJP) {
+      status = `Kurang ${certificationJP - scheduledJP} JP`;
+      statusClass = "text-amber-600 font-semibold";
+    } else if (scheduledJP > certificationJP) {
+      status = `Kelebihan ${scheduledJP - certificationJP} JP`;
+      statusClass = "text-rose-600 font-semibold";
+    }
+
+    return {
+      id: g.id,
+      nama: g.nama_lengkap,
+      nip: g.NIP || g.nip || "-",
+      certificationJP,
+      scheduledJP,
+      status,
+      statusClass,
+    };
+  });
+
+  // Filter out teachers with 0 scheduled JP
+  const nonZeroGuru = mapped.filter((g) => g.scheduledJP > 0);
+
+  const filtered = query
+    ? nonZeroGuru.filter(
+        (g) =>
+          g.nama.toLowerCase().includes(query) ||
+          g.nip.toLowerCase().includes(query),
+      )
+    : nonZeroGuru;
+
+  return filtered.sort((a, b) => a.nama.localeCompare(b.nama));
 });
 
 // Grid schedules for class view
