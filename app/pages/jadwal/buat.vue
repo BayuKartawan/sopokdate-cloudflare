@@ -737,68 +737,61 @@ const autoGenerateSchedule = () => {
     return;
   }
 
-  // 1. Prepare allocations to schedule: split into morning blocks and individual hours
-  const morningBlocks = [];
-  const individualHours = [];
+  // 1. Prepare allocations: group into size-based blocks (size 4, 2, or 1 JP)
+  // For example:
+  // - jp >= 4 -> one 4-JP block, and the rest as 2-JP or 1-JP blocks
+  // - jp = 3 -> one 2-JP block + one 1-JP block
+  // - jp = 2 -> one 2-JP block
+  // - jp = 1 -> one 1-JP block
+  const blocksToSchedule = [];
 
   currentClassAllocations.value.forEach((alloc) => {
-    const jp = Number(alloc.jam_mengajar);
+    let jp = Number(alloc.jam_mengajar);
+    const alokasiId = Number(alloc.id);
+    const guruId = Number(alloc.guru_id);
+    const mapelId = Number(alloc.mapel_id);
+
     if (jp >= 4) {
-      // Exactly 4 JP goes as a single block for morning (hours 1-4)
-      morningBlocks.push({
-        alokasi_id: Number(alloc.id),
-        guru_id: Number(alloc.guru_id),
-        mapel_id: Number(alloc.mapel_id),
-        jam_mengajar: jp,
-        type: "morning_block",
+      blocksToSchedule.push({
+        alokasi_id: alokasiId,
+        guru_id: guruId,
+        mapel_id: mapelId,
+        size: 4,
+        type: "morning_block"
       });
-      // Sisa JP goes to afternoon (hours 5-8)
-      for (let i = 0; i < jp - 4; i++) {
-        individualHours.push({
-          alokasi_id: Number(alloc.id),
-          guru_id: Number(alloc.guru_id),
-          mapel_id: Number(alloc.mapel_id),
-          jam_mengajar: jp,
-          type: "afternoon_hour",
-        });
-      }
-    } else if (jp === 2) {
-      // 2 JP goes to afternoon (hours 5-8)
-      for (let i = 0; i < jp; i++) {
-        individualHours.push({
-          alokasi_id: Number(alloc.id),
-          guru_id: Number(alloc.guru_id),
-          mapel_id: Number(alloc.mapel_id),
-          jam_mengajar: jp,
-          type: "afternoon_hour",
-        });
-      }
-    } else {
-      // Other durations (e.g. JP 1, 3) go as flexible hours
-      for (let i = 0; i < jp; i++) {
-        individualHours.push({
-          alokasi_id: Number(alloc.id),
-          guru_id: Number(alloc.guru_id),
-          mapel_id: Number(alloc.mapel_id),
-          jam_mengajar: jp,
-          type: "flexible_hour",
-        });
-      }
+      jp -= 4;
+    }
+
+    while (jp >= 2) {
+      blocksToSchedule.push({
+        alokasi_id: alokasiId,
+        guru_id: guruId,
+        mapel_id: mapelId,
+        size: 2,
+        type: "double_block"
+      });
+      jp -= 2;
+    }
+
+    if (jp === 1) {
+      blocksToSchedule.push({
+        alokasi_id: alokasiId,
+        guru_id: guruId,
+        mapel_id: mapelId,
+        size: 1,
+        type: "single_block"
+      });
     }
   });
 
-  // Sort individual hours: place afternoon ones first
-  individualHours.sort((a, b) => {
-    if (a.type === "afternoon_hour" && b.type !== "afternoon_hour") return -1;
-    if (a.type !== "afternoon_hour" && b.type === "afternoon_hour") return 1;
-    return 0;
-  });
+  // Sort blocks: size 4 first, then size 2, then size 1
+  // This is a powerful MRV (Minimum Remaining Values) CSP heuristic.
+  blocksToSchedule.sort((a, b) => b.size - a.size);
 
   // 2. Prepare local grid structure
   const grid = {};
   days.forEach((day) => {
     for (let hour = 1; hour <= maxHours; hour++) {
-      // Mark disabled slots as "blocked" so solver skips them
       if (isSlotDisabled(day, hour)) {
         grid[`${day}_${hour}`] = 'DISABLED';
       } else {
@@ -819,159 +812,116 @@ const autoGenerateSchedule = () => {
       );
   };
 
-  // Helper constraint check: each block on any day can contain at most one unique subject
-  const doesBlockViolateSingleSubject = (gridState, day, hour, mapelId) => {
-    let blockHours = [];
-    if (hour >= 1 && hour <= 4) {
-      blockHours = [1, 2, 3, 4];
-    } else if (hour >= 5 && hour <= 6) {
-      blockHours = [5, 6];
-    } else if (hour >= 7 && hour <= 8) {
-      blockHours = [7, 8];
+  // Safe Backtracking Solver state variables
+  let iterations = 0;
+  const MAX_ITERATIONS = 50000;
+  let searchLimitExceeded = false;
+
+  const solve = (blockIndex) => {
+    iterations++;
+    if (iterations > MAX_ITERATIONS) {
+      searchLimitExceeded = true;
+      return false;
     }
 
-    for (let i = 0; i < blockHours.length; i++) {
-      const h = blockHours[i];
-      if (h === hour) continue;
-      const existing = gridState[`${day}_${h}`];
-      if (existing !== null && Number(existing.mapel_id) !== Number(mapelId)) {
-        return true; // Different subject already in this block
-      }
-    }
-    return false;
-  };
-
-  // 3. Solver Phase 1: Place morning blocks (hours 1-4)
-  const solveMorningBlocks = (index) => {
-    if (index >= morningBlocks.length) {
-      // All blocks placed, move to Phase 2: Place individual hours
-      return solveIndividualHours(0);
+    if (blockIndex >= blocksToSchedule.length) {
+      return true; // All blocks successfully placed!
     }
 
-    const item = morningBlocks[index];
+    const block = blocksToSchedule[blockIndex];
 
-    // Try each day
-    for (let d = 0; d < days.length; d++) {
-      const day = days[d];
+    // Generate placement candidates (day, startHour)
+    let candidates = [];
+    if (block.size === 4) {
+      // 4-JP morning block must start at hour 1
+      days.forEach((day) => {
+        candidates.push({ day, startHour: 1 });
+      });
+    } else if (block.size === 2) {
+      // 2-JP double block
+      days.forEach((day) => {
+        // Preferred standard double-period alignments first
+        candidates.push({ day, startHour: 1 });
+        candidates.push({ day, startHour: 3 });
+        candidates.push({ day, startHour: 5 });
+        candidates.push({ day, startHour: 7 });
 
-      // Check if hours 1-4 are free in current class (null means available, 'DISABLED' means blocked)
+        // Non-standard backup alignments to avoid failures in tight schedules
+        candidates.push({ day, startHour: 2 });
+        candidates.push({ day, startHour: 4 });
+        candidates.push({ day, startHour: 6 });
+      });
+    } else {
+      // 1-JP single block can start at any hour
+      days.forEach((day) => {
+        for (let h = 1; h <= maxHours; h++) {
+          candidates.push({ day, startHour: h });
+        }
+      });
+    }
+
+    // Try each candidate position
+    for (let c = 0; c < candidates.length; c++) {
+      const { day, startHour } = candidates[c];
+
+      // 1. Check if all required slots are free
       let free = true;
-      for (let h = 1; h <= 4; h++) {
-        if (grid[`${day}_${h}`] !== null) {
+      for (let h = 0; h < block.size; h++) {
+        const hour = startHour + h;
+        if (grid[`${day}_${hour}`] !== null) {
           free = false;
           break;
         }
       }
       if (!free) continue;
 
-      // Check if teacher has conflicts in other classes for hours 1-4
+      // 2. Check teacher conflicts in external classes
       let conflict = false;
-      for (let h = 1; h <= 4; h++) {
-        if (isTeacherConflictingExternally(day, h, item.guru_id)) {
+      for (let h = 0; h < block.size; h++) {
+        const hour = startHour + h;
+        if (isTeacherConflictingExternally(day, hour, block.guru_id)) {
           conflict = true;
           break;
         }
       }
       if (conflict) continue;
 
-      // Place block (occupies hours 1-4)
-      for (let h = 1; h <= 4; h++) {
-        grid[`${day}_${h}`] = item;
+      // 3. Soft constraint: avoid having too many hours of the same subject on the same day.
+      // If we are in the first half of iteration limits, enforce maximum of 2 hours per subject per day.
+      // In the second half of iteration limits, relax this to allow a subject to be placed up to 4 hours per day (fallback).
+      let currentHoursOnDay = 0;
+      for (let h = 1; h <= maxHours; h++) {
+        const cell = grid[`${day}_${h}`];
+        if (cell && cell !== 'DISABLED' && cell.mapel_id === block.mapel_id) {
+          currentHoursOnDay++;
+        }
+      }
+      
+      const maxAllowedDailyHours = iterations < (MAX_ITERATIONS / 2) ? 2 : 4;
+      if (block.size < 4 && currentHoursOnDay + block.size > maxAllowedDailyHours) {
+        continue;
       }
 
-      // Recurse
-      if (solveMorningBlocks(index + 1)) return true;
+      // 4. Place the block
+      for (let h = 0; h < block.size; h++) {
+        const hour = startHour + h;
+        grid[`${day}_${hour}`] = block;
+      }
+
+      // Recurse to place next blocks
+      if (solve(blockIndex + 1)) return true;
 
       // Backtrack
-      for (let h = 1; h <= 4; h++) {
-        grid[`${day}_${h}`] = null;
+      for (let h = 0; h < block.size; h++) {
+        const hour = startHour + h;
+        grid[`${day}_${hour}`] = null;
       }
     }
 
     return false;
   };
 
-  // 4. Solver Phase 2: Place individual hours
-  const solveIndividualHours = (index) => {
-    if (index >= individualHours.length) {
-      return true;
-    }
-
-    const item = individualHours[index];
-
-    // Allowed hours constraints
-    let allowedHours = [];
-    if (item.type === "afternoon_hour") {
-      allowedHours = [5, 6, 7, 8];
-    } else {
-      allowedHours = [1, 2, 3, 4, 5, 6, 7, 8];
-    }
-
-    // Try placing this item
-    for (let d = 0; d < days.length; d++) {
-      const day = days[d];
-
-      const currentHoursOnDay = Object.keys(grid).filter(
-        (key) =>
-          key.startsWith(`${day}_`) && grid[key]?.mapel_id === item.mapel_id,
-      ).length;
-
-      // Soft constraint: avoid having more than 2 hours of this mapel on other days
-      if (currentHoursOnDay >= 2) {
-        continue;
-      }
-
-      for (let h = 0; h < allowedHours.length; h++) {
-        const hour = allowedHours[h];
-        const key = `${day}_${hour}`;
-
-        if (grid[key] !== null) continue; // skip occupied or DISABLED slots
-        if (isTeacherConflictingExternally(day, hour, item.guru_id)) continue;
-
-        // Single subject per block per day constraint check
-        if (doesBlockViolateSingleSubject(grid, day, hour, item.mapel_id))
-          continue;
-
-        grid[key] = item;
-        if (solveIndividualHours(index + 1)) return true;
-        grid[key] = null;
-      }
-    }
-
-    // Fallback: solve without soft constraint (but keep day hours limit < 4 to not stack on block day)
-    for (let d = 0; d < days.length; d++) {
-      const day = days[d];
-
-      const currentHoursOnDay = Object.keys(grid).filter(
-        (key) =>
-          key.startsWith(`${day}_`) && grid[key]?.mapel_id === item.mapel_id,
-      ).length;
-
-      if (currentHoursOnDay >= 4) {
-        continue;
-      }
-
-      for (let h = 0; h < allowedHours.length; h++) {
-        const hour = allowedHours[h];
-        const key = `${day}_${hour}`;
-
-        if (grid[key] !== null) continue;
-        if (isTeacherConflictingExternally(day, hour, item.guru_id)) continue;
-
-        // Single subject per block per day constraint check
-        if (doesBlockViolateSingleSubject(grid, day, hour, item.mapel_id))
-          continue;
-
-        grid[key] = item;
-        if (solveIndividualHours(index + 1)) return true;
-        grid[key] = null;
-      }
-    }
-
-    return false;
-  };
-
-  const success = solveMorningBlocks(0);
+  const success = solve(0);
 
   if (success) {
     const newSchedules = [];
@@ -995,9 +945,15 @@ const autoGenerateSchedule = () => {
     localSchedules.value = newSchedules;
     Notify.success("Jadwal berhasil digenerate secara otomatis ke draft!");
   } else {
-    Notify.failure(
-      "Gagal mengenerate jadwal secara otomatis. Terjadi tabrakan jadwal guru yang tidak dapat dihindari.",
-    );
+    if (searchLimitExceeded) {
+      Notify.failure(
+        "Gagal mengenerate jadwal. Batas pencarian terlampaui (terlalu banyak tabrakan jadwal atau batasan terlalu ketat). Silakan atur manual atau kurangi batasan.",
+      );
+    } else {
+      Notify.failure(
+        "Gagal mengenerate jadwal secara otomatis. Terjadi tabrakan jadwal guru yang tidak dapat dihindari.",
+      );
+    }
   }
 };
 
