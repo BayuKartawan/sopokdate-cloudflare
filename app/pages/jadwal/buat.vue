@@ -972,32 +972,33 @@ const saveChanges = async () => {
   isSavingChanges.value = true;
 
   try {
-    // 1. Identify deleted records (were in DB, but no longer in local draft)
-    const deletes = dbSchedules.value
-      .filter(
-        (db) =>
-          !localSchedules.value.some(
-            (local) =>
-              local.kelas_id === db.kelas_id &&
-              local.hari === db.hari &&
-              Number(local.jam_ke) === Number(db.jam_ke),
-          ),
-      )
-      .map((item) => deleteFromApi("jadwal_pelajaran", item.id));
-
-    // 2. Identify new inserted records (have temporary 'temp_' ID prefix)
-    const inserts = localSchedules.value
-      .filter((local) => String(local.id).startsWith("temp_"))
-      .map((item) =>
-        postToApi("jadwal_pelajaran", {
-          alokasi_id: Number(item.alokasi_id),
-          kelas_id: item.kelas_id,
-          guru_id: Number(item.guru_id),
-          mapel_id: Number(item.mapel_id),
-          hari: item.hari,
-          jam_ke: Number(item.jam_ke),
-        }),
+    // 1. Identify deleted records (were in DB, but no longer in local draft OR replaced by a different subject)
+    const deletes = [];
+    dbSchedules.value.forEach((db) => {
+      const local = localSchedules.value.find(
+        (l) => l.hari === db.hari && Number(l.jam_ke) === Number(db.jam_ke)
       );
+
+      if (!local || Number(local.alokasi_id) !== Number(db.alokasi_id)) {
+        deletes.push(db);
+      }
+    });
+
+    // 2. Identify new inserted records (have temporary 'temp_' ID prefix and don't match existing DB records)
+    const inserts = [];
+    localSchedules.value.forEach((local) => {
+      if (String(local.id).startsWith("temp_")) {
+        const hasDbEquivalent = dbSchedules.value.some(
+          (db) =>
+            db.hari === local.hari &&
+            Number(db.jam_ke) === Number(local.jam_ke) &&
+            Number(db.alokasi_id) === Number(local.alokasi_id)
+        );
+        if (!hasDbEquivalent) {
+          inserts.push(local);
+        }
+      }
+    });
 
     // 3. Disabled slots: identify inserts and deletes
     const disabledSlotDeletes = [];
@@ -1011,7 +1012,7 @@ const saveChanges = async () => {
       for (const record of dbSlotRecords) {
         const key = `${record.hari}_${record.jam_ke}`;
         if (!disabledSlots.value.has(key)) {
-          disabledSlotDeletes.push(deleteFromApi("jadwal_slot_disabled", record.id));
+          disabledSlotDeletes.push(record);
         }
       }
 
@@ -1019,24 +1020,39 @@ const saveChanges = async () => {
       for (const key of disabledSlots.value) {
         if (!dbDisabledSlots.value.has(key)) {
           const [hari, jamKe] = key.split("_");
-          disabledSlotInserts.push(
-            postToApi("jadwal_slot_disabled", {
-              kelas_id: selectedKelas.value,
-              hari,
-              jam_ke: Number(jamKe),
-            }),
-          );
+          disabledSlotInserts.push({
+            kelas_id: selectedKelas.value,
+            hari,
+            jam_ke: Number(jamKe),
+          });
         }
       }
     }
 
-    // Execute all API operations
-    await Promise.all([
-      ...deletes,
-      ...inserts,
-      ...disabledSlotDeletes,
-      ...disabledSlotInserts,
-    ]);
+    // Execute all API operations SEQUENTIALLY to prevent database lock conflicts (SQLITE_BUSY) and HTTP 502 errors
+    for (const item of deletes) {
+      await deleteFromApi("jadwal_pelajaran", item.id);
+    }
+
+    for (const item of inserts) {
+      await postToApi("jadwal_pelajaran", {
+        alokasi_id: Number(item.alokasi_id),
+        kelas_id: item.kelas_id,
+        guru_id: Number(item.guru_id),
+        mapel_id: Number(item.mapel_id),
+        hari: item.hari,
+        jam_ke: Number(item.jam_ke),
+      });
+    }
+
+    for (const item of disabledSlotDeletes) {
+      await deleteFromApi("jadwal_slot_disabled", item.id);
+    }
+
+    for (const item of disabledSlotInserts) {
+      await postToApi("jadwal_slot_disabled", item);
+    }
+
     Notify.success("Semua perubahan jadwal berhasil disimpan ke database!");
 
     // Refresh raw database cache
