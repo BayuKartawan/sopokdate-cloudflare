@@ -18,7 +18,7 @@
       </div>
 
       <!-- Tab Switcher (Hidden on print) -->
-      <div class="flex border-b border-zinc-800 mb-6 print:hidden">
+      <div class="flex overflow-x-auto whitespace-nowrap border-b border-zinc-800 mb-6 print:hidden scrollbar-hide">
         <button
           @click="activeTab = 'kelas'"
           :class="[
@@ -26,7 +26,7 @@
               ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
               : 'border-transparent text-zinc-400 hover:text-zinc-200',
           ]"
-          class="px-5 py-3 border-b-2 font-medium text-sm transition-colors"
+          class="px-5 py-3 border-b-2 font-medium text-sm transition-colors shrink-0"
         >
           Cetak per Kelas
         </button>
@@ -37,9 +37,20 @@
               ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
               : 'border-transparent text-zinc-400 hover:text-zinc-200',
           ]"
-          class="px-5 py-3 border-b-2 font-medium text-sm transition-colors"
+          class="px-5 py-3 border-b-2 font-medium text-sm transition-colors shrink-0"
         >
           Cetak per Guru
+        </button>
+        <button
+          @click="activeTab = 'hari'"
+          :class="[
+            activeTab === 'hari'
+              ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200',
+          ]"
+          class="px-5 py-3 border-b-2 font-medium text-sm transition-colors shrink-0"
+        >
+          Cetak per Hari
         </button>
         <button
           @click="activeTab = 'rekap'"
@@ -48,7 +59,7 @@
               ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
               : 'border-transparent text-zinc-400 hover:text-zinc-200',
           ]"
-          class="px-5 py-3 border-b-2 font-medium text-sm transition-colors"
+          class="px-5 py-3 border-b-2 font-medium text-sm transition-colors shrink-0"
         >
           Rekap JP Guru
         </button>
@@ -70,7 +81,7 @@
           >
             <option value="">-- Pilih Kelas --</option>
             <option
-              v-for="k in kelasData"
+              v-for="k in sortedClasses"
               :key="k.id_kelas"
               :value="k.id_kelas"
             >
@@ -94,6 +105,23 @@
             <option value="">-- Pilih Guru --</option>
             <option v-for="g in gtkData" :key="g.id" :value="g.id">
               {{ g.nama_lengkap }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Hari Selector -->
+        <div
+          v-if="activeTab === 'hari'"
+          class="flex flex-col gap-1.5 w-full sm:w-72"
+        >
+          <label class="text-xs font-semibold text-zinc-400">Pilih Hari</label>
+          <select
+            v-model="selectedHari"
+            class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+          >
+            <option value="">-- Pilih Hari --</option>
+            <option v-for="d in days" :key="d" :value="d">
+              {{ d }}
             </option>
           </select>
         </div>
@@ -139,7 +167,7 @@
             class="text-lg sm:text-2xl font-bold uppercase tracking-wider print:text-black"
             style="color: #09090b"
           >
-            {{ activeTab === 'rekap' ? 'Rekapitulasi Alokasi Jam Mengajar (JP)' : 'Jadwal Pelajaran Mingguan' }}
+            {{ activeTab === 'rekap' ? 'Rekapitulasi Alokasi Jam Mengajar (JP)' : activeTab === 'hari' ? 'Jadwal Pelajaran Harian' : 'Jadwal Pelajaran Mingguan' }}
           </h1>
           <p
             class="text-sm font-semibold print:text-zinc-700 uppercase mt-1"
@@ -166,6 +194,13 @@
               GURU: {{ getSelectedGuruName }}
             </span>
             <span
+              v-if="activeTab === 'hari'"
+              class="font-bold print:text-black"
+              style="color: #18181b"
+            >
+              HARI: {{ (selectedHari || "").toUpperCase() }}
+            </span>
+            <span
               v-if="activeTab === 'rekap'"
               class="font-bold print:text-black"
               style="color: #18181b"
@@ -177,8 +212,8 @@
           </div>
         </div>
 
-        <!-- Schedule Grid (non-rekap tab) -->
-        <div v-if="activeTab !== 'rekap'" class="overflow-x-auto">
+        <!-- Schedule Grid (class or teacher view) -->
+        <div v-if="activeTab === 'kelas' || activeTab === 'guru'" class="overflow-x-auto">
           <table
             class="w-full border-collapse border border-[#d4d4d8] print:border-black text-xs"
           >
@@ -277,6 +312,76 @@
           </table>
         </div>
 
+        <!-- Schedule Grid Harian (hari tab) -->
+        <div v-else-if="activeTab === 'hari'" class="overflow-x-auto">
+          <table
+            class="w-full border-collapse border border-[#d4d4d8] print:border-black text-xs"
+          >
+            <thead>
+              <tr
+                class="print:bg-zinc-100 font-bold uppercase border-b border-[#d4d4d8] print:border-black"
+                style="background: #f4f4f5; color: #3f3f46"
+              >
+                <th
+                  class="p-3 w-28 text-center border-r border-[#d4d4d8] print:border-black whitespace-nowrap"
+                >
+                  Jam / Kelas
+                </th>
+                <th
+                  v-for="k in sortedClasses"
+                  :key="k.id_kelas"
+                  class="p-3 text-center border-r border-[#d4d4d8] print:border-black whitespace-nowrap min-w-[120px]"
+                >
+                  {{ k.nama_kelas || k.id_kelas }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="hour in maxHours"
+                :key="hour"
+                class="border-b border-[#d4d4d8] print:border-black"
+              >
+                <!-- Hour Label -->
+                <td
+                  class="p-3 font-bold print:bg-zinc-50/50 text-center border-r border-[#d4d4d8] print:border-black whitespace-nowrap"
+                  style="background: #fafafa; color: #52525b"
+                >
+                  Jam ke-{{ hour }}
+                </td>
+
+                <!-- Slots for each class -->
+                <td
+                  v-for="k in sortedClasses"
+                  :key="k.id_kelas"
+                  class="p-2.5 border-r border-[#d4d4d8] print:border-black text-center min-h-[50px]"
+                >
+                  <div v-if="getDayScheduleAt(k.id_kelas, selectedHari, hour)">
+                    <div
+                      class="font-bold print:text-black"
+                      style="color: #047857"
+                    >
+                      {{ getMapelName(getDayScheduleAt(k.id_kelas, selectedHari, hour).mapel_id) }}
+                    </div>
+                    <div
+                      class="text-[10px] print:text-zinc-600 mt-0.5 line-clamp-1"
+                      style="color: #71717a"
+                    >
+                      {{ getGuruName(getDayScheduleAt(k.id_kelas, selectedHari, hour).guru_id) }}
+                    </div>
+                  </div>
+                  <span
+                    v-else
+                    class="text-[10px]"
+                    style="color: #a1a1aa"
+                    >-</span
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         <!-- Rekap Table (rekap tab) -->
         <div v-else class="overflow-x-auto">
           <table
@@ -366,6 +471,7 @@ import { useAcademicYear } from "~/composables/utils/useAcademicYear";
 const activeTab = ref("kelas");
 const selectedKelas = ref("");
 const selectedGuru = ref("");
+const selectedHari = ref("");
 const searchQuery = ref("");
 
 const { currentAcademicYear, currentSemester } = useAcademicYear();
@@ -380,9 +486,22 @@ const { cardData: kurikulumData, loadData: loadKurikulum } = useTableData();
 const { cardData: jadwalData, loadData: loadJadwal } = useTableData();
 const { cardData: madrasahData, loadData: loadMadrasah } = useTableData();
 
+// Sort classes naturally by grade (tingkat) and then by name
+const sortedClasses = computed(() => {
+  return [...(kelasData.value || [])].sort((a, b) => {
+    const levelA = Number(a.tingkat) || 0;
+    const levelB = Number(b.tingkat) || 0;
+    if (levelA !== levelB) return levelA - levelB;
+    const nameA = a.nama_kelas || a.id_kelas || "";
+    const nameB = b.nama_kelas || b.id_kelas || "";
+    return nameA.localeCompare(nameB, undefined, { numeric: true });
+  });
+});
+
 const hasSelection = computed(() => {
   if (activeTab.value === "kelas") return !!selectedKelas.value;
   if (activeTab.value === "guru") return !!selectedGuru.value;
+  if (activeTab.value === "hari") return !!selectedHari.value;
   if (activeTab.value === "rekap") return true;
   return false;
 });
@@ -474,6 +593,17 @@ const getTeacherScheduleAt = (day, hour) => {
   );
 };
 
+// Grid schedules for day view
+const getDayScheduleAt = (kelasId, day, hour) => {
+  if (!day) return null;
+  return (jadwalData.value || []).find(
+    (sch) =>
+      sch.kelas_id === kelasId &&
+      sch.hari === day &&
+      Number(sch.jam_ke) === hour,
+  );
+};
+
 // Name mappings
 const getKelasName = (id) => {
   const kelas = (kelasData.value || []).find((k) => k.id_kelas === id);
@@ -504,6 +634,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Responsive tabs scrollbar hiding */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 @media print {
   /* Override styles for clean print grid table */
   table {
