@@ -18,6 +18,7 @@
           </p>
         </div>
 
+        <!-- Action Buttons: Rekap Kehadiran -->
         <div class="flex items-center gap-2" v-if="activeTab === 'kehadiran' && rekapData.length > 0">
           <!-- Export Excel Button -->
           <BaseButton
@@ -180,6 +181,92 @@
                   <p class="font-bold underline">
                     {{ waliKelasName || "_________________" }}
                   </p>
+                </div>
+              </div>
+            </div>
+          </PrintButton>
+        </div>
+
+        <!-- Action Buttons: Status Pengiriman -->
+        <div class="flex items-center gap-2" v-if="activeTab === 'status' && statusTableData.length > 0">
+          <!-- Export Excel Button -->
+          <BaseButton
+            :text="isExportingStatus ? 'Mengekspor...' : 'Export Excel'"
+            @click="exportStatusToExcel"
+            :disabled="isExportingStatus || isLoadingStatus"
+          >
+            <template #icon>
+              <Download v-if="!isExportingStatus" class="w-4 h-4" />
+              <Loader2 v-else class="w-4 h-4 animate-spin" />
+            </template>
+          </BaseButton>
+
+          <!-- Print Button -->
+          <PrintButton>
+            <div class="p-10 mx-auto bg-white text-black font-sans">
+              <!-- Kop Surat -->
+              <KopSurat class="mb-4" />
+
+              <!-- Header -->
+              <div class="text-center mb-6">
+                <h1 class="font-bold uppercase text-lg">
+                  STATUS PENGIRIMAN ABSENSI
+                </h1>
+                <p class="text-sm font-semibold mt-1">
+                  Semester: {{ statusSemester }} | Tahun Pelajaran: {{ statusTapel }}
+                </p>
+                <p class="text-xs text-gray-600 mt-0.5">
+                  Periode: {{ statusPeriodeLabel }}
+                </p>
+              </div>
+
+              <!-- Tabel Cetak Status -->
+              <table class="w-full table-auto border border-gray-800 mb-6 text-xs">
+                <thead class="bg-gray-100">
+                  <tr>
+                    <th class="border border-gray-800 px-2 py-2 text-center w-8">No</th>
+                    <th class="border border-gray-800 px-2 py-2 text-left">Kelas</th>
+                    <th class="border border-gray-800 px-2 py-2 text-left">Wali Kelas</th>
+                    <th class="border border-gray-800 px-2 py-2 text-center w-20">Hari Efektif</th>
+                    <th class="border border-gray-800 px-2 py-2 text-center w-20">Sudah Diabsen</th>
+                    <th class="border border-gray-800 px-2 py-2 text-center w-20">Belum Diabsen</th>
+                    <th class="border border-gray-800 px-2 py-2 text-center w-20">Persentase</th>
+                    <th class="border border-gray-800 px-2 py-2 text-center w-16">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(row, index) in statusTableData" :key="row.kelas_id">
+                    <td class="border border-gray-800 px-2 py-1.5 text-center">{{ index + 1 }}</td>
+                    <td class="border border-gray-800 px-2 py-1.5 font-semibold">{{ row.namaKelas }}</td>
+                    <td class="border border-gray-800 px-2 py-1.5">{{ row.waliKelas || '-' }}</td>
+                    <td class="border border-gray-800 px-2 py-1.5 text-center font-bold">{{ row.hariEfektif }}</td>
+                    <td class="border border-gray-800 px-2 py-1.5 text-center">{{ row.sudahDiabsen }}</td>
+                    <td class="border border-gray-800 px-2 py-1.5 text-center">{{ row.belumDiabsen }}</td>
+                    <td class="border border-gray-800 px-2 py-1.5 text-center font-bold">{{ row.persentase.toFixed(1) }}%</td>
+                    <td class="border border-gray-800 px-2 py-1.5 text-center font-semibold">
+                      {{ row.persentase >= 90 ? 'Baik' : row.persentase >= 75 ? 'Cukup' : 'Kurang' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- Ringkasan -->
+              <div class="flex gap-8 text-xs mb-6">
+                <div>Total Kelas: <strong>{{ statusTableData.length }}</strong></div>
+                <div>Rata-rata Pengiriman: <strong>{{ avgPersentaseStatus }}%</strong></div>
+                <div>Kelas Belum Lengkap (&lt;75%): <strong>{{ kelasRendahCount }}</strong></div>
+              </div>
+
+              <!-- Footer Cetak -->
+              <div class="flex justify-between items-end mt-12 text-xs">
+                <div>
+                  <p class="italic">
+                    Dicetak otomatis via SopokDate pada {{ printTimestamp }}
+                  </p>
+                </div>
+                <div class="text-center w-48">
+                  <p class="mb-16">Kepala Sekolah</p>
+                  <p class="font-bold underline">_______________________</p>
                 </div>
               </div>
             </div>
@@ -728,6 +815,7 @@ const waliKelasName = ref("");
 const isLoading = ref(false);
 const isLoadingKelas = ref(false);
 const isExporting = ref(false);
+const isExportingStatus = ref(false);
 const printTimestamp = ref("");
 
 // --- States (Tab 2: Status Pengiriman - new)
@@ -735,6 +823,7 @@ const statusTapel = ref("");
 const statusSemester = ref("Ganjil");
 const isLoadingStatus = ref(false);
 const statusRawData = ref([]); // Data dari API rekap-status
+const dataGtk = ref([]); // Data GTK untuk lookup nama wali kelas
 const hariLiburKalender = ref([]); // Hari libur dari kalender pendidikan
 const hariLiburMingguanIndex = ref(0); // 0 = Minggu
 
@@ -894,6 +983,46 @@ const totalHariEfektifSemester = computed(() => {
 });
 
 /**
+ * Map dari ID / PegID / nama guru → nama lengkap.
+ * Digunakan untuk resolve field waliKelas di DataKelas yang bisa berisi
+ * ID guru (id), PegID, atau nama langsung.
+ */
+const gtkNameMap = computed(() => {
+  const map = {};
+  dataGtk.value.forEach((g) => {
+    const nama = toTitleCase(
+      g.title || g.NamaLengkap || g["Nama Lengkap"] || g.nama_lengkap || "",
+    );
+    if (!nama) return;
+
+    // Index by numeric id
+    if (g.id != null) map[String(g.id).trim()] = nama;
+    // Index by PegID
+    const pegId = g.PegID || g["Peg ID"] || g.peg_id;
+    if (pegId) map[String(pegId).trim()] = nama;
+    // Index by cleaned name (fallback)
+    const nameLower = nama.toLowerCase();
+    if (nameLower) map[nameLower] = nama;
+  });
+  return map;
+});
+
+/**
+ * Resolve nilai waliKelas (bisa berupa ID, PegID, atau nama) ke nama lengkap.
+ */
+const resolveWaliKelasName = (raw) => {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  // Coba lookup langsung (by ID / PegID)
+  if (gtkNameMap.value[trimmed]) return gtkNameMap.value[trimmed];
+  // Coba lookup by nama lowercase
+  const lower = trimmed.toLowerCase();
+  if (gtkNameMap.value[lower]) return gtkNameMap.value[lower];
+  // Fallback: tampilkan apa adanya dengan title case
+  return toTitleCase(trimmed);
+};
+
+/**
  * Menggabungkan data kelas dengan data status pengiriman
  * Menghasilkan tabel lengkap untuk ditampilkan
  */
@@ -917,7 +1046,7 @@ const statusTableData = computed(() => {
     return {
       kelas_id: kelasId,
       namaKelas: kelas.namaKelas || kelasId,
-      waliKelas: toTitleCase(kelas.waliKelas || kelas["Wali Kelas"] || kelas.wali_kelas || ""),
+      waliKelas: resolveWaliKelasName(kelas.waliKelas || kelas["Wali Kelas"] || kelas.wali_kelas || ""),
       hariEfektif,
       sudahDiabsen,
       belumDiabsen,
@@ -1208,6 +1337,69 @@ const exportToExcel = async () => {
   }
 };
 
+// Export status pengiriman ke Excel
+const exportStatusToExcel = async () => {
+  if (statusTableData.value.length === 0) return;
+
+  try {
+    isExportingStatus.value = true;
+
+    const excelRows = statusTableData.value.map((row, index) => ({
+      No: index + 1,
+      Kelas: row.namaKelas,
+      "Wali Kelas": row.waliKelas || "-",
+      "Hari Efektif": row.hariEfektif,
+      "Sudah Diabsen": row.sudahDiabsen,
+      "Belum Diabsen": row.belumDiabsen,
+      "Persentase (%)": `${row.persentase.toFixed(1)}%`,
+      Status: row.persentase >= 90 ? "Baik" : row.persentase >= 75 ? "Cukup" : "Kurang",
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(excelRows);
+
+    // Set Column Widths
+    ws["!cols"] = [
+      { wch: 5 },  // No
+      { wch: 20 }, // Kelas
+      { wch: 28 }, // Wali Kelas
+      { wch: 14 }, // Hari Efektif
+      { wch: 16 }, // Sudah Diabsen
+      { wch: 16 }, // Belum Diabsen
+      { wch: 15 }, // Persentase
+      { wch: 10 }, // Status
+    ];
+
+    // Header style
+    const headerKeys = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1"];
+    headerKeys.forEach((cell) => {
+      if (ws[cell]) {
+        ws[cell].s = {
+          font: { bold: true, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "059669" } },
+          alignment: { horizontal: "center", vertical: "center" },
+        };
+      }
+    });
+
+    XLSX.utils.book_append_sheet(wb, ws, "Status Pengiriman");
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `Status_Pengiriman_Absensi_Smt_${statusSemester.value}_${statusTapel.value.replace("/", "-")}_${dateStr}.xlsx`;
+
+    XLSX.writeFile(wb, filename);
+
+    setTimeout(() => {
+      Notify.success(`Data berhasil diekspor ke file: ${filename}`);
+    }, 100);
+  } catch (err) {
+    console.error("Gagal export status excel:", err);
+    Notify.failure("Gagal mengekspor data status pengiriman.");
+  } finally {
+    isExportingStatus.value = false;
+  }
+};
+
 // --- Lifecycle
 onMounted(async () => {
   isLoadingKelas.value = true;
@@ -1229,6 +1421,17 @@ onMounted(async () => {
 
   try {
     await loadDataKelas("DataKelas");
+
+    // Fetch DataGtk untuk lookup nama wali kelas
+    try {
+      const gtkRaw = await fetchFromApi("DataGtk", false, null, {});
+      if (Array.isArray(gtkRaw)) {
+        dataGtk.value = gtkRaw;
+      }
+    } catch (e) {
+      console.error("Gagal memuat DataGtk:", e);
+    }
+
     await checkWaliKelasStatus();
   } catch (err) {
     console.error(err);

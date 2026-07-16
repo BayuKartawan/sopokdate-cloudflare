@@ -173,6 +173,13 @@ function normalizeKelasData(data: any[]): any[] {
       getField(item, "wali_kelas") || getField(item, "walikelas");
 
     return normalized;
+  }).sort((a, b) => {
+    // Urutkan berdasarkan tingkat (angka) terlebih dahulu
+    const tingkatA = parseInt(a.tingkat) || 0;
+    const tingkatB = parseInt(b.tingkat) || 0;
+    if (tingkatA !== tingkatB) return tingkatA - tingkatB;
+    // Jika tingkat sama, urutkan berdasarkan nama kelas (alfabet)
+    return (a.namaKelas || "").localeCompare(b.namaKelas || "", "id");
   });
 }
 
