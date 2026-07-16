@@ -33,6 +33,7 @@ import {
   handleGetAbsensi,
   handlePostAbsensi,
   handleGetAbsensiRekap,
+  handleGetAbsensiRekapStatus,
 } from "./handlers/absensi";
 
 import type { Env } from "./types";
@@ -119,6 +120,10 @@ app.get("/api/absensi", async (c) => {
 
 app.get("/api/absensi/rekap", async (c) => {
   return await handleGetAbsensiRekap(c.req.raw, c.env);
+});
+
+app.get("/api/absensi/rekap-status", async (c) => {
+  return await handleGetAbsensiRekapStatus(c.req.raw, c.env);
 });
 
 app.get("/api/surat", async (c) => {

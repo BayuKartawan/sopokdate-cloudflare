@@ -230,3 +230,48 @@ export async function handleGetAbsensiRekap(
     return errorResponse(`Database error: ${err.message}`, 500);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Handler: GET /api/absensi/rekap-status — Rekap status pengiriman absensi per kelas
+// Menghitung jumlah tanggal unik yang sudah diabsen per kelas dalam satu semester
+// ---------------------------------------------------------------------------
+export async function handleGetAbsensiRekapStatus(
+  request: Request,
+  env: Env,
+): Promise<Response> {
+  const url = new URL(request.url);
+  const tahunPelajaran = url.searchParams.get("tahun_pelajaran");
+  const semester = url.searchParams.get("semester");
+
+  if (!tahunPelajaran || !semester) {
+    return errorResponse(
+      "Parameter 'tahun_pelajaran' dan 'semester' diperlukan",
+    );
+  }
+
+  try {
+    const query = `
+      SELECT 
+        a.kelas_id,
+        COUNT(DISTINCT a.tanggal) as total_hari_diabsen,
+        MIN(a.tanggal) as tanggal_pertama,
+        MAX(a.tanggal) as tanggal_terakhir
+      FROM absensi_siswa a
+      WHERE a.tahun_pelajaran = ?1 AND a.semester = ?2
+      GROUP BY a.kelas_id
+      ORDER BY a.kelas_id ASC;
+    `;
+
+    const stmt = env.DB.prepare(query).bind(tahunPelajaran, semester);
+    const result = await stmt.all<{
+      kelas_id: string;
+      total_hari_diabsen: number;
+      tanggal_pertama: string | null;
+      tanggal_terakhir: string | null;
+    }>();
+
+    return jsonResponse(result.results);
+  } catch (err: any) {
+    return errorResponse(`Database error: ${err.message}`, 500);
+  }
+}
