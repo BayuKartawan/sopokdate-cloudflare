@@ -125,7 +125,7 @@
             @click.self="showCalendar = false"
           >
             <!-- Backdrop -->
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showCalendar = false"></div>
+            <div class="absolute inset-0 bg-black/60" @click="showCalendar = false"></div>
 
             <!-- Calendar Card -->
             <div class="relative z-10 w-full max-w-sm bg-zinc-900 border border-zinc-700/60 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden">
@@ -292,7 +292,112 @@
 
         <!-- Attendance Table -->
         <div v-else class="flex flex-col">
-          <div class="overflow-x-auto">
+
+          <!-- ===================== MOBILE CARD VIEW (< md) ===================== -->
+          <div class="md:hidden divide-y divide-zinc-800/60">
+            <div
+              v-for="(siswa, idx) in students"
+              :key="siswa.siswa_id"
+              class="px-4 py-3 hover:bg-zinc-800/10 transition-colors"
+              :class="[
+                siswa.status === 'H' ? 'border-l-2 border-emerald-500/60' :
+                siswa.status === 'S' ? 'border-l-2 border-amber-500/60' :
+                siswa.status === 'I' ? 'border-l-2 border-blue-500/60' :
+                siswa.status === 'A' ? 'border-l-2 border-red-500/60' :
+                'border-l-2 border-transparent'
+              ]"
+            >
+              <!-- Row 1: Nomor + Nama + Badge Status -->
+              <div class="flex items-center gap-2 mb-2.5">
+                <span class="text-zinc-500 font-mono text-xs w-5 shrink-0 text-right">{{ idx + 1 }}.</span>
+                <span class="font-semibold text-zinc-100 text-sm leading-tight flex-1 min-w-0 truncate">
+                  {{ toTitleCase(siswa.nama) }}
+                </span>
+                <!-- Status badge -->
+                <span
+                  class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  :class="[
+                    siswa.status === 'H' ? 'bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/30' :
+                    siswa.status === 'S' ? 'bg-amber-600/20 text-amber-400 ring-1 ring-amber-500/30' :
+                    siswa.status === 'I' ? 'bg-blue-600/20 text-blue-400 ring-1 ring-blue-500/30' :
+                    siswa.status === 'A' ? 'bg-red-600/20 text-red-400 ring-1 ring-red-500/30' :
+                    'bg-zinc-700/40 text-zinc-400'
+                  ]"
+                >
+                  {{ siswa.status === 'H' ? 'Hadir' : siswa.status === 'S' ? 'Sakit' : siswa.status === 'I' ? 'Izin' : siswa.status === 'A' ? 'Alpa' : '-' }}
+                </span>
+              </div>
+
+              <!-- Row 2: NISN (kecil) -->
+              <div class="ml-7 mb-2.5">
+                <span class="text-[11px] text-zinc-500 font-mono">NISN: {{ siswa.nisn || '-' }}</span>
+              </div>
+
+              <!-- Row 3: Tombol Status (full width, 4 tombol rata) -->
+              <div class="ml-7 mb-2.5">
+                <div class="grid grid-cols-4 gap-1.5 bg-zinc-950/40 p-1 rounded-lg border border-zinc-800/80">
+                  <button
+                    type="button"
+                    @click="updateStatus(siswa, 'H')"
+                    :disabled="isDisabled"
+                    :class="[
+                      siswa.status === 'H'
+                        ? 'bg-emerald-600/90 text-white font-bold shadow-md shadow-emerald-950/20'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
+                      'py-2 rounded-md text-xs transition-all duration-200 text-center',
+                    ]"
+                  >Hadir</button>
+                  <button
+                    type="button"
+                    @click="updateStatus(siswa, 'S')"
+                    :disabled="isDisabled"
+                    :class="[
+                      siswa.status === 'S'
+                        ? 'bg-amber-600/90 text-white font-bold shadow-md shadow-amber-950/20'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
+                      'py-2 rounded-md text-xs transition-all duration-200 text-center',
+                    ]"
+                  >Sakit</button>
+                  <button
+                    type="button"
+                    @click="updateStatus(siswa, 'I')"
+                    :disabled="isDisabled"
+                    :class="[
+                      siswa.status === 'I'
+                        ? 'bg-blue-600/90 text-white font-bold shadow-md shadow-blue-950/20'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
+                      'py-2 rounded-md text-xs transition-all duration-200 text-center',
+                    ]"
+                  >Izin</button>
+                  <button
+                    type="button"
+                    @click="updateStatus(siswa, 'A')"
+                    :disabled="isDisabled"
+                    :class="[
+                      siswa.status === 'A'
+                        ? 'bg-red-600/90 text-white font-bold shadow-md shadow-red-950/20'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
+                      'py-2 rounded-md text-xs transition-all duration-200 text-center',
+                    ]"
+                  >Alpa</button>
+                </div>
+              </div>
+
+              <!-- Row 4: Input Keterangan -->
+              <div class="ml-7">
+                <input
+                  type="text"
+                  v-model="siswa.keterangan"
+                  placeholder="Catatan (opsional)..."
+                  :disabled="isDisabled"
+                  class="w-full h-9 px-3 rounded-lg border border-zinc-700 bg-zinc-850 text-zinc-200 placeholder-zinc-500 text-xs focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all disabled:opacity-60"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- ===================== DESKTOP TABLE VIEW (md+) ===================== -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-collapse text-sm">
               <thead>
                 <tr
@@ -325,7 +430,6 @@
                     <div
                       class="flex justify-center items-center gap-1.5 bg-zinc-950/40 p-1 rounded-lg border border-zinc-800/80 w-fit mx-auto"
                     >
-                      <!-- H (Hadir) -->
                       <button
                         type="button"
                         @click="updateStatus(siswa, 'H')"
@@ -336,11 +440,7 @@
                             : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
                           'px-3.5 py-1.5 rounded-md text-xs transition-all duration-200',
                         ]"
-                      >
-                        Hadir
-                      </button>
-
-                      <!-- S (Sakit) -->
+                      >Hadir</button>
                       <button
                         type="button"
                         @click="updateStatus(siswa, 'S')"
@@ -351,11 +451,7 @@
                             : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
                           'px-3.5 py-1.5 rounded-md text-xs transition-all duration-200',
                         ]"
-                      >
-                        Sakit
-                      </button>
-
-                      <!-- I (Izin) -->
+                      >Sakit</button>
                       <button
                         type="button"
                         @click="updateStatus(siswa, 'I')"
@@ -366,11 +462,7 @@
                             : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
                           'px-3.5 py-1.5 rounded-md text-xs transition-all duration-200',
                         ]"
-                      >
-                        Izin
-                      </button>
-
-                      <!-- A (Alpa) -->
+                      >Izin</button>
                       <button
                         type="button"
                         @click="updateStatus(siswa, 'A')"
@@ -381,9 +473,7 @@
                             : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
                           'px-3.5 py-1.5 rounded-md text-xs transition-all duration-200',
                         ]"
-                      >
-                        Alpa
-                      </button>
+                      >Alpa</button>
                     </div>
                   </td>
                   <td class="py-3 px-4">
