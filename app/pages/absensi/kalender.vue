@@ -13,7 +13,7 @@
             <Calendar class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             Kalender Pendidikan
           </h2>
-          <p class="text-sm text-zinc-400 mt-1">
+          <p class="text-sm theme-text-muted mt-1">
             Kelola hari libur nasional, libur sekolah, dan agenda kegiatan
             madrasah
           </p>
@@ -25,7 +25,7 @@
           <BaseButton
             text="Cetak Kalender"
             @click="openPrintPreview"
-            class="!bg-zinc-700 !text-zinc-200 hover:!bg-zinc-600 shadow-lg shadow-zinc-900/20"
+            class="!bg-[var(--bg-tertiary)] !text-[var(--text-primary)] hover:!bg-[var(--bg-secondary)] shadow-lg"
           >
             <template #icon>
               <Printer class="w-4 h-4" />
@@ -48,16 +48,16 @@
 
       <!-- Filters & Stats Section -->
       <div
-        class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-5 rounded-xl border bg-zinc-800/20 border-zinc-700/40 mb-6"
+        class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-5 rounded-xl border theme-bg-secondary theme-border mb-6"
       >
         <!-- Academic Year Selector -->
         <div class="flex flex-col gap-1.5 min-w-[180px]">
-          <label class="text-xs font-semibold text-zinc-400"
+          <label class="text-xs font-semibold theme-text-muted"
             >Tahun Pelajaran</label
           >
           <select
             v-model="selectedTapel"
-            class="h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
+            class="h-10 px-3 rounded-lg theme-input theme-border-input border outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
           >
             <option v-for="opt in tapelOptions" :key="opt" :value="opt">
               {{ opt }}
@@ -67,14 +67,14 @@
 
         <!-- Weekly Holiday Setting -->
         <div class="flex flex-col gap-1.5 min-w-[220px]">
-          <label class="text-xs font-semibold text-zinc-400"
+          <label class="text-xs font-semibold theme-text-muted"
             >Hari Libur Mingguan</label
           >
           <div class="flex items-center gap-2">
             <select
               v-model="hariLiburMingguan"
               :disabled="!isAdmin || isSavingSettings"
-              class="h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm flex-1 disabled:opacity-60 disabled:cursor-not-allowed"
+              class="h-10 px-3 rounded-lg theme-input theme-border-input border outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm flex-1 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <option :value="0">Minggu</option>
               <option :value="1">Senin</option>
@@ -89,33 +89,33 @@
               :text="isSavingSettings ? '...' : 'Simpan'"
               @click="saveWeeklyHoliday"
               :disabled="isSavingSettings"
-              class="!bg-zinc-200 dark:!bg-zinc-700 !text-zinc-700 dark:!text-zinc-200 hover:!bg-zinc-300 dark:hover:!bg-zinc-600 !h-10 !px-4 !py-0 shrink-0"
+              class="!bg-[var(--bg-tertiary)] !text-[var(--text-primary)] hover:!bg-[var(--bg-secondary)] !h-10 !px-4 !py-0 shrink-0"
             />
           </div>
         </div>
 
         <!-- Search Filter -->
         <div class="flex-1 md:max-w-xs flex flex-col gap-1.5">
-          <label class="text-xs font-semibold text-zinc-400">Cari Agenda</label>
+          <label class="text-xs font-semibold theme-text-muted">Cari Agenda</label>
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Ketik keterangan agenda..."
-            class="h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
+            class="h-10 px-3 rounded-lg theme-input theme-border-input border outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
           />
         </div>
       </div>
 
       <!-- Main Display -->
       <div
-        class="rounded-xl border border-zinc-700/40 bg-zinc-900/20 overflow-hidden"
+        class="rounded-xl border theme-border theme-bg-surface overflow-hidden"
       >
         <!-- Loading State -->
         <div v-if="isLoading" class="text-center py-16">
           <Loader2
             class="w-10 h-10 animate-spin text-emerald-500 mx-auto mb-3"
           />
-          <p class="text-zinc-400 text-sm">Memuat agenda pendidikan...</p>
+          <p class="theme-text-muted text-sm">Memuat agenda pendidikan...</p>
         </div>
 
         <!-- Empty State -->
@@ -124,11 +124,11 @@
           class="text-center py-16 px-4"
         >
           <CalendarOff
-            class="w-16 h-16 text-zinc-400 dark:text-zinc-600 mx-auto mb-3"
+            class="w-16 h-16 theme-text-faint mx-auto mb-3"
             stroke-width="1.5"
           />
-          <p class="text-zinc-400 font-semibold text-lg">Tidak ada agenda</p>
-          <p class="text-zinc-500 text-sm mt-1">
+          <p class="theme-text-muted font-semibold text-lg">Tidak ada agenda</p>
+          <p class="theme-text-faint text-sm mt-1">
             Belum ada hari libur atau kegiatan yang terdaftar untuk Tahun
             Pelajaran {{ selectedTapel }}
             <span v-if="searchQuery">
@@ -146,7 +146,7 @@
           >
             <!-- Month Header -->
             <h3
-              class="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider border-b border-zinc-700/40 dark:border-zinc-800/80 pb-2 flex items-center gap-2"
+              class="text-sm font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider border-b theme-border pb-2 flex items-center gap-2"
             >
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               {{ group.monthName }}
@@ -157,12 +157,12 @@
               <div
                 v-for="event in group.events"
                 :key="event.id"
-                class="flex items-start justify-between p-4 rounded-xl border border-zinc-700/40 dark:border-zinc-800 bg-zinc-100/60 dark:bg-zinc-950/20 hover:border-zinc-600/60 dark:hover:border-zinc-700/60 transition-all duration-200 group"
+                class="flex items-start justify-between p-4 rounded-xl border theme-border theme-bg-card hover:border-[var(--border-secondary)] transition-all duration-200 group"
               >
                 <div class="space-y-2">
                   <!-- Date and Badge -->
                   <div class="flex items-center gap-2">
-                    <span class="text-xs font-mono font-bold text-zinc-500 dark:text-zinc-300">
+                    <span class="text-xs font-mono font-bold theme-text-secondary">
                       {{ formatEventRange(event) }}
                     </span>
                     <span
@@ -180,7 +180,7 @@
                   </div>
 
                   <!-- Description -->
-                  <p class="text-sm font-semibold text-zinc-800 dark:text-zinc-100 pr-4">
+                  <p class="text-sm font-semibold theme-text pr-4">
                     {{ event.keterangan }}
                   </p>
                 </div>
@@ -192,14 +192,14 @@
                 >
                   <button
                     @click="openEditModal(event)"
-                    class="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+                    class="p-1.5 rounded-lg theme-text-muted hover:text-amber-600 dark:hover:text-amber-400 hover:bg-[var(--bg-secondary)] transition-colors"
                     title="Edit Agenda"
                   >
                     <Pencil class="w-4 h-4" />
                   </button>
                   <button
                     @click="handleDelete(event)"
-                    class="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+                    class="p-1.5 rounded-lg theme-text-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-[var(--bg-secondary)] transition-colors"
                     title="Hapus Agenda"
                   >
                     <Trash2 class="w-4 h-4" />
@@ -218,28 +218,28 @@
           class="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col"
         >
           <!-- Controls Bar -->
-          <div class="shrink-0 flex items-center justify-between px-6 py-3 bg-zinc-900 border-b border-zinc-700">
-            <div class="flex items-center gap-3">
-              <h3 class="font-bold text-zinc-200 text-sm">
-                Preview Cetak — Kalender Pendidikan {{ selectedTapel }}
+          <div class="shrink-0 flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-zinc-900 border-b border-zinc-800">
+            <div class="flex items-center gap-2 min-w-0">
+              <h3 class="font-bold text-zinc-200 text-xs sm:text-sm truncate">
+                Preview — {{ selectedTapel }}
               </h3>
-              <span class="text-xs text-zinc-500">
-                {{ printGroups.length }} bulan
+              <span class="text-xs text-zinc-500 shrink-0">
+                ({{ printGroups.length }} bln)
               </span>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 shrink-0">
               <BaseButton
-                text="Cetak Sekarang"
+                text="Cetak"
                 @click="doPrint"
-                class="!bg-emerald-600 !text-white hover:!bg-emerald-500 !h-8 !text-xs"
+                class="!bg-emerald-600 !text-white hover:!bg-emerald-500 !h-7 !text-xs !px-3"
               >
                 <template #icon>
-                  <Printer class="w-3.5 h-3.5" />
+                  <Printer class="w-3 h-3" />
                 </template>
               </BaseButton>
               <button
                 @click="showPrintPreview = false"
-                class="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
+                class="p-1.5 rounded text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
               >
                 <X class="w-4 h-4" />
               </button>
@@ -247,50 +247,49 @@
           </div>
 
           <!-- Range Filter Bar -->
-          <div class="shrink-0 flex items-center gap-4 px-6 py-3 bg-zinc-800/60 border-b border-zinc-700/50">
-            <span class="text-xs font-semibold text-zinc-400 shrink-0">Rentang Bulan:</span>
-            <div class="flex items-center gap-2">
+          <div class="shrink-0 flex flex-wrap items-center gap-2 px-3 sm:px-6 py-2 bg-zinc-900 border-b border-zinc-800">
+            <span class="text-xs font-semibold text-zinc-400 shrink-0">Rentang:</span>
+            <div class="flex items-center gap-1.5">
               <label class="text-xs text-zinc-500 shrink-0">Dari</label>
               <select
                 v-model="printFromMonth"
-                class="h-8 px-2 rounded-lg border border-zinc-600 bg-zinc-800 text-zinc-200 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
+                class="h-7 px-2 rounded border border-zinc-700 bg-zinc-800 text-zinc-200 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
               >
                 <option v-for="opt in printMonthOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
                 </option>
               </select>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5">
               <label class="text-xs text-zinc-500 shrink-0">Sampai</label>
               <select
                 v-model="printToMonth"
-                class="h-8 px-2 rounded-lg border border-zinc-600 bg-zinc-800 text-zinc-200 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
+                class="h-7 px-2 rounded border border-zinc-700 bg-zinc-800 text-zinc-200 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
               >
                 <option v-for="opt in printMonthOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
                 </option>
               </select>
             </div>
-            <span class="text-xs text-zinc-500 ml-2">
-              {{ printGroups.length }} lembar akan dicetak
-            </span>
+            <span class="text-xs text-zinc-500">{{ printGroups.length }} lembar</span>
           </div>
 
-          <!-- Scrollable Preview Area -->
+          <!-- Scrollable Preview Area — horizontal scroll on mobile so A4 layout stays intact -->
           <div class="flex-1 overflow-auto bg-zinc-950">
-            <div class="flex flex-col items-center py-8 gap-6">
+            <div class="flex flex-col items-start sm:items-center py-4 sm:py-8 gap-4 sm:gap-6 px-2 sm:px-0 min-w-0">
 
               <!-- Empty state -->
-              <div v-if="printGroups.length === 0" class="bg-white rounded-xl p-16 text-center text-zinc-400 mt-8">
+              <div v-if="printGroups.length === 0" class="bg-white rounded p-8 text-center text-zinc-400 mt-4 w-full max-w-sm mx-auto">
                 Tidak ada agenda pada rentang bulan yang dipilih.
               </div>
 
-              <!-- One page per month -->
+              <!-- One page per month — horizontal scroll wrapper on mobile -->
               <div
                 v-for="(group, idx) in printGroups"
                 :key="group.monthKey"
-                class="kalender-page shadow-2xl"
+                class="kalender-page-wrapper"
               >
+              <div class="kalender-page">
                 <!-- Page Header -->
                 <div class="kalender-header">
                   <div class="kalender-header-logo-group">
@@ -381,6 +380,7 @@
                   <div>Halaman {{ idx + 1 }} / {{ printGroups.length }}</div>
                 </div>
               </div>
+              </div><!-- end kalender-page-wrapper -->
 
             </div>
           </div>
@@ -1070,6 +1070,13 @@ onMounted(async () => {
    ===================================================== */
 
 /* --- Preview sizing (screen) --- */
+.kalender-page-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  /* Show scrollbar hint on mobile */
+  -webkit-overflow-scrolling: touch;
+}
+
 .kalender-page {
   width: 277mm;
   min-height: 190mm;
@@ -1081,7 +1088,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 4mm;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 /* Force all text inside kalender-page to use light-mode colors regardless of dark mode */

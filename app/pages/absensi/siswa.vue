@@ -12,20 +12,20 @@
             <span>Absensi Siswa</span>
             <span 
               v-if="selectedClass && hasExistingRecords && !hasUnsavedChanges"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shadow-sm"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20"
             >
-              <span class="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse"></span>
+              <span class="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400"></span>
               Tersimpan di Server
             </span>
             <span 
               v-else-if="selectedClass && hasUnsavedChanges"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 shadow-sm"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20"
             >
               <span class="w-2 h-2 rounded-full bg-amber-600 dark:bg-amber-400"></span>
               Ada Perubahan (Belum Kirim)
             </span>
           </h2>
-          <p class="text-sm text-zinc-400 mt-1">
+          <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
             Pencatatan dan pengelolaan kehadiran harian siswa madrasah
           </p>
         </div>
@@ -33,11 +33,11 @@
 
       <!-- Filter & Date Navigation Section -->
       <div
-        class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-5 rounded-xl border bg-zinc-800/20 border-zinc-700/40 mb-6"
+        class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-5 rounded-xl border theme-bg-secondary theme-border mb-6"
       >
         <!-- Pilihan Kelas -->
         <div class="flex flex-col gap-1.5 min-w-[240px]">
-          <label class="text-xs font-semibold text-zinc-400"
+          <label class="text-xs font-semibold theme-text-muted"
             >Kelas / Rombel</label
           >
           <div :class="isDisabledDropdown ? 'opacity-60 pointer-events-none' : ''">
@@ -54,16 +54,16 @@
 
         <!-- Date Navigation Bar -->
         <ClientOnly>
-          <div class="flex items-center gap-2 flex-1 md:max-w-[480px]">
+          <div class="flex flex-col gap-2 flex-1 md:max-w-[480px]">
             <div
-              class="flex items-center justify-between bg-zinc-950/40 border border-zinc-700/50 p-2 px-3 rounded-xl flex-1"
+              class="flex items-center justify-between theme-bg theme-border border p-2 px-3 rounded-xl w-full"
             >
               <!-- Arrow Kiri (Mundur) -->
               <button
                 type="button"
                 @click="ubahTanggal(-1)"
                 :disabled="isPrevDisabled || isSaving"
-                class="p-2 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-800"
+                class="p-2 rounded-lg theme-border border theme-bg-secondary theme-text hover:theme-bg-tertiary transition-colors disabled:opacity-20 disabled:cursor-not-allowed shrink-0"
                 title="Hari Sebelumnya"
               >
                 <ChevronLeft class="w-4 h-4" />
@@ -71,16 +71,16 @@
 
               <!-- Tanggal Display (Klik untuk buka kalender) -->
               <div
-                class="relative text-center px-4 cursor-pointer hover:opacity-80 active:scale-[0.97] transition-all group select-none"
+                class="text-center px-2 cursor-pointer active:opacity-70 transition-opacity select-none flex-1 min-w-0"
                 @click="toggleCalendar"
               >
                 <span
-                  class="text-xs sm:text-sm font-bold text-zinc-100 block flex items-center justify-center gap-1"
+                  class="text-xs sm:text-sm font-bold theme-text flex items-center justify-center gap-1 truncate"
                 >
-                  {{ formattedTanggal }}
-                  <CalendarDays class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+                  <span class="truncate">{{ formattedTanggal }}</span>
+                  <CalendarDays class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 </span>
-                <span class="text-[10px] font-mono text-zinc-400 block">
+                <span class="text-[10px] font-mono theme-text-muted block truncate">
                   Tapel: {{ tapel }} | Semester: {{ semester }}
                 </span>
               </div>
@@ -90,27 +90,27 @@
                 type="button"
                 @click="ubahTanggal(1)"
                 :disabled="isNextDisabled || isSaving"
-                class="p-2 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-all disabled:opacity-20 disabled:cursor-not-allowed disabled:hover:bg-zinc-800"
+                class="p-2 rounded-lg theme-border border theme-bg-secondary theme-text hover:theme-bg-tertiary transition-colors disabled:opacity-20 disabled:cursor-not-allowed shrink-0"
                 title="Hari Selanjutnya"
               >
                 <ChevronRight class="w-4 h-4" />
               </button>
             </div>
 
-            <!-- Shortcut Hari Ini -->
+            <!-- Shortcut Hari Ini — full width di mobile, auto width di md+ -->
             <button
               v-if="tanggal !== hariIniStr"
               type="button"
               @click="tanggal = hariIniStr"
               :disabled="isSaving"
-              class="h-10 px-3.5 rounded-xl border border-zinc-700 bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 active:scale-95 transition-all text-xs font-semibold shrink-0 disabled:opacity-50"
+              class="w-full md:w-auto md:self-start h-9 px-3.5 rounded-xl theme-border border theme-bg-secondary theme-text hover:theme-bg-tertiary transition-colors text-xs font-semibold disabled:opacity-50"
             >
-              Hari Ini
+              Kembali ke Hari Ini
             </button>
           </div>
           <template #fallback>
             <div
-              class="h-14 bg-zinc-850/40 border border-zinc-800/40 rounded-xl flex-1 md:max-w-[480px] animate-pulse"
+              class="h-12 theme-bg-secondary theme-border border rounded-xl w-full md:max-w-[480px]"
             ></div>
           </template>
         </ClientOnly>
@@ -125,35 +125,35 @@
             @click.self="showCalendar = false"
           >
             <!-- Backdrop -->
-            <div class="absolute inset-0 bg-black/60" @click="showCalendar = false"></div>
+            <div class="absolute inset-0 bg-black/70" @click="showCalendar = false"></div>
 
             <!-- Calendar Card -->
-            <div class="relative z-10 w-full max-w-sm bg-zinc-900 border border-zinc-700/60 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden">
+            <div class="relative z-10 w-full max-w-sm theme-bg theme-border border rounded-2xl overflow-hidden">
               <!-- Calendar Header -->
-              <div class="flex items-center justify-between p-4 bg-zinc-800/60 border-b border-zinc-700/40">
+              <div class="flex items-center justify-between p-4 theme-bg-secondary border-b theme-border">
                 <button
                   type="button"
                   @click="calendarPrevMonth"
                   :disabled="!canCalendarGoPrev"
-                  class="p-2 rounded-lg text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                  class="p-2 rounded-lg theme-text hover:theme-bg-tertiary transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft class="w-4 h-4" />
                 </button>
-                <h3 class="text-sm font-bold text-zinc-100 select-none">
+                <h3 class="text-sm font-bold theme-text select-none">
                   {{ calendarMonthLabel }}
                 </h3>
                 <button
                   type="button"
                   @click="calendarNextMonth"
                   :disabled="!canCalendarGoNext"
-                  class="p-2 rounded-lg text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                  class="p-2 rounded-lg theme-text hover:theme-bg-tertiary transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
                 >
                   <ChevronRight class="w-4 h-4" />
                 </button>
               </div>
 
               <!-- Day-of-week header -->
-              <div class="grid grid-cols-7 text-center text-[10px] font-bold text-zinc-500 uppercase tracking-wider py-2 px-3 border-b border-zinc-800/60">
+              <div class="grid grid-cols-7 text-center text-[10px] font-bold theme-text-muted uppercase tracking-wider py-2 px-3 border-b theme-border">
                 <span v-for="d in ['Min','Sen','Sel','Rab','Kam','Jum','Sab']" :key="d">{{ d }}</span>
               </div>
 
@@ -168,17 +168,17 @@
                     type="button"
                     :disabled="cell.disabled"
                     @click="selectCalendarDate(cell)"
-                    class="h-9 w-full rounded-lg text-xs font-semibold transition-all duration-150"
+                    class="h-9 w-full rounded-lg text-xs font-semibold transition-colors duration-150"
                     :class="[
                       cell.isSelected
-                        ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/30 scale-105'
+                        ? 'bg-emerald-600 text-white'
                         : cell.isToday
-                          ? 'bg-zinc-700/60 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/40 hover:bg-emerald-600/20'
+                          ? 'theme-bg-tertiary text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/40'
                           : cell.disabled
-                            ? 'text-zinc-500 cursor-not-allowed'
+                            ? 'theme-text-faint cursor-not-allowed'
                             : cell.isHoliday
-                              ? 'text-red-600 dark:text-red-400/70 hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300'
-                              : 'text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100',
+                              ? 'text-red-600 dark:text-red-400 hover:bg-red-500/10'
+                              : 'theme-text-secondary hover:theme-bg-secondary',
                     ]"
                   >
                     {{ cell.day }}
@@ -187,15 +187,15 @@
               </div>
 
               <!-- Calendar Footer -->
-              <div class="flex items-center justify-between p-3 pt-1 border-t border-zinc-800/40">
-                <span class="text-[10px] text-zinc-500">
+              <div class="flex items-center justify-between p-3 pt-1 border-t theme-border">
+                <span class="text-[10px] theme-text-muted">
                   {{ userRole === 'admin' ? 'Akses 6 bulan terakhir' : 'Akses 7 hari terakhir' }}
                 </span>
                 <button
                   v-if="tanggal !== hariIniStr"
                   type="button"
                   @click="selectToday"
-                  class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors px-2 py-1 rounded-md hover:bg-emerald-500/10"
+                  class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors px-2 py-1 rounded-md hover:bg-emerald-500/10"
                 >
                   Hari Ini
                 </button>
@@ -243,24 +243,24 @@
 
       <!-- Main Content Area -->
       <div
-        class="rounded-xl border border-zinc-700/40 bg-zinc-900/20 overflow-hidden"
+        class="rounded-xl border theme-border theme-bg overflow-hidden"
       >
         <!-- Loading State -->
         <div v-if="isLoading" class="text-center py-16">
           <Loader2
-            class="w-10 h-10 animate-spin text-emerald-500 mx-auto mb-3"
+            class="w-10 h-10 animate-spin text-emerald-600 mx-auto mb-3"
           />
-          <p class="text-zinc-400 text-sm">Memuat daftar siswa...</p>
+          <p class="theme-text-muted text-sm">Memuat daftar siswa...</p>
         </div>
 
         <!-- Empty State (No Class Selected) -->
         <div v-else-if="!selectedClass" class="text-center py-16 px-4">
           <GraduationCap
-            class="w-16 h-16 text-zinc-500 mx-auto mb-3"
+            class="w-16 h-16 theme-text-muted mx-auto mb-3"
             stroke-width="1.5"
           />
-          <p class="text-zinc-400 font-semibold text-lg">Kelas belum dipilih</p>
-          <p class="text-zinc-500 text-sm mt-1">
+          <p class="theme-text-secondary font-semibold text-lg">Kelas belum dipilih</p>
+          <p class="theme-text-muted text-sm mt-1">
             Silakan pilih kelas terlebih dahulu untuk melihat dan menginput
             absensi.
           </p>
@@ -272,8 +272,8 @@
             class="w-16 h-16 text-amber-600 dark:text-amber-500 mx-auto mb-3"
             stroke-width="1.5"
           />
-          <p class="text-zinc-100 font-bold text-lg">{{ keteranganLibur }}</p>
-          <p class="text-zinc-500 text-sm mt-1">
+          <p class="theme-text font-bold text-lg">{{ keteranganLibur }}</p>
+          <p class="theme-text-muted text-sm mt-1">
             Tidak ada aktivitas pengisian absensi siswa pada hari libur sekolah.
           </p>
         </div>
@@ -281,11 +281,11 @@
         <!-- Empty State (No Students) -->
         <div v-else-if="students.length === 0" class="text-center py-16 px-4">
           <Users
-            class="w-16 h-16 text-zinc-500 mx-auto mb-3"
+            class="w-16 h-16 theme-text-muted mx-auto mb-3"
             stroke-width="1.5"
           />
-          <p class="text-zinc-400 font-semibold text-lg">Tidak ada siswa</p>
-          <p class="text-zinc-500 text-sm mt-1">
+          <p class="theme-text-secondary font-semibold text-lg">Tidak ada siswa</p>
+          <p class="theme-text-muted text-sm mt-1">
             Tidak ditemukan data siswa aktif di kelas {{ currentClassName }}.
           </p>
         </div>
@@ -294,34 +294,36 @@
         <div v-else class="flex flex-col">
 
           <!-- ===================== MOBILE CARD VIEW (< md) ===================== -->
-          <div class="md:hidden divide-y divide-zinc-800/60">
+          <div class="md:hidden">
             <div
               v-for="(siswa, idx) in students"
               :key="siswa.siswa_id"
-              class="px-4 py-3 hover:bg-zinc-800/10 transition-colors"
-              :class="[
-                siswa.status === 'H' ? 'border-l-2 border-emerald-500/60' :
-                siswa.status === 'S' ? 'border-l-2 border-amber-500/60' :
-                siswa.status === 'I' ? 'border-l-2 border-blue-500/60' :
-                siswa.status === 'A' ? 'border-l-2 border-red-500/60' :
-                'border-l-2 border-transparent'
-              ]"
+              class="px-4 py-3 pl-3 border-l-4"
+              :class="idx > 0 ? 'border-t theme-border' : ''"
+              :style="{
+                borderLeftColor:
+                  siswa.status === 'H' ? '#10b981' :
+                  siswa.status === 'S' ? '#f59e0b' :
+                  siswa.status === 'I' ? '#3b82f6' :
+                  siswa.status === 'A' ? '#ef4444' :
+                  'transparent'
+              }"
             >
               <!-- Row 1: Nomor + Nama + Badge Status -->
-              <div class="flex items-center gap-2 mb-2.5">
-                <span class="text-zinc-500 font-mono text-xs w-5 shrink-0 text-right">{{ idx + 1 }}.</span>
-                <span class="font-semibold text-zinc-100 text-sm leading-tight flex-1 min-w-0 truncate">
+              <div class="flex items-center gap-2 -mb-2.5">
+                <span class="theme-text-faint font-mono text-xs w-5 shrink-0 text-right">{{ idx + 1 }}.</span>
+                <span class="font-semibold theme-text text-sm leading-tight flex-1 min-w-0 truncate">
                   {{ toTitleCase(siswa.nama) }}
                 </span>
                 <!-- Status badge -->
                 <span
-                  class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border"
                   :class="[
-                    siswa.status === 'H' ? 'bg-emerald-600/20 text-emerald-400 ring-1 ring-emerald-500/30' :
-                    siswa.status === 'S' ? 'bg-amber-600/20 text-amber-400 ring-1 ring-amber-500/30' :
-                    siswa.status === 'I' ? 'bg-blue-600/20 text-blue-400 ring-1 ring-blue-500/30' :
-                    siswa.status === 'A' ? 'bg-red-600/20 text-red-400 ring-1 ring-red-500/30' :
-                    'bg-zinc-700/40 text-zinc-400'
+                    siswa.status === 'H' ? 'bg-emerald-100 dark:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/30' :
+                    siswa.status === 'S' ? 'bg-amber-100 dark:bg-amber-600/20 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-500/30' :
+                    siswa.status === 'I' ? 'bg-blue-100 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400 border-blue-300 dark:border-blue-500/30' :
+                    siswa.status === 'A' ? 'bg-red-100 dark:bg-red-600/20 text-red-700 dark:text-red-400 border-red-300 dark:border-red-500/30' :
+                    'theme-bg-secondary theme-text-secondary theme-border'
                   ]"
                 >
                   {{ siswa.status === 'H' ? 'Hadir' : siswa.status === 'S' ? 'Sakit' : siswa.status === 'I' ? 'Izin' : siswa.status === 'A' ? 'Alpa' : '-' }}
@@ -330,21 +332,21 @@
 
               <!-- Row 2: NISN (kecil) -->
               <div class="ml-7 mb-2.5">
-                <span class="text-[11px] text-zinc-500 font-mono">NISN: {{ siswa.nisn || '-' }}</span>
+                <span class="text-[11px] theme-text-muted font-mono">NISN: {{ siswa.nisn || '-' }}</span>
               </div>
 
               <!-- Row 3: Tombol Status (full width, 4 tombol rata) -->
               <div class="ml-7 mb-2.5">
-                <div class="grid grid-cols-4 gap-1.5 bg-zinc-950/40 p-1 rounded-lg border border-zinc-800/80">
+                <div class="grid grid-cols-4 gap-1.5 theme-bg-secondary p-1 rounded-lg border theme-border">
                   <button
                     type="button"
                     @click="updateStatus(siswa, 'H')"
                     :disabled="isDisabled"
                     :class="[
                       siswa.status === 'H'
-                        ? 'bg-emerald-600/90 text-white font-bold shadow-md shadow-emerald-950/20'
-                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
-                      'py-2 rounded-md text-xs transition-all duration-200 text-center',
+                        ? 'bg-emerald-600 text-white font-bold'
+                        : 'theme-text-secondary hover:theme-text hover:theme-bg-tertiary',
+                      'py-2 rounded-md text-xs transition-colors text-center',
                     ]"
                   >Hadir</button>
                   <button
@@ -353,9 +355,9 @@
                     :disabled="isDisabled"
                     :class="[
                       siswa.status === 'S'
-                        ? 'bg-amber-600/90 text-white font-bold shadow-md shadow-amber-950/20'
-                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
-                      'py-2 rounded-md text-xs transition-all duration-200 text-center',
+                        ? 'bg-amber-500 text-white font-bold'
+                        : 'theme-text-secondary hover:theme-text hover:theme-bg-tertiary',
+                      'py-2 rounded-md text-xs transition-colors text-center',
                     ]"
                   >Sakit</button>
                   <button
@@ -364,9 +366,9 @@
                     :disabled="isDisabled"
                     :class="[
                       siswa.status === 'I'
-                        ? 'bg-blue-600/90 text-white font-bold shadow-md shadow-blue-950/20'
-                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
-                      'py-2 rounded-md text-xs transition-all duration-200 text-center',
+                        ? 'bg-blue-600 text-white font-bold'
+                        : 'theme-text-secondary hover:theme-text hover:theme-bg-tertiary',
+                      'py-2 rounded-md text-xs transition-colors text-center',
                     ]"
                   >Izin</button>
                   <button
@@ -375,9 +377,9 @@
                     :disabled="isDisabled"
                     :class="[
                       siswa.status === 'A'
-                        ? 'bg-red-600/90 text-white font-bold shadow-md shadow-red-950/20'
-                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
-                      'py-2 rounded-md text-xs transition-all duration-200 text-center',
+                        ? 'bg-red-600 text-white font-bold'
+                        : 'theme-text-secondary hover:theme-text hover:theme-bg-tertiary',
+                      'py-2 rounded-md text-xs transition-colors text-center',
                     ]"
                   >Alpa</button>
                 </div>
@@ -390,7 +392,7 @@
                   v-model="siswa.keterangan"
                   placeholder="Catatan (opsional)..."
                   :disabled="isDisabled"
-                  class="w-full h-9 px-3 rounded-lg border border-zinc-700 bg-zinc-850 text-zinc-200 placeholder-zinc-500 text-xs focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all disabled:opacity-60"
+                  class="w-full h-9 px-3 rounded-lg theme-border border theme-input theme-text text-xs focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors disabled:opacity-60"
                 />
               </div>
             </div>
@@ -401,7 +403,7 @@
             <table class="w-full text-left border-collapse text-sm">
               <thead>
                 <tr
-                  class="bg-zinc-800/40 border-b border-zinc-700/50 text-zinc-300 uppercase text-xs font-semibold"
+                  class="theme-bg-secondary border-b theme-border theme-text-secondary uppercase text-xs font-semibold"
                 >
                   <th class="py-4 px-4 text-center w-12">No</th>
                   <th class="py-4 px-4">Nama Siswa</th>
@@ -410,25 +412,25 @@
                   <th class="py-4 px-4 min-w-48">Keterangan / Catatan</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-zinc-800/60 text-zinc-300">
+              <tbody class="theme-text">
                 <tr
                   v-for="(siswa, idx) in students"
                   :key="siswa.siswa_id"
-                  class="hover:bg-zinc-800/10 transition-colors"
+                  :class="[idx > 0 ? 'border-t theme-border' : '', 'hover:theme-bg-secondary transition-colors']"
                 >
-                  <td class="py-4 px-4 text-center text-zinc-500 font-mono">
+                  <td class="py-4 px-4 text-center theme-text-faint font-mono">
                     {{ idx + 1 }}
                   </td>
-                  <td class="py-4 px-4 font-semibold text-zinc-100">
+                  <td class="py-4 px-4 font-semibold theme-text">
                     {{ toTitleCase(siswa.nama) }}
                   </td>
-                  <td class="py-4 px-4 text-center text-zinc-400 font-mono">
+                  <td class="py-4 px-4 text-center theme-text-muted font-mono">
                     {{ siswa.nisn || "-" }}
                   </td>
                   <td class="py-3 px-4">
                     <!-- Status Button Pills Group -->
                     <div
-                      class="flex justify-center items-center gap-1.5 bg-zinc-950/40 p-1 rounded-lg border border-zinc-800/80 w-fit mx-auto"
+                      class="flex justify-center items-center gap-1.5 theme-bg-secondary p-1 rounded-lg border theme-border w-fit mx-auto"
                     >
                       <button
                         type="button"
@@ -436,9 +438,9 @@
                         :disabled="isDisabled"
                         :class="[
                           siswa.status === 'H'
-                            ? 'bg-emerald-600/90 text-white font-bold shadow-md shadow-emerald-950/20'
-                            : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
-                          'px-3.5 py-1.5 rounded-md text-xs transition-all duration-200',
+                            ? 'bg-emerald-600 text-white font-bold'
+                            : 'theme-text-secondary hover:theme-text hover:theme-bg-tertiary',
+                          'px-3.5 py-1.5 rounded-md text-xs transition-colors',
                         ]"
                       >Hadir</button>
                       <button
@@ -447,9 +449,9 @@
                         :disabled="isDisabled"
                         :class="[
                           siswa.status === 'S'
-                            ? 'bg-amber-600/90 text-white font-bold shadow-md shadow-amber-950/20'
-                            : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
-                          'px-3.5 py-1.5 rounded-md text-xs transition-all duration-200',
+                            ? 'bg-amber-500 text-white font-bold'
+                            : 'theme-text-secondary hover:theme-text hover:theme-bg-tertiary',
+                          'px-3.5 py-1.5 rounded-md text-xs transition-colors',
                         ]"
                       >Sakit</button>
                       <button
@@ -458,9 +460,9 @@
                         :disabled="isDisabled"
                         :class="[
                           siswa.status === 'I'
-                            ? 'bg-blue-600/90 text-white font-bold shadow-md shadow-blue-950/20'
-                            : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
-                          'px-3.5 py-1.5 rounded-md text-xs transition-all duration-200',
+                            ? 'bg-blue-600 text-white font-bold'
+                            : 'theme-text-secondary hover:theme-text hover:theme-bg-tertiary',
+                          'px-3.5 py-1.5 rounded-md text-xs transition-colors',
                         ]"
                       >Izin</button>
                       <button
@@ -469,9 +471,9 @@
                         :disabled="isDisabled"
                         :class="[
                           siswa.status === 'A'
-                            ? 'bg-red-600/90 text-white font-bold shadow-md shadow-red-950/20'
-                            : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50',
-                          'px-3.5 py-1.5 rounded-md text-xs transition-all duration-200',
+                            ? 'bg-red-600 text-white font-bold'
+                            : 'theme-text-secondary hover:theme-text hover:theme-bg-tertiary',
+                          'px-3.5 py-1.5 rounded-md text-xs transition-colors',
                         ]"
                       >Alpa</button>
                     </div>
@@ -482,7 +484,7 @@
                       v-model="siswa.keterangan"
                       placeholder="Catatan (opsional)..."
                       :disabled="isDisabled"
-                      class="w-full h-9 px-3 rounded-lg border border-zinc-700 bg-zinc-850 text-zinc-200 placeholder-zinc-500 text-xs focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all disabled:opacity-60"
+                      class="w-full h-9 px-3 rounded-lg theme-border border theme-input theme-text text-xs focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors disabled:opacity-60"
                     />
                   </td>
                 </tr>
@@ -492,31 +494,31 @@
 
           <!-- Bottom Action Buttons -->
           <div
-            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-zinc-800/20 border-t border-zinc-700/40"
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 theme-bg-secondary border-t theme-border"
           >
             <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs text-zinc-400">
+              <span class="text-xs theme-text-muted">
                 Menampilkan
-                <span class="font-bold text-zinc-300">{{ students.length }}</span>
+                <span class="font-bold theme-text-secondary">{{ students.length }}</span>
                 siswa
               </span>
-              <span class="text-zinc-400 hidden sm:inline">|</span>
+              <span class="theme-text-faint hidden sm:inline">|</span>
               <!-- Status Badge in footer -->
               <span 
                 v-if="hasExistingRecords && !hasUnsavedChanges"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20"
               >
                 Sudah Terkirim (Tersimpan)
               </span>
               <span 
                 v-else-if="hasUnsavedChanges"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20"
               >
                 Belum Dikirim (Ada Perubahan)
               </span>
               <span 
                 v-else
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-zinc-800 text-zinc-400 border border-zinc-700/30"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold theme-bg-tertiary theme-text-secondary theme-border border"
               >
                 Belum Ada Data
               </span>
@@ -1261,19 +1263,17 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Calendar popup transition */
+/* Calendar popup transition - ringan tanpa transform */
 .calendar-fade-enter-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 .calendar-fade-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity 0.1s ease;
 }
 .calendar-fade-enter-from {
   opacity: 0;
-  transform: scale(0.95);
 }
 .calendar-fade-leave-to {
   opacity: 0;
-  transform: scale(0.95);
 }
 </style>

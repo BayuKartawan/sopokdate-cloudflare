@@ -200,6 +200,14 @@
     background-color: var(--bg-card-hover);
   }
 
+  /* Hover variants for theme backgrounds */
+  .hover\:theme-bg-secondary:hover {
+    background-color: var(--bg-secondary);
+  }
+  .hover\:theme-bg-tertiary:hover {
+    background-color: var(--bg-tertiary);
+  }
+
   .theme-text {
     color: var(--text-primary);
   }
