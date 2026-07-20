@@ -211,7 +211,7 @@
         </div>
       </div>
 
-      <!-- Print Preview Modal (A4 Landscape, 1 bulan per lembar) -->
+      <!-- Print Preview Modal (A4 Landscape, 1 bulan per lembar ATAU 1 semester/tahun dalam 1 lembar) -->
       <Teleport to="body">
         <div
           v-if="showPrintPreview"
@@ -223,8 +223,11 @@
               <h3 class="font-bold text-zinc-200 text-xs sm:text-sm truncate">
                 Preview — {{ selectedTapel }}
               </h3>
-              <span class="text-xs text-zinc-500 shrink-0">
+              <span v-if="printLayout === 'bulanan'" class="text-xs text-zinc-500 shrink-0">
                 ({{ printGroups.length }} bln)
+              </span>
+              <span v-else class="text-xs text-zinc-500 shrink-0">
+                (1 lembar)
               </span>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
@@ -246,51 +249,273 @@
             </div>
           </div>
 
-          <!-- Range Filter Bar -->
-          <div class="shrink-0 flex flex-wrap items-center gap-2 px-3 sm:px-6 py-2 bg-zinc-900 border-b border-zinc-800">
-            <span class="text-xs font-semibold text-zinc-400 shrink-0">Rentang:</span>
+          <!-- Range & Layout Filter Bar -->
+          <div class="shrink-0 flex flex-wrap items-center gap-3 px-3 sm:px-6 py-2 bg-zinc-900 border-b border-zinc-800">
             <div class="flex items-center gap-1.5">
-              <label class="text-xs text-zinc-500 shrink-0">Dari</label>
+              <span class="text-xs font-semibold text-zinc-400 shrink-0">Format Cetak:</span>
               <select
-                v-model="printFromMonth"
-                class="h-7 px-2 rounded border border-zinc-700 bg-zinc-800 text-zinc-200 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
+                v-model="printLayout"
+                class="h-7 px-2 rounded border border-zinc-700 bg-zinc-800 text-zinc-200 text-xs outline-none focus:ring-1 focus:ring-emerald-500 mr-2"
               >
-                <option v-for="opt in printMonthOptions" :key="opt.value" :value="opt.value">
-                  {{ opt.label }}
-                </option>
+                <option value="bulanan">Bulanan (1 Bln/Lembar)</option>
+                <option value="semester_1">Semester 1 (Ganjil) - 1 Lembar</option>
+                <option value="semester_2">Semester 2 (Genap) - 1 Lembar</option>
+                <option value="tahunan">1 Tahun Pelajaran - 1 Lembar</option>
               </select>
             </div>
-            <div class="flex items-center gap-1.5">
-              <label class="text-xs text-zinc-500 shrink-0">Sampai</label>
-              <select
-                v-model="printToMonth"
-                class="h-7 px-2 rounded border border-zinc-700 bg-zinc-800 text-zinc-200 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
-              >
-                <option v-for="opt in printMonthOptions" :key="opt.value" :value="opt.value">
-                  {{ opt.label }}
-                </option>
-              </select>
-            </div>
-            <span class="text-xs text-zinc-500">{{ printGroups.length }} lembar</span>
+
+            <template v-if="printLayout === 'bulanan'">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-semibold text-zinc-400 shrink-0">Rentang:</span>
+                <label class="text-xs text-zinc-500 shrink-0">Dari</label>
+                <select
+                  v-model="printFromMonth"
+                  class="h-7 px-2 rounded border border-zinc-700 bg-zinc-800 text-zinc-200 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
+                >
+                  <option v-for="opt in printMonthOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </option>
+                </select>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <label class="text-xs text-zinc-500 shrink-0">Sampai</label>
+                <select
+                  v-model="printToMonth"
+                  class="h-7 px-2 rounded border border-zinc-700 bg-zinc-800 text-zinc-200 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
+                >
+                  <option v-for="opt in printMonthOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </option>
+                </select>
+              </div>
+              <span class="text-xs text-zinc-500">{{ printGroups.length }} lembar</span>
+            </template>
+            <template v-else>
+              <span class="text-xs text-zinc-500">Total: 1 lembar</span>
+            </template>
           </div>
 
           <!-- Scrollable Preview Area — horizontal scroll on mobile so A4 layout stays intact -->
           <div class="flex-1 overflow-auto bg-zinc-950">
             <div class="flex flex-col items-start sm:items-center py-4 sm:py-8 gap-4 sm:gap-6 px-2 sm:px-0 min-w-0">
 
-              <!-- Empty state -->
-              <div v-if="printGroups.length === 0" class="bg-white rounded p-8 text-center text-zinc-400 mt-4 w-full max-w-sm mx-auto">
-                Tidak ada agenda pada rentang bulan yang dipilih.
-              </div>
+              <!-- Bulanan Layout -->
+              <template v-if="printLayout === 'bulanan'">
+                <!-- Empty state -->
+                <div v-if="printGroups.length === 0" class="bg-white rounded p-8 text-center text-zinc-400 mt-4 w-full max-w-sm mx-auto">
+                  Tidak ada agenda pada rentang bulan yang dipilih.
+                </div>
 
-              <!-- One page per month — horizontal scroll wrapper on mobile -->
+                <!-- One page per month — horizontal scroll wrapper on mobile -->
+                <div
+                  v-for="(group, idx) in printGroups"
+                  :key="group.monthKey"
+                  class="kalender-page-wrapper"
+                >
+                  <div class="kalender-page">
+                    <!-- Page Header -->
+                    <div class="kalender-header">
+                      <div class="kalender-header-logo-group">
+                        <img
+                          src="/assets/images/logo-madrasah.svg"
+                          alt="Logo Madrasah"
+                          class="kalender-logo"
+                        />
+                        <div class="kalender-header-title">
+                          <div class="kalender-school-name">MI NW Penyenggir</div>
+                          <div class="kalender-doc-title">KALENDER PENDIDIKAN</div>
+                          <div class="kalender-tapel">Tahun Pelajaran {{ selectedTapel }}</div>
+                        </div>
+                      </div>
+                      <div class="kalender-month-badge">
+                        {{ group.monthName }}
+                      </div>
+                    </div>
+
+                    <!-- Calendar Grid + Sidebar -->
+                    <div class="kalender-body">
+                      <div class="kalender-grid-wrapper">
+                        <div class="kalender-weekdays">
+                          <div v-for="day in ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']" :key="day" class="kalender-weekday-cell">
+                            {{ day }}
+                          </div>
+                        </div>
+                        <div class="kalender-days">
+                          <div
+                            v-for="n in getMonthStartOffset(group.monthKey)"
+                            :key="'empty-' + n"
+                            class="kalender-day-cell kalender-day-empty"
+                          ></div>
+                          <div
+                            v-for="day in getDaysInMonth(group.monthKey)"
+                            :key="day"
+                            class="kalender-day-cell"
+                            :class="getDayCellClass(group.monthKey, day, group.events)"
+                          >
+                            <span class="kalender-day-number">{{ day }}</span>
+                            <span
+                              v-if="getDayEventLabel(group.monthKey, day, group.events)"
+                              class="kalender-day-event-label"
+                            >
+                              {{ getDayEventLabel(group.monthKey, day, group.events) }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="kalender-sidebar">
+                        <div class="kalender-legend">
+                          <div class="kalender-legend-title">KETERANGAN</div>
+                          <div class="kalender-legend-item">
+                            <span class="kalender-legend-dot kalender-legend-dot--libur"></span>
+                            <span>Hari Libur Sekolah</span>
+                          </div>
+                          <div class="kalender-legend-item">
+                            <span class="kalender-legend-dot kalender-legend-dot--kegiatan"></span>
+                            <span>Kegiatan Madrasah</span>
+                          </div>
+                          <div class="kalender-legend-item">
+                            <span class="kalender-legend-dot kalender-legend-dot--weekly"></span>
+                            <span>Libur Mingguan</span>
+                          </div>
+                        </div>
+                        <div class="kalender-event-list">
+                          <div class="kalender-event-list-title">AGENDA BULAN INI</div>
+                          <div v-if="group.events.length === 0" class="kalender-event-empty">
+                            Tidak ada agenda
+                          </div>
+                          <div
+                            v-for="event in group.events"
+                            :key="event.id"
+                            class="kalender-event-item"
+                            :class="event.tipe === 'libur' ? 'kalender-event-item--libur' : 'kalender-event-item--kegiatan'"
+                          >
+                            <div class="kalender-event-date">{{ formatEventRange(event) }}</div>
+                            <div class="kalender-event-desc">{{ event.keterangan }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="kalender-footer">
+                      <div>Dicetak oleh sistem SOPOKDATE &bull; {{ new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}</div>
+                      <div>Halaman {{ idx + 1 }} / {{ printGroups.length }}</div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Monthly Grid Layout (Semester/Tahun) -->
+              <template v-else>
+                <!-- PAGE 1: Monthly Grid Boxes -->
+                <div class="kalender-page-wrapper">
+                  <div class="kalender-page kalender-page--grid">
+                    <!-- Page Header -->
+                    <div class="kalender-header">
+                      <div class="kalender-header-logo-group">
+                        <img src="/assets/images/logo-madrasah.svg" alt="Logo Madrasah" class="kalender-logo" />
+                        <div class="kalender-header-title">
+                          <div class="kalender-school-name">MI NW Penyenggir</div>
+                          <div class="kalender-doc-title">KALENDER PENDIDIKAN</div>
+                          <div class="kalender-tapel">Tahun Pelajaran {{ selectedTapel }}</div>
+                        </div>
+                      </div>
+                      <div class="kalender-month-badge">
+                        {{ printLayout === 'semester_1' ? 'SEMESTER I' : printLayout === 'semester_2' ? 'SEMESTER II' : '1 TAHUN' }}
+                      </div>
+                    </div>
+
+                    <!-- Month Grids Container -->
+                    <div class="kalender-mini-grid" :class="printLayout === 'tahunan' ? 'kalender-mini-grid--4col' : 'kalender-mini-grid--3col'">
+                      <div v-for="m in tableMonths" :key="m.monthKey" class="kalender-mini-month">
+                        <div class="kalender-mini-month-title">{{ m.monthName }}</div>
+                        <table class="kalender-mini-table">
+                          <thead>
+                            <tr>
+                              <th v-for="wd in ['A','S','S','R','K','J','S']" :key="wd">{{ wd }}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="(week, wi) in getWeeksForMonth(m.monthKey)" :key="wi">
+                              <td v-for="(day, di) in week" :key="di"
+                                :class="day ? getDayCellClass(m.monthKey, day, m.events) : 'kalender-mini-day--empty'">
+                                {{ day || '' }}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <!-- Legend (inline, compact) -->
+                    <div class="kalender-mini-legend-bar">
+                      <span class="kalender-mini-legend-label">Keterangan:</span>
+                      <span class="kalender-mini-legend-entry"><span class="kalender-legend-dot kalender-legend-dot--libur"></span> Libur</span>
+                      <span class="kalender-mini-legend-entry"><span class="kalender-legend-dot kalender-legend-dot--kegiatan"></span> Kegiatan</span>
+                      <span class="kalender-mini-legend-entry"><span class="kalender-legend-dot kalender-legend-dot--weekly"></span> Libur Mingguan</span>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="kalender-footer">
+                      <div>Dicetak oleh sistem SOPOKDATE &bull; {{ new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}</div>
+                      <div>Halaman 1 / 2</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- PAGE 2: Agenda & Keterangan -->
+                <div class="kalender-page-wrapper">
+                  <div class="kalender-page kalender-page--grid">
+                    <!-- Page Header -->
+                    <div class="kalender-header">
+                      <div class="kalender-header-logo-group">
+                        <img src="/assets/images/logo-madrasah.svg" alt="Logo Madrasah" class="kalender-logo" />
+                        <div class="kalender-header-title">
+                          <div class="kalender-school-name">MI NW Penyenggir</div>
+                          <div class="kalender-doc-title">DAFTAR AGENDA & KEGIATAN</div>
+                          <div class="kalender-tapel">Tahun Pelajaran {{ selectedTapel }} — {{ printLayout === 'semester_1' ? 'Semester I' : printLayout === 'semester_2' ? 'Semester II' : '1 Tahun' }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Agenda List (full page, multi-column) -->
+                    <div class="kalender-agenda-page-body">
+                      <div v-if="tableEvents.length === 0" class="kalender-event-empty" style="padding:4mm;">
+                        Tidak ada agenda terdaftar.
+                      </div>
+                      <div v-else class="kalender-agenda-page-list">
+                        <div v-for="(event, idx) in tableEvents" :key="'ag-' + event.id" class="kalender-agenda-page-item">
+                          <span class="kalender-agenda-num">{{ idx + 1 }}.</span>
+                          <span class="kalender-agenda-badge" :class="'kalender-agenda-badge--' + event.tipe">
+                            {{ event.tipe === 'libur' ? 'Libur' : 'Kegiatan' }}
+                          </span>
+                          <span class="kalender-agenda-date">{{ formatEventRange(event) }}</span>
+                          <span class="kalender-agenda-desc">— {{ event.keterangan }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="kalender-footer">
+                      <div>Dicetak oleh sistem SOPOKDATE &bull; {{ new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}</div>
+                      <div>Halaman 2 / 2</div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+            </div>
+          </div>
+
+          <!-- Hidden print-only area (rendered off-screen, only visible during window.print()) -->
+          <div id="kalender-print-only" aria-hidden="true">
+            <template v-if="printLayout === 'bulanan'">
               <div
                 v-for="(group, idx) in printGroups"
-                :key="group.monthKey"
-                class="kalender-page-wrapper"
+                :key="'print-' + group.monthKey"
+                class="kalender-page"
               >
-              <div class="kalender-page">
-                <!-- Page Header -->
                 <div class="kalender-header">
                   <div class="kalender-header-logo-group">
                     <img
@@ -304,25 +529,15 @@
                       <div class="kalender-tapel">Tahun Pelajaran {{ selectedTapel }}</div>
                     </div>
                   </div>
-                  <div class="kalender-month-badge">
-                    {{ group.monthName }}
-                  </div>
+                  <div class="kalender-month-badge">{{ group.monthName }}</div>
                 </div>
-
-                <!-- Calendar Grid + Sidebar -->
                 <div class="kalender-body">
                   <div class="kalender-grid-wrapper">
                     <div class="kalender-weekdays">
-                      <div v-for="day in ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']" :key="day" class="kalender-weekday-cell">
-                        {{ day }}
-                      </div>
+                      <div v-for="day in ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']" :key="day" class="kalender-weekday-cell">{{ day }}</div>
                     </div>
                     <div class="kalender-days">
-                      <div
-                        v-for="n in getMonthStartOffset(group.monthKey)"
-                        :key="'empty-' + n"
-                        class="kalender-day-cell kalender-day-empty"
-                      ></div>
+                      <div v-for="n in getMonthStartOffset(group.monthKey)" :key="'pe-' + n" class="kalender-day-cell kalender-day-empty"></div>
                       <div
                         v-for="day in getDaysInMonth(group.monthKey)"
                         :key="day"
@@ -330,123 +545,111 @@
                         :class="getDayCellClass(group.monthKey, day, group.events)"
                       >
                         <span class="kalender-day-number">{{ day }}</span>
-                        <span
-                          v-if="getDayEventLabel(group.monthKey, day, group.events)"
-                          class="kalender-day-event-label"
-                        >
-                          {{ getDayEventLabel(group.monthKey, day, group.events) }}
-                        </span>
+                        <span v-if="getDayEventLabel(group.monthKey, day, group.events)" class="kalender-day-event-label">{{ getDayEventLabel(group.monthKey, day, group.events) }}</span>
                       </div>
                     </div>
                   </div>
-
                   <div class="kalender-sidebar">
                     <div class="kalender-legend">
                       <div class="kalender-legend-title">KETERANGAN</div>
-                      <div class="kalender-legend-item">
-                        <span class="kalender-legend-dot kalender-legend-dot--libur"></span>
-                        <span>Hari Libur Sekolah</span>
-                      </div>
-                      <div class="kalender-legend-item">
-                        <span class="kalender-legend-dot kalender-legend-dot--kegiatan"></span>
-                        <span>Kegiatan Madrasah</span>
-                      </div>
-                      <div class="kalender-legend-item">
-                        <span class="kalender-legend-dot kalender-legend-dot--weekly"></span>
-                        <span>Libur Mingguan</span>
-                      </div>
+                      <div class="kalender-legend-item"><span class="kalender-legend-dot kalender-legend-dot--libur"></span><span>Hari Libur Sekolah</span></div>
+                      <div class="kalender-legend-item"><span class="kalender-legend-dot kalender-legend-dot--kegiatan"></span><span>Kegiatan Madrasah</span></div>
+                      <div class="kalender-legend-item"><span class="kalender-legend-dot kalender-legend-dot--weekly"></span><span>Libur Mingguan</span></div>
                     </div>
                     <div class="kalender-event-list">
                       <div class="kalender-event-list-title">AGENDA BULAN INI</div>
-                      <div v-if="group.events.length === 0" class="kalender-event-empty">
-                        Tidak ada agenda
-                      </div>
-                      <div
-                        v-for="event in group.events"
-                        :key="event.id"
-                        class="kalender-event-item"
-                        :class="event.tipe === 'libur' ? 'kalender-event-item--libur' : 'kalender-event-item--kegiatan'"
-                      >
+                      <div v-if="group.events.length === 0" class="kalender-event-empty">Tidak ada agenda</div>
+                      <div v-for="event in group.events" :key="event.id" class="kalender-event-item" :class="event.tipe === 'libur' ? 'kalender-event-item--libur' : 'kalender-event-item--kegiatan'">
                         <div class="kalender-event-date">{{ formatEventRange(event) }}</div>
                         <div class="kalender-event-desc">{{ event.keterangan }}</div>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <!-- Footer -->
                 <div class="kalender-footer">
                   <div>Dicetak oleh sistem SOPOKDATE &bull; {{ new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}</div>
                   <div>Halaman {{ idx + 1 }} / {{ printGroups.length }}</div>
                 </div>
               </div>
-              </div><!-- end kalender-page-wrapper -->
-
-            </div>
-          </div>
-
-          <!-- Hidden print-only area (rendered off-screen, only visible during window.print()) -->
-          <div id="kalender-print-only" aria-hidden="true">
-            <div
-              v-for="(group, idx) in printGroups"
-              :key="'print-' + group.monthKey"
-              class="kalender-page"
-            >
-              <div class="kalender-header">
-                <div class="kalender-header-logo-group">
-                  <img
-                    src="/assets/images/logo-madrasah.svg"
-                    alt="Logo Madrasah"
-                    class="kalender-logo"
-                  />
-                  <div class="kalender-header-title">
-                    <div class="kalender-school-name">MI NW Penyenggir</div>
-                    <div class="kalender-doc-title">KALENDER PENDIDIKAN</div>
-                    <div class="kalender-tapel">Tahun Pelajaran {{ selectedTapel }}</div>
+            </template>
+            <template v-else>
+              <!-- PAGE 1: Monthly Grid Boxes (print) -->
+              <div class="kalender-page kalender-page--grid">
+                <div class="kalender-header">
+                  <div class="kalender-header-logo-group">
+                    <img src="/assets/images/logo-madrasah.svg" alt="Logo Madrasah" class="kalender-logo" />
+                    <div class="kalender-header-title">
+                      <div class="kalender-school-name">MI NW Penyenggir</div>
+                      <div class="kalender-doc-title">KALENDER PENDIDIKAN</div>
+                      <div class="kalender-tapel">Tahun Pelajaran {{ selectedTapel }}</div>
+                    </div>
+                  </div>
+                  <div class="kalender-month-badge">
+                    {{ printLayout === 'semester_1' ? 'SEMESTER I' : printLayout === 'semester_2' ? 'SEMESTER II' : '1 TAHUN' }}
                   </div>
                 </div>
-                <div class="kalender-month-badge">{{ group.monthName }}</div>
-              </div>
-              <div class="kalender-body">
-                <div class="kalender-grid-wrapper">
-                  <div class="kalender-weekdays">
-                    <div v-for="day in ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']" :key="day" class="kalender-weekday-cell">{{ day }}</div>
+                <div class="kalender-mini-grid" :class="printLayout === 'tahunan' ? 'kalender-mini-grid--4col' : 'kalender-mini-grid--3col'">
+                  <div v-for="m in tableMonths" :key="'pm-' + m.monthKey" class="kalender-mini-month">
+                    <div class="kalender-mini-month-title">{{ m.monthName }}</div>
+                    <table class="kalender-mini-table">
+                      <thead>
+                        <tr>
+                          <th v-for="wd in ['A','S','S','R','K','J','S']" :key="'pwd-' + wd">{{ wd }}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(week, wi) in getWeeksForMonth(m.monthKey)" :key="'pw-' + wi">
+                          <td v-for="(day, di) in week" :key="'pd-' + di"
+                            :class="day ? getDayCellClass(m.monthKey, day, m.events) : 'kalender-mini-day--empty'">
+                            {{ day || '' }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                  <div class="kalender-days">
-                    <div v-for="n in getMonthStartOffset(group.monthKey)" :key="'pe-' + n" class="kalender-day-cell kalender-day-empty"></div>
-                    <div
-                      v-for="day in getDaysInMonth(group.monthKey)"
-                      :key="day"
-                      class="kalender-day-cell"
-                      :class="getDayCellClass(group.monthKey, day, group.events)"
-                    >
-                      <span class="kalender-day-number">{{ day }}</span>
-                      <span v-if="getDayEventLabel(group.monthKey, day, group.events)" class="kalender-day-event-label">{{ getDayEventLabel(group.monthKey, day, group.events) }}</span>
+                </div>
+                <div class="kalender-mini-legend-bar">
+                  <span class="kalender-mini-legend-label">Keterangan:</span>
+                  <span class="kalender-mini-legend-entry"><span class="kalender-legend-dot kalender-legend-dot--libur"></span> Libur</span>
+                  <span class="kalender-mini-legend-entry"><span class="kalender-legend-dot kalender-legend-dot--kegiatan"></span> Kegiatan</span>
+                  <span class="kalender-mini-legend-entry"><span class="kalender-legend-dot kalender-legend-dot--weekly"></span> Libur Mingguan</span>
+                </div>
+                <div class="kalender-footer">
+                  <div>Dicetak oleh sistem SOPOKDATE &bull; {{ new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}</div>
+                  <div>Halaman 1 / 2</div>
+                </div>
+              </div>
+              <!-- PAGE 2: Agenda (print) -->
+              <div class="kalender-page kalender-page--grid kalender-page--page2">
+                <div class="kalender-header">
+                  <div class="kalender-header-logo-group">
+                    <img src="/assets/images/logo-madrasah.svg" alt="Logo Madrasah" class="kalender-logo" />
+                    <div class="kalender-header-title">
+                      <div class="kalender-school-name">MI NW Penyenggir</div>
+                      <div class="kalender-doc-title">DAFTAR AGENDA & KEGIATAN</div>
+                      <div class="kalender-tapel">Tahun Pelajaran {{ selectedTapel }} — {{ printLayout === 'semester_1' ? 'Semester I' : printLayout === 'semester_2' ? 'Semester II' : '1 Tahun' }}</div>
                     </div>
                   </div>
                 </div>
-                <div class="kalender-sidebar">
-                  <div class="kalender-legend">
-                    <div class="kalender-legend-title">KETERANGAN</div>
-                    <div class="kalender-legend-item"><span class="kalender-legend-dot kalender-legend-dot--libur"></span><span>Hari Libur Sekolah</span></div>
-                    <div class="kalender-legend-item"><span class="kalender-legend-dot kalender-legend-dot--kegiatan"></span><span>Kegiatan Madrasah</span></div>
-                    <div class="kalender-legend-item"><span class="kalender-legend-dot kalender-legend-dot--weekly"></span><span>Libur Mingguan</span></div>
-                  </div>
-                  <div class="kalender-event-list">
-                    <div class="kalender-event-list-title">AGENDA BULAN INI</div>
-                    <div v-if="group.events.length === 0" class="kalender-event-empty">Tidak ada agenda</div>
-                    <div v-for="event in group.events" :key="event.id" class="kalender-event-item" :class="event.tipe === 'libur' ? 'kalender-event-item--libur' : 'kalender-event-item--kegiatan'">
-                      <div class="kalender-event-date">{{ formatEventRange(event) }}</div>
-                      <div class="kalender-event-desc">{{ event.keterangan }}</div>
+                <div class="kalender-agenda-page-body">
+                  <div v-if="tableEvents.length === 0" class="kalender-event-empty" style="padding:4mm;">Tidak ada agenda terdaftar.</div>
+                  <div v-else class="kalender-agenda-page-list">
+                    <div v-for="(event, idx) in tableEvents" :key="'pag-' + event.id" class="kalender-agenda-page-item">
+                      <span class="kalender-agenda-num">{{ idx + 1 }}.</span>
+                      <span class="kalender-agenda-badge" :class="'kalender-agenda-badge--' + event.tipe">
+                        {{ event.tipe === 'libur' ? 'Libur' : 'Kegiatan' }}
+                      </span>
+                      <span class="kalender-agenda-date">{{ formatEventRange(event) }}</span>
+                      <span class="kalender-agenda-desc">— {{ event.keterangan }}</span>
                     </div>
                   </div>
                 </div>
+                <div class="kalender-footer">
+                  <div>Dicetak oleh sistem SOPOKDATE &bull; {{ new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}</div>
+                  <div>Halaman 2 / 2</div>
+                </div>
               </div>
-              <div class="kalender-footer">
-                <div>Dicetak oleh sistem SOPOKDATE &bull; {{ new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}</div>
-                <div>Halaman {{ idx + 1 }} / {{ printGroups.length }}</div>
-              </div>
-            </div>
+            </template>
           </div>
         </div>
       </Teleport>
@@ -736,6 +939,7 @@ const saveWeeklyHoliday = async () => {
 const showPrintPreview = ref(false);
 const printFromMonth = ref("");
 const printToMonth = ref("");
+const printLayout = ref("bulanan"); // "bulanan", "semester_1", "semester_2", "tahunan"
 
 // Generate all months within the selected tapel range, e.g. "2025/2026" → Jul 2025 – Jun 2026
 const allTapelMonths = computed(() => {
@@ -798,10 +1002,124 @@ const printGroups = computed(() => {
     }));
 });
 
+// Months used in Semester/Tahun table layout
+const tableMonths = computed(() => {
+  const all = allTapelMonths.value;
+  if (!all.length) return [];
+  if (printLayout.value === "semester_1") {
+    return all.slice(0, 6).map(m => ({
+      ...m,
+      events: eventsByMonth.value[m.monthKey] || []
+    }));
+  }
+  if (printLayout.value === "semester_2") {
+    return all.slice(6, 12).map(m => ({
+      ...m,
+      events: eventsByMonth.value[m.monthKey] || []
+    }));
+  }
+  if (printLayout.value === "tahunan") {
+    return all.map(m => ({
+      ...m,
+      events: eventsByMonth.value[m.monthKey] || []
+    }));
+  }
+  return [];
+});
+
+// Flat event list for the selected table layout range (Semester/Tahun)
+const tableEvents = computed(() => {
+  const events = [];
+  tableMonths.value.forEach(m => {
+    events.push(...m.events);
+  });
+  // De-duplicate in case of spanning events, sort chronologically
+  const uniqueEvents = [];
+  const seenIds = new Set();
+  events.forEach(e => {
+    if (!seenIds.has(e.id)) {
+      seenIds.add(e.id);
+      uniqueEvents.push(e);
+    }
+  });
+  return uniqueEvents.sort((a, b) => new Date(a.tanggal_mulai) - new Date(b.tanggal_mulai));
+});
+
+// Helper: Get weekday letter ("A", "S", "S", "R", "K", "J", "S")
+const getWeekdayLetter = (monthKey, day) => {
+  const [year, month] = monthKey.split("-").map(Number);
+  const totalDays = new Date(year, month, 0).getDate();
+  if (day > totalDays) return "";
+  const date = new Date(year, month - 1, day);
+  const dayOfWeek = date.getDay();
+  const letters = ["A", "S", "S", "R", "K", "J", "S"];
+  return letters[dayOfWeek];
+};
+
+// Helper: Get CSS classes for table cell
+const getTableDayClass = (monthKey, day, events) => {
+  const [year, month] = monthKey.split("-").map(Number);
+  const totalDays = new Date(year, month, 0).getDate();
+  if (day > totalDays) return "kalender-table-day--invalid";
+
+  const date = new Date(year, month - 1, day);
+  const dayOfWeek = date.getDay();
+
+  // Weekly Holiday Check
+  if (dayOfWeek === hariLiburMingguan.value) {
+    return "kalender-table-day--weekly";
+  }
+
+  // Events check
+  for (const event of events) {
+    if (isDateInEvent(year, month, day, event)) {
+      return event.tipe === "libur"
+        ? "kalender-table-day--libur"
+        : "kalender-table-day--kegiatan";
+    }
+  }
+
+  return "";
+};
+
+// Helper: Get weeks for month (array of 7-day rows)
+const getWeeksForMonth = (monthKey) => {
+  const [year, month] = monthKey.split("-").map(Number);
+  const startOffset = new Date(year, month - 1, 1).getDay(); // day of week (0=Sun)
+  const totalDays = new Date(year, month, 0).getDate();
+  
+  const weeks = [];
+  let currentWeek = Array(7).fill(null);
+  
+  // Fill initial offset
+  for (let i = 0; i < startOffset; i++) {
+    currentWeek[i] = null;
+  }
+  
+  let col = startOffset;
+  for (let day = 1; day <= totalDays; day++) {
+    currentWeek[col] = day;
+    col++;
+    if (col === 7) {
+      weeks.push(currentWeek);
+      currentWeek = Array(7).fill(null);
+      col = 0;
+    }
+  }
+  
+  // Push last week if not empty
+  if (currentWeek.some(d => d !== null)) {
+    weeks.push(currentWeek);
+  }
+  
+  return weeks;
+};
+
 const openPrintPreview = () => {
   const all = allTapelMonths.value;
   printFromMonth.value = all.length ? all[0].monthKey : "";
   printToMonth.value = all.length ? all[all.length - 1].monthKey : "";
+  printLayout.value = "bulanan";
   showPrintPreview.value = true;
 };
 
@@ -852,6 +1170,23 @@ body { background: white; font-family: Arial, Helvetica, sans-serif; color: #1a1
   overflow: hidden;
 }
 .kalender-page:last-child { page-break-after: avoid; break-after: avoid; }
+
+/* Table Layout Page */
+.kalender-page--table {
+  width: 277mm;
+  height: 187mm;
+  max-height: 187mm;
+  padding: 5mm 8mm;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  page-break-after: avoid;
+  break-after: avoid;
+  overflow: hidden;
+}
 
 /* Header */
 .kalender-header {
@@ -971,6 +1306,176 @@ body { background: white; font-family: Arial, Helvetica, sans-serif; color: #1a1
 .kalender-event-item--libur .kalender-event-date { color: #b91c1c; }
 .kalender-event-item--kegiatan .kalender-event-date { color: #1d4ed8; }
 .kalender-event-desc { font-size: 7pt; font-weight: 600; color: #1f2937; line-height: 1.3; }
+
+/* Monthly Grid Layout */
+.kalender-page--grid {
+  width: 277mm;
+  min-height: 187mm;
+  max-height: 187mm;
+  padding: 5mm 8mm;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  gap: 2mm;
+  page-break-after: always;
+  break-after: page;
+  overflow: hidden;
+}
+.kalender-page--grid:last-child { page-break-after: avoid; break-after: avoid; }
+.kalender-page--page2 {
+  page-break-before: always;
+  break-before: page;
+}
+
+/* Mini grid container */
+.kalender-mini-grid {
+  flex: 1;
+  display: grid;
+  gap: 3mm;
+  min-height: 0;
+}
+.kalender-mini-grid--3col { grid-template-columns: repeat(3, 1fr); }
+.kalender-mini-grid--4col { grid-template-columns: repeat(4, 1fr); }
+
+/* Mini month box */
+.kalender-mini-month {
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+.kalender-mini-month-title {
+  background: #064e3b !important;
+  color: #ffffff !important;
+  font-size: 8pt;
+  font-weight: 700;
+  text-align: center;
+  padding: 1mm 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* Mini calendar table */
+.kalender-mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  flex: 1;
+}
+.kalender-mini-table th {
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  font-size: 6pt;
+  font-weight: 700;
+  padding: 0.5mm 0;
+  text-align: center;
+  border-bottom: 1px solid #d1d5db;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+.kalender-mini-table td {
+  font-size: 7pt;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.6mm 0;
+  color: #374151;
+  border: 0.5px solid #e5e7eb;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+.kalender-mini-day--empty {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+/* Mini legend bar */
+.kalender-mini-legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  font-size: 7pt;
+  color: #374151;
+  padding: 1mm 0;
+  border-top: 1px solid #d1fae5;
+  margin-top: auto;
+}
+.kalender-mini-legend-label {
+  font-weight: 700;
+  color: #047857;
+  font-size: 7pt;
+}
+.kalender-mini-legend-entry {
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+  font-size: 7pt;
+}
+
+/* Agenda page (Page 2) */
+.kalender-agenda-page-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.kalender-agenda-page-list {
+  column-count: 2;
+  column-gap: 8mm;
+  font-size: 8pt;
+  line-height: 1.4;
+}
+.kalender-agenda-page-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5mm;
+  margin-bottom: 1.5mm;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.kalender-agenda-num {
+  font-weight: bold;
+  color: #6b7280;
+  width: 5mm;
+  text-align: right;
+  flex-shrink: 0;
+}
+.kalender-agenda-date {
+  font-weight: 700;
+  color: #374151;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.kalender-agenda-badge {
+  font-size: 6pt;
+  font-weight: 800;
+  padding: 0.2mm 1mm;
+  border-radius: 2px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  line-height: 1.2;
+  display: inline-block;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+.kalender-agenda-badge--libur {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  border: 0.5px solid #fca5a5;
+}
+.kalender-agenda-badge--kegiatan {
+  background: #dbeafe !important;
+  color: #1e3a8a !important;
+  border: 0.5px solid #93c5fd;
+}
+.kalender-agenda-desc {
+  color: #1f2937;
+  word-break: break-word;
+}
 
 /* Footer */
 .kalender-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #d1fae5; padding-top: 2mm; font-size: 6pt; color: #9ca3af; }
@@ -1401,6 +1906,172 @@ onMounted(async () => {
   padding-top: 2mm;
   font-size: 6pt;
   color: #9ca3af;
+}
+
+/* --- Monthly Grid Layout (for screen preview) --- */
+.kalender-page--grid {
+  width: 277mm;
+  min-height: 187mm;
+  max-height: 187mm;
+  padding: 5mm 8mm;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  gap: 2mm;
+  overflow: hidden;
+}
+
+/* Mini grid container */
+.kalender-mini-grid {
+  flex: 1;
+  display: grid;
+  gap: 3mm;
+  min-height: 0;
+}
+.kalender-mini-grid--3col { grid-template-columns: repeat(3, 1fr); }
+.kalender-mini-grid--4col { grid-template-columns: repeat(4, 1fr); }
+
+/* Mini month box */
+.kalender-mini-month {
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.kalender-mini-month-title {
+  background: #064e3b;
+  color: #ffffff;
+  font-size: 8pt;
+  font-weight: 700;
+  text-align: center;
+  padding: 1mm 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Mini calendar table */
+.kalender-mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  flex: 1;
+}
+.kalender-mini-table th {
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 6pt;
+  font-weight: 700;
+  padding: 0.5mm 0;
+  text-align: center;
+  border-bottom: 1px solid #d1d5db;
+}
+.kalender-mini-table td {
+  font-size: 7pt;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.6mm 0;
+  color: #374151;
+  border: 0.5px solid #e5e7eb;
+}
+.kalender-mini-day--empty {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Mini day cell highlights */
+.kalender-mini-table td.kalender-day--weekly {
+  background: #fef3c7;
+  color: #92400e;
+}
+.kalender-mini-table td.kalender-day--libur {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.kalender-mini-table td.kalender-day--kegiatan {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+/* Mini legend bar */
+.kalender-mini-legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  font-size: 7pt;
+  color: #374151;
+  padding: 1mm 0;
+  border-top: 1px solid #d1fae5;
+  margin-top: auto;
+}
+.kalender-mini-legend-label {
+  font-weight: 700;
+  color: #047857;
+  font-size: 7pt;
+}
+.kalender-mini-legend-entry {
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+  font-size: 7pt;
+}
+
+/* Agenda page (Page 2) */
+.kalender-agenda-page-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.kalender-agenda-page-list {
+  column-count: 2;
+  column-gap: 8mm;
+  font-size: 8pt;
+  line-height: 1.4;
+}
+.kalender-agenda-page-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5mm;
+  margin-bottom: 1.5mm;
+  break-inside: avoid;
+}
+.kalender-agenda-num {
+  font-weight: bold;
+  color: #6b7280;
+  width: 5mm;
+  text-align: right;
+  flex-shrink: 0;
+}
+.kalender-agenda-date {
+  font-weight: 700;
+  color: #374151;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.kalender-agenda-badge {
+  font-size: 6pt;
+  font-weight: 800;
+  padding: 0.2mm 1mm;
+  border-radius: 2px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  line-height: 1.2;
+  display: inline-block;
+}
+.kalender-agenda-badge--libur {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 0.5px solid #fca5a5;
+}
+.kalender-agenda-badge--kegiatan {
+  background: #dbeafe;
+  color: #1e3a8a;
+  border: 0.5px solid #93c5fd;
+}
+.kalender-agenda-desc {
+  color: #1f2937;
+  word-break: break-word;
 }
 
 /* =====================================================

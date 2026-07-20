@@ -231,7 +231,7 @@
           <!-- Cards (Mobile View) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
             <div v-for="(user, index) in filteredUsers" :key="user.id"
-              class="rounded-xl border border-zinc-700/50 bg-zinc-800/10 p-4 transition-all duration-200 hover:border-zinc-600/50">
+              class="rounded-xl border border-zinc-700/50 bg-zinc-800/10 p-4 transition-colors duration-200 hover:border-zinc-600/50 force-gpu">
               <!-- Card Header -->
               <div class="flex items-start justify-between gap-3 mb-4">
                 <div class="flex items-center gap-3">
@@ -307,7 +307,7 @@
                 <div class="flex items-center gap-1">
                   <!-- QR Code Login -->
                   <button @click="openQrModal(user)"
-                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-blue-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-all"
+                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-blue-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-colors duration-200"
                     title="QR Login">
                     <QrCode class="w-3 h-3" />
                     <span>QR</span>
@@ -315,7 +315,7 @@
 
                   <!-- Edit Password Manual -->
                   <button @click="openEditPasswordModal(user)" :disabled="actionLoading === user.id"
-                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-emerald-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-all disabled:opacity-50"
+                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-emerald-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-colors duration-200 disabled:opacity-50"
                     title="Edit Password Manual">
                     <Key class="w-3 h-3" />
                     <span>Edit</span>
@@ -323,7 +323,7 @@
 
                   <!-- Reset Password -->
                   <button @click="resetPassword(user)" :disabled="actionLoading === user.id"
-                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-amber-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-all disabled:opacity-50"
+                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-amber-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-colors duration-200 disabled:opacity-50"
                     title="Reset Password">
                     <RefreshCw class="w-3 h-3" :class="{ 'animate-spin': actionLoading === user.id }" />
                     <span>Reset</span>
@@ -332,7 +332,7 @@
                   <!-- Toggle Active -->
                   <button @click="toggleActive(user)" :disabled="actionLoading === user.id || user.role === 'admin'
                     "
-                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border transition-all disabled:opacity-30"
+                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border transition-colors duration-200 disabled:opacity-30"
                     :class="user.is_active
                         ? 'bg-zinc-800 text-red-400 border-zinc-700/50 hover:bg-zinc-700/80'
                         : 'bg-zinc-800 text-green-400 border-zinc-700/50 hover:bg-zinc-700/80'
@@ -350,7 +350,7 @@
                   <!-- Delete -->
                   <button @click="deleteUser(user)" :disabled="actionLoading === user.id || user.role === 'admin'
                     "
-                    class="p-1 rounded-md bg-zinc-800 text-zinc-400 hover:text-red-400 hover:bg-zinc-700 border border-zinc-700/50 transition-all disabled:opacity-30"
+                    class="p-1 rounded-md bg-zinc-800 text-zinc-400 hover:text-red-400 hover:bg-zinc-700 border border-zinc-700/50 transition-colors duration-200 disabled:opacity-30"
                     title="Hapus Akun">
                     <Trash2 class="w-3 h-3" />
                   </button>

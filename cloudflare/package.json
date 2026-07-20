@@ -8,7 +8,9 @@
     "deploy": "npx wrangler deploy",
     "db:create": "npx wrangler d1 create sopokdate-db",
     "db:schema": "npx wrangler d1 execute sopokdate-db --file=db/schema.sql --remote",
-    "db:schema:local": "npx wrangler d1 execute sopokdate-db --file=db/schema.sql --local"
+    "db:schema:local": "npx wrangler d1 execute sopokdate-db --file=db/schema.sql --local",
+    "db:seed": "npx wrangler d1 execute sopokdate-db --file=db/seed.sql --remote",
+    "db:seed:local": "npx wrangler d1 execute sopokdate-db --file=db/seed.sql --local"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241218.0",

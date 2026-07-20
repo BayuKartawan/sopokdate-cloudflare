@@ -188,7 +188,7 @@
         </div>
 
         <!-- Action Buttons: Status Pengiriman -->
-        <div class="flex items-center gap-2" v-if="activeTab === 'status' && statusTableData.length > 0">
+        <div class="flex items-center gap-2" v-if="activeTab === 'status' && userRole === 'admin' && statusTableData.length > 0">
           <!-- Export Excel Button -->
           <BaseButton
             :text="isExportingStatus ? 'Mengekspor...' : 'Export Excel'"
@@ -275,7 +275,7 @@
       </div>
 
       <!-- Tab Navigation -->
-      <div class="flex items-center gap-1 mb-6 p-1 rounded-xl bg-zinc-800/30 border border-zinc-700/40 w-fit">
+      <div v-if="userRole === 'admin'" class="flex items-center gap-1 mb-6 p-1 rounded-xl bg-zinc-800/30 border border-zinc-700/40 w-fit">
         <button
           @click="activeTab = 'kehadiran'"
           :class="[
@@ -583,7 +583,7 @@
       <!-- ============================================ -->
       <!-- TAB 2: STATUS PENGIRIMAN ABSENSI (New)       -->
       <!-- ============================================ -->
-      <template v-if="activeTab === 'status'">
+      <template v-if="activeTab === 'status' && userRole === 'admin'">
         <!-- Filter Section for Status Tab -->
         <div
           class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5 rounded-xl border bg-zinc-800/20 border-zinc-700/40 mb-6"
@@ -1137,6 +1137,7 @@ const fetchRekap = async () => {
 // --- Status Pengiriman Methods (Tab 2) ---
 
 const switchToStatusTab = () => {
+  if (userRole.value !== "admin") return;
   activeTab.value = "status";
   if (!statusRawData.value.length && statusTapel.value && statusSemester.value) {
     fetchStatusData();
@@ -1403,6 +1404,7 @@ const exportStatusToExcel = async () => {
 // --- Lifecycle
 onMounted(async () => {
   isLoadingKelas.value = true;
+  userRole.value = getUserRole() || "";
 
   // Set default Tapel, Semester & Dates
   const currentInfo = dapatkanTahunDanSemester(new Date());
