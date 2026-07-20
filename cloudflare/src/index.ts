@@ -35,6 +35,14 @@ import {
   handleGetAbsensiRekap,
   handleGetAbsensiRekapStatus,
 } from "./handlers/absensi";
+import {
+  handleGetMapelGuru,
+  handleGetJenisAsesmen,
+  handlePostJenisAsesmen,
+  handleDeleteJenisAsesmen,
+  handleGetNilai,
+  handlePostNilai,
+} from "./handlers/asesmen";
 
 import type { Env } from "./types";
 
@@ -209,6 +217,32 @@ app.delete("/api/menu-akses/user", async (c) => {
 
 app.get("/api/menu-akses/my", async (c) => {
   return await handleGetMyMenuAkses(c.req.raw, c.env);
+});
+
+// --- Asesmen Routes ---
+app.get("/api/asesmen/mapel-guru", async (c) => {
+  return await handleGetMapelGuru(c.req.raw, c.env);
+});
+
+app.get("/api/asesmen/jenis", async (c) => {
+  return await handleGetJenisAsesmen(c.req.raw, c.env);
+});
+
+app.post("/api/asesmen/jenis", async (c) => {
+  return await handlePostJenisAsesmen(c.req.raw, c.env);
+});
+
+app.delete("/api/asesmen/jenis/:id", async (c) => {
+  const id = c.req.param("id");
+  return await handleDeleteJenisAsesmen(c.req.raw, c.env, id);
+});
+
+app.get("/api/asesmen/nilai", async (c) => {
+  return await handleGetNilai(c.req.raw, c.env);
+});
+
+app.post("/api/asesmen/nilai", async (c) => {
+  return await handlePostNilai(c.req.raw, c.env);
 });
 
 export default app;

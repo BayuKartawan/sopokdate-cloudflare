@@ -40,4 +40,6 @@ export const VALID_TABLES: string[] = [
   "emis_mapel_gtk",
   "template_path",
   "placeholders",
+  "jenis_asesmen",
+  "nilai_asesmen",
 ];

@@ -129,6 +129,11 @@ export const useMenuConfig = () => {
           label: "Rekap Absensi",
           roles: ["admin", "guru", "kepala_madrasah"],
         },
+        {
+          to: "/absensi/asesmen",
+          label: "Asesmen",
+          roles: ["admin", "guru", "kepala_madrasah"],
+        },
       ],
     },
     {
