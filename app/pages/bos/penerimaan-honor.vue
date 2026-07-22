@@ -205,14 +205,21 @@
     </div>
 
     <!-- Preview -->
-    <div class="rounded-xl border overflow-hidden bg-zinc-900 border-zinc-700">
+    <div class="rounded-xl border bg-zinc-900 border-zinc-700">
       <div
-        class="px-6 py-3 border-b font-semibold text-sm flex justify-between bg-zinc-800 border-zinc-700 text-zinc-200"
+        class="px-6 py-3 border-b font-semibold text-sm flex justify-between bg-zinc-800 border-zinc-700 text-zinc-200 rounded-t-xl"
       >
         <span>Preview Dokumen</span>
         <span class="text-xs font-normal text-zinc-400">A4 Landscape</span>
       </div>
-      <div class="p-4 md:p-8 flex justify-center overflow-x-auto bg-gray-100">
+      <!-- Mobile scroll hint -->
+      <div class="flex items-center gap-1.5 px-4 py-2 text-[10px] text-zinc-400 bg-zinc-800/60 border-b border-zinc-700 sm:hidden">
+        <svg class="w-3.5 h-3.5 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+        Geser ke kanan untuk melihat dokumen penuh
+      </div>
+      <div class="preview-scroll-area" style="-webkit-overflow-scrolling: touch;">
         <div ref="printArea" class="bg-white text-black shadow-lg print-page">
           <!-- Judul Atas -->
           <div class="text-center mb-8">
@@ -836,101 +843,122 @@ const formatTanggal = (d) => {
 
 const handlePrint = () => {
   if (!printArea.value) return;
-  const w = window.open("", "_blank");
-  w.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Penerimaan Honor - Cetak</title>
-      <style>
-        @page {
-          size: A4 landscape;
-          margin: 10mm 16mm 10mm 15mm;
-        }
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        body {
-          font-family: Arial, Helvetica, sans-serif;
-          font-size: 11pt;
-          line-height: 1.3;
-          color: #000;
-          background: #fff;
-        }
-        .print-page {
-          width: 100%;
-        }
-        .font-bold { font-weight: bold; }
-        .font-semibold { font-weight: 600; }
-        .text-center { text-align: center; }
-        .flex { display: flex; }
-        .flex-1 { flex: 1 1 0%; }
-        .justify-between { justify-content: space-between; }
-        .grid { display: grid; }
-        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .gap-x-10 { column-gap: 2.5rem; }
-        .w-full { width: 100%; }
-        .w-8 { width: 2rem; }
-        .w-10 { width: 2.5rem; }
-        .w-16 { width: 4rem; }
-        .w-28 { width: 7rem; }
-        .w-32 { width: 8rem; }
-        .w-36 { width: 9rem; }
-        .w-40 { width: 10rem; }
-        .w-56 { width: 14rem; }
-        .w-64 { width: 16rem; }
-        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
-        .py-1\\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
-        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
-        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
-        .mb-8 { margin-bottom: 2rem; }
-        .mb-6 { margin-bottom: 1.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .mt-8 { margin-top: 2rem; }
-        .mt-12 { margin-top: 3rem; }
-        .mt-1 { margin-top: 0.25rem; }
-        .text-\\[11pt\\] { font-size: 11pt; }
-        .bg-gray-100 { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        .bg-gray-50 { background-color: #f9fafb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        .leading-tight { line-height: 1.25; }
-        .space-y-1 > * + * { margin-top: 0.25rem; }
-        .uppercase { text-transform: uppercase; }
-        .table-fixed { table-layout: fixed; }
-        table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-        th, td { border: 1px solid black; word-wrap: break-word; overflow: hidden; }
-        .border-b { border-bottom: 1px solid black; }
-        .border-black { border-color: #000; }
-        .inline-block { display: inline-block; }
-        
-        /* Remove horizontal borders in signature column */
-        .sig-cell { border-top: none !important; border-bottom: none !important; }
-        .sig-cell-last { border-top: none !important; border-bottom: 1px solid black !important; }
-        
-        /* Force height for rows in print */
-        .print-table td { height: ${rowHeightPx.value}px; vertical-align: middle; }
-        .print-table td.sig-cell, .print-table td.sig-cell-last { height: ${rowHeightPx.value}px; }
 
-        @media print {
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="print-page">
-        ${printArea.value.innerHTML}
-      </div>
-    </body>
-    </html>
-  `);
+  // Buka window SEBELUM operasi apapun — harus synchronous dalam gesture handler
+  const w = window.open("", "_blank");
+  if (!w) {
+    alert("Popup diblokir browser. Izinkan popup untuk halaman ini, lalu coba lagi.");
+    return;
+  }
+
+  const content = printArea.value.innerHTML;
+
+  w.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Penerimaan Honor - Cetak</title>
+  <style>
+    @page { size: A4 landscape; margin: 10mm 16mm 10mm 15mm; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11pt;
+      line-height: 1.3;
+      color: #000;
+      background: #fff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    /* Layout */
+    .text-center { text-align: center; }
+    .font-bold    { font-weight: 700; }
+    .font-semibold{ font-weight: 600; }
+    .inline-block { display: inline-block; }
+    .uppercase    { text-transform: uppercase; }
+    .leading-tight{ line-height: 1.25; }
+    .align-top    { vertical-align: top; }
+
+    /* Flex */
+    .flex             { display: flex; }
+    .flex-1           { flex: 1 1 0%; }
+    .justify-between  { justify-content: space-between; }
+    .items-center     { align-items: center; }
+    .space-y-1 > * + *{ margin-top: 0.25rem; }
+
+    /* Grid */
+    .grid         { display: grid; }
+    .grid-cols-2  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .gap-x-10     { column-gap: 2.5rem; }
+
+    /* Width */
+    .w-full { width: 100%; }
+    .w-8  { width: 2rem; }
+    .w-16 { width: 4rem; }
+    .w-28 { width: 7rem; }
+    .w-32 { width: 8rem; }
+    .w-36 { width: 9rem; }
+    .w-40 { width: 10rem; }
+    .w-56 { width: 14rem; }
+
+    /* Padding */
+    .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+    .px-2 { padding-left: 0.5rem;  padding-right: 0.5rem; }
+    .py-2 { padding-top: 0.5rem;   padding-bottom: 0.5rem; }
+
+    /* Margin */
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-8 { margin-bottom: 2rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-8 { margin-top: 2rem; }
+
+    /* Border */
+    .border-b     { border-bottom: 1px solid #000; }
+    .border-black { border-color: #000; }
+
+    /* Background */
+    .bg-gray-100 { background-color: #f3f4f6 !important; }
+    .bg-gray-50  { background-color: #f9fafb !important; }
+    .bg-white    { background-color: #ffffff !important; }
+
+    /* Table */
+    .table-fixed { table-layout: fixed; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid #000;
+      word-wrap: break-word;
+      overflow: hidden;
+      vertical-align: middle;
+    }
+    .print-table td { height: ${rowHeightPx.value}px; }
+
+    /* Tanda tangan */
+    .sig-cell      { border-top: none !important; border-bottom: none !important; }
+    .sig-cell-last { border-top: none !important; border-bottom: 1px solid #000 !important; }
+
+    /* Text sizes */
+    .text-\\[11pt\\] { font-size: 11pt; }
+  </style>
+</head>
+<body>
+  ${content}
+  <script>
+    window.onload = function() {
+      window.print();
+      window.onafterprint = function() { window.close(); };
+      // Fallback untuk browser yang tidak support onafterprint
+      setTimeout(function() { window.close(); }, 3000);
+    };
+  <\/script>
+</body>
+</html>`);
+
   w.document.close();
-  w.focus();
-  setTimeout(() => {
-    w.print();
-    w.close();
-  }, 500);
 };
 </script>
 
@@ -944,6 +972,7 @@ const handlePrint = () => {
   font-size: 11pt;
   box-sizing: border-box;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 table.print-table th,
@@ -959,5 +988,31 @@ table.print-table td {
 .sig-cell-last {
   border-top: none !important;
   border-bottom: 1px solid black !important;
+}
+
+/* Scroll container preview */
+.preview-scroll-area {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background-color: #f3f4f6;
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+@media (max-width: 639px) {
+  .preview-scroll-area {
+    justify-content: flex-start;
+    padding: 1rem;
+    /* Ruang di kanan agar tidak mentok */
+    padding-right: 0;
+  }
+  .preview-scroll-area::after {
+    content: '';
+    display: block;
+    min-width: 1rem;
+    flex-shrink: 0;
+  }
 }
 </style>
