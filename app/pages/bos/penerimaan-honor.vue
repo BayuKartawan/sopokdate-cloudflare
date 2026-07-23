@@ -220,7 +220,7 @@
         Geser ke kanan untuk melihat dokumen penuh
       </div>
       <div class="preview-scroll-area" style="-webkit-overflow-scrolling: touch;">
-        <div ref="printArea" class="bg-white text-black shadow-lg print-page">
+        <div id="print-area" ref="printArea" class="bg-white text-black shadow-lg print-page">
           <!-- Judul Atas -->
           <div class="text-center mb-8">
             <div class="font-bold text-[11pt]">
@@ -397,7 +397,7 @@
               <div>Mengetahui,</div>
               <div>Kepala Madrasah</div>
               <div style="height: 70px"></div>
-              <div class="font-bold border-b border-black inline-block">
+              <div class="font-bold inline-block">
                 {{ formatNameWithDegree(form.namaKamad) }}
               </div>
             </div>
@@ -407,7 +407,7 @@
               <div>{{ form.tempat }}, {{ formatTanggal(form.tanggal) }}</div>
               <div class="mt-1">Bendahara</div>
               <div style="height: 70px"></div>
-              <div class="font-bold border-b border-black inline-block">
+              <div class="font-bold inline-block">
                 {{ formatNameWithDegree(form.namaBendahara) }}
               </div>
             </div>
@@ -842,123 +842,7 @@ const formatTanggal = (d) => {
 };
 
 const handlePrint = () => {
-  if (!printArea.value) return;
-
-  // Buka window SEBELUM operasi apapun — harus synchronous dalam gesture handler
-  const w = window.open("", "_blank");
-  if (!w) {
-    alert("Popup diblokir browser. Izinkan popup untuk halaman ini, lalu coba lagi.");
-    return;
-  }
-
-  const content = printArea.value.innerHTML;
-
-  w.document.write(`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Penerimaan Honor - Cetak</title>
-  <style>
-    @page { size: A4 landscape; margin: 10mm 16mm 10mm 15mm; }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 11pt;
-      line-height: 1.3;
-      color: #000;
-      background: #fff;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    /* Layout */
-    .text-center { text-align: center; }
-    .font-bold    { font-weight: 700; }
-    .font-semibold{ font-weight: 600; }
-    .inline-block { display: inline-block; }
-    .uppercase    { text-transform: uppercase; }
-    .leading-tight{ line-height: 1.25; }
-    .align-top    { vertical-align: top; }
-
-    /* Flex */
-    .flex             { display: flex; }
-    .flex-1           { flex: 1 1 0%; }
-    .justify-between  { justify-content: space-between; }
-    .items-center     { align-items: center; }
-    .space-y-1 > * + *{ margin-top: 0.25rem; }
-
-    /* Grid */
-    .grid         { display: grid; }
-    .grid-cols-2  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .gap-x-10     { column-gap: 2.5rem; }
-
-    /* Width */
-    .w-full { width: 100%; }
-    .w-8  { width: 2rem; }
-    .w-16 { width: 4rem; }
-    .w-28 { width: 7rem; }
-    .w-32 { width: 8rem; }
-    .w-36 { width: 9rem; }
-    .w-40 { width: 10rem; }
-    .w-56 { width: 14rem; }
-
-    /* Padding */
-    .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
-    .px-2 { padding-left: 0.5rem;  padding-right: 0.5rem; }
-    .py-2 { padding-top: 0.5rem;   padding-bottom: 0.5rem; }
-
-    /* Margin */
-    .mb-4 { margin-bottom: 1rem; }
-    .mb-8 { margin-bottom: 2rem; }
-    .mt-1 { margin-top: 0.25rem; }
-    .mt-8 { margin-top: 2rem; }
-
-    /* Border */
-    .border-b     { border-bottom: 1px solid #000; }
-    .border-black { border-color: #000; }
-
-    /* Background */
-    .bg-gray-100 { background-color: #f3f4f6 !important; }
-    .bg-gray-50  { background-color: #f9fafb !important; }
-    .bg-white    { background-color: #ffffff !important; }
-
-    /* Table */
-    .table-fixed { table-layout: fixed; }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      table-layout: fixed;
-    }
-    th, td {
-      border: 1px solid #000;
-      word-wrap: break-word;
-      overflow: hidden;
-      vertical-align: middle;
-    }
-    .print-table td { height: ${rowHeightPx.value}px; }
-
-    /* Tanda tangan */
-    .sig-cell      { border-top: none !important; border-bottom: none !important; }
-    .sig-cell-last { border-top: none !important; border-bottom: 1px solid #000 !important; }
-
-    /* Text sizes */
-    .text-\\[11pt\\] { font-size: 11pt; }
-  </style>
-</head>
-<body>
-  ${content}
-  <script>
-    window.onload = function() {
-      window.print();
-      window.onafterprint = function() { window.close(); };
-      // Fallback untuk browser yang tidak support onafterprint
-      setTimeout(function() { window.close(); }, 3000);
-    };
-  <\/script>
-</body>
-</html>`);
-
-  w.document.close();
+  window.print();
 };
 </script>
 
@@ -1013,6 +897,44 @@ table.print-table td {
     display: block;
     min-width: 1rem;
     flex-shrink: 0;
+  }
+}
+
+@media print {
+  .print-table td {
+    height: v-bind('rowHeightPx + "px"');
+  }
+}
+</style>
+
+<style>
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm 16mm 10mm 15mm;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #print-area {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 297mm !important;
+    min-height: 210mm !important;
+    margin: 0 !important;
+    padding: 10mm 15mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 </style>

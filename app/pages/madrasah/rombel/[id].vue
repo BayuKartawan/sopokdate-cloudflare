@@ -761,7 +761,7 @@ const handleGraduateStudents = async ({ gradYear, gradDestination }) => {
               no_kk: student.no_kk || student["no kk"] || "",
               tempat_lahir: student.tempat_lahir || student["tempat lahir"],
               tanggal_lahir: student.tanggal_lahir || student["tanggal lahir"],
-              umur: student.umur,
+              umur: calculateAge(student.tanggal_lahir || student["tanggal lahir"]),
               jenis_kelamin: student.jenis_kelamin || student["jenis kelamin"],
               status: "Lulus", thn_lulus: gradYear,
               menjutkan_ke: gradDestination || "Tidak Melanjutkan",
@@ -805,6 +805,64 @@ const getJenisKelaminAbbr = (jk) => {
   if (u.startsWith("L")) return "L";
   if (u.startsWith("P")) return "P";
   return jk;
+};
+
+const parseIndonesianDate = (dateStr) => {
+  if (!dateStr) return null;
+  let s = String(dateStr).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    return new Date(s);
+  }
+  const monthsMap = {
+    jan: 'Jan', januari: 'Jan',
+    feb: 'Feb', peb: 'Feb', februari: 'Feb', pebruari: 'Feb',
+    mar: 'Mar', maret: 'Mar',
+    apr: 'Apr', april: 'Apr',
+    mei: 'May',
+    jun: 'Jun', juni: 'Jun',
+    jul: 'Jul', juli: 'Jul',
+    agt: 'Aug', agu: 'Aug', agustus: 'Aug',
+    sep: 'Sep', september: 'Sep',
+    okt: 'Oct', oktober: 'Oct',
+    nov: 'Nov', nop: 'Nov', november: 'Nov', nopember: 'Nov',
+    des: 'Dec', desember: 'Dec'
+  };
+  for (const [indo, eng] of Object.entries(monthsMap)) {
+    const regex = new RegExp(`\\b${indo}\\b`, 'i');
+    if (regex.test(s)) {
+      s = s.replace(regex, eng);
+      break;
+    }
+  }
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+const calculateAge = (birthDateString) => {
+  if (!birthDateString) return "-";
+  if (typeof birthDateString === "string" && birthDateString.includes("Tahun")) {
+    return birthDateString;
+  }
+  const birthDate = parseIndonesianDate(birthDateString);
+  if (!birthDate) return "-";
+  
+  const today = new Date();
+  let years = today.getFullYear() - birthDate.getFullYear();
+  let months = today.getMonth() - birthDate.getMonth();
+  let days = today.getDate() - birthDate.getDate();
+  
+  if (days < 0) {
+    months--;
+    const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+    days += prevMonth.getDate();
+  }
+  
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+  
+  return `${years} Tahun, ${months} Bulan, ${days} Hari`;
 };
 
 onMounted(() => {

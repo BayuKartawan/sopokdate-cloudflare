@@ -68,7 +68,16 @@
                 <div class="flex flex-wrap gap-2 items-center mt-1">
                   <span class="text-zinc-400 text-xs">NISN: {{ siswaDetail.nisn || "-" }}</span>
                   <span class="text-zinc-600 text-xs">•</span>
-                  <span class="bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded text-xs font-semibold">
+                  <span
+                    v-if="siswaDetail._isMutasi"
+                    class="bg-orange-500/10 dark:bg-orange-500/15 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded text-xs font-semibold"
+                  >
+                    Status: Mutasi ({{ siswaDetail.kelas || siswaDetail["tingkat - rombel"] || '-' }})
+                  </span>
+                  <span
+                    v-else
+                    class="bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded text-xs font-semibold"
+                  >
                     Kelas {{ getClassName(siswaDetail["tingkat - rombel"]) }}
                   </span>
                 </div>
@@ -77,7 +86,7 @@
 
             <!-- Actions -->
             <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
-              <template v-if="isAdmin">
+              <template v-if="isAdmin && !siswaDetail._isMutasi">
                 <button
                   @click="openEditModal(siswaDetail)"
                   class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-amber-400 border border-amber-500/30 hover:bg-amber-500/10 transition-all"
@@ -131,6 +140,10 @@
                         @click="copyToClipboard(
                           item.key === 'tingkat - rombel'
                             ? getClassName(siswaDetail[item.key])
+                            : item.key === 'umur'
+                            ? calculateAge(siswaDetail['tanggal lahir'] || siswaDetail.tanggal_lahir)
+                            : item.key === 'tanggal lahir'
+                            ? formatIndonesianDate(siswaDetail[item.key])
                             : siswaDetail[item.key] || '-',
                           item.label,
                         )"
@@ -139,6 +152,10 @@
                         {{
                           item.key === "tingkat - rombel"
                             ? getClassName(siswaDetail[item.key])
+                            : item.key === "umur"
+                            ? calculateAge(siswaDetail["tanggal lahir"] || siswaDetail.tanggal_lahir)
+                            : item.key === "tanggal lahir"
+                            ? formatIndonesianDate(siswaDetail[item.key])
                             : siswaDetail[item.key] || "-"
                         }}
                       </span>
@@ -147,6 +164,10 @@
                         @click="copyToClipboard(
                           item.key === 'tingkat - rombel'
                             ? getClassName(siswaDetail[item.key])
+                            : item.key === 'umur'
+                            ? calculateAge(siswaDetail['tanggal lahir'] || siswaDetail.tanggal_lahir)
+                            : item.key === 'tanggal lahir'
+                            ? formatIndonesianDate(siswaDetail[item.key])
                             : siswaDetail[item.key] || '-',
                           item.label,
                         )"
@@ -227,6 +248,7 @@ import { clearTableSessionCache } from "~/composables/data/useTableData";
 
 const { cardData: dataSiswa, loadData } = useTableData();
 const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
+const { cardData: dataMutasi, loadData: loadDataMutasi } = useTableData();
 
 const { isAdmin, isSaving, updateItem, deleteItem } = useCrud(
   "data_siswa",
@@ -246,7 +268,6 @@ const siswaFields = [
   { key: "tempat_lahir", label: "Tempat Lahir" },
   { key: "tanggal_lahir", label: "Tanggal Lahir", type: "date" },
   { key: "kelas", label: "Kelas" },
-  { key: "umur", label: "Umur" },
   {
     key: "jenis_kelamin",
     label: "Jenis Kelamin",
@@ -273,7 +294,6 @@ const openEditModal = (item) => {
     tempat_lahir: item["tempat lahir"] || item.tempat_lahir || "",
     tanggal_lahir: item["tanggal lahir"] || item.tanggal_lahir || "",
     kelas: item["tingkat - rombel"] || item.kelas || "",
-    umur: item.umur || "",
     jenis_kelamin: item["jenis kelamin"] || item.jenis_kelamin || "",
     alamat: item.alamat || "",
     no_hp: item["no telepon"] || item.no_hp || "",
@@ -315,7 +335,7 @@ const handleMutasiKeluar = (item) => {
           tempat_lahir: item["tempat lahir"] || item.tempat_lahir || "",
           tanggal_lahir: item["tanggal lahir"] || item.tanggal_lahir || "",
           kelas: item["tingkat - rombel"] || item.kelas || "",
-          umur: item.umur || "",
+          umur: calculateAge(item["tanggal lahir"] || item.tanggal_lahir),
           jenis_kelamin: item["jenis kelamin"] || item.jenis_kelamin || "",
           alamat: item.alamat || "",
           no_hp: item["no telepon"] || item.no_hp || "",
@@ -412,6 +432,81 @@ const getJenisKelaminAbbr = (jk) => {
   return jk;
 };
 
+const parseIndonesianDate = (dateStr) => {
+  if (!dateStr) return null;
+  let s = String(dateStr).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    return new Date(s);
+  }
+  const monthsMap = {
+    jan: 'Jan', januari: 'Jan',
+    feb: 'Feb', peb: 'Feb', februari: 'Feb', pebruari: 'Feb',
+    mar: 'Mar', maret: 'Mar',
+    apr: 'Apr', april: 'Apr',
+    mei: 'May',
+    jun: 'Jun', juni: 'Jun',
+    jul: 'Jul', juli: 'Jul',
+    agt: 'Aug', agu: 'Aug', agustus: 'Aug',
+    sep: 'Sep', september: 'Sep',
+    okt: 'Oct', oktober: 'Oct',
+    nov: 'Nov', nop: 'Nov', november: 'Nov', nopember: 'Nov',
+    des: 'Dec', desember: 'Dec'
+  };
+  for (const [indo, eng] of Object.entries(monthsMap)) {
+    const regex = new RegExp(`\\b${indo}\\b`, 'i');
+    if (regex.test(s)) {
+      s = s.replace(regex, eng);
+      break;
+    }
+  }
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+const calculateAge = (birthDateString) => {
+  if (!birthDateString) return "-";
+  if (typeof birthDateString === "string" && birthDateString.includes("Tahun")) {
+    return birthDateString;
+  }
+  const birthDate = parseIndonesianDate(birthDateString);
+  if (!birthDate) return "-";
+  
+  const today = new Date();
+  let years = today.getFullYear() - birthDate.getFullYear();
+  let months = today.getMonth() - birthDate.getMonth();
+  let days = today.getDate() - birthDate.getDate();
+  
+  if (days < 0) {
+    months--;
+    const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+    days += prevMonth.getDate();
+  }
+  
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+  
+  return `${years} Tahun, ${months} Bulan, ${days} Hari`;
+};
+
+const formatIndonesianDate = (dateStr) => {
+  if (!dateStr) return "-";
+  const date = parseIndonesianDate(dateStr);
+  if (!date) return dateStr;
+  
+  const months = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ];
+  
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  
+  return `${day} ${month} ${year}`;
+};
+
 // Load student details based on route param (nis lokal)
 async function loadSiswaDetail() {
   loading.value = true;
@@ -436,7 +531,43 @@ async function loadSiswaDetail() {
     if (foundItem) {
       siswaDetail.value = foundItem;
     } else {
-      error.value = "Siswa tidak ditemukan atau data belum terunduh.";
+      // Fallback: cari di database mutasi_siswa
+      await loadDataMutasi("mutasi_siswa");
+      let mutasiItem = null;
+      if (nisLokal !== undefined && nisLokal !== null) {
+        mutasiItem = dataMutasi.value.find(
+          (item) =>
+            item &&
+            (String(item.nis_lokal || "").trim() === String(nisLokal).trim() ||
+             String(item["nis lokal"] || "").trim() === String(nisLokal).trim()),
+        );
+      }
+
+      if (mutasiItem) {
+        // Normalisasi field mutasi agar sesuai dengan tampilan detail siswa
+        siswaDetail.value = {
+          ...mutasiItem,
+          nama: mutasiItem.nama || "",
+          nisn: mutasiItem.nisn || "",
+          "nis lokal": mutasiItem.nis_lokal || mutasiItem["nis lokal"] || "",
+          nik: mutasiItem.nik || "",
+          "no kk": mutasiItem.no_kk || mutasiItem["no kk"] || "",
+          "tempat lahir": mutasiItem.tempat_lahir || mutasiItem["tempat lahir"] || "",
+          "tanggal lahir": mutasiItem.tanggal_lahir || mutasiItem["tanggal lahir"] || "",
+          "tingkat - rombel": mutasiItem.kelas || "",
+          kelas: mutasiItem.kelas || "",
+          "jenis kelamin": mutasiItem.jenis_kelamin || mutasiItem["jenis kelamin"] || "",
+          alamat: mutasiItem.alamat || "",
+          "no telepon": mutasiItem.no_telepon || mutasiItem["no telepon"] || "",
+          "no kip": mutasiItem.no_kip || mutasiItem["no kip"] || "",
+          "nama ayah kandung": mutasiItem.nama_ayah_kandung || mutasiItem["nama ayah kandung"] || "",
+          "nama ibu kandung": mutasiItem.nama_ibu_kandung || mutasiItem["nama ibu kandung"] || "",
+          "nama wali": mutasiItem.nama_wali || mutasiItem["nama wali"] || "",
+          _isMutasi: true,
+        };
+      } else {
+        error.value = "Siswa tidak ditemukan atau data belum terunduh.";
+      }
     }
   } catch (err) {
     error.value = "Gagal memuat detail profil siswa: " + err.message;

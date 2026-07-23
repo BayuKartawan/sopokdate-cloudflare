@@ -207,15 +207,12 @@
           />
         </ul>
 
-        <!-- Load More Button -->
-        <div v-if="sortedData.length > 8" class="text-center mt-5">
-          <BaseButton
-            :text="
-              showAll ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Lebih Banyak'
-            "
-            @click="showAll = !showAll"
-          />
-        </div>
+        <!-- Pagination -->
+        <Pagination
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          @pageChanged="handlePageChange"
+        />
       </div>
 
       <!-- CRUD Modal -->
@@ -234,7 +231,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 
 import { Database, Plus } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
@@ -245,6 +242,7 @@ import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
 import PersonCard from "~/components/data/PersonCard.vue";
+import Pagination from "~/components/ui/Pagination.vue";
 import * as XLSX from "xlsx";
 
 const router = useRouter();
@@ -255,7 +253,8 @@ const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
 );
 
 const searchQuery = ref("");
-const showAll = ref(false);
+const currentPage = ref(1);
+const ITEMS_PER_PAGE = 12;
 const isExporting = ref(false);
 
 // CRUD Modal state
@@ -391,8 +390,24 @@ const sortedData = computed(() => {
     .sort((a, b) => a.title?.localeCompare(b.title));
 });
 
+const totalPages = computed(() => {
+  return Math.ceil(sortedData.value.length / ITEMS_PER_PAGE);
+});
+
 const visibleData = computed(() => {
-  return showAll.value ? sortedData.value : sortedData.value.slice(0, 9);
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  return sortedData.value.slice(start, end);
+});
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+// Reset page when search query changes
+watch(searchQuery, () => {
+  currentPage.value = 1;
 });
 
 const handleSearch = (query) => {
