@@ -6,19 +6,19 @@
         :style="{ borderColor: 'var(--border-primary)' }"
       >
         <!-- Kolom 1: Logo -->
-        <div class="hidden lg:block">
+        <div class="flex justify-center items-center md:justify-start md:items-start">
           <div
             class="w-12 h-12 md:w-16 md:h-16 rounded-lg flex items-center justify-center transition-colors duration-300 group"
           >
-            <Rocket
-              class="transition-colors duration-300 text-lime-600 group-hover:text-lime-500"
+            <LogoSopokdate
+              class="w-full h-full md:p-3 transition-colors duration-300 text-slate-800 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400"
             />
           </div>
         </div>
 
         <!-- Kolom 2: Copyright dan Info -->
         <div
-          class="flex flex-col items-center lg:items-end justify-center mt-6 lg:mt-0"
+          class="flex flex-col items-center lg:items-end justify-center "
         >
           <!-- Copyright -->
           <div class="space-y-2 text-center lg:text-right">
@@ -50,5 +50,5 @@
 </template>
 
 <script setup>
-import { Rocket } from "lucide-vue-next";
+import LogoSopokdate from "~/assets/logo-sopokdate.vue";
 </script>
