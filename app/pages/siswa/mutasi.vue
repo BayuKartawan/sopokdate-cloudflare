@@ -3,47 +3,64 @@
   <div class="min-h-screen">
     <div class="page-layout">
       <!-- Top Section: Title & Actions -->
-      <div class="flex flex-col gap-4 sm:gap-5 mb-6">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-          <div class="flex-1 min-w-0">
+      <div class="flex flex-col gap-4 sm:gap-6 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div class="min-w-0 flex-1">
             <h2
-              class="text-lg sm:text-xl font-bold flex items-center gap-2"
+              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
               :style="{ color: 'var(--text-heading)' }"
             >
-              <LogOut class="w-5 h-5 sm:w-6 sm:h-6 shrink-0 text-orange-400" />
+              <LogOut class="w-7 h-7 text-orange-400 shrink-0" />
               Data Mutasi Siswa
             </h2>
-            <p class="text-xs sm:text-sm text-zinc-400 mt-0.5">
+            <p class="text-sm text-zinc-400 mt-1">
               Catatan siswa yang telah keluar / mutasi dari madrasah
             </p>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <!-- Export Excel Button -->
-            <BaseButton
-              :text="isExporting ? 'Mengekspor...' : 'Export'"
-              @click="exportToExcel"
-              :disabled="isExporting || sortedData.length === 0"
-              class="!px-2.5 sm:!px-3 hover:bg-zinc-700"
-            >
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Tambah Mutasi Button (Admin Only) -->
+            <BaseButton v-if="isAdmin" text="Tambah" @click="openCreateModal"
+              class="!bg-orange-600 !text-white hover:!bg-orange-500 !border-orange-600 shadow-md shadow-orange-950/30">
               <template #icon>
-                <svg v-if="!isExporting" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <svg v-else class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <Plus class="w-4 h-4" />
               </template>
             </BaseButton>
+
+            <!-- Upload Excel Button (Admin Only) -->
+            <BaseButton v-if="isAdmin" text="Upload" @click="showUploadModal = true"
+              class="!bg-zinc-800 hover:!bg-zinc-700 !text-zinc-200 !border-zinc-700">
+              <template #icon>
+                <FileSpreadsheet class="w-4 h-4" />
+              </template>
+            </BaseButton>
+
+            <!-- Export Excel Button -->
+            <button
+              @click="exportToExcel"
+              :disabled="isExporting || sortedData.length === 0"
+              class="flex items-center justify-center gap-1.5 border px-3 py-1.5 rounded-md text-sm hover:translate-y-[1px] focus:ring-1 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              :style="{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }"
+            >
+              <svg v-if="!isExporting" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <svg v-else class="w-4 h-4 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <span>{{ isExporting ? 'Ekspor...' : 'Ekspor' }}</span>
+            </button>
           </div>
         </div>
 
-        <!-- Stats Widgets -->
+        <!-- Premium Stats Widgets -->
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2"
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5"
           >
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Total Mutasi</span>
             <div class="flex items-baseline gap-1.5">
@@ -52,7 +69,7 @@
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2"
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5"
           >
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Pindah Keluar</span>
             <div class="flex items-baseline gap-1.5">
@@ -61,7 +78,7 @@
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2 col-span-2 lg:col-span-1"
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5 col-span-2 lg:col-span-1"
           >
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Jenis Mutasi Terbanyak</span>
             <div class="flex items-baseline gap-1.5 flex-wrap">
@@ -71,19 +88,22 @@
         </div>
 
         <!-- Filter and Search Row -->
-        <div class="flex flex-col gap-3 w-full">
-          <div class="w-full">
+        <div class="flex flex-col md:flex-row gap-3 sm:gap-4 items-center w-full">
+          <!-- Search Input -->
+          <div class="w-full md:flex-1">
             <Search
               @searchUpdated="handleSearch"
-              class="h-10"
+              class="h-10 sm:h-11"
               placeholder="Cari nama, NISN, kelas..."
             />
           </div>
-          <div class="grid grid-cols-2 gap-2 w-full">
+
+          <!-- Filters Group -->
+          <div class="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto">
             <!-- Jenis Mutasi Filter -->
             <select
               v-model="selectedJenis"
-              class="w-full h-9 sm:h-10 px-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-xs sm:text-sm cursor-pointer"
+              class="w-full sm:w-48 h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm cursor-pointer"
             >
               <option value="Semua Jenis">Semua Jenis Mutasi</option>
               <option v-for="jenis in jenisOptions" :key="jenis" :value="jenis">
@@ -94,7 +114,7 @@
             <!-- Kelas Filter -->
             <select
               v-model="selectedKelas"
-              class="w-full h-9 sm:h-10 px-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-xs sm:text-sm cursor-pointer"
+              class="w-full sm:w-44 h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm cursor-pointer"
             >
               <option value="Semua Kelas">Semua Kelas</option>
               <option v-for="kelas in kelasOptions" :key="kelas" :value="kelas">
@@ -107,7 +127,7 @@
 
       <!-- Main Content Area -->
       <div class="pt-2">
-        <p v-if="isLoading" class="text-center text-zinc-500 text-sm sm:text-base font-semibold py-12">
+        <p v-if="isLoading" class="text-center text-zinc-500 text-base font-semibold py-12">
           Memuat data mutasi siswa...
         </p>
 
@@ -116,92 +136,30 @@
           class="text-center py-16 bg-zinc-800/10 rounded-xl border border-zinc-800"
         >
           <LogOut class="w-16 h-16 mx-auto mb-4 text-zinc-600" stroke-width="1.5" />
-          <p class="text-zinc-400 text-sm sm:text-base font-medium">Tidak ada data mutasi ditemukan</p>
-          <p class="text-zinc-500 text-xs sm:text-sm mt-1">
+          <p class="text-zinc-400 text-lg font-medium">Tidak ada data mutasi ditemukan</p>
+          <p class="text-zinc-500 text-sm mt-1">
             Coba sesuaikan kata kunci pencarian atau filter.
           </p>
         </div>
 
-        <!-- Mutasi Table -->
-        <div v-else class="overflow-x-auto rounded-xl border border-zinc-800/60">
-          <table class="w-full text-sm text-left">
-            <thead class="bg-zinc-800/60 border-b border-zinc-700/60">
-              <tr>
-                <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider w-10">No</th>
-                <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Nama Siswa</th>
-                <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider">NISN</th>
-                <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Kelas</th>
-                <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Jenis Mutasi</th>
-                <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Tgl Mutasi</th>
-                <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Sekolah Tujuan</th>
-                <th v-if="isAdmin" class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-zinc-800/40">
-              <tr
-                v-for="(item, index) in visibleData"
-                :key="item.id || index"
-                class="hover:bg-zinc-800/30 transition-colors"
-              >
-                <td class="px-4 py-3 text-zinc-500 text-xs">{{ index + 1 }}</td>
-                <td class="px-4 py-3">
-                  <div class="flex items-center gap-2">
-                    <div
-                      class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 bg-orange-500/10 text-orange-400"
-                    >
-                      {{ getInitials(item.nama) }}
-                    </div>
-                    <div>
-                      <p class="font-semibold text-zinc-100 text-sm leading-tight">{{ toTitleCase(item.nama) }}</p>
-                      <p class="text-xs text-zinc-500">{{ item.nis_lokal || '-' }}</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-4 py-3 text-zinc-300 font-mono text-xs">{{ item.nisn || '-' }}</td>
-                <td class="px-4 py-3 text-zinc-300 text-xs">{{ item.kelas || '-' }}</td>
-                <td class="px-4 py-3">
-                  <span :class="getJenisBadgeClass(item.jenis_mutasi)" class="px-2 py-0.5 rounded text-xs font-semibold border">
-                    {{ item.jenis_mutasi || 'Pindah Keluar' }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-zinc-400 text-xs">{{ item.tanggal_mutasi || '-' }}</td>
-                <td class="px-4 py-3 text-zinc-400 text-xs">{{ item.sekolah_tujuan || '-' }}</td>
-                <td v-if="isAdmin" class="px-4 py-3">
-                  <div class="flex items-center justify-center gap-1.5">
-                    <button
-                      @click="openEditModal(item)"
-                      class="flex items-center gap-1 px-2 py-1 rounded text-xs text-amber-400 border border-amber-500/30 hover:bg-amber-500/10 transition-all"
-                    >
-                      <Pencil class="w-3 h-3" />
-                      Edit
-                    </button>
-                    <button
-                      @click="handleKembalikanSiswa(item)"
-                      class="flex items-center gap-1 px-2 py-1 rounded text-xs text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/10 transition-all"
-                    >
-                      <Undo2 class="w-3 h-3" />
-                      Kembalikan
-                    </button>
-                    <button
-                      @click="handleHapus(item)"
-                      class="flex items-center gap-1 px-2 py-1 rounded text-xs text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all"
-                    >
-                      <Trash2 class="w-3 h-3" />
-                      Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <!-- Mutasi Grid List -->
+        <div v-else>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <PersonCard
+              v-for="(item, index) in visibleData"
+              :key="item.id || index"
+              :item="item"
+              :title="toTitleCase(item.nama)"
+              :subtitle="`Mutasi: ${item.jenis_mutasi || 'Pindah Keluar'} (${item.kelas || '-'})`"
+              @click="navigateToDetail"
+            />
+          </ul>
 
-        <!-- Load More Button -->
-        <div v-if="sortedData.length > 15" class="text-center mt-6">
-          <BaseButton
-            :text="showAll ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Semua (' + sortedData.length + ')'"
-            @click="showAll = !showAll"
-            class="hover:bg-zinc-800"
+          <!-- Pagination -->
+          <Pagination
+            :currentPage="currentPage"
+            :totalPages="totalPages"
+            @pageChanged="handlePageChange"
           />
         </div>
       </div>
@@ -210,31 +168,42 @@
       <CrudModal
         :show="showModal"
         :mode="modalMode"
-        title="Edit Data Mutasi"
+        :title="modalMode === 'create' ? 'Tambah Data Mutasi' : 'Edit Data Mutasi'"
         :fields="mutasiFields"
         :initialData="editingItem"
         :isSaving="isSaving"
         @submit="handleFormSubmit"
         @close="showModal = false"
       />
+
+      <!-- Upload Excel Modal -->
+      <UploadExcelModal
+        :show="showUploadModal"
+        :dataSiswa="dataMutasi"
+        targetTable="mutasi_siswa"
+        @close="showUploadModal = false"
+        @success="refreshData('mutasi_siswa')"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { LogOut, Pencil, Trash2, Undo2 } from "lucide-vue-next";
+import { ref, computed, onMounted, watch } from "vue";
+import { LogOut, Plus, FileSpreadsheet } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import PersonCard from "~/components/data/PersonCard.vue";
+import Pagination from "~/components/ui/Pagination.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
+import UploadExcelModal from "~/components/siswa/UploadExcelModal.vue";
 import {
   useTableData,
-  clearTableSessionCache,
 } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
-import { useNotiflix } from "~/composables/ui/useFeedback";
-import { fetchFromApi, postToApi, deleteFromApi } from "~/utils/api";
 import * as XLSX from "xlsx";
+
+const router = useRouter();
 
 const {
   cardData: dataMutasi,
@@ -243,16 +212,20 @@ const {
   refreshData,
 } = useTableData();
 
-const { isAdmin, isSaving, updateItem, deleteItem } = useCrud(
+const { isAdmin, isSaving, createItem, updateItem } = useCrud(
   "mutasi_siswa",
   () => refreshData("mutasi_siswa"),
 );
-const { Notify, Confirm } = useNotiflix();
 
-// CRUD Modal state
+// Modal states
 const showModal = ref(false);
-const modalMode = ref("edit");
+const showUploadModal = ref(false);
+const modalMode = ref("create");
 const editingItem = ref({});
+
+// Pagination state
+const currentPage = ref(1);
+const ITEMS_PER_PAGE = 12;
 
 const mutasiFields = [
   { key: "nama", label: "Nama Lengkap", required: true },
@@ -261,7 +234,7 @@ const mutasiFields = [
   { key: "nik", label: "NIK" },
   { key: "no_kk", label: "Nomor KK" },
   { key: "tempat_lahir", label: "Tempat Lahir" },
-  { key: "tanggal_lahir", label: "Tanggal Lahir" },
+  { key: "tanggal_lahir", label: "Tanggal Lahir", type: "date" },
   { key: "kelas", label: "Kelas Terakhir" },
   { key: "umur", label: "Umur" },
   {
@@ -286,6 +259,12 @@ const mutasiFields = [
   { key: "tanggal_mutasi", label: "Tanggal Mutasi", type: "date" },
   { key: "keterangan", label: "Keterangan", type: "textarea" },
 ];
+
+const openCreateModal = () => {
+  modalMode.value = "create";
+  editingItem.value = {};
+  showModal.value = true;
+};
 
 const openEditModal = (item) => {
   modalMode.value = "edit";
@@ -316,88 +295,33 @@ const openEditModal = (item) => {
 };
 
 const handleFormSubmit = async (formData) => {
-  const id = editingItem.value._id;
-  const success = await updateItem(id, formData);
+  let success = false;
+  if (modalMode.value === "create") {
+    success = await createItem(formData);
+  } else {
+    const id = editingItem.value._id;
+    success = await updateItem(id, formData);
+  }
   if (success) {
     showModal.value = false;
   }
 };
 
-const handleHapus = (item) => {
-  const id = item.id || item._id;
-  deleteItem(id, toTitleCase(item.nama));
-};
-
-const handleKembalikanSiswa = (item) => {
-  const id = item.id || item._id;
-
-  Confirm?.show(
-    "Kembalikan Siswa Aktif",
-    `Apakah Anda yakin ingin mengembalikan ${toTitleCase(item.nama)} ke daftar siswa aktif? Data akan dihapus dari daftar mutasi.`,
-    "Ya, Kembalikan",
-    "Batal",
-    async () => {
-      try {
-        const studentRecord = {
-          nama: item.nama || "",
-          nisn: item.nisn || "",
-          nis_lokal: item.nis_lokal || "",
-          nik: item.nik || "",
-          no_kk: item.no_kk || "",
-          tempat_lahir: item.tempat_lahir || "",
-          tanggal_lahir: item.tanggal_lahir || "",
-          kelas: item.kelas || "",
-          umur: item.umur || "",
-          jenis_kelamin: item.jenis_kelamin || "Laki-laki",
-          alamat: item.alamat || "",
-          no_hp: item.no_hp || "",
-          no_kip: item.no_kip || "",
-          nama_ayah_kandung: item.nama_ayah_kandung || "",
-          nama_ibu_kandung: item.nama_ibu_kandung || "",
-          nama_wali: item.nama_wali || "",
-          status_promosi: "Belum",
-        };
-
-        await postToApi("data_siswa", studentRecord);
-        await deleteFromApi("mutasi_siswa", id);
-
-        Notify?.success?.(`${toTitleCase(item.nama)} berhasil dikembalikan ke daftar siswa aktif.`);
-        clearTableSessionCache("data_siswa");
-        clearTableSessionCache("mutasi_siswa");
-        await refreshData("mutasi_siswa");
-      } catch (err) {
-        console.error("Gagal mengembalikan siswa:", err);
-        Notify?.failure?.("Gagal mengembalikan siswa ke daftar aktif.");
-      }
-    },
-  );
+const navigateToDetail = (item) => {
+  const nisLokal = item.nis_lokal || item["nis lokal"];
+  if (nisLokal) {
+    router.push(`/akademik/mutasi/detail/${nisLokal}`);
+  }
 };
 
 const selectedJenis = ref("Semua Jenis");
 const selectedKelas = ref("Semua Kelas");
 const searchQuery = ref("");
-const showAll = ref(false);
 const isExporting = ref(false);
 
 const toTitleCase = (str) => {
   if (!str) return "";
   return String(str).toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
-};
-
-const getInitials = (name) => {
-  if (!name) return "?";
-  const parts = name.trim().split(" ");
-  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-  return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
-};
-
-const getJenisBadgeClass = (jenis) => {
-  const j = (jenis || "").toLowerCase();
-  if (j.includes("pindah")) return "bg-amber-500/10 text-amber-400 border-amber-500/30";
-  if (j.includes("dikeluarkan")) return "bg-red-500/10 text-red-400 border-red-500/30";
-  if (j.includes("mengundurkan")) return "bg-blue-500/10 text-blue-400 border-blue-500/30";
-  if (j.includes("meninggal")) return "bg-zinc-500/10 text-zinc-400 border-zinc-500/30";
-  return "bg-orange-500/10 text-orange-400 border-orange-500/30";
 };
 
 // Dynamic filter options
@@ -437,9 +361,25 @@ const sortedData = computed(() =>
   ),
 );
 
-const visibleData = computed(() =>
-  showAll.value ? sortedData.value : sortedData.value.slice(0, 15),
-);
+const totalPages = computed(() => {
+  return Math.ceil(sortedData.value.length / ITEMS_PER_PAGE);
+});
+
+const visibleData = computed(() => {
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  return sortedData.value.slice(start, end);
+});
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+// Reset page when search or filters change
+watch([searchQuery, selectedJenis, selectedKelas], () => {
+  currentPage.value = 1;
+});
 
 const stats = computed(() => {
   const list = Array.isArray(dataMutasi.value) ? dataMutasi.value : [];

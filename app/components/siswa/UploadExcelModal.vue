@@ -31,9 +31,11 @@
               </div>
               <div>
                 <h3 class="text-lg font-semibold" :style="{ color: 'var(--text-primary)' }">
-                  Upload Banyak Siswa
+                  {{ targetTable === 'alumni' ? 'Upload Banyak Alumni' : targetTable === 'mutasi_siswa' ? 'Upload Banyak Siswa Mutasi' : 'Upload Banyak Siswa' }}
                 </h3>
-                <p class="text-xs text-zinc-400">Import data siswa menggunakan template Excel</p>
+                <p class="text-xs text-zinc-400">
+                  {{ targetTable === 'alumni' ? 'Import data alumni menggunakan template Excel' : targetTable === 'mutasi_siswa' ? 'Import data mutasi siswa menggunakan template Excel' : 'Import data siswa menggunakan template Excel' }}
+                </p>
               </div>
             </div>
             <button
@@ -126,7 +128,9 @@
                   <p class="text-2xl font-bold text-zinc-200">{{ parsedRows.length }}</p>
                 </div>
                 <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                  <p class="text-[10px] uppercase text-emerald-400 font-bold">Siswa Baru (Insert)</p>
+                  <p class="text-[10px] uppercase text-emerald-400 font-bold">
+                    {{ targetTable === 'alumni' ? 'Alumni Baru (Insert)' : 'Siswa Baru (Insert)' }}
+                  </p>
                   <p class="text-2xl font-bold text-emerald-400">{{ summary.newCount }}</p>
                 </div>
                 <div class="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
@@ -146,7 +150,7 @@
               >
                 <AlertTriangle class="w-5 h-5 shrink-0 text-blue-400" />
                 <div>
-                  <span class="font-bold">Info Integrasi:</span> Terdapat <span class="font-bold">{{ summary.updateCount }} siswa</span> dengan NIS Lokal yang sama dengan data di database. Baris data ini tidak akan terduplikat, namun data lamanya di database akan diperbarui dengan data baru dari Excel.
+                  <span class="font-bold">Info Integrasi:</span> Terdapat <span class="font-bold">{{ summary.updateCount }} {{ targetTable === 'alumni' ? 'alumni' : 'siswa' }}</span> dengan NIS Lokal yang sama dengan data di database. Baris data ini tidak akan terduplikat, namun data lamanya di database akan diperbarui dengan data baru dari Excel.
                 </div>
               </div>
 
@@ -158,7 +162,7 @@
                       <th class="p-3 font-semibold">No</th>
                       <th class="p-3 font-semibold">Nama</th>
                       <th class="p-3 font-semibold">NIS Lokal</th>
-                      <th class="p-3 font-semibold">Kelas</th>
+                      <th class="p-3 font-semibold">{{ targetTable === 'alumni' ? 'Tahun Lulus' : 'Kelas' }}</th>
                       <th class="p-3 font-semibold">JK</th>
                       <th class="p-3 font-semibold">Status Aksi</th>
                       <th class="p-3 font-semibold text-right">Detail</th>
@@ -169,14 +173,14 @@
                       <td class="p-3 text-zinc-500">{{ idx + 1 }}</td>
                       <td class="p-3 font-medium text-zinc-200">{{ row.nama || '-' }}</td>
                       <td class="p-3 text-zinc-300 font-mono">{{ row.nis_lokal || '-' }}</td>
-                      <td class="p-3 text-zinc-400">{{ row._displayClass || '-' }}</td>
+                      <td class="p-3 text-zinc-400">{{ targetTable === 'alumni' ? (row.thn_lulus || '-') : (row._displayClass || '-') }}</td>
                       <td class="p-3 text-zinc-400">{{ row.jenis_kelamin || '-' }}</td>
                       <td class="p-3">
                         <span
                           v-if="row._mode === 'create'"
                           class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                         >
-                          Siswa Baru
+                          {{ targetTable === 'alumni' ? 'Alumni Baru' : 'Siswa Baru' }}
                         </span>
                         <span
                           v-else-if="row._mode === 'update'"
@@ -275,8 +279,11 @@ const props = defineProps({
   },
   dataKelas: {
     type: Array,
-    required: true,
     default: () => [],
+  },
+  targetTable: {
+    type: String,
+    default: "data_siswa",
   },
 });
 
@@ -367,6 +374,20 @@ const fieldMapping = {
   nama_ibu_kandung: "nama_ibu_kandung",
   "nama wali": "nama_wali",
   nama_wali: "nama_wali",
+  status: "status",
+  "tahun lulus": "thn_lulus",
+  thn_lulus: "thn_lulus",
+  "thn lulus": "thn_lulus",
+  "melanjutkan ke": "menjutkan_ke",
+  menjutkan_ke: "menjutkan_ke",
+  "studi lanjut": "menjutkan_ke",
+  "jenis mutasi": "jenis_mutasi",
+  jenis_mutasi: "jenis_mutasi",
+  "sekolah tujuan": "sekolah_tujuan",
+  sekolah_tujuan: "sekolah_tujuan",
+  "tanggal mutasi": "tanggal_mutasi",
+  tanggal_mutasi: "tanggal_mutasi",
+  keterangan: "keterangan",
 };
 
 // Function to resolve classes dynamically
@@ -418,10 +439,14 @@ const processFile = (file) => {
           }
         });
 
-        // Resolve Class Name
-        const resolved = resolveClass(student.kelas);
-        student.kelas = resolved.id;
-        student._displayClass = resolved.display;
+        // Resolve Class Name (only for data_siswa)
+        if (props.targetTable !== "alumni") {
+          const resolved = resolveClass(student.kelas);
+          student.kelas = resolved.id;
+          student._displayClass = resolved.display;
+        } else {
+          delete student.kelas;
+        }
 
         // Validation & mode selection
         const nisLokal = student.nis_lokal;
@@ -436,10 +461,10 @@ const processFile = (file) => {
           if (existing) {
             student._id = existing.id || existing._id;
             student._mode = "update";
-            student._errorMsg = `Update data siswa: ${existing.nama}`;
+            student._errorMsg = `Update data ${props.targetTable === 'alumni' ? 'alumni' : 'siswa'}: ${existing.nama}`;
           } else {
             student._mode = "create";
-            student._errorMsg = "Siswa Baru";
+            student._errorMsg = `${props.targetTable === 'alumni' ? 'Alumni' : 'Siswa'} Baru`;
           }
         }
 
@@ -494,17 +519,21 @@ const processUpload = async () => {
       delete payload._mode;
       delete payload._displayClass;
       delete payload._errorMsg;
+      if (props.targetTable === "alumni") {
+        delete payload.kelas;
+        delete payload.umur;
+      }
 
       if (student._mode === "create") {
-        await postToApi("data_siswa", payload);
+        await postToApi(props.targetTable, payload);
       } else if (student._mode === "update") {
-        await putToApi("data_siswa", student._id, payload);
+        await putToApi(props.targetTable, student._id, payload);
       }
 
       uploadIndex.value = i + 1;
     }
 
-    alert(`Upload berhasil! ${rowsToUpload.length} data siswa diproses.`);
+    alert(`Upload berhasil! ${rowsToUpload.length} data ${props.targetTable === 'alumni' ? 'alumni' : 'siswa'} diproses.`);
     emit("success");
     closeModal();
   } catch (err) {
@@ -517,6 +546,114 @@ const processUpload = async () => {
 
 // Template Generator
 const downloadTemplate = () => {
+  if (props.targetTable === "alumni") {
+    const headers = [
+      "Nama",
+      "NISN",
+      "NIS Lokal",
+      "NIK",
+      "No KK",
+      "Tempat Lahir",
+      "Tanggal Lahir",
+      "Jenis Kelamin",
+      "Status",
+      "Tahun Lulus",
+      "Melanjutkan Ke",
+      "Alamat",
+      "No HP",
+      "No KIP",
+      "Nama Ayah Kandung",
+      "Nama Ibu Kandung",
+      "Nama Wali",
+    ];
+
+    const sampleData = [
+      {
+        "Nama": "Budi Santoso",
+        "NISN": "3115568599",
+        "NIS Lokal": "111252030083170799",
+        "NIK": "5203042206110099",
+        "No KK": "5203042206110001",
+        "Tempat Lahir": "Mataram",
+        "Tanggal Lahir": "2011-01-12",
+        "Jenis Kelamin": "Laki-laki",
+        "Status": "Lulus",
+        "Tahun Lulus": "2023",
+        "Melanjutkan Ke": "SMP N 1 Mataram",
+        "Alamat": "Jl. Pendidikan No. 12",
+        "No HP": "081234567890",
+        "No KIP": "KIP12345",
+        "Nama Ayah Kandung": "Ahmad Santoso",
+        "Nama Ibu Kandung": "Siti Aminah",
+        "Nama Wali": "",
+      },
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(sampleData, { header: headers });
+    const colWidths = headers.map((h) => ({ wch: Math.max(h.length + 4, 16) }));
+    ws["!cols"] = colWidths;
+    XLSX.utils.book_append_sheet(wb, ws, "Template Upload Alumni");
+    XLSX.writeFile(wb, "Template_Upload_Alumni.xlsx");
+    return;
+  }
+
+  if (props.targetTable === "mutasi_siswa") {
+    const headers = [
+      "Nama",
+      "NISN",
+      "NIS Lokal",
+      "NIK",
+      "No KK",
+      "Tempat Lahir",
+      "Tanggal Lahir",
+      "Kelas",
+      "Jenis Kelamin",
+      "Jenis Mutasi",
+      "Sekolah Tujuan",
+      "Tanggal Mutasi",
+      "Keterangan",
+      "Alamat",
+      "No HP",
+      "No KIP",
+      "Nama Ayah Kandung",
+      "Nama Ibu Kandung",
+      "Nama Wali",
+    ];
+
+    const sampleData = [
+      {
+        "Nama": "Budi Santoso",
+        "NISN": "3115568599",
+        "NIS Lokal": "111252030083170799",
+        "NIK": "5203042206110099",
+        "No KK": "5203042206110001",
+        "Tempat Lahir": "Mataram",
+        "Tanggal Lahir": "2011-01-12",
+        "Kelas": "Kelas VI A",
+        "Jenis Kelamin": "Laki-laki",
+        "Jenis Mutasi": "Pindah Keluar",
+        "Sekolah Tujuan": "SMP N 1 Mataram",
+        "Tanggal Mutasi": "2024-06-20",
+        "Keterangan": "Ikut Orang Tua",
+        "Alamat": "Jl. Pendidikan No. 12",
+        "No HP": "081234567890",
+        "No KIP": "KIP12345",
+        "Nama Ayah Kandung": "Ahmad Santoso",
+        "Nama Ibu Kandung": "Siti Aminah",
+        "Nama Wali": "",
+      },
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(sampleData, { header: headers });
+    const colWidths = headers.map((h) => ({ wch: Math.max(h.length + 4, 16) }));
+    ws["!cols"] = colWidths;
+    XLSX.utils.book_append_sheet(wb, ws, "Template Upload Mutasi");
+    XLSX.writeFile(wb, "Template_Upload_Mutasi.xlsx");
+    return;
+  }
+
   const headers = [
     "Nama",
     "NISN",

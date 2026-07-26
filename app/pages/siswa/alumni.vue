@@ -3,42 +3,51 @@
   <div class="min-h-screen">
     <div class="page-layout">
       <!-- Top Section: Title & Actions -->
-      <div class="flex flex-col gap-4 sm:gap-5 mb-6">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-          <div class="flex-1 min-w-0">
-            <h2 class="text-lg sm:text-xl font-bold flex items-center gap-2" :style="{ color: 'var(--text-heading)' }">
-              <GraduationCap class="w-5 h-5 sm:w-6 sm:h-6 shrink-0 text-indigo-650 dark:text-indigo-400" />
+      <div class="flex flex-col gap-4 sm:gap-6 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div class="min-w-0 flex-1">
+            <h2 class="text-xl sm:text-2xl font-bold flex items-center gap-2" :style="{ color: 'var(--text-heading)' }">
+              <GraduationCap class="w-7 h-7 text-indigo-400 shrink-0" />
               Data Alumni
             </h2>
-            <p class="text-xs sm:text-sm text-zinc-400 mt-0.5">
+            <p class="text-sm text-zinc-400 mt-1">
               Informasi kelulusan dan penelusuran studi lanjut alumni madrasah
             </p>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap items-center gap-2">
             <!-- Tambah Alumni Button (Admin Only) -->
-            <BaseButton v-if="isAdmin" text="Tambah Alumni" @click="openCreateModal"
-              class="!bg-indigo-600 !text-white hover:!bg-indigo-500 shadow-lg shadow-indigo-950/30">
+            <BaseButton v-if="isAdmin" text="Tambah" @click="openCreateModal"
+              class="!bg-indigo-600 !text-white hover:!bg-indigo-500 !border-indigo-600 shadow-md shadow-indigo-950/30">
               <template #icon>
                 <Plus class="w-4 h-4" />
               </template>
             </BaseButton>
 
-            <!-- Export Excel Button -->
-            <BaseButton :text="isExporting ? 'Mengekspor...' : 'Export'" @click="exportToExcel"
-              :disabled="isExporting || sortedData.length === 0" class="!px-2.5 sm:!px-3 hover:bg-zinc-700">
+            <!-- Upload Excel Button (Admin Only) -->
+            <BaseButton v-if="isAdmin" text="Upload" @click="showUploadModal = true"
+              class="!bg-zinc-800 hover:!bg-zinc-700 !text-zinc-200 !border-zinc-700">
               <template #icon>
-                <svg v-if="!isExporting" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <svg v-else class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                  </path>
-                </svg>
+                <FileSpreadsheet class="w-4 h-4" />
               </template>
             </BaseButton>
+
+            <!-- Export Excel Button -->
+            <button @click="exportToExcel" :disabled="isExporting || sortedData.length === 0"
+              class="flex items-center justify-center gap-1.5 border px-3 py-1.5 rounded-md text-sm hover:translate-y-[1px] focus:ring-1 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              :style="{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }">
+              <svg v-if="!isExporting" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <svg v-else class="w-4 h-4 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <span>{{ isExporting ? 'Ekspor...' : 'Ekspor' }}</span>
+            </button>
 
             <!-- Print Button -->
             <PrintButton>
@@ -132,34 +141,34 @@
         <!-- Premium Stats Widgets -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2">
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Total Alumni</span>
             <div class="flex items-baseline gap-1.5">
               <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--text-heading)]">{{ stats.total }}</span>
-              <span class="text-xs text-indigo-650 dark:text-indigo-400 font-medium">orang</span>
+              <span class="text-xs text-indigo-400 font-medium">orang</span>
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2">
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Melanjutkan Studi</span>
             <div class="flex items-baseline gap-1.5">
-              <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-600 dark:text-emerald-400">{{ stats.continuing }}</span>
+              <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-400">{{ stats.continuing }}</span>
               <span class="text-xs text-zinc-500 font-medium">({{ stats.continuingPercent }}%)</span>
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2">
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Tahun Lulus Terbanyak</span>
             <div class="flex items-baseline gap-1.5 flex-wrap">
-              <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-violet-650 dark:text-violet-400">{{ stats.topYear }}</span>
+              <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-violet-400">{{ stats.topYear }}</span>
               <span class="text-[10px] sm:text-xs text-zinc-500 font-medium">({{ stats.topYearCount }} org)</span>
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3 sm:p-4 rounded-xl flex flex-col justify-between gap-2">
+            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Tujuan Terpopuler</span>
             <div class="flex items-end">
-              <span class="text-sm sm:text-base lg:text-lg font-bold text-amber-600 dark:text-amber-400 truncate max-w-full leading-snug"
+              <span class="text-sm sm:text-base lg:text-lg font-bold text-amber-400 truncate max-w-full leading-snug"
                 :title="stats.topDestination">
                 {{ stats.topDestination }}
               </span>
@@ -168,18 +177,18 @@
         </div>
 
         <!-- Filter and Search Row -->
-        <div class="flex flex-col gap-3 w-full">
+        <div class="flex flex-col md:flex-row gap-3 sm:gap-4 items-center w-full">
           <!-- Search Input -->
-          <div class="w-full">
-            <Search @searchUpdated="handleSearch" class="h-10"
+          <div class="w-full md:flex-1">
+            <Search @searchUpdated="handleSearch" class="h-10 sm:h-11"
               placeholder="Cari nama alumni, NISN, alamat..." />
           </div>
 
           <!-- Filters Group -->
-          <div class="grid grid-cols-2 gap-2 w-full">
+          <div class="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto">
             <!-- Year Filter -->
             <select v-model="selectedYear"
-              class="w-full h-9 sm:h-10 px-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-xs sm:text-sm cursor-pointer">
+              class="w-full sm:w-48 h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm cursor-pointer">
               <option value="Semua Tahun">Semua Tahun Lulus</option>
               <option v-for="year in yearOptions" :key="year" :value="year">
                 Lulus {{ year }}
@@ -188,7 +197,7 @@
 
             <!-- Destination Filter -->
             <select v-model="selectedDestination"
-              class="w-full h-9 sm:h-10 px-2.5 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-xs sm:text-sm cursor-pointer">
+              class="w-full sm:w-56 h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm cursor-pointer">
               <option value="Semua Tujuan">Semua Studi Lanjut</option>
               <option v-for="dest in destinationOptions" :key="dest" :value="dest">
                 {{ dest }}
@@ -200,39 +209,40 @@
 
       <!-- Main Content Area -->
       <div class="pt-2">
-        <p v-if="isLoading" class="text-center text-zinc-500 text-sm sm:text-base font-semibold py-12">
+        <p v-if="isLoading" class="text-center text-zinc-500 text-base font-semibold py-12">
           Memuat data alumni...
         </p>
 
         <div v-else-if="sortedData.length === 0"
           class="text-center py-16 bg-zinc-800/10 rounded-xl border border-zinc-800">
           <Database class="w-16 h-16 mx-auto mb-4 text-zinc-600" stroke-width="1.5" />
-          <p class="text-zinc-400 text-sm sm:text-base font-medium">
+          <p class="text-zinc-400 text-lg font-medium">
             Tidak ada data alumni ditemukan
           </p>
-          <p class="text-zinc-500 text-xs sm:text-sm mt-1">
+          <p class="text-zinc-500 text-sm mt-1">
             Coba sesuaikan kata kunci pencarian atau filter pilihan Anda.
           </p>
         </div>
 
         <!-- Alumni Grid List -->
         <div v-else>
-          <ul class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+          <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             <PersonCard
               v-for="(item, index) in visibleData"
               :key="item.id || index"
               :item="item"
               :title="toTitleCase(item.nama)"
               :subtitle="`Lulus Tahun ${item.thn_lulus || '-'}`"
-              @click="navigateToDetail(item)"
+              @click="navigateToDetail"
             />
           </ul>
 
-          <!-- Load More Button -->
-          <div v-if="sortedData.length > 9" class="text-center mt-8">
-            <BaseButton :text="showAll ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Lebih Banyak'
-              " @click="showAll = !showAll" class="hover:bg-zinc-800" />
-          </div>
+          <!-- Pagination -->
+          <Pagination
+            :currentPage="currentPage"
+            :totalPages="totalPages"
+            @pageChanged="handlePageChange"
+          />
         </div>
       </div>
 
@@ -240,23 +250,35 @@
       <CrudModal :show="showModal" :mode="modalMode" :title="modalMode === 'create' ? 'Tambah Data Alumni' : 'Edit Data Alumni'
         " :fields="alumniFields" :initialData="editingItem" :isSaving="isSaving" @submit="handleFormSubmit"
         @close="showModal = false" />
+
+      <!-- Upload Excel Modal -->
+      <UploadExcelModal
+        :show="showUploadModal"
+        :dataSiswa="dataAlumni"
+        targetTable="alumni"
+        @close="showUploadModal = false"
+        @success="refreshData('alumni')"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import {
   Database,
   GraduationCap,
   Plus,
+  FileSpreadsheet,
 } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
+import UploadExcelModal from "~/components/siswa/UploadExcelModal.vue";
 import PersonCard from "~/components/data/PersonCard.vue";
+import Pagination from "~/components/ui/Pagination.vue";
 import {
   useTableData,
   clearTableSessionCache,
@@ -281,11 +303,14 @@ const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
 const { Notify, Confirm } = useNotiflix();
 
 // CRUD Modal state
-
-// CRUD Modal state
 const showModal = ref(false);
+const showUploadModal = ref(false);
 const modalMode = ref("create");
 const editingItem = ref({});
+
+// Pagination state
+const currentPage = ref(1);
+const ITEMS_PER_PAGE = 12;
 
 // Field configuration for Alumni CRUD form
 const alumniFields = [
@@ -297,7 +322,6 @@ const alumniFields = [
   { key: "no_kk", label: "Nomor KK" },
   { key: "tempat_lahir", label: "Tempat Lahir" },
   { key: "tanggal_lahir", label: "Tanggal Lahir", type: "text" },
-  { key: "umur", label: "Umur saat Lulus" },
   {
     key: "jenis_kelamin",
     label: "Jenis Kelamin",
@@ -338,7 +362,6 @@ const openEditModal = (item) => {
     no_kk: item.no_kk || "",
     tempat_lahir: item.tempat_lahir || "",
     tanggal_lahir: item.tanggal_lahir || "",
-    umur: item.umur || "",
     jenis_kelamin: item.jenis_kelamin || "Laki-laki",
     status: item.status || "Lulus",
     thn_lulus: item.thn_lulus || "",
@@ -409,7 +432,6 @@ const handleDelete = (item) => {
           tempat_lahir: item.tempat_lahir || "",
           tanggal_lahir: item.tanggal_lahir || "",
           kelas: targetClassId,
-          umur: item.umur || "",
           jenis_kelamin: item.jenis_kelamin || "Laki-laki",
           alamat: item.alamat || "",
           no_hp: item.no_hp || "",
@@ -446,7 +468,6 @@ const kepalaMadrasah = ref(null);
 const selectedYear = ref("Semua Tahun");
 const selectedDestination = ref("Semua Tujuan");
 const searchQuery = ref("");
-const showAll = ref(false);
 const isExporting = ref(false);
 
 // State for Print timestamp
@@ -473,26 +494,62 @@ const toTitleCase = (str) => {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-const getInitials = (name) => {
-  if (!name) return "?";
-  const parts = name.trim().split(" ");
-  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-  return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+const parseIndonesianDate = (dateStr) => {
+  if (!dateStr) return null;
+  let s = String(dateStr).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    return new Date(s);
+  }
+  const monthsMap = {
+    jan: 'Jan', januari: 'Jan',
+    feb: 'Feb', peb: 'Feb', februari: 'Feb', pebruari: 'Feb',
+    mar: 'Mar', maret: 'Mar',
+    apr: 'Apr', april: 'Apr',
+    mei: 'May',
+    jun: 'Jun', juni: 'Jun',
+    jul: 'Jul', juli: 'Jul',
+    agt: 'Aug', agu: 'Aug', agustus: 'Aug',
+    sep: 'Sep', september: 'Sep',
+    okt: 'Oct', oktober: 'Oct',
+    nov: 'Nov', nop: 'Nov', november: 'Nov', nopember: 'Nov',
+    des: 'Dec', desember: 'Dec'
+  };
+  for (const [indo, eng] of Object.entries(monthsMap)) {
+    const regex = new RegExp(`\\b${indo}\\b`, 'i');
+    if (regex.test(s)) {
+      s = s.replace(regex, eng);
+      break;
+    }
+  }
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
 };
 
-const handleImageError = (e) => {
-  // If remote image fails, hide image element to trigger avatar display
-  e.target.style.display = "none";
-};
-
-const callAlumni = (phone) => {
-  if (!phone) return;
-  const cleanPhone = String(phone).replace(/[^0-9]/g, "");
-  // Standard protocol
-  window.open(
-    `https://wa.me/${cleanPhone.startsWith("0") ? "62" + cleanPhone.slice(1) : cleanPhone}`,
-    "_blank",
-  );
+const calculateAge = (birthDateString) => {
+  if (!birthDateString) return "-";
+  if (typeof birthDateString === "string" && birthDateString.includes("Tahun")) {
+    return birthDateString;
+  }
+  const birthDate = parseIndonesianDate(birthDateString);
+  if (!birthDate) return "-";
+  
+  const today = new Date();
+  let years = today.getFullYear() - birthDate.getFullYear();
+  let months = today.getMonth() - birthDate.getMonth();
+  let days = today.getDate() - birthDate.getDate();
+  
+  if (days < 0) {
+    months--;
+    const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+    days += prevMonth.getDate();
+  }
+  
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+  
+  return `${years} Tahun, ${months} Bulan, ${days} Hari`;
 };
 
 // Generate options for filtering years dynamically
@@ -562,21 +619,6 @@ const kepalaMadrasahNIP = computed(() => {
     : "_________________";
 });
 
-// Destination badge colors utility
-const getDestinationBadgeClass = (dest) => {
-  if (!dest || String(dest).toLowerCase().includes("tidak")) {
-    return "bg-[var(--bg-secondary)] border-[var(--border-primary)] text-[var(--text-secondary)]";
-  }
-  const lowDest = String(dest).toLowerCase();
-  if (lowDest.includes("smp")) {
-    return "bg-blue-500/10 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-500/20 dark:border-blue-900/30";
-  }
-  if (lowDest.includes("mts")) {
-    return "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-900/30";
-  }
-  return "bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/20 dark:border-amber-900/30";
-};
-
 // Filtering logic
 const filteredData = computed(() => {
   if (!Array.isArray(dataAlumni.value)) return [];
@@ -628,8 +670,24 @@ const sortedData = computed(() => {
   );
 });
 
+const totalPages = computed(() => {
+  return Math.ceil(sortedData.value.length / ITEMS_PER_PAGE);
+});
+
 const visibleData = computed(() => {
-  return showAll.value ? sortedData.value : sortedData.value.slice(0, 9);
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  return sortedData.value.slice(start, end);
+});
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+// Reset page when filter or search changes
+watch([searchQuery, selectedYear, selectedDestination], () => {
+  currentPage.value = 1;
 });
 
 // Statistics Computation
@@ -714,7 +772,7 @@ const exportToExcel = async () => {
       "No KK": item.no_kk || "",
       "Tempat Lahir": item.tempat_lahir || "",
       "Tanggal Lahir": item.tanggal_lahir || "",
-      Umur: item.umur || "",
+      Umur: calculateAge(item.tanggal_lahir),
       "Jenis Kelamin": item.jenis_kelamin || "",
       Status: item.status || "",
       "Tahun Lulus": item.thn_lulus || "",

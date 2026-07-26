@@ -53,7 +53,7 @@ console.log(`Parsed ${dataRows.length} alumni rows from CSV.`);
 // Generate SQL file
 let sql = `-- Seeding data alumni asli dari CSV (hanya untuk remote D1)\n`;
 sql += `DELETE FROM alumni;\n\n`;
-sql += `INSERT INTO alumni (id, nama, foto, nis_lokal, nisn, nik, no_kk, tempat_lahir, tanggal_lahir, umur, jenis_kelamin, status, thn_lulus, menjutkan_ke, alamat, no_hp, no_kip, nama_ayah_kandung, nama_ibu_kandung, nama_wali) VALUES\n`;
+sql += `INSERT INTO alumni (id, nama, foto, nis_lokal, nisn, nik, no_kk, tempat_lahir, tanggal_lahir, jenis_kelamin, status, thn_lulus, menjutkan_ke, alamat, no_hp, no_kip, nama_ayah_kandung, nama_ibu_kandung, nama_wali) VALUES\n`;
 
 const escapeSQL = (val) => {
   if (val === undefined || val === null) return "''";
@@ -71,7 +71,6 @@ const valueRows = dataRows.map((row) => {
   const nik = String(row[5] || "").replace(/'/g, ""); // remove lead quotes if any e.g. '5203...
   const tempat_lahir = row[6];
   const tanggal_lahir = row[7];
-  const umur = row[8];
   const jenis_kelamin = row[9];
   const status = row[10];
   const thn_lulus = row[11];
@@ -83,7 +82,7 @@ const valueRows = dataRows.map((row) => {
   const nama_ibu = row[17];
   const nama_wali = row[18] || "";
 
-  return `(${id}, ${escapeSQL(nama)}, ${escapeSQL(foto)}, ${escapeSQL(nis_lokal)}, ${escapeSQL(nisn)}, ${escapeSQL(nik)}, '', ${escapeSQL(tempat_lahir)}, ${escapeSQL(tanggal_lahir)}, ${escapeSQL(umur)}, ${escapeSQL(jenis_kelamin)}, ${escapeSQL(status)}, ${escapeSQL(thn_lulus)}, ${escapeSQL(menjutkan_ke)}, ${escapeSQL(alamat)}, ${escapeSQL(no_hp)}, ${escapeSQL(no_kip)}, ${escapeSQL(nama_ayah)}, ${escapeSQL(nama_ibu)}, ${escapeSQL(nama_wali)})`;
+  return `(${id}, ${escapeSQL(nama)}, ${escapeSQL(foto)}, ${escapeSQL(nis_lokal)}, ${escapeSQL(nisn)}, ${escapeSQL(nik)}, '', ${escapeSQL(tempat_lahir)}, ${escapeSQL(tanggal_lahir)}, ${escapeSQL(jenis_kelamin)}, ${escapeSQL(status)}, ${escapeSQL(thn_lulus)}, ${escapeSQL(menjutkan_ke)}, ${escapeSQL(alamat)}, ${escapeSQL(no_hp)}, ${escapeSQL(no_kip)}, ${escapeSQL(nama_ayah)}, ${escapeSQL(nama_ibu)}, ${escapeSQL(nama_wali)})`;
 });
 
 sql += valueRows.join(",\n") + ";\n";
