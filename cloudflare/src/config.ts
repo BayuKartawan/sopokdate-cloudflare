@@ -42,4 +42,5 @@ export const VALID_TABLES: string[] = [
   "placeholders",
   "jenis_asesmen",
   "nilai_asesmen",
+  "absensi_siswa",
 ];

@@ -189,7 +189,7 @@
               <!-- Calendar Footer -->
               <div class="flex items-center justify-between p-3 pt-1 border-t theme-border">
                 <span class="text-[10px] theme-text-muted">
-                  {{ userRole === 'admin' ? 'Akses 6 bulan terakhir' : 'Akses 7 hari terakhir' }}
+                  Akses selama semester aktif saat ini
                 </span>
                 <button
                   v-if="tanggal !== hariIniStr"
@@ -565,7 +565,7 @@ import { useTableData } from "~/composables/data/useTableData";
 import { useAuth } from "~/composables/auth/useAuth";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { authenticatedFetch, fetchFromApi } from "~/utils/api";
-import { dapatkanTahunDanSemester } from "~/utils/dateHelper";
+import { dapatkanTahunDanSemester, dapatkanAwalSemesterAktif } from "~/utils/dateHelper";
 
 // --- Services & Config
 const { Notify } = useNotiflix();
@@ -613,13 +613,7 @@ const hariIniStr = computed(() => {
 });
 
 const batasanMinStr = computed(() => {
-  const date = new Date();
-  if (userRole.value === "admin") {
-    date.setMonth(date.getMonth() - 6); // Batasi 6 bulan (1 semester) ke belakang
-  } else {
-    date.setDate(date.getDate() - 7); // Batasi 1 minggu (7 hari) ke belakang
-  }
-  return getLocalDateString(date);
+  return dapatkanAwalSemesterAktif(new Date());
 });
 
 const isPrevDisabled = computed(() => {
@@ -637,7 +631,7 @@ watch(tanggal, (newVal) => {
   if (!newVal) return;
   if (newVal < batasanMinStr.value) {
     tanggal.value = batasanMinStr.value;
-    Notify.warning(`Pilihan tanggal dibatasi maksimal sampai ${batasanMinStr.value}`);
+    Notify.warning(`Pilihan tanggal dibatasi hanya untuk semester aktif saat ini (mulai ${batasanMinStr.value})`);
   } else if (newVal > hariIniStr.value) {
     tanggal.value = hariIniStr.value;
     Notify.warning("Pilihan tanggal tidak boleh melebihi hari ini");
@@ -905,7 +899,7 @@ const ubahTanggal = (offset) => {
   current.setDate(current.getDate() + offset);
   const nextDateStr = getLocalDateString(current);
 
-  // Batasi agar tidak melampaui batas atas (hari ini) atau batas bawah (7 hari lalu)
+  // Batasi agar tidak melampaui batas atas (hari ini) atau batas bawah (awal semester aktif)
   if (nextDateStr < batasanMinStr.value || nextDateStr > hariIniStr.value) {
     return;
   }
@@ -1240,8 +1234,16 @@ const checkWaliKelasStatus = async () => {
 
 // --- Lifecycle
 onMounted(async () => {
-  // Initialize tanggal to today's local date string
-  tanggal.value = getLocalDateString(new Date());
+  const route = useRoute();
+  if (route.query.tanggal) {
+    tanggal.value = String(route.query.tanggal);
+  } else {
+    tanggal.value = getLocalDateString(new Date());
+  }
+
+  if (route.query.kelas_id) {
+    selectedClass.value = String(route.query.kelas_id);
+  }
 
   isLoadingKelas.value = true;
   try {
@@ -1254,6 +1256,7 @@ onMounted(async () => {
     isLoadingKelas.value = false;
   }
 });
+
 </script>
 
 <style scoped>

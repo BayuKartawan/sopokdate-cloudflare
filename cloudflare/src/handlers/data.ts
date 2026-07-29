@@ -35,6 +35,7 @@ const TABLE_MAPPING: Record<string, string> = {
   riwayatkelassiswa: "riwayat_kelas_siswa",
   mutasisiswa: "mutasi_siswa",
   emismapelgtk: "emis_mapel_gtk",
+  absensisiswa: "absensi_siswa",
 };
 
 // Helper to validate table name to prevent SQL injection on table identifiers

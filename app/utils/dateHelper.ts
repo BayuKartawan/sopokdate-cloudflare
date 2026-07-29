@@ -48,3 +48,37 @@ export function dapatkanTahunDanSemester(
 
   return { tahunPelajaran, semester };
 }
+
+/**
+ * Menghitung tanggal awal semester aktif berdasarkan tanggal tertentu (default: hari ini)
+ * - Semester Ganjil (1 Juli s.d 31 Desember) -> Tanggal awal: YYYY-07-01
+ * - Semester Genap (1 Januari s.d 30 Juni) -> Tanggal awal: YYYY-01-01
+ *
+ * @param {Date|string} inputDate
+ * @returns {string} Tanggal format YYYY-MM-DD (misal "2026-07-01")
+ */
+export function dapatkanAwalSemesterAktif(
+  inputDate: Date | string = new Date(),
+): string {
+  let date: Date;
+  if (typeof inputDate === "string") {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(inputDate)) {
+      date = new Date(inputDate + "T00:00:00");
+    } else {
+      date = new Date(inputDate);
+    }
+  } else {
+    date = inputDate;
+  }
+
+  if (isNaN(date.getTime())) {
+    date = new Date();
+  }
+
+  const tahun = date.getFullYear();
+  const bulan = date.getMonth() + 1; // 1-12
+
+  const startMonth = bulan >= 7 ? "07" : "01";
+  return `${tahun}-${startMonth}-01`;
+}
+
