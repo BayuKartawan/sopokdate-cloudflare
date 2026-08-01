@@ -381,6 +381,10 @@ const fieldMapping = {
   "melanjutkan ke": "menjutkan_ke",
   menjutkan_ke: "menjutkan_ke",
   "studi lanjut": "menjutkan_ke",
+  "tingkat kelas": "kelas",
+  "tahun ajaran mutasi": "tahun_ajaran",
+  "tahun ajaran": "tahun_ajaran",
+  tahun_ajaran: "tahun_ajaran",
   "jenis mutasi": "jenis_mutasi",
   jenis_mutasi: "jenis_mutasi",
   "sekolah tujuan": "sekolah_tujuan",
@@ -519,9 +523,11 @@ const processUpload = async () => {
       delete payload._mode;
       delete payload._displayClass;
       delete payload._errorMsg;
+      if (props.targetTable === "alumni" || props.targetTable === "mutasi_siswa") {
+        delete payload.umur;
+      }
       if (props.targetTable === "alumni") {
         delete payload.kelas;
-        delete payload.umur;
       }
 
       if (student._mode === "create") {
@@ -533,7 +539,7 @@ const processUpload = async () => {
       uploadIndex.value = i + 1;
     }
 
-    alert(`Upload berhasil! ${rowsToUpload.length} data ${props.targetTable === 'alumni' ? 'alumni' : 'siswa'} diproses.`);
+    alert(`Upload berhasil! ${rowsToUpload.length} data ${props.targetTable === 'alumni' ? 'alumni' : props.targetTable === 'mutasi_siswa' ? 'mutasi' : 'siswa'} diproses.`);
     emit("success");
     closeModal();
   } catch (err) {
@@ -607,7 +613,8 @@ const downloadTemplate = () => {
       "No KK",
       "Tempat Lahir",
       "Tanggal Lahir",
-      "Kelas",
+      "Tingkat Kelas",
+      "Tahun Ajaran Mutasi",
       "Jenis Kelamin",
       "Jenis Mutasi",
       "Sekolah Tujuan",
@@ -630,7 +637,8 @@ const downloadTemplate = () => {
         "No KK": "5203042206110001",
         "Tempat Lahir": "Mataram",
         "Tanggal Lahir": "2011-01-12",
-        "Kelas": "Kelas VI A",
+        "Tingkat Kelas": "6",
+        "Tahun Ajaran Mutasi": "2025/2026",
         "Jenis Kelamin": "Laki-laki",
         "Jenis Mutasi": "Pindah Keluar",
         "Sekolah Tujuan": "SMP N 1 Mataram",

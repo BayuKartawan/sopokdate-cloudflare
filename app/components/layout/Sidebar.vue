@@ -1,113 +1,82 @@
 <template>
   <div>
     <!-- Overlay untuk mobile -->
-    <div
-      v-if="isSidebarOpen"
-      @click="closeSidebar"
-      class="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300"
-      aria-label="Close sidebar"
-    ></div>
+    <div v-if="isSidebarOpen" @click="closeSidebar"
+      class="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300" aria-label="Close sidebar"></div>
 
     <!-- Sidebar -->
-    <aside
-      :class="[isSidebarOpen ? 'translate-x-0' : '-translate-x-full']"
+    <aside :class="[isSidebarOpen ? 'translate-x-0' : '-translate-x-full']"
       :style="{ backgroundColor: 'var(--bg-surface)' }"
-      class="fixed left-0 top-0 h-full w-64 z-50 transform transition-transform duration-300 ease-in-out flex flex-col"
-    >
+      class="fixed left-0 top-0 h-full w-64 z-50 transform transition-transform duration-300 ease-in-out flex flex-col">
       <div class="p-2 pl-4 flex justify-between items-center flex-shrink-0">
         <!-- App Name -->
-        <span
-          class="p-3 pt-4 leading-none flex items-center text-sm"
-          :style="{ color: 'var(--text-primary)' }"
-        >
+        <span class="p-3 pt-4 leading-none flex items-center text-sm" :style="{ color: 'var(--text-primary)' }">
           {{ appName }}
         </span>
 
         <!-- Toggle Button -->
-        <button
-          @click="toggleAllDropdowns"
+        <button @click="toggleAllDropdowns"
           class="h-10 w-10 flex items-center justify-center rounded-md transition-colors hover:text-emerald-500"
-          :style="{ color: 'var(--text-primary)' }"
-          :title="allDropdownsOpen ? 'Tutup Semua Menu' : 'Buka Semua Menu'"
-        >
-          <FolderOpen v-if="allDropdownsOpen" class="w-6 h-6" />
-          <FolderClosed v-else class="w-6 h-6" />
+          :style="{ color: 'var(--text-primary)' }" :title="allDropdownsOpen ? 'Tutup Semua Menu' : 'Buka Semua Menu'">
+          <FolderOpen v-if="allDropdownsOpen" class="w-5 h-5" />
+          <FolderClosed v-else class="w-5 h-5" />
         </button>
       </div>
 
       <!-- Menu Items dengan scroll -->
       <nav class="flex-1 overflow-hidden flex flex-col">
         <div
-          class="pl-4 py-4 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-zinc-600 dark:hover:scrollbar-thumb-zinc-500"
-        >
+          class="pl-4 py-4 overflow-y-auto flex-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-zinc-600 dark:hover:scrollbar-thumb-zinc-500">
           <ul>
-            <li
-              v-for="menuItem in menuItems"
-              :key="menuItem.to || menuItem.label"
-            >
+            <li v-for="menuItem in menuItems" :key="menuItem.to || menuItem.label">
               <!-- Menu tanpa dropdown -->
-              <NuxtLink
-                v-if="!menuItem.children"
-                :to="menuItem.to"
-                :class="getLinkClass(menuItem.to, 'flex')"
-                @click="handleNavClick"
-              >
-                <component
-                  :is="menuItem.icon"
-                  v-if="menuItem.icon"
-                  class="w-5 h-5 mr-3"
-                />
+              <NuxtLink v-if="!menuItem.children" :to="menuItem.to" :class="getLinkClass(menuItem.to, 'flex')"
+                @click="handleNavClick">
+                <component :is="menuItem.icon" v-if="menuItem.icon" class="w-5 h-5 mr-3" />
                 {{ menuItem.label }}
               </NuxtLink>
 
               <!-- Menu dengan dropdown -->
               <div v-else>
-                <button
-                  @click="toggleDropdown(menuItem.label)"
-                  :class="[
-                    'w-full flex items-center px-3 py-2 text-left transition-colors duration-200',
-                    isParentActive(menuItem)
-                      ? 'text-emerald-600 dark:text-emerald-400'
-                      : 'hover:text-emerald-500',
-                  ]"
-                  :style="{
+                <button @click="toggleDropdown(menuItem.label)" :class="[
+                  'w-full flex items-center px-3 py-2 text-left transition-colors duration-200',
+                  isParentActive(menuItem)
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'hover:text-emerald-500',
+                ]" :style="{
                     color: isParentActive(menuItem)
                       ? undefined
                       : 'var(--text-primary)',
-                  }"
-                >
-                  <component
-                    :is="menuItem.icon"
-                    v-if="menuItem.icon"
-                    class="w-5 h-5 mr-3"
-                  />
+                  }">
+                  <component :is="menuItem.icon" v-if="menuItem.icon" class="w-5 h-5 mr-3" />
                   <span class="flex-1">{{ menuItem.label }}</span>
 
-                  <ChevronRight
-                    :class="[
-                      'w-4 h-4 transition-transform duration-200',
-                      openDropdowns.includes(menuItem.label) ? 'rotate-90' : '',
-                    ]"
-                  />
+                  <ChevronRight :class="[
+                    'w-4 h-4 transition-transform duration-200',
+                    openDropdowns.includes(menuItem.label) ? 'rotate-90' : '',
+                  ]" />
                 </button>
 
-                <div
-                  v-show="openDropdowns.includes(menuItem.label)"
-                  class="overflow-hidden"
-                >
-                  <NuxtLink
-                    v-for="childItem in menuItem.children"
-                    :key="childItem.to"
-                    :to="childItem.to"
-                    @click="handleSubNavClick"
-                    :class="getLinkClass(childItem.to, 'ml-8')"
-                  >
-                    <component
-                      :is="childItem.icon"
-                      v-if="childItem.icon"
-                      class="w-5 h-5 mr-3"
-                    />
-                    {{ childItem.label }}
+                <div v-show="openDropdowns.includes(menuItem.label)" class="relative ml-[13px] my-1 space-y-0.5">
+                  <!-- Garis Vertikal Presisi -->
+                  <span
+                    class="absolute left-[8px] top-1 bottom-1 w-[2px] bg-emerald-500/20 dark:bg-emerald-500/30 rounded-full" />
+
+                  <NuxtLink v-for="childItem in menuItem.children" :key="childItem.to" :to="childItem.to"
+                    @click="handleSubNavClick" :class="getLinkClass(childItem.to, 'relative group !pl-7 rounded-md')">
+                    <!-- Ikon Titik Terhubung Sejajar Presisi Utuh (Tidak Terpotong) -->
+                    <span
+                      class="absolute left-[9px] -translate-x-1/2 top-1/2 -translate-y-1/2 flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[var(--bg-surface)] z-10">
+                      <span :class="[
+                        'rounded-full transition-all duration-200',
+                        isActiveRoute(childItem.to)
+                          ? 'w-2 h-2 bg-emerald-500 ring-4 ring-emerald-500/20 scale-100'
+                          : 'w-1.5 h-1.5 bg-gray-400 dark:bg-zinc-500 group-hover:bg-emerald-500 group-hover:scale-125'
+                      ]" />
+                    </span>
+
+                    <component :is="childItem.icon" v-if="childItem.icon" class="w-4 h-4 mr-2.5 flex-shrink-0" />
+                    <span class="truncate">{{ childItem.label }}</span>
                   </NuxtLink>
                 </div>
               </div>

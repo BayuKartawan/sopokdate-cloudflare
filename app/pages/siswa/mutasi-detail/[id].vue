@@ -34,13 +34,6 @@
             <Undo2 class="w-3.5 h-3.5" />
             Kembalikan
           </button>
-          <button
-            @click="handleHapus(mutasiDetail)"
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-red-400 border border-red-500/30 hover:bg-red-500/10 transition-all"
-          >
-            <Trash2 class="w-3.5 h-3.5" />
-            Hapus
-          </button>
         </template>
       </template>
     </SiswaDetailLayout>
@@ -61,13 +54,13 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { Pencil, Trash2, Undo2 } from "lucide-vue-next";
+import { Pencil, Undo2 } from "lucide-vue-next";
 import SiswaDetailLayout from "~/components/siswa/SiswaDetailLayout.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
-import { postToApi, deleteFromApi } from "~/utils/api";
+import { fetchFromApi, postToApi, deleteFromApi } from "~/utils/api";
 import { clearTableSessionCache } from "~/composables/data/useTableData";
 
 const { cardData: dataMutasi, loadData } = useTableData();
@@ -96,8 +89,8 @@ const mutasiFields = [
   { key: "no_kk", label: "Nomor KK" },
   { key: "tempat_lahir", label: "Tempat Lahir" },
   { key: "tanggal_lahir", label: "Tanggal Lahir" },
-  { key: "kelas", label: "Kelas Terakhir" },
-  { key: "umur", label: "Umur" },
+  { key: "kelas", label: "Tingkat Kelas" },
+  { key: "tahun_ajaran", label: "Tahun Ajaran Mutasi" },
   {
     key: "jenis_kelamin",
     label: "Jenis Kelamin",
@@ -133,7 +126,7 @@ const openEditModal = (item) => {
     tempat_lahir: item.tempat_lahir || "",
     tanggal_lahir: item.tanggal_lahir || "",
     kelas: item.kelas || "",
-    umur: item.umur || "",
+    tahun_ajaran: item.tahun_ajaran || "",
     jenis_kelamin: item.jenis_kelamin || "Laki-laki",
     alamat: item.alamat || "",
     no_hp: item.no_hp || "",
@@ -157,12 +150,6 @@ const handleFormSubmit = async (formData) => {
   }
 };
 
-const handleHapus = (item) => {
-  const id = item.id || item._id;
-  deleteItem(id, toTitleCase(item.nama));
-  router.push("/akademik/mutasi");
-};
-
 const handleKembalikanSiswa = (item) => {
   const id = item.id || item._id;
 
@@ -173,6 +160,23 @@ const handleKembalikanSiswa = (item) => {
     "Batal",
     async () => {
       try {
+        let targetClassId = item.kelas || "";
+        try {
+          const classes = await fetchFromApi("data_kelas");
+          if (Array.isArray(classes)) {
+            const matchClass = classes.find(
+              (c) =>
+                String(c.tingkat).toUpperCase() === String(item.kelas || "").toUpperCase() ||
+                String(c.id_kelas).toUpperCase() === String(item.kelas || "").toUpperCase(),
+            );
+            if (matchClass && matchClass.id_kelas) {
+              targetClassId = matchClass.id_kelas;
+            }
+          }
+        } catch (e) {
+          console.warn("Gagal memuat data_kelas untuk pemetaaan tingkat:", e);
+        }
+
         const studentRecord = {
           nama: item.nama || "",
           nisn: item.nisn || "",
@@ -181,8 +185,7 @@ const handleKembalikanSiswa = (item) => {
           no_kk: item.no_kk || "",
           tempat_lahir: item.tempat_lahir || "",
           tanggal_lahir: item.tanggal_lahir || "",
-          kelas: item.kelas || "",
-          umur: item.umur || "",
+          kelas: targetClassId,
           jenis_kelamin: item.jenis_kelamin || "Laki-laki",
           alamat: item.alamat || "",
           no_hp: item.no_hp || "",
@@ -222,7 +225,8 @@ const biodataFields = [
   { label: "Tanggal Lahir", key: "tanggal_lahir" },
   { label: "Umur", key: "umur" },
   { label: "Jenis Kelamin", key: "jenis_kelamin" },
-  { label: "Kelas Terakhir", key: "kelas" },
+  { label: "Tingkat Kelas", key: "kelas" },
+  { label: "Tahun Ajaran Mutasi", key: "tahun_ajaran" },
   { label: "Jenis Mutasi", key: "jenis_mutasi" },
   { label: "Tanggal Mutasi", key: "tanggal_mutasi" },
   { label: "Sekolah Tujuan", key: "sekolah_tujuan" },

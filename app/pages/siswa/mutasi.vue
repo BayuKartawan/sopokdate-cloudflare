@@ -203,7 +203,10 @@ import {
 import { useCrud } from "~/composables/data/useCrud";
 import * as XLSX from "xlsx";
 
+import { useAcademicYear } from "~/composables/utils/useAcademicYear";
+
 const router = useRouter();
+const { currentAcademicYear } = useAcademicYear();
 
 const {
   cardData: dataMutasi,
@@ -235,8 +238,8 @@ const mutasiFields = [
   { key: "no_kk", label: "Nomor KK" },
   { key: "tempat_lahir", label: "Tempat Lahir" },
   { key: "tanggal_lahir", label: "Tanggal Lahir", type: "date" },
-  { key: "kelas", label: "Kelas Terakhir" },
-  { key: "umur", label: "Umur" },
+  { key: "kelas", label: "Tingkat Kelas" },
+  { key: "tahun_ajaran", label: "Tahun Ajaran Mutasi" },
   {
     key: "jenis_kelamin",
     label: "Jenis Kelamin",
@@ -262,7 +265,11 @@ const mutasiFields = [
 
 const openCreateModal = () => {
   modalMode.value = "create";
-  editingItem.value = {};
+  editingItem.value = {
+    tahun_ajaran: currentAcademicYear.value || "",
+    jenis_mutasi: "Pindah Keluar",
+    jenis_kelamin: "Laki-laki",
+  };
   showModal.value = true;
 };
 
@@ -278,7 +285,7 @@ const openEditModal = (item) => {
     tempat_lahir: item.tempat_lahir || "",
     tanggal_lahir: item.tanggal_lahir || "",
     kelas: item.kelas || "",
-    umur: item.umur || "",
+    tahun_ajaran: item.tahun_ajaran || "",
     jenis_kelamin: item.jenis_kelamin || "Laki-laki",
     alamat: item.alamat || "",
     no_hp: item.no_hp || "",
@@ -418,7 +425,8 @@ const exportToExcel = async () => {
       NISN: item.nisn || "",
       "NIS Lokal": item.nis_lokal || "",
       NIK: item.nik || "",
-      "Kelas Terakhir": item.kelas || "",
+      "Tingkat Kelas": item.kelas || "",
+      "Tahun Ajaran Mutasi": item.tahun_ajaran || "",
       "Jenis Kelamin": item.jenis_kelamin || "",
       "Jenis Mutasi": item.jenis_mutasi || "",
       "Tanggal Mutasi": item.tanggal_mutasi || "",

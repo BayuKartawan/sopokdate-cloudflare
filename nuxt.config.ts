@@ -31,7 +31,7 @@ export default defineNuxtConfig({
     // Mengaktifkan/menonaktifkan cache server (in-memory cache tidak cocok untuk deploy serverless/multi-isolate)
     enableServerCache: process.env.NUXT_ENABLE_SERVER_CACHE === "true",
     public: {
-      appName: process.env.NUXT_PUBLIC_APP_NAME || "",
+      appName: process.env.NUXT_PUBLIC_APP_NAME || "SopokDate",
       appLink: process.env.NUXT_PUBLIC_APP_LINK || "",
       appMadrasah: process.env.NUXT_PUBLIC_APP_MADRASAH || "",
     },

@@ -130,6 +130,10 @@ const handleFormSubmit = async (formData) => {
   }
 };
 
+import { useAcademicYear } from "~/composables/utils/useAcademicYear";
+
+const { currentAcademicYear } = useAcademicYear();
+
 const handleMutasiKeluar = (item) => {
   const id = item.id || item._id;
 
@@ -143,6 +147,22 @@ const handleMutasiKeluar = (item) => {
         const now = new Date();
         const tanggalMutasi = now.toISOString().slice(0, 10);
 
+        const rawClass = item.kelas || item["tingkat - rombel"] || "";
+        let classTingkat = rawClass;
+
+        if (Array.isArray(dataKelas.value)) {
+          const foundClass = dataKelas.value.find(
+            (c) =>
+              c.id_kelas === rawClass ||
+              c.idKelas === rawClass ||
+              c.nama_kelas === rawClass ||
+              c.namaKelas === rawClass,
+          );
+          if (foundClass && foundClass.tingkat) {
+            classTingkat = foundClass.tingkat;
+          }
+        }
+
         const mutasiRecord = {
           nama: item.nama || "",
           nisn: item.nisn || item["nisn"] || "",
@@ -151,8 +171,8 @@ const handleMutasiKeluar = (item) => {
           no_kk: item["no kk"] || item.no_kk || "",
           tempat_lahir: item["tempat lahir"] || item.tempat_lahir || "",
           tanggal_lahir: item["tanggal lahir"] || item.tanggal_lahir || "",
-          kelas: item["tingkat - rombel"] || item.kelas || "",
-          umur: calculateAge(item["tanggal lahir"] || item.tanggal_lahir),
+          kelas: classTingkat,
+          tahun_ajaran: currentAcademicYear.value || "",
           jenis_kelamin: item["jenis kelamin"] || item.jenis_kelamin || "",
           alamat: item.alamat || "",
           no_hp: item["no telepon"] || item.no_hp || "",
