@@ -9,7 +9,7 @@
               <GraduationCap class="w-7 h-7 text-emerald-400 shrink-0" />
               Data Siswa
             </h2>
-            <p class="text-sm text-zinc-400 mt-1">
+            <p class="text-sm mt-1" style="color: var(--text-muted)">
               Manajemen dan informasi seluruh siswa madrasah
             </p>
           </div>
@@ -25,8 +25,7 @@
             </BaseButton>
 
             <!-- Upload Excel Button (Admin Only) -->
-            <BaseButton v-if="isAdmin" text="Upload" @click="showUploadModal = true"
-              class="!bg-zinc-800 hover:!bg-zinc-700 !text-zinc-200 !border-zinc-700">
+            <BaseButton v-if="isAdmin" text="Upload" @click="showUploadModal = true">
               <template #icon>
                 <FileSpreadsheet class="w-4 h-4" />
               </template>
@@ -134,15 +133,16 @@
 
 
         <!-- Tab switcher (Admin Only) -->
-        <div v-if="isAdmin" class="flex border-b border-zinc-800 mb-2">
+        <div v-if="isAdmin" class="flex border-b mb-2" style="border-color: var(--border-primary)">
           <button
             @click="activeTab = 'aktif'"
             :class="[
               'px-4 py-2.5 text-sm font-semibold border-b-2 transition-all relative top-[1px]',
               activeTab === 'aktif'
                 ? 'border-emerald-500 text-emerald-400 bg-emerald-500/5'
-                : 'border-transparent text-zinc-400 hover:text-zinc-300'
+                : 'border-transparent'
             ]"
+            :style="activeTab !== 'aktif' ? { color: 'var(--text-muted)' } : {}"
           >
             Siswa Aktif
           </button>
@@ -152,8 +152,9 @@
               'px-4 py-2.5 text-sm font-semibold border-b-2 transition-all relative top-[1px]',
               activeTab === 'buku_induk'
                 ? 'border-emerald-500 text-emerald-400 bg-emerald-500/5'
-                : 'border-transparent text-zinc-400 hover:text-zinc-300'
+                : 'border-transparent'
             ]"
+            :style="activeTab !== 'buku_induk' ? { color: 'var(--text-muted)' } : {}"
           >
             Buku Induk
           </button>
@@ -183,17 +184,18 @@
       <!-- Main Content Area -->
       <div class="pt-2">
         <template v-if="activeTab === 'aktif'">
-          <p v-if="isLoading" class="text-center text-zinc-500 text-lg font-semibold py-12">
+          <p v-if="isLoading" class="text-center text-lg font-semibold py-12" style="color: var(--text-muted)">
             Memuat data siswa secara realtime...
           </p>
 
           <div v-else-if="sortedData.length === 0"
-            class="text-center py-16 bg-zinc-800/10 rounded-xl border border-zinc-800">
-            <Database class="w-16 h-16 mx-auto mb-4 text-zinc-600" stroke-width="1.5" />
-            <p class="text-zinc-400 text-lg font-medium">
+            class="text-center py-16 rounded-xl border"
+            style="background: var(--bg-secondary); border-color: var(--border-primary)">
+            <Database class="w-16 h-16 mx-auto mb-4" style="color: var(--text-faint)" stroke-width="1.5" />
+            <p class="text-lg font-medium" style="color: var(--text-secondary)">
               Tidak ada data siswa ditemukan
             </p>
-            <p class="text-zinc-500 text-sm mt-1">
+            <p class="text-sm mt-1" style="color: var(--text-muted)">
               Coba sesuaikan kata kunci pencarian atau filter kelas Anda.
             </p>
           </div>
@@ -224,7 +226,8 @@
             <div class="w-full md:w-64 flex gap-2">
               <select
                 v-model="sortByNisLokal"
-                class="w-full h-10 sm:h-11 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm cursor-pointer"
+                class="w-full h-10 sm:h-11 px-3 rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
+                style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input)"
               >
                 <option value="desc">NIS Lokal: Tertinggi ke Terendah</option>
                 <option value="asc">NIS Lokal: Terendah ke Tertinggi</option>
@@ -232,58 +235,63 @@
             </div>
           </div>
 
-          <p v-if="isLoading || isLoadingBukuInduk" class="text-center text-zinc-500 text-lg font-semibold py-12">
+          <p v-if="isLoading || isLoadingBukuInduk" class="text-center text-lg font-semibold py-12" style="color: var(--text-muted)">
             Memuat data Buku Induk...
           </p>
 
           <div v-else-if="filteredBukuIndukData.length === 0"
-            class="text-center py-16 bg-zinc-800/10 rounded-xl border border-zinc-800">
-            <Database class="w-16 h-16 mx-auto mb-4 text-zinc-600" stroke-width="1.5" />
-            <p class="text-zinc-400 text-lg font-medium">
+            class="text-center py-16 rounded-xl border"
+            style="background: var(--bg-secondary); border-color: var(--border-primary)">
+            <Database class="w-16 h-16 mx-auto mb-4" style="color: var(--text-faint)" stroke-width="1.5" />
+            <p class="text-lg font-medium" style="color: var(--text-secondary)">
               Tidak ada data Buku Induk ditemukan
             </p>
-            <p class="text-zinc-500 text-sm mt-1">
+            <p class="text-sm mt-1" style="color: var(--text-muted)">
               Coba sesuaikan kata kunci pencarian Anda.
             </p>
           </div>
 
           <div v-else>
-            <div class="overflow-x-auto rounded-xl border border-zinc-800/60 bg-zinc-900/10">
+            <div class="overflow-x-auto rounded-xl border" style="border-color: var(--border-primary); background: var(--bg-card)">
               <table class="w-full text-sm text-left">
-                <thead class="bg-zinc-800/60 border-b border-zinc-700/60">
+                <thead class="border-b" style="background: var(--bg-secondary); border-color: var(--border-primary)">
                   <tr>
-                    <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider w-10">No</th>
-                    <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Nama</th>
-                    <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider">NIS Lokal</th>
-                    <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider">NISN</th>
-                    <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider text-center">L/P</th>
-                    <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Rombel / Keterangan</th>
-                    <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider text-center">Status</th>
-                    <th class="px-4 py-3 text-xs font-semibold text-zinc-400 uppercase tracking-wider text-center">Aksi</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider w-10" style="color: var(--text-muted)">No</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted)">Nama</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted)">NIS Lokal</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted)">NISN</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-center" style="color: var(--text-muted)">L/P</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted)">Rombel / Keterangan</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-center" style="color: var(--text-muted)">Status</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-center" style="color: var(--text-muted)">Aksi</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-zinc-800/40">
+                <tbody>
                   <tr
                     v-for="(item, index) in visibleBukuIndukData"
                     :key="item.id || index"
-                    class="hover:bg-zinc-800/30 transition-colors"
+                    class="transition-colors border-b"
+                    style="border-color: var(--border-subtle)"
+                    :style="{ borderColor: 'var(--border-subtle)' }"
+                    @mouseenter="$event.currentTarget.style.background = 'var(--bg-secondary)'"
+                    @mouseleave="$event.currentTarget.style.background = ''"
                   >
-                    <td class="px-4 py-3 text-zinc-500 text-xs">
+                    <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">
                       {{ (currentPageBukuInduk - 1) * ITEMS_PER_PAGE_BUKU_INDUK + index + 1 }}
                     </td>
-                    <td class="px-4 py-3 font-semibold text-zinc-100">
+                    <td class="px-4 py-3 font-semibold text-sm" style="color: var(--text-heading)">
                       {{ toTitleCase(item.nama) }}
                     </td>
-                    <td class="px-4 py-3 text-zinc-300 font-mono text-xs">
+                    <td class="px-4 py-3 font-mono text-xs" style="color: var(--text-secondary)">
                       {{ item.nis_lokal || '-' }}
                     </td>
-                    <td class="px-4 py-3 text-zinc-300 font-mono text-xs">
+                    <td class="px-4 py-3 font-mono text-xs" style="color: var(--text-secondary)">
                       {{ item.nisn || '-' }}
                     </td>
-                    <td class="px-4 py-3 text-zinc-300 text-xs text-center">
+                    <td class="px-4 py-3 text-xs text-center" style="color: var(--text-secondary)">
                       {{ item.gender || '-' }}
                     </td>
-                    <td class="px-4 py-3 text-zinc-400 text-xs">
+                    <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">
                       {{ item.kelas || '-' }}
                     </td>
                     <td class="px-4 py-3 text-center">
@@ -291,10 +299,10 @@
                         :class="[
                           'px-2 py-0.5 rounded text-xs font-semibold border',
                           item.status === 'Aktif'
-                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                             : item.status === 'Alumni'
-                            ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                            : 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                            ? 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                            : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
                         ]"
                       >
                         {{ item.status }}
@@ -303,7 +311,7 @@
                     <td class="px-4 py-3 text-center">
                       <button
                         @click="navigateToBukuIndukDetail(item)"
-                        class="px-2.5 py-1 rounded text-xs text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/10 transition-all font-medium"
+                        class="px-2.5 py-1 rounded text-xs text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/10 transition-all font-medium"
                       >
                         Detail
                       </button>

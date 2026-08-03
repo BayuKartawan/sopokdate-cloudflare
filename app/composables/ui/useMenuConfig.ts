@@ -8,6 +8,7 @@ import {
   GraduationCap,
   CalendarCheck,
   Calendar,
+  ClipboardCheck,
 } from "lucide-vue-next";
 
 export interface MenuItemChild {
@@ -134,6 +135,18 @@ export const useMenuConfig = () => {
           label: "Asesmen",
           roles: ["admin", "guru", "kepala_madrasah"],
         },
+      ],
+    },
+    {
+      label: "EDM",
+      icon: markRaw(ClipboardCheck),
+      roles: ["admin", "guru", "kepala_madrasah"],
+      children: [
+        { to: "/edm", label: "Dashboard EDM", roles: ["admin", "guru", "kepala_madrasah"] },
+        { to: "/edm/kelompok", label: "Kelompok Guru", roles: ["admin"] },
+        { to: "/edm/indikator", label: "Indikator / Soal", roles: ["admin"] },
+        { to: "/edm/isi", label: "Pengisian EDM", roles: ["admin", "guru", "kepala_madrasah"] },
+        { to: "/edm/rekap", label: "Rekap Pengisian", roles: ["admin", "guru", "kepala_madrasah"] },
       ],
     },
     {

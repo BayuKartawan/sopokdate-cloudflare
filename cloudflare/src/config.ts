@@ -43,4 +43,9 @@ export const VALID_TABLES: string[] = [
   "jenis_asesmen",
   "nilai_asesmen",
   "absensi_siswa",
+  "edm_tahun_anggaran",
+  "edm_kelompok",
+  "edm_anggota_kelompok",
+  "edm_indikator",
+  "edm_jawaban",
 ];

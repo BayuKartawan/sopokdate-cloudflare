@@ -43,6 +43,20 @@ import {
   handleGetNilai,
   handlePostNilai,
 } from "./handlers/asesmen";
+import {
+  handleGetEdmTahunAnggaran,
+  handlePostEdmTahunAnggaran,
+  handleDeleteEdmTahunAnggaran,
+  handleGetEdmKelompok,
+  handlePostEdmKelompok,
+  handleGetEdmIndikator,
+  handlePostEdmIndikator,
+  handlePutEdmIndikator,
+  handleDeleteEdmIndikator,
+  handleGetEdmJawaban,
+  handlePostEdmJawaban,
+  handleGetEdmRekap,
+} from "./handlers/edm";
 
 import type { Env } from "./types";
 
@@ -243,6 +257,58 @@ app.get("/api/asesmen/nilai", async (c) => {
 
 app.post("/api/asesmen/nilai", async (c) => {
   return await handlePostNilai(c.req.raw, c.env);
+});
+
+// --- EDM (Evaluasi Diri Madrasah) Routes ---
+app.get("/api/edm/tahun-anggaran", async (c) => {
+  return await handleGetEdmTahunAnggaran(c.req.raw, c.env);
+});
+
+app.post("/api/edm/tahun-anggaran", async (c) => {
+  return await handlePostEdmTahunAnggaran(c.req.raw, c.env);
+});
+
+app.delete("/api/edm/tahun-anggaran/:id", async (c) => {
+  const id = c.req.param("id");
+  return await handleDeleteEdmTahunAnggaran(c.req.raw, c.env, id);
+});
+
+app.get("/api/edm/kelompok", async (c) => {
+  return await handleGetEdmKelompok(c.req.raw, c.env);
+});
+
+app.post("/api/edm/kelompok", async (c) => {
+  return await handlePostEdmKelompok(c.req.raw, c.env);
+});
+
+app.get("/api/edm/indikator", async (c) => {
+  return await handleGetEdmIndikator(c.req.raw, c.env);
+});
+
+app.post("/api/edm/indikator", async (c) => {
+  return await handlePostEdmIndikator(c.req.raw, c.env);
+});
+
+app.put("/api/edm/indikator/:id", async (c) => {
+  const id = c.req.param("id");
+  return await handlePutEdmIndikator(c.req.raw, c.env, id);
+});
+
+app.delete("/api/edm/indikator/:id", async (c) => {
+  const id = c.req.param("id");
+  return await handleDeleteEdmIndikator(c.req.raw, c.env, id);
+});
+
+app.get("/api/edm/jawaban", async (c) => {
+  return await handleGetEdmJawaban(c.req.raw, c.env);
+});
+
+app.post("/api/edm/jawaban", async (c) => {
+  return await handlePostEdmJawaban(c.req.raw, c.env);
+});
+
+app.get("/api/edm/rekap", async (c) => {
+  return await handleGetEdmRekap(c.req.raw, c.env);
 });
 
 export default app;
