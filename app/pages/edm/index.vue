@@ -14,14 +14,16 @@
     <!-- Tahun Anggaran Selector + Add (Admin) -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-6">
       <div class="flex items-center gap-2 flex-1">
-        <select v-model="selectedTahunId" @change="onTahunChange"
-          class="rounded-lg px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition-all"
-          style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input)">
-          <option v-for="t in listTahun" :key="t.id" :value="t.id">
-            Tahun Anggaran {{ t.tahun }}
-            <template v-if="t.is_active === 1"> (Aktif)</template>
-          </option>
-        </select>
+        <SearchableSelect
+          v-model="selectedTahunId"
+          :options="tahunOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Pilih Tahun Anggaran..."
+          search-placeholder="Cari tahun..."
+          @change="onTahunChange"
+          class="w-64"
+        />
       </div>
       <button v-if="isAdmin" @click="showTahunModal = true"
         class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] transition-all shadow-sm">
@@ -57,7 +59,7 @@
           <p class="text-xs mt-0.5" style="color: var(--text-muted)">Tahun Anggaran</p>
         </div>
 
-        <!-- Card: Progres Kelompok -->
+        <!-- Card: Progres Bagian -->
         <div class="rounded-xl p-4"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
           <div class="flex items-center gap-2 mb-3">
@@ -66,7 +68,7 @@
             </div>
           </div>
           <p class="text-2xl font-bold" style="color: var(--text-heading)">{{ totalProgress }}%</p>
-          <p class="text-xs mt-0.5" style="color: var(--text-muted)">Progres Isian Kelompok</p>
+          <p class="text-xs mt-0.5" style="color: var(--text-muted)">Progres Isian Bagian</p>
         </div>
 
         <!-- Card: Total Indikator -->
@@ -90,68 +92,75 @@
             </div>
           </div>
           <p class="text-2xl font-bold" style="color: var(--text-heading)">
-            {{ rekapData?.overall?.total_kelompok_terisi || 0 }}
+            {{ rekapData?.overall?.total_bagian_terisi || rekapData?.overall?.total_kelompok_terisi || 0 }}
             <span class="text-sm font-normal" style="color: var(--text-muted)">
-              / {{ kelompokList.length || 5 }}
+              / {{ bagianList.length || 5 }}
             </span>
           </p>
-          <p class="text-xs mt-0.5" style="color: var(--text-muted)">Kelompok Sudah Mengisi</p>
+          <p class="text-xs mt-0.5" style="color: var(--text-muted)">Bagian Sudah Mengisi</p>
         </div>
       </div>
 
-      <!-- Kelompok Overview Cards -->
+      <!-- Bagian Overview Cards -->
       <h2 class="text-sm font-semibold mb-3 flex items-center gap-2" style="color: var(--text-heading)">
         <UsersRound class="w-4 h-4 text-emerald-500" />
-        Progres Per Kelompok
+        Progres Per Bagian
       </h2>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-        <div v-for="kel in kelompokList" :key="kel.id"
-          class="rounded-xl p-4"
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+        <div v-for="b in bagianList" :key="b.id"
+          class="rounded-xl p-4 flex flex-col justify-between"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-          <div class="flex items-center justify-between mb-3">
-            <span
-              class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold text-white"
-              :class="kelompokColor(kel.nama_kelompok)">
-              {{ kel.nama_kelompok }}
-            </span>
-            <span class="text-xs font-medium px-2 py-0.5 rounded-full"
-              style="background: var(--bg-secondary); color: var(--text-muted)">
-              {{ kel.anggota?.length || 0 }} guru
-            </span>
-          </div>
-          <div class="w-full h-1.5 rounded-full" style="background: var(--bg-tertiary)">
-            <div class="h-1.5 rounded-full transition-all duration-500"
-              :class="kelompokColor(kel.nama_kelompok)"
-              :style="{ width: getKelompokProgress(kel) + '%' }">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span
+                class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg text-xs font-bold text-white shrink-0"
+                :class="bagianColor(getBagianCode(b))">
+                Bagian {{ getBagianCode(b) }}
+              </span>
+              <span class="text-xs font-medium px-2 py-0.5 rounded-full shrink-0"
+                style="background: var(--bg-secondary); color: var(--text-muted)">
+                {{ b.anggota?.length || 0 }} guru
+              </span>
             </div>
+            <p class="text-xs font-medium mb-3 line-clamp-2" style="color: var(--text-heading)">
+              {{ getBagianTitle(getBagianCode(b)) }}
+            </p>
           </div>
-          <p class="text-xs mt-2" style="color: var(--text-muted)">
-            {{ getKelompokSummary(kel) }}
-          </p>
+          <div>
+            <div class="w-full h-1.5 rounded-full" style="background: var(--bg-tertiary)">
+              <div class="h-1.5 rounded-full transition-all duration-500"
+                :class="bagianColor(getBagianCode(b))"
+                :style="{ width: getBagianProgress(b) + '%' }">
+              </div>
+            </div>
+            <p class="text-xs mt-2" style="color: var(--text-muted)">
+              {{ getBagianSummary(b) }}
+            </p>
+          </div>
         </div>
       </div>
 
       <!-- Quick Actions for Guru -->
-      <template v-if="myKelompok && !isAdmin">
+      <template v-if="myBagian && !isAdmin">
         <h2 class="text-sm font-semibold mb-3 flex items-center gap-2" style="color: var(--text-heading)">
           <ClipboardCheck class="w-4 h-4 text-emerald-500" />
           Pengisian Anda
         </h2>
         <div class="rounded-xl p-5 mb-6"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-          <div class="flex items-center gap-3 mb-4">
+          <div class="flex items-start gap-3 mb-4">
             <span
-              class="inline-flex items-center justify-center w-10 h-10 rounded-xl text-base font-bold text-white"
-              :class="kelompokColor(myKelompok.nama_kelompok)">
-              {{ myKelompok.nama_kelompok }}
+              class="inline-flex items-center justify-center px-3 py-1.5 rounded-xl text-sm font-bold text-white shrink-0 mt-0.5"
+              :class="bagianColor(getBagianCode(myBagian))">
+              Bagian {{ getBagianCode(myBagian) }}
             </span>
             <div>
               <p class="font-semibold text-sm" style="color: var(--text-heading)">
-                Kelompok {{ myKelompok.nama_kelompok }}
+                {{ getBagianTitle(getBagianCode(myBagian)) }}
               </p>
-              <p class="text-xs" style="color: var(--text-muted)">
-                {{ myKelompok.anggota?.length || 0 }} anggota
+              <p class="text-xs mt-0.5" style="color: var(--text-muted)">
+                {{ myBagian.anggota?.length || 0 }} anggota bagian
               </p>
             </div>
           </div>
@@ -253,7 +262,8 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useEdm } from "~/composables/edm/useEdm";
+import { useEdm, EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
+import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import {
   CalendarDays, UsersRound, ListChecks, ClipboardCheck, Plus,
   PenLine, FileText, Save, PieChart,
@@ -261,7 +271,8 @@ import {
 
 const {
   isLoading, isSaving, listTahun, selectedTahunId,
-  fetchTahunAnggaran, saveTahunAnggaran, fetchKelompok, fetchIndikator, fetchRekap,
+  fetchTahunAnggaran, refetchTahunAnggaran, saveTahunAnggaran,
+  setSelectedTahunId, fetchBagian, fetchIndikator, fetchRekap,
 } = useEdm();
 
 const isAdmin = computed(() => {
@@ -279,15 +290,23 @@ const currentTahun = computed(() => {
   return listTahun.value.find((t) => t.id === selectedTahunId.value) || null;
 });
 
-const kelompokList = ref([]);
+const tahunOptions = computed(() => {
+  return listTahun.value.map((t) => ({
+    label: `Tahun Anggaran ${t.tahun}${t.is_active === 1 ? ' (Aktif)' : ''}`,
+    value: t.id,
+  }));
+});
+
+const bagianList = ref([]);
 const totalIndikator = ref(0);
 const rekapData = ref(null);
 const juknisText = ref("");
 
 const totalProgress = computed(() => {
-  if (!rekapData.value?.kelompok || rekapData.value.kelompok.length === 0) return 0;
-  const totalJawaban = rekapData.value.kelompok.reduce((acc, k) => acc + (k.jumlah_jawaban || 0), 0);
-  const totalReq = rekapData.value.kelompok.reduce((acc, k) => acc + (k.jumlah_indikator || 0), 0);
+  const items = rekapData.value?.bagian || rekapData.value?.kelompok;
+  if (!items || items.length === 0) return 0;
+  const totalJawaban = items.reduce((acc, k) => acc + (k.jumlah_jawaban || 0), 0);
+  const totalReq = items.reduce((acc, k) => acc + (k.jumlah_indikator || 0), 0);
   if (totalReq === 0) return 0;
   return Math.min(100, Math.round((totalJawaban / totalReq) * 100));
 });
@@ -296,14 +315,23 @@ const showTahunModal = ref(false);
 const editingTahun = ref(null);
 const formTahun = ref({ tahun: new Date().getFullYear(), is_active: 1 });
 
-const myKelompok = computed(() => {
+const myBagian = computed(() => {
   if (!myGtkId.value) return null;
-  return kelompokList.value.find((k) =>
-    k.anggota?.some((a) => a.gtk_id === myGtkId.value)
+  return bagianList.value.find((b) =>
+    b.anggota?.some((a) => a.gtk_id === myGtkId.value)
   ) || null;
 });
 
-const kelompokColor = (name) => {
+const getBagianCode = (b) => {
+  return b?.nama_bagian || b?.nama_kelompok || "A";
+};
+
+const getBagianTitle = (code) => {
+  const meta = EDM_BAGIAN_LIST.find((m) => m.code === code);
+  return meta ? meta.name : `Bagian ${code}`;
+};
+
+const bagianColor = (name) => {
   const colors = {
     A: "bg-blue-600",
     B: "bg-emerald-600",
@@ -314,16 +342,18 @@ const kelompokColor = (name) => {
   return colors[name] || "bg-zinc-600";
 };
 
-const getKelompokProgress = (kel) => {
-  if (!rekapData.value?.kelompok) return 0;
-  const kData = rekapData.value.kelompok.find((k) => k.kelompok_id === kel.id);
+const getBagianProgress = (b) => {
+  const items = rekapData.value?.bagian || rekapData.value?.kelompok;
+  if (!items) return 0;
+  const kData = items.find((k) => (k.bagian_id || k.kelompok_id) === b.id);
   if (!kData || !kData.jumlah_indikator) return 0;
   return Math.min(100, Math.round((kData.jumlah_jawaban / kData.jumlah_indikator) * 100));
 };
 
-const getKelompokSummary = (kel) => {
-  if (!rekapData.value?.kelompok) return "Belum ada data";
-  const kData = rekapData.value.kelompok.find((k) => k.kelompok_id === kel.id);
+const getBagianSummary = (b) => {
+  const items = rekapData.value?.bagian || rekapData.value?.kelompok;
+  if (!items) return "Belum ada data";
+  const kData = items.find((k) => (k.bagian_id || k.kelompok_id) === b.id);
   if (!kData || !kData.jumlah_indikator) return "0/0 indikator terisi";
   return `${kData.jumlah_jawaban || 0}/${kData.jumlah_indikator || 0} indikator terisi`;
 };
@@ -332,13 +362,13 @@ const loadDashboardData = async () => {
   if (!selectedTahunId.value) return;
   const tahunId = selectedTahunId.value;
 
-  const [kel, indikator, rekap] = await Promise.all([
-    fetchKelompok(tahunId),
+  const [bagianData, indikator, rekap] = await Promise.all([
+    fetchBagian(tahunId),
     fetchIndikator(tahunId),
     fetchRekap(tahunId),
   ]);
 
-  kelompokList.value = kel;
+  bagianList.value = bagianData;
   totalIndikator.value = indikator.length;
   rekapData.value = rekap;
 
@@ -348,6 +378,7 @@ const loadDashboardData = async () => {
 };
 
 const onTahunChange = () => {
+  setSelectedTahunId(selectedTahunId.value);
   loadDashboardData();
 };
 
@@ -361,6 +392,7 @@ const handleSaveTahun = async () => {
     showTahunModal.value = false;
     editingTahun.value = null;
     formTahun.value = { tahun: new Date().getFullYear(), is_active: 1 };
+    await refetchTahunAnggaran();
     await loadDashboardData();
   }
 };

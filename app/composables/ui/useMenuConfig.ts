@@ -143,7 +143,7 @@ export const useMenuConfig = () => {
       roles: ["admin", "guru", "kepala_madrasah"],
       children: [
         { to: "/edm", label: "Dashboard EDM", roles: ["admin", "guru", "kepala_madrasah"] },
-        { to: "/edm/kelompok", label: "Kelompok Guru", roles: ["admin"] },
+        { to: "/edm/bagian", label: "Bagian / Tim EDM", roles: ["admin"] },
         { to: "/edm/indikator", label: "Indikator / Soal", roles: ["admin"] },
         { to: "/edm/isi", label: "Pengisian EDM", roles: ["admin", "guru", "kepala_madrasah"] },
         { to: "/edm/rekap", label: "Rekap Pengisian", roles: ["admin", "guru", "kepala_madrasah"] },

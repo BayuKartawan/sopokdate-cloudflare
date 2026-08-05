@@ -10,39 +10,56 @@ export interface TahunAnggaran {
   updated_at?: string;
 }
 
-export interface AnggotaKelompok {
+export interface AnggotaBagian {
   id: number;
-  kelompok_id: number;
+  bagian_id: number;
+  kelompok_id?: number;
   gtk_id: number;
   nama_lengkap: string;
   mata_pelajaran?: string;
   tugas?: string;
 }
+export type AnggotaKelompok = AnggotaBagian;
 
-export interface KelompokGuru {
+export interface BagianGuru {
   id: number;
   tahun_anggaran_id: number;
-  nama_kelompok: string; // 'A', 'B', 'C', 'D', 'E'
-  anggota: AnggotaKelompok[];
+  nama_bagian: string; // 'A', 'B', 'C', 'D', 'E'
+  nama_kelompok?: string;
+  anggota: AnggotaBagian[];
 }
+export type KelompokGuru = BagianGuru;
+
+export interface EdmBagianMeta {
+  code: string;
+  name: string;
+  title: string;
+}
+
+export const EDM_BAGIAN_LIST: EdmBagianMeta[] = [
+  { code: "A", name: "Bagian A: Aspek Budaya Kedisiplinan bagi Warga Madrasah", title: "Aspek Budaya Kedisiplinan bagi Warga Madrasah" },
+  { code: "B", name: "Bagian B: Aspek Budaya Melakukan Pengembangan Diri bagi Guru dan Tenaga Kependidikan", title: "Aspek Budaya Melakukan Pengembangan Diri bagi Guru dan Tenaga Kependidikan" },
+  { code: "C", name: "Bagian C: Aspek Budaya Guru Melakukan Penyiapan, Pelaksanaan dan Penilaian Atas Proses Pembelajaran", title: "Aspek Budaya Guru Melakukan Penyiapan, Pelaksanaan dan Penilaian Atas Proses Pembelajaran" },
+  { code: "D", name: "Bagian D: Aspek Budaya Madrasah Menyediakan Sarana Belajar untuk Guru dan Siswa", title: "Aspek Budaya Madrasah Menyediakan Sarana Belajar untuk Guru dan Siswa" },
+  { code: "E", name: "Bagian E: Aspek Budaya Madrasah Melakukan Pengelolaan Anggaran yang Transparan dan Berorientasi pada Peningkatan Mutu", title: "Aspek Budaya Madrasah Melakukan Pengelolaan Anggaran yang Transparan dan Berorientasi pada Peningkatan Mutu" },
+];
 
 export interface IndikatorEdm {
   id?: number;
   tahun_anggaran_id: number;
-  kelompok_target: string; // 'A', 'B', 'C', 'D', 'E'
+  bagian_target: string; // 'A', 'B', 'C', 'D', 'E'
+  kelompok_target?: string;
   nomor_urut: number;
-  komponen: string;
-  sub_komponen: string;
   pertanyaan: string;
   bukti_yang_diminta: string;
   pilihan: string | Array<{ skor: number; label: string }>;
-  keterangan: string;
 }
 
 export interface JawabanEdm {
   id?: number;
   indikator_id: number;
   gtk_id?: number;
+  bagian_id?: number;
   kelompok_id?: number;
   skor?: number | null;
   jawaban_text?: string;
@@ -50,16 +67,32 @@ export interface JawabanEdm {
   bukti_filename?: string;
 }
 
+// ── Global Shared State (shared across all pages/components) ──
+const _listTahun = ref<TahunAnggaran[]>([]);
+const _selectedTahunId = ref<number | null>(null);
+let _tahunFetched = false;
+
+// Restore selectedTahunId from localStorage on init
+if (typeof window !== "undefined") {
+  const stored = localStorage.getItem("edm-selected-tahun-id");
+  if (stored) _selectedTahunId.value = parseInt(stored);
+}
+
 export function useEdm() {
   const { Notify } = useNotiflix();
   const isLoading = ref(false);
   const isSaving = ref(false);
 
-  const listTahun = ref<TahunAnggaran[]>([]);
-  const selectedTahunId = ref<number | null>(null);
+  const listTahun = _listTahun;
+  const selectedTahunId = _selectedTahunId;
 
   const activeTahun = computed(() => {
     return listTahun.value.find((t) => t.is_active === 1) || listTahun.value[0] || null;
+  });
+
+  const selectedTahunLabel = computed(() => {
+    const t = listTahun.value.find((t) => t.id === selectedTahunId.value);
+    return t ? `TA ${t.tahun}${t.is_active === 1 ? ' (Aktif)' : ''}` : '—';
   });
 
   const getAuthToken = (): string | null => {
@@ -71,6 +104,10 @@ export function useEdm() {
    * Fetch daftar Tahun Anggaran
    */
   const fetchTahunAnggaran = async () => {
+    // If already fetched and data exists, skip re-fetch (unless list is empty)
+    if (_tahunFetched && listTahun.value.length > 0) {
+      return;
+    }
     isLoading.value = true;
     try {
       const token = getAuthToken();
@@ -80,9 +117,24 @@ export function useEdm() {
       if (res.ok) {
         const data = await res.json();
         listTahun.value = data;
-        if (!selectedTahunId.value && data.length > 0) {
+        _tahunFetched = true;
+
+        // Restore from localStorage or fallback to active/first
+        if (selectedTahunId.value) {
+          // Validate that stored ID still exists in the list
+          const exists = data.find((t: TahunAnggaran) => t.id === selectedTahunId.value);
+          if (!exists && data.length > 0) {
+            const active = data.find((t: TahunAnggaran) => t.is_active === 1);
+            selectedTahunId.value = active ? active.id : data[0].id;
+          }
+        } else if (data.length > 0) {
           const active = data.find((t: TahunAnggaran) => t.is_active === 1);
           selectedTahunId.value = active ? active.id : data[0].id;
+        }
+
+        // Persist to localStorage
+        if (selectedTahunId.value && typeof window !== "undefined") {
+          localStorage.setItem("edm-selected-tahun-id", String(selectedTahunId.value));
         }
       }
     } catch (err: any) {
@@ -142,12 +194,12 @@ export function useEdm() {
   };
 
   /**
-   * Fetch Kelompok Guru per Tahun Anggaran
+   * Fetch Bagian Guru per Tahun Anggaran
    */
-  const fetchKelompok = async (tahunId: number): Promise<KelompokGuru[]> => {
+  const fetchBagian = async (tahunId: number): Promise<BagianGuru[]> => {
     try {
       const token = getAuthToken();
-      const res = await fetch(`/api/edm/kelompok?tahun_anggaran_id=${tahunId}`, {
+      const res = await fetch(`/api/edm/bagian?tahun_anggaran_id=${tahunId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -155,22 +207,23 @@ export function useEdm() {
       }
       return [];
     } catch (err) {
-      console.error("Gagal memuat kelompok EDM:", err);
+      console.error("Gagal memuat bagian EDM:", err);
       return [];
     }
   };
+  const fetchKelompok = fetchBagian;
 
   /**
-   * Simpan Pembagian Kelompok
+   * Simpan Pembagian Bagian
    */
-  const saveKelompok = async (
+  const saveBagian = async (
     tahunId: number,
-    kelompokPayload: Array<{ nama_kelompok: string; gtk_ids: number[] }>,
+    bagianPayload: Array<{ nama_bagian?: string; nama_kelompok?: string; gtk_ids: number[] }>,
   ) => {
     isSaving.value = true;
     try {
       const token = getAuthToken();
-      const res = await fetch("/api/edm/kelompok", {
+      const res = await fetch("/api/edm/bagian", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -178,32 +231,33 @@ export function useEdm() {
         },
         body: JSON.stringify({
           tahun_anggaran_id: tahunId,
-          kelompok: kelompokPayload,
+          bagian: bagianPayload,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal menyimpan kelompok");
-      Notify?.success?.("Pembagian kelompok berhasil disimpan");
+      if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal menyimpan bagian");
+      Notify?.success?.("Pembagian bagian berhasil disimpan");
       return true;
     } catch (err: any) {
-      Notify?.failure?.(err.message || "Gagal menyimpan kelompok");
+      Notify?.failure?.(err.message || "Gagal menyimpan bagian");
       return false;
     } finally {
       isSaving.value = false;
     }
   };
+  const saveKelompok = saveBagian;
 
   /**
    * Fetch Indikator EDM
    */
   const fetchIndikator = async (
     tahunId: number,
-    kelompokTarget?: string,
+    bagianTarget?: string,
   ): Promise<IndikatorEdm[]> => {
     try {
       const token = getAuthToken();
       let url = `/api/edm/indikator?tahun_anggaran_id=${tahunId}`;
-      if (kelompokTarget) url += `&kelompok_target=${kelompokTarget}`;
+      if (bagianTarget) url += `&bagian_target=${bagianTarget}`;
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -218,7 +272,11 @@ export function useEdm() {
               parsedPilihan = [];
             }
           }
-          return { ...item, pilihan: parsedPilihan };
+          return {
+            ...item,
+            bagian_target: item.bagian_target || item.kelompok_target || "A",
+            pilihan: parsedPilihan
+          };
         });
       }
       return [];
@@ -295,6 +353,7 @@ export function useEdm() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal menghapus");
       Notify?.success?.("Indikator berhasil dihapus");
+      await fetchTahunAnggaran();
       return true;
     } catch (err: any) {
       Notify?.failure?.(err.message || "Gagal menghapus indikator");
@@ -307,14 +366,14 @@ export function useEdm() {
    */
   const fetchJawaban = async (
     tahunId: number,
-    kelompokTarget?: string,
-    kelompokId?: number,
+    bagianTarget?: string,
+    bagianId?: number,
   ): Promise<any[]> => {
     try {
       const token = getAuthToken();
       let url = `/api/edm/jawaban?tahun_anggaran_id=${tahunId}`;
-      if (kelompokTarget) url += `&kelompok_target=${kelompokTarget}`;
-      if (kelompokId) url += `&kelompok_id=${kelompokId}`;
+      if (bagianTarget) url += `&bagian_target=${bagianTarget}`;
+      if (bagianId) url += `&bagian_id=${bagianId}`;
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -332,7 +391,8 @@ export function useEdm() {
    * Save Batch Jawaban
    */
   const saveJawaban = async (payload: {
-    kelompok_id: number;
+    bagian_id?: number;
+    kelompok_id?: number;
     gtk_id: number;
     jawaban: Array<{
       indikator_id: number;
@@ -345,13 +405,17 @@ export function useEdm() {
     isSaving.value = true;
     try {
       const token = getAuthToken();
+      const bodyPayload = {
+        ...payload,
+        bagian_id: payload.bagian_id || payload.kelompok_id,
+      };
       const res = await fetch("/api/edm/jawaban", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(bodyPayload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal menyimpan jawaban");
@@ -387,17 +451,40 @@ export function useEdm() {
     }
   };
 
+  /**
+   * Set selected tahun and persist to localStorage
+   */
+  const setSelectedTahunId = (id: number | null) => {
+    selectedTahunId.value = id;
+    if (id && typeof window !== "undefined") {
+      localStorage.setItem("edm-selected-tahun-id", String(id));
+    }
+  };
+
+  /**
+   * Force re-fetch tahun (e.g. after adding new tahun)
+   */
+  const refetchTahunAnggaran = async () => {
+    _tahunFetched = false;
+    await fetchTahunAnggaran();
+  };
+
   return {
     isLoading,
     isSaving,
     listTahun,
     selectedTahunId,
     activeTahun,
+    selectedTahunLabel,
+    setSelectedTahunId,
 
     fetchTahunAnggaran,
+    refetchTahunAnggaran,
     saveTahunAnggaran,
     deleteTahunAnggaran,
+    fetchBagian,
     fetchKelompok,
+    saveBagian,
     saveKelompok,
     fetchIndikator,
     saveIndikator,

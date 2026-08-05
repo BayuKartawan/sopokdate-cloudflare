@@ -6,16 +6,12 @@
       <div>
         <h1 class="text-2xl font-bold" style="color: var(--text-heading)">Rekap Pengisian EDM</h1>
         <p class="mt-1 text-sm" style="color: var(--text-muted)">
-          Ringkasan hasil evaluasi diri madrasah per kelompok dan indikator (Jawaban Kelompok)
+          Ringkasan hasil evaluasi diri madrasah per bagian dan indikator (Jawaban Bagian)
         </p>
       </div>
-      <div class="flex items-center gap-2">
-        <select v-model="selectedTahunId" @change="loadData"
-          class="rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-          style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input)">
-          <option v-for="t in listTahun" :key="t.id" :value="t.id">TA {{ t.tahun }}</option>
-        </select>
-      </div>
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+        {{ selectedTahunLabel }}
+      </span>
     </div>
 
     <!-- Loading -->
@@ -35,9 +31,9 @@
         </div>
         <div class="rounded-xl p-5"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Kelompok Mulai Mengisi</p>
+          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Bagian Mulai Mengisi</p>
           <p class="text-3xl font-bold" style="color: var(--text-heading)">
-            {{ rekapData.overall?.total_kelompok_terisi || 0 }} <span class="text-sm font-normal" style="color: var(--text-muted)">/ 5</span>
+            {{ rekapData.overall?.total_bagian_terisi || rekapData.overall?.total_kelompok_terisi || 0 }} <span class="text-sm font-normal" style="color: var(--text-muted)">/ 5</span>
           </p>
         </div>
         <div class="rounded-xl p-5"
@@ -50,47 +46,53 @@
         </div>
       </div>
 
-      <!-- Per Kelompok -->
+      <!-- Per Bagian -->
       <h2 class="text-lg font-semibold mb-4" style="color: var(--text-heading)">
-        Rekap Per Kelompok
+        Rekap Per Bagian
       </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <div v-for="kel in rekapData.kelompok" :key="kel.kelompok_id"
-          @click="selectedKelompokFilter = selectedKelompokFilter === kel.nama_kelompok ? '' : kel.nama_kelompok"
-          class="rounded-xl p-4 transition-all duration-200 hover:shadow-md cursor-pointer"
-          :class="selectedKelompokFilter === kel.nama_kelompok ? 'ring-2 ring-emerald-500/50' : ''"
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div v-for="b in getBagianSummaryList(rekapData)" :key="getBagianCode(b)"
+          @click="selectedBagianFilter = selectedBagianFilter === getBagianCode(b) ? '' : getBagianCode(b)"
+          class="rounded-xl p-4 transition-all duration-200 hover:shadow-md cursor-pointer flex flex-col justify-between"
+          :class="selectedBagianFilter === getBagianCode(b) ? 'ring-2 ring-emerald-500/50 shadow-md' : ''"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
 
-          <div class="flex items-center justify-between mb-3">
-            <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-bold text-white"
-              :class="kelompokColor(kel.nama_kelompok)">
-              {{ kel.nama_kelompok }}
-            </span>
-            <span class="text-lg font-bold" :class="getSkorColor(kel.rata_rata_skor)">
-              {{ kel.rata_rata_skor ?? '-' }}
-            </span>
-          </div>
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg text-xs font-bold text-white shrink-0"
+                :class="bagianColor(getBagianCode(b))">
+                Bagian {{ getBagianCode(b) }}
+              </span>
+              <span class="text-lg font-bold shrink-0" :class="getSkorColor(b.rata_rata_skor)">
+                {{ b.rata_rata_skor ?? '-' }}
+              </span>
+            </div>
 
-          <div class="space-y-1 text-xs" style="color: var(--text-muted)">
-            <div class="flex justify-between">
-              <span>Anggota</span>
-              <span class="font-medium" style="color: var(--text-primary)">{{ kel.jumlah_anggota }} guru</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Total Indikator</span>
-              <span class="font-medium" style="color: var(--text-primary)">{{ kel.jumlah_indikator }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Dijawab</span>
-              <span class="font-medium" style="color: var(--text-primary)">{{ kel.jumlah_jawaban }}</span>
+            <p class="text-xs font-semibold mb-3 line-clamp-2" style="color: var(--text-heading)">
+              {{ getBagianFullName(getBagianCode(b)) }}
+            </p>
+
+            <div class="space-y-1 text-xs" style="color: var(--text-muted)">
+              <div class="flex justify-between">
+                <span>Anggota</span>
+                <span class="font-medium" style="color: var(--text-primary)">{{ b.jumlah_anggota || 0 }} guru</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Total Indikator</span>
+                <span class="font-medium" style="color: var(--text-primary)">{{ b.jumlah_indikator || 0 }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Dijawab</span>
+                <span class="font-medium" style="color: var(--text-primary)">{{ b.jumlah_jawaban || 0 }}</span>
+              </div>
             </div>
           </div>
 
           <!-- Progress bar -->
           <div class="w-full h-1.5 rounded-full mt-3" style="background: var(--bg-tertiary)">
             <div class="h-1.5 rounded-full transition-all duration-500"
-              :class="kelompokColor(kel.nama_kelompok)"
-              :style="{ width: getKelProgress(kel) + '%' }"></div>
+              :class="bagianColor(getBagianCode(b))"
+              :style="{ width: getBagProgress(b) + '%' }"></div>
           </div>
         </div>
       </div>
@@ -98,8 +100,8 @@
       <!-- Per Indikator Detail Table -->
       <h2 class="text-lg font-semibold mb-4" style="color: var(--text-heading)">
         Detail Jawaban Per Indikator
-        <span v-if="selectedKelompokFilter" class="text-sm font-normal" style="color: var(--text-muted)">
-          — Kelompok {{ selectedKelompokFilter }}
+        <span v-if="selectedBagianFilter" class="text-sm font-normal" style="color: var(--text-muted)">
+          — {{ getBagianFullName(selectedBagianFilter) }}
         </span>
       </h2>
 
@@ -109,11 +111,10 @@
           <table class="w-full text-sm">
             <thead>
               <tr style="background: var(--bg-secondary)">
-                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Kel</th>
+                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Bagian</th>
                 <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">No</th>
-                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Komponen</th>
                 <th class="text-left px-4 py-3 font-medium text-xs min-w-[250px]" style="color: var(--text-muted)">Pertanyaan</th>
-                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Skor Kelompok</th>
+                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Skor Bagian</th>
                 <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Keterangan / Bukti</th>
                 <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Pengisi Terakhir</th>
               </tr>
@@ -123,16 +124,12 @@
                 class="transition-colors hover:bg-[var(--bg-card-hover)]"
                 style="border-top: 1px solid var(--border-primary)">
                 <td class="px-4 py-3">
-                  <span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold text-white"
-                    :class="kelompokColor(ind.kelompok_target)">
-                    {{ ind.kelompok_target }}
+                  <span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-bold text-white"
+                    :class="bagianColor(getBagianCode(ind))">
+                    Bag. {{ getBagianCode(ind) }}
                   </span>
                 </td>
                 <td class="px-4 py-3 font-mono text-xs" style="color: var(--text-muted)">{{ ind.nomor_urut }}</td>
-                <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">
-                  {{ ind.komponen }}
-                  <span v-if="ind.sub_komponen" style="color: var(--text-muted)"> › {{ ind.sub_komponen }}</span>
-                </td>
                 <td class="px-4 py-3" style="color: var(--text-primary)">{{ ind.pertanyaan }}</td>
                 <td class="px-4 py-3 text-center">
                   <span class="font-bold text-base" :class="getSkorColor(ind.rata_rata_skor)">
@@ -169,20 +166,33 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useEdm } from "~/composables/edm/useEdm";
+import { useEdm, EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
 import { BarChart3 } from "lucide-vue-next";
 
 const {
-  isLoading, listTahun, selectedTahunId,
+  isLoading, selectedTahunId, selectedTahunLabel,
   fetchTahunAnggaran, fetchRekap,
 } = useEdm();
 
 const rekapData = ref(null);
-const selectedKelompokFilter = ref("");
+const selectedBagianFilter = ref("");
 
-const kelompokColor = (name) => {
+const bagianColor = (name) => {
   const c = { A: "bg-blue-600", B: "bg-emerald-600", C: "bg-amber-600", D: "bg-violet-600", E: "bg-rose-600" };
   return c[name] || "bg-zinc-600";
+};
+
+const getBagianCode = (b) => {
+  return b?.nama_bagian || b?.nama_kelompok || b?.bagian_target || b?.kelompok_target || "A";
+};
+
+const getBagianFullName = (code) => {
+  const meta = EDM_BAGIAN_LIST.find((m) => m.code === code);
+  return meta ? meta.name : `Bagian ${code}`;
+};
+
+const getBagianSummaryList = (data) => {
+  return data?.bagian || data?.kelompok || [];
 };
 
 const getSkorColor = (skor) => {
@@ -193,16 +203,16 @@ const getSkorColor = (skor) => {
   return "text-red-600 dark:text-red-400";
 };
 
-const getKelProgress = (kel) => {
-  if (!kel.jumlah_indikator) return 0;
-  return Math.min(100, Math.round((kel.jumlah_jawaban / kel.jumlah_indikator) * 100));
+const getBagProgress = (b) => {
+  if (!b.jumlah_indikator) return 0;
+  return Math.min(100, Math.round((b.jumlah_jawaban / b.jumlah_indikator) * 100));
 };
 
 const filteredIndikator = computed(() => {
   if (!rekapData.value?.per_indikator) return [];
-  if (!selectedKelompokFilter.value) return rekapData.value.per_indikator;
+  if (!selectedBagianFilter.value) return rekapData.value.per_indikator;
   return rekapData.value.per_indikator.filter(
-    (ind) => ind.kelompok_target === selectedKelompokFilter.value
+    (ind) => getBagianCode(ind) === selectedBagianFilter.value
   );
 });
 

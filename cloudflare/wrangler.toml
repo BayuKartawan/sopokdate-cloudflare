@@ -7,3 +7,4 @@ compatibility_flags = ["nodejs_compat"]
 binding = "DB"
 database_name = "sopokdate-db"
 database_id = "69393a59-4a24-4035-aff3-3cea05d5f9f9"
+

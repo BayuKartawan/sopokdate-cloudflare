@@ -49,6 +49,8 @@ import {
   handleDeleteEdmTahunAnggaran,
   handleGetEdmKelompok,
   handlePostEdmKelompok,
+  handleGetEdmBagian,
+  handlePostEdmBagian,
   handleGetEdmIndikator,
   handlePostEdmIndikator,
   handlePutEdmIndikator,
@@ -271,6 +273,14 @@ app.post("/api/edm/tahun-anggaran", async (c) => {
 app.delete("/api/edm/tahun-anggaran/:id", async (c) => {
   const id = c.req.param("id");
   return await handleDeleteEdmTahunAnggaran(c.req.raw, c.env, id);
+});
+
+app.get("/api/edm/bagian", async (c) => {
+  return await handleGetEdmBagian(c.req.raw, c.env);
+});
+
+app.post("/api/edm/bagian", async (c) => {
+  return await handlePostEdmBagian(c.req.raw, c.env);
 });
 
 app.get("/api/edm/kelompok", async (c) => {
