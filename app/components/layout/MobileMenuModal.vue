@@ -125,7 +125,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onUnmounted, watch, markRaw } from "vue";
 import { useMenuConfig } from "~/composables/ui/useMenuConfig.js";
 import {
@@ -170,6 +170,25 @@ import {
   StickyNote,
 } from "lucide-vue-next";
 
+interface MenuItemChild {
+  to?: string;
+  label: string;
+  icon?: any;
+}
+
+interface MenuItem {
+  to?: string;
+  label: string;
+  icon?: any;
+  children?: MenuItemChild[];
+}
+
+interface IconMeta {
+  icon: any;
+  activeColor: string;
+  activeBg: string;
+}
+
 // --- Props & Emits ---
 const props = defineProps({
   isOpen: {
@@ -178,7 +197,9 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits<{
+  (e: "close"): void;
+}>();
 
 // --- Composables & Config ---
 const route = useRoute();
@@ -186,7 +207,7 @@ const { menuItems } = useMenuConfig();
 
 // --- Child icon mapping ---
 // Maps child item labels to specific icons and accent colors for visual distinction
-const childIconMap = {
+const childIconMap: Record<string, IconMeta> = {
   // Akun
   "Akun Sopokdate": { icon: markRaw(KeyRound), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
   "EMIS 4.0": { icon: markRaw(Fingerprint), activeColor: "text-violet-600 dark:text-violet-400", activeBg: "bg-violet-500/15 dark:bg-violet-500/20" },
@@ -226,23 +247,23 @@ const childIconMap = {
   "Nota": { icon: markRaw(StickyNote), activeColor: "text-emerald-600 dark:text-emerald-400", activeBg: "bg-emerald-500/15 dark:bg-emerald-500/20" },
 };
 
-const defaultIconMeta = { icon: markRaw(FileText), activeColor: "text-emerald-600 dark:text-emerald-400", activeBg: "bg-emerald-500/15 dark:bg-emerald-500/20" };
+const defaultIconMeta: IconMeta = { icon: markRaw(FileText), activeColor: "text-emerald-600 dark:text-emerald-400", activeBg: "bg-emerald-500/15 dark:bg-emerald-500/20" };
 
-const childIconMeta = (child) => {
+const childIconMeta = (child: MenuItemChild): IconMeta => {
   return childIconMap[child.label] || defaultIconMeta;
 };
 
 // --- Computed ---
-const directMenuItems = computed(() => {
-  return menuItems.value.filter((item) => !item.children);
+const directMenuItems = computed<MenuItem[]>(() => {
+  return menuItems.value.filter((item: MenuItem) => !item.children);
 });
 
-const groupedMenuItems = computed(() => {
-  return menuItems.value.filter((item) => item.children && item.children.length > 0);
+const groupedMenuItems = computed<MenuItem[]>(() => {
+  return menuItems.value.filter((item: MenuItem) => item.children && item.children.length > 0);
 });
 
 // --- Helper Functions ---
-const isActiveRoute = (toPath) => {
+const isActiveRoute = (toPath?: string): boolean => {
   if (!toPath) return false;
   if (toPath === "/" || toPath === "/edm") {
     return route.path === toPath;
@@ -250,7 +271,7 @@ const isActiveRoute = (toPath) => {
   return route.path === toPath || route.path.startsWith(toPath + "/");
 };
 
-const isParentActive = (menuItem) => {
+const isParentActive = (menuItem: MenuItem): boolean => {
   if (!menuItem.children) return false;
   return menuItem.children.some((child) => isActiveRoute(child.to));
 };
@@ -267,7 +288,7 @@ const handleNavClick = () => {
 // Scroll Lock when open to prevent background scrolling
 watch(
   () => props.isOpen,
-  (newVal) => {
+  (newVal: boolean) => {
     if (newVal) {
       document.body.style.overflow = "hidden";
     } else {

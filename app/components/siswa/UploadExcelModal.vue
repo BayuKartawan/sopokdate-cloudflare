@@ -253,8 +253,8 @@
   </Teleport>
 </template>
 
-<script setup>
-import { ref, computed } from "vue";
+<script setup lang="ts">
+import { ref, computed, type PropType } from "vue";
 import {
   FileSpreadsheet,
   Download,
@@ -267,18 +267,37 @@ import {
 import * as XLSX from "xlsx";
 import { postToApi, putToApi } from "~/utils/api";
 
+interface KelasItem {
+  id_kelas: string | number;
+  nama_kelas: string;
+  [key: string]: any;
+}
+
+interface ParsedStudentRow {
+  nama?: string;
+  nis_lokal?: string;
+  kelas?: string | number;
+  _displayClass?: string;
+  jenis_kelamin?: string;
+  thn_lulus?: string;
+  _mode?: "create" | "update" | "error";
+  _errorMsg?: string;
+  _id?: string | number;
+  [key: string]: any;
+}
+
 const props = defineProps({
   show: {
     type: Boolean,
     required: true,
   },
   dataSiswa: {
-    type: Array,
+    type: Array as PropType<Record<string, any>[]>,
     required: true,
     default: () => [],
   },
   dataKelas: {
-    type: Array,
+    type: Array as PropType<KelasItem[]>,
     default: () => [],
   },
   targetTable: {
@@ -287,10 +306,13 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["close", "success"]);
+const emit = defineEmits<{
+  (e: "close"): void;
+  (e: "success"): void;
+}>();
 
-const fileInput = ref(null);
-const parsedRows = ref([]);
+const fileInput = ref<HTMLInputElement | null>(null);
+const parsedRows = ref<ParsedStudentRow[]>([]);
 const isParsing = ref(false);
 const isUploading = ref(false);
 const uploadIndex = ref(0);
@@ -341,7 +363,7 @@ const closeModal = () => {
 };
 
 // Map common headers to DB keys
-const fieldMapping = {
+const fieldMapping: Record<string, string> = {
   nama: "nama",
   "nama lengkap": "nama",
   nisn: "nisn",
@@ -395,7 +417,7 @@ const fieldMapping = {
 };
 
 // Function to resolve classes dynamically
-const resolveClass = (rawClass) => {
+const resolveClass = (rawClass: any): { id: string | number; display: string } => {
   if (!rawClass) return { id: "", display: "-" };
   const str = String(rawClass).trim().toLowerCase();
 
@@ -408,22 +430,27 @@ const resolveClass = (rawClass) => {
   if (match) {
     return { id: match.id_kelas, display: match.nama_kelas };
   }
-  return { id: rawClass, display: rawClass }; // Fallback to raw value
+  return { id: rawClass, display: String(rawClass) }; // Fallback to raw value
 };
 
 // Handle File Processing
-const processFile = (file) => {
+const processFile = (file: File) => {
   if (!file) return;
   isParsing.value = true;
 
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = (e: ProgressEvent<FileReader>) => {
     try {
-      const data = new Uint8Array(e.target.result);
+      const target = e.target;
+      if (!target || !target.result) {
+        isParsing.value = false;
+        return;
+      }
+      const data = new Uint8Array(target.result as ArrayBuffer);
       const workbook = XLSX.read(data, { type: "array" });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet);
 
       if (jsonData.length === 0) {
         alert("File Excel kosong atau tidak memiliki data.");
@@ -431,8 +458,8 @@ const processFile = (file) => {
         return;
       }
 
-      const rows = jsonData.map((rawRow) => {
-        const student = {};
+      const rows: ParsedStudentRow[] = jsonData.map((rawRow) => {
+        const student: ParsedStudentRow = {};
         
         // Match headers to keys
         Object.entries(rawRow).forEach(([key, val]) => {
@@ -492,14 +519,19 @@ const processFile = (file) => {
   reader.readAsArrayBuffer(file);
 };
 
-const handleFileSelect = (e) => {
-  const file = e.target.files[0];
-  processFile(file);
+const handleFileSelect = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file) {
+    processFile(file);
+  }
 };
 
-const handleFileDrop = (e) => {
-  const file = e.dataTransfer.files[0];
-  processFile(file);
+const handleFileDrop = (e: DragEvent) => {
+  const file = e.dataTransfer?.files?.[0];
+  if (file) {
+    processFile(file);
+  }
 };
 
 // Batch Process Upload
@@ -516,7 +548,7 @@ const processUpload = async () => {
   try {
     for (let i = 0; i < rowsToUpload.length; i++) {
       const student = rowsToUpload[i];
-      const payload = { ...student };
+      const payload: Record<string, any> = { ...student };
       
       // Clean up internal keys before sending to API
       delete payload._id;
@@ -532,7 +564,7 @@ const processUpload = async () => {
 
       if (student._mode === "create") {
         await postToApi(props.targetTable, payload);
-      } else if (student._mode === "update") {
+      } else if (student._mode === "update" && student._id) {
         await putToApi(props.targetTable, student._id, payload);
       }
 
@@ -542,9 +574,9 @@ const processUpload = async () => {
     alert(`Upload berhasil! ${rowsToUpload.length} data ${props.targetTable === 'alumni' ? 'alumni' : props.targetTable === 'mutasi_siswa' ? 'mutasi' : 'siswa'} diproses.`);
     emit("success");
     closeModal();
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    alert(`Terjadi kesalahan saat upload di baris ke-${uploadIndex.value + 1}: ${err.message}`);
+    alert(`Terjadi kesalahan saat upload di baris ke-${uploadIndex.value + 1}: ${err?.message || err}`);
   } finally {
     isUploading.value = false;
   }
@@ -573,7 +605,7 @@ const downloadTemplate = () => {
       "Nama Wali",
     ];
 
-    const sampleData = [
+    const sampleData: Record<string, any>[] = [
       {
         "Nama": "Budi Santoso",
         "NISN": "3115568599",
@@ -628,7 +660,7 @@ const downloadTemplate = () => {
       "Nama Wali",
     ];
 
-    const sampleData = [
+    const sampleData: Record<string, any>[] = [
       {
         "Nama": "Budi Santoso",
         "NISN": "3115568599",
@@ -680,7 +712,7 @@ const downloadTemplate = () => {
     "Nama Wali",
   ];
 
-  const sampleData = [
+  const sampleData: Record<string, any>[] = [
     {
       "Nama": "Budi Santoso",
       "NISN": "3115568599",

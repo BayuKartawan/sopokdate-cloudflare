@@ -3,9 +3,7 @@
     <div>
       <BaseButton text="Cetak" @click="printDokument" class="print:hidden">
         <template #icon>
-          <Printer
-            class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300"
-          />
+          <Printer class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
         </template>
       </BaseButton>
     </div>
@@ -17,11 +15,11 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import BaseButton from "./BaseButton.vue";
 import { Printer } from "lucide-vue-next";
 
-const printDokument = () => {
+const printDokument = (): void => {
   window.print();
 };
 </script>

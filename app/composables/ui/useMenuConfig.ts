@@ -15,6 +15,7 @@ export interface MenuItemChild {
   to: string;
   label: string;
   roles: string[];
+  icon?: any;
 }
 
 export interface MenuItem {

@@ -172,43 +172,58 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { Info, UserCircle, Users } from "lucide-vue-next";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import { useNotiflix } from "~/composables/ui/useFeedback";
+import type { PropType } from "vue";
+
+interface BiodataField {
+  label: string;
+  value?: any;
+}
+
+interface RelatedItem {
+  displayTitle: string;
+  genderAbbr?: string;
+  [key: string]: any;
+}
 
 const props = defineProps({
   loading: { type: Boolean, default: false },
   loadingText: { type: String, default: "Memuat detail..." },
-  error: { type: String, default: null },
-  data: { type: Object, default: null },
-  foto: { type: String, default: null },
+  error: { type: String as PropType<string | null>, default: null },
+  data: { type: Object as PropType<Record<string, any> | null>, default: null },
+  foto: { type: String as PropType<string | null>, default: null },
   breadcrumbLink: { type: String, default: "#" },
   breadcrumbTitle: { type: String, default: "Data" },
   biodataTitle: { type: String, default: "Biodata Lengkap" },
-  biodataFields: { type: Array, default: () => [] },
+  biodataFields: { type: Array as PropType<BiodataField[]>, default: () => [] },
   sidebarTitle: { type: String, default: "Siswa Sekelas" },
   sidebarSubtitle: { type: String, default: "" },
-  relatedItems: { type: Array, default: () => [] },
+  relatedItems: { type: Array as PropType<RelatedItem[]>, default: () => [] },
   emptyRelatedText: { type: String, default: "Tidak ada data lainnya" },
 });
 
-defineEmits(["click-back", "click-related"]);
+defineEmits<{
+  (e: "click-back"): void;
+  (e: "click-related", item: RelatedItem): void;
+}>();
 
 const { Notify } = useNotiflix();
 
-const toTitleCase = (str) => {
+const toTitleCase = (str?: string | null): string => {
   if (!str) return "";
   return String(str)
     .toLowerCase()
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-const copyToClipboard = async (text, label) => {
+const copyToClipboard = async (text?: any, label?: string): Promise<void> => {
   if (!text || text === "-") return;
   try {
     await navigator.clipboard.writeText(String(text));
-    Notify?.success?.(`${label} berhasil disalin!`);
+    Notify?.success?.(`${label || 'Data'} berhasil disalin!`);
   } catch {
     Notify?.failure?.("Gagal menyalin!");
   }

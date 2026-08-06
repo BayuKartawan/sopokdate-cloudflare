@@ -44,10 +44,10 @@
                     ? 'text-emerald-600 dark:text-emerald-400'
                     : 'hover:text-emerald-500',
                 ]" :style="{
-                    color: isParentActive(menuItem)
-                      ? undefined
-                      : 'var(--text-primary)',
-                  }">
+                  color: isParentActive(menuItem)
+                    ? undefined
+                    : 'var(--text-primary)',
+                }">
                   <component :is="menuItem.icon" v-if="menuItem.icon" class="w-5 h-5 mr-3" />
                   <span class="flex-1">{{ menuItem.label }}</span>
 
@@ -88,7 +88,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useMenuConfig } from "~/composables/ui/useMenuConfig.js";
 import { FolderClosed, FolderOpen, ChevronRight } from "lucide-vue-next";
@@ -101,7 +101,9 @@ defineProps({
   },
 });
 
-const emit = defineEmits(["closeSidebar"]);
+const emit = defineEmits<{
+  (e: "closeSidebar"): void;
+}>();
 
 // --- Composables & Config ---
 const route = useRoute();
@@ -109,20 +111,20 @@ const appName = useRuntimeConfig().public.appName;
 const { menuItems, getMenuItemsWithChildren } = useMenuConfig();
 
 // --- State ---
-const openDropdowns = ref([]);
-const isMobileView = ref(false);
+const openDropdowns = ref<string[]>([]);
+const isMobileView = ref<boolean>(false);
 
 // --- Computed Properties ---
 const allDropdownsOpen = computed(() => {
   const dropdownMenus = getMenuItemsWithChildren();
   return (
     dropdownMenus.length > 0 &&
-    dropdownMenus.every((item) => openDropdowns.value.includes(item.label))
+    dropdownMenus.every((item: any) => openDropdowns.value.includes(item.label))
   );
 });
 
 // --- Helper Functions ---
-const isActiveRoute = (toPath) => {
+const isActiveRoute = (toPath?: string): boolean => {
   if (!toPath) return false;
   if (toPath === "/" || toPath === "/edm") {
     return route.path === toPath;
@@ -130,12 +132,12 @@ const isActiveRoute = (toPath) => {
   return route.path === toPath || route.path.startsWith(toPath + "/");
 };
 
-const isParentActive = (menuItem) => {
+const isParentActive = (menuItem: any): boolean => {
   if (!menuItem.children) return false;
-  return menuItem.children.some((child) => isActiveRoute(child.to));
+  return menuItem.children.some((child: any) => isActiveRoute(child.to));
 };
 
-const getLinkClass = (toPath, additionalClass = "") => {
+const getLinkClass = (toPath?: string, additionalClass: string = ""): string => {
   const baseClass =
     "inline-flex items-center px-3 py-2 transition-all duration-300 outline-none focus:outline-none focus:ring-0 focus:outline-none w-full";
   const activeClass = isActiveRoute(toPath)
@@ -149,7 +151,7 @@ const closeSidebar = () => {
   emit("closeSidebar");
 };
 
-const toggleDropdown = (menuLabel) => {
+const toggleDropdown = (menuLabel: string) => {
   const index = openDropdowns.value.indexOf(menuLabel);
   if (index > -1) {
     openDropdowns.value = [];
@@ -164,17 +166,17 @@ const toggleAllDropdowns = () => {
   if (allDropdownsOpen.value) {
     openDropdowns.value = [];
   } else {
-    openDropdowns.value = dropdownMenus.map((item) => item.label);
+    openDropdowns.value = dropdownMenus.map((item: any) => item.label);
   }
 };
 
 const autoExpandActiveDropdown = () => {
   if (!menuItems.value) return;
 
-  let activeMenuLabel = null;
-  menuItems.value.forEach((menuItem) => {
+  let activeMenuLabel: string | null = null;
+  menuItems.value.forEach((menuItem: any) => {
     if (menuItem.children) {
-      const hasActiveChild = menuItem.children.some((child) =>
+      const hasActiveChild = menuItem.children.some((child: any) =>
         isActiveRoute(child.to),
       );
       if (hasActiveChild) {
