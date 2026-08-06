@@ -1,18 +1,13 @@
 <template>
   <div class="mt-4">
     <!-- Action Bar -->
-    <div
-      class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4"
-    >
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
       <div class="w-full sm:w-72">
         <Search @searchUpdated="handleSearch" />
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-        <button
-          @click="refreshDataList"
-          :disabled="isLoading"
-          class="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-all duration-200 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 disabled:opacity-50 cursor-pointer"
-        >
+        <button @click="refreshDataList" :disabled="isLoading"
+          class="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-all duration-200 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 disabled:opacity-50 cursor-pointer">
           <RefreshCw :class="{ 'animate-spin': isLoading }" class="w-4 h-4" />
           Refresh
         </button>
@@ -20,18 +15,13 @@
     </div>
 
     <!-- Data State -->
-    <div
-      v-if="isLoading"
-      class="flex flex-col items-center justify-center py-12"
-    >
+    <div v-if="isLoading" class="flex flex-col items-center justify-center py-12">
       <RefreshCw class="w-8 h-8 animate-spin text-emerald-500 mb-2" />
       <p class="text-zinc-400 text-sm">Memuat data rekap sertifikat...</p>
     </div>
 
-    <div
-      v-else-if="filteredData.length === 0"
-      class="text-center bg-zinc-900 border border-zinc-800 rounded-lg py-12 text-zinc-400"
-    >
+    <div v-else-if="filteredData.length === 0"
+      class="text-center bg-zinc-900 border border-zinc-800 rounded-lg py-12 text-zinc-400">
       <p class="text-base">Tidak ada data rekap sertifikat yang ditemukan.</p>
       <p class="text-xs text-zinc-500 mt-1">
         Data akan muncul setelah Anda mengirim data cetak sertifikat juara
@@ -39,10 +29,7 @@
       </p>
     </div>
 
-    <div
-      v-else
-      class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-x-auto"
-    >
+    <div v-else class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-x-auto">
       <table class="min-w-full text-zinc-300 text-sm">
         <thead class="bg-zinc-800/50 text-zinc-400 border-b border-zinc-800">
           <tr>
@@ -59,11 +46,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-zinc-800/50">
-          <tr
-            v-for="(item, index) in paginatedData"
-            :key="index"
-            class="hover:bg-zinc-800/30 transition-colors"
-          >
+          <tr v-for="(item, index) in paginatedData" :key="index" class="hover:bg-zinc-800/30 transition-colors">
             <td class="py-3 px-4">{{ startNumber + index }}</td>
             <td class="py-3 px-4 font-mono text-zinc-400 text-xs">
               {{ item.nomor }}
@@ -75,8 +58,7 @@
             <td class="py-3 px-4 text-center">{{ item.kelas }}</td>
             <td class="py-3 px-4 text-center">
               <span
-                class="inline-block bg-emerald-950/50 text-emerald-400 border border-emerald-800/30 px-2 py-0.5 rounded text-xs font-semibold"
-              >
+                class="inline-block bg-emerald-950/50 text-emerald-400 border border-emerald-800/30 px-2 py-0.5 rounded text-xs font-semibold">
                 {{ item.juara }}
               </span>
             </td>
@@ -91,11 +73,9 @@
               TP. {{ item.tahun_pelajaran }}
             </td>
             <td class="py-3 px-4 text-center">
-              <button
-                @click="printItem(item)"
+              <button @click="printItem(item)"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-emerald-600 text-white hover:bg-emerald-500 text-xs font-semibold cursor-pointer transition-colors"
-                title="Cetak Ulang Sertifikat"
-              >
+                title="Cetak Ulang Sertifikat">
                 <Printer class="w-3.5 h-3.5" />
                 Cetak
               </button>
@@ -106,17 +86,13 @@
 
       <!-- Pagination -->
       <div class="p-4 border-t border-zinc-800">
-        <Pagination
-          :currentPage="currentPage"
-          :totalPages="totalPages"
-          @pageChanged="handlePageChange"
-        />
+        <Pagination :currentPage="currentPage" :totalPages="totalPages" @pageChanged="handlePageChange" />
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { Printer, RefreshCw } from "lucide-vue-next";
@@ -125,32 +101,48 @@ import Pagination from "~/components/ui/Pagination.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { formatTanggalIndo } from "~/utils/date";
 
+interface SertifikatItem {
+  nama_lengkap?: string;
+  nisn?: string | number;
+  nis?: string | number;
+  juara?: string;
+  kelas?: string;
+  date?: string;
+  nomor?: string;
+  wali_kelas?: string;
+  verifikasi?: string;
+  semester?: string | number;
+  tahun_pelajaran?: string;
+  [key: string]: unknown;
+}
+
 const router = useRouter();
 const { cardData, isLoading, loadData, refreshData } = useTableData();
 
-const searchQuery = ref("");
-const currentPage = ref(1);
+const searchQuery = ref<string>("");
+const currentPage = ref<number>(1);
 const pageSize = 10;
 
-const handleSearch = (query) => {
+const handleSearch = (query: string): void => {
   searchQuery.value = query;
   currentPage.value = 1;
 };
 
-const handlePageChange = (page) => {
+const handlePageChange = (page: number): void => {
   currentPage.value = page;
 };
 
-const refreshDataList = () => {
+const refreshDataList = (): void => {
   refreshData("Sertifikat");
 };
 
 // Filter data based on search query
-const filteredData = computed(() => {
-  if (!cardData.value || !Array.isArray(cardData.value)) return [];
+const filteredData = computed<SertifikatItem[]>(() => {
+  const data = cardData.value as SertifikatItem[] | null;
+  if (!data || !Array.isArray(data)) return [];
 
   // Filter out non-matching rows and error messages (e.g. if the sheet was not found)
-  const cleanData = cardData.value.filter((item) => item && item.nama_lengkap);
+  const cleanData = data.filter((item) => item && item.nama_lengkap);
 
   if (!searchQuery.value) return cleanData;
 
@@ -169,27 +161,27 @@ const filteredData = computed(() => {
   });
 });
 
-const totalPages = computed(() => {
+const totalPages = computed<number>(() => {
   return Math.ceil(filteredData.value.length / pageSize);
 });
 
-const startNumber = computed(() => {
+const startNumber = computed<number>(() => {
   return (currentPage.value - 1) * pageSize + 1;
 });
 
-const paginatedData = computed(() => {
+const paginatedData = computed<SertifikatItem[]>(() => {
   const start = (currentPage.value - 1) * pageSize;
   const end = start + pageSize;
   return filteredData.value.slice(start, end);
 });
 
-const printItem = (item) => {
+const printItem = (item: SertifikatItem): void => {
   router.push({
     path: "/dokumen/cetak",
     query: {
       type: "juaraKelas",
       nama_lengkap: item.nama_lengkap,
-      nisn: item.nisn || item.nis,
+      nisn: String(item.nisn || item.nis),
       juara: item.juara,
       kelas: item.kelas,
       date: formatTanggalIndo(item.date),

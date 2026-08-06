@@ -1,13 +1,10 @@
 <template>
   <li
-    class="cursor-pointer rounded-lg border p-4 transition-colors duration-150 shadow-sm bg-zinc-800/30 border-zinc-700/50 hover:bg-zinc-700/50"
-  >
+    class="cursor-pointer rounded-lg border p-4 transition-colors duration-150 shadow-sm bg-zinc-800/30 border-zinc-700/50 hover:bg-zinc-700/50">
     <div class="flex items-center gap-3">
       <!-- Icon -->
-      <div
-        class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-700/50 text-emerald-400"
-        @click="$emit('click', item)"
-      >
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-zinc-700/50 text-emerald-400"
+        @click="$emit('click', item)">
         <UserCircle class="w-5 h-5" />
       </div>
 
@@ -21,38 +18,32 @@
         </p>
       </div>
 
-      <ChevronRight
-        class="w-4 h-4 text-zinc-600"
-        @click="$emit('click', item)"
-      />
+      <ChevronRight class="w-4 h-4 text-zinc-600" @click="$emit('click', item)" />
     </div>
   </li>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { UserCircle, ChevronRight } from "lucide-vue-next";
 
-const props = defineProps({
-  item: {
-    type: Object,
-    required: true,
-  },
+interface PersonItem {
+  [key: string]: unknown;
+}
+
+const props = defineProps<{
+  item: PersonItem;
   // Teks utama (nama). Jika tidak diberikan, fallback ke item.title atau item.nama
-  title: {
-    type: String,
-    default: "",
-  },
+  title?: string;
   // Teks sekunder (tugas, NISN, kelas, dll)
-  subtitle: {
-    type: String,
-    default: "",
-  },
-});
+  subtitle?: string;
+}>();
 
-defineEmits(["click"]);
+defineEmits<{
+  click: [item: PersonItem];
+}>();
 
-const toTitleCase = (str) => {
+const toTitleCase = (str?: string): string => {
   if (!str) return "";
-  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+  return str.toLowerCase().replace(/\b\w/g, (char: string) => char.toUpperCase());
 };
 </script>

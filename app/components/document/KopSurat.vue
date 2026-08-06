@@ -2,12 +2,7 @@
   <div class="w-full border-black border-b-3 pb-1">
     <div class="flex items-center justify-between mb-1">
       <div class="flex-shrink-0">
-        <img
-          src="/assets/images/logo-madrasah.svg"
-          alt="Logo Kemenag"
-          height="85"
-          width="85"
-        />
+        <img src="/assets/images/logo-madrasah.svg" alt="Logo Kemenag" height="85" width="85" />
       </div>
       <div class="text-center flex-grow px-4">
         <div class="font-semibold leading-tight">
@@ -24,12 +19,7 @@
         </div>
       </div>
       <div class="flex-shrink-0">
-        <img
-          src="/assets/images/logo-madrasah.svg"
-          alt="Logo Madrasah"
-          height="85"
-          width="85"
-        />
+        <img src="/assets/images/logo-madrasah.svg" alt="Logo Madrasah" height="85" width="85" />
       </div>
     </div>
     <div class="text-[10px] text-center leading-tight -mt-1">

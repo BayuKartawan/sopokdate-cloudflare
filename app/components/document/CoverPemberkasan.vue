@@ -1,25 +1,13 @@
 <template>
   <div
-    class="cover-pemberkasan-root w-full max-w-[210mm] print:max-w-none mx-auto bg-white p-4 sm:p-8 md:p-16 shadow-lg border border-zinc-200 print:shadow-none print:border-none"
-  >
+    class="cover-pemberkasan-root w-full max-w-[210mm] print:max-w-none mx-auto bg-white p-4 sm:p-8 md:p-16 shadow-lg border border-zinc-200 print:shadow-none print:border-none">
     <!-- Header with logos -->
     <div
-      class="flex justify-center items-center mb-6 sm:mb-10 space-x-4 sm:space-x-8 border-b-2 border-emerald-600 pb-2"
-    >
-      <img
-        src="/assets/images/logo-kemenag.svg"
-        alt="Logo Kemenag"
-        height="100"
-        width="100"
-        class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain"
-      />
-      <img
-        src="/assets/images/logo-madrasah.svg"
-        alt="Logo Madrasah"
-        height="95"
-        width="95"
-        class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain"
-      />
+      class="flex justify-center items-center mb-6 sm:mb-10 space-x-4 sm:space-x-8 border-b-2 border-emerald-600 pb-2">
+      <img src="/assets/images/logo-kemenag.svg" alt="Logo Kemenag" height="100" width="100"
+        class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain" />
+      <img src="/assets/images/logo-madrasah.svg" alt="Logo Madrasah" height="95" width="95"
+        class="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain" />
     </div>
 
     <!-- Title section -->
@@ -33,8 +21,7 @@
 
     <!-- Main content -->
     <div
-      class="max-w-lg mx-auto mb-10 sm:mb-20 text-sm sm:text-base md:text-lg border-2 border-emerald-600 rounded-2xl p-4 sm:p-5"
-    >
+      class="max-w-lg mx-auto mb-10 sm:mb-20 text-sm sm:text-base md:text-lg border-2 border-emerald-600 rounded-2xl p-4 sm:p-5">
       <div v-if="!dataMadrasah" class="text-center text-red-500 font-bold">
         Data tidak ditemukan - MOHON REFRESH HALAMAN ATAU HUBUNGI ADMIN -
       </div>
@@ -102,33 +89,16 @@
     </div>
 
     <!-- VERIF CODE QR -->
-    <div
-      v-if="verifikasi"
-      class="w-full flex gap-4 sm:gap-10 justify-center items-center"
-    >
+    <div v-if="verifikasi" class="w-full flex gap-4 sm:gap-10 justify-center items-center">
       <div class="text-center">
-        <QrcodeVue
-          :value="verifikasi"
-          :size="100"
-          render-as="svg"
-          class="mx-auto"
-        />
-        <p
-          class="text-xs sm:text-sm md:text-base text-black rounded_sans_serif_7 mt-1"
-        >
+        <QrcodeVue :value="verifikasi" :size="100" render-as="svg" class="mx-auto" />
+        <p class="text-xs sm:text-sm md:text-base text-black rounded_sans_serif_7 mt-1">
           Soft_File
         </p>
       </div>
       <div class="text-center">
-        <QrcodeVue
-          :value="linkApp"
-          :size="100"
-          render-as="svg"
-          class="mx-auto"
-        />
-        <p
-          class="text-xs sm:text-sm md:text-base text-black rounded_sans_serif_7 mt-1"
-        >
+        <QrcodeVue :value="linkApp" :size="100" render-as="svg" class="mx-auto" />
+        <p class="text-xs sm:text-sm md:text-base text-black rounded_sans_serif_7 mt-1">
           Website_
         </p>
       </div>
@@ -136,34 +106,45 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from "vue";
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
 import QrcodeVue from "qrcode.vue";
 import { useTableData } from "~/composables/data/useTableData";
 
+interface MadrasahData {
+  madrasah?: string;
+  nsm?: string;
+  siap_id?: string;
+  npsn?: string;
+  akreditasi?: string;
+  no_hp_kamad?: string;
+  [key: string]: unknown;
+}
+
 const { cardData, loadData } = useTableData();
-const dataMadrasah = ref(null);
+const dataMadrasah = ref<MadrasahData | null>(null);
 const runtimeConfig = useRuntimeConfig();
-const linkApp = computed(() => {
+const linkApp = computed<string>(() => {
   const configured = runtimeConfig.public.appMadrasah || runtimeConfig.public.appLink;
-  if (configured) return configured;
+  if (configured) return configured as string;
   if (typeof window !== "undefined") return `https://${window.location.host}`;
   return "";
 });
 
-const getCurrentYear = () => new Date().getFullYear();
+const getCurrentYear = (): number => new Date().getFullYear();
 
 onMounted(async () => {
   await loadData("DataMadrasah");
-  if (cardData.value && cardData.value.length > 0) {
-    dataMadrasah.value = cardData.value[0];
+  const data = cardData.value as MadrasahData[] | null;
+  if (data && data.length > 0) {
+    dataMadrasah.value = data[0];
   }
 });
 
-defineProps({
-  bulan: String,
-  verifikasi: String,
-});
+defineProps<{
+  bulan?: string;
+  verifikasi?: string;
+}>();
 </script>
 
 <style>

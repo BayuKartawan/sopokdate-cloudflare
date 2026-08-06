@@ -14,7 +14,7 @@
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
               <h1 class="text-lg sm:text-2xl font-bold leading-tight" style="color: var(--text-heading)">
-                {{ isEdit ? 'Edit Indikator Soal EDM' : 'Tambah Indikator Soal EDM' }}
+                {{ headerTitleText }}
               </h1>
               <span v-if="isEdit && indikatorId" class="text-xs px-2.5 py-0.5 rounded-md font-mono font-bold shrink-0"
                 style="background: var(--bg-secondary); color: var(--text-muted)">
@@ -22,7 +22,7 @@
               </span>
             </div>
             <p class="text-xs sm:text-sm mt-0.5 line-clamp-2" style="color: var(--text-muted)">
-              {{ isEdit ? 'Perbarui pertanyaan, daftar bukti fisik, dan kriteria skor evaluasi diri' : 'Form isian lengkap untuk pertanyaan, daftar bukti fisik, dan kriteria skor' }}
+              {{ subTitleText }}
             </p>
           </div>
         </div>
@@ -37,7 +37,7 @@
           <button @click="handleSave" :disabled="isSaving"
             class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 active:scale-[0.97] transition-all shadow-md cursor-pointer">
             <Save class="w-4 h-4" />
-            <span class="hidden sm:inline">{{ isSaving ? 'Menyimpan...' : (isEdit ? 'Perbarui Indikator' : 'Simpan Indikator Baru') }}</span>
+            <span class="hidden sm:inline">{{ saveButtonText }}</span>
             <span class="sm:hidden">{{ isSaving ? 'Simpan...' : 'Simpan' }}</span>
           </button>
         </div>
@@ -60,14 +60,16 @@
           <!-- Card 1: Bagian & Nomor Urut -->
           <div class="p-5 rounded-2xl shadow-xs"
             style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-            <h2 class="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2" style="color: var(--text-muted)">
+            <h2 class="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2"
+              style="color: var(--text-muted)">
               <Sparkles class="w-4 h-4 text-emerald-500" />
               Informasi Bagian Indikator
             </h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div class="sm:col-span-2">
-                <label class="block text-xs font-semibold mb-1.5" style="color: var(--text-secondary)">Bagian Target *</label>
+                <label class="block text-xs font-semibold mb-1.5" style="color: var(--text-secondary)">Bagian Target
+                  *</label>
                 <select v-model="formItem.bagian_target"
                   class="w-full rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                   style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input)">
@@ -78,7 +80,8 @@
               </div>
 
               <div>
-                <label class="block text-xs font-semibold mb-1.5" style="color: var(--text-secondary)">Nomor Urut *</label>
+                <label class="block text-xs font-semibold mb-1.5" style="color: var(--text-secondary)">Nomor Urut
+                  *</label>
                 <input v-model.number="formItem.nomor_urut" type="number" min="1"
                   class="w-full rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 font-bold"
                   style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input)">
@@ -93,7 +96,8 @@
               Pertanyaan Indikator *
             </label>
             <p class="text-xs mb-3" style="color: var(--text-muted)">
-              Tulis pertanyaan indikator evaluasi diri. Gunakan garis baru (*Enter*) jika terdapat beberapa paragraf atau uraian.
+              Tulis pertanyaan indikator evaluasi diri. Gunakan garis baru (*Enter*) jika terdapat beberapa paragraf
+              atau uraian.
             </p>
             <textarea v-model="formItem.pertanyaan" v-auto-resize
               class="w-full rounded-xl px-3.5 py-2.5 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500/40 break-words"
@@ -108,7 +112,8 @@
               <label class="block text-sm font-bold" style="color: var(--text-heading)">
                 Daftar Bukti Fisik yang Diminta
               </label>
-              <span class="text-xs px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
+              <span
+                class="text-xs px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
                 Multi-Line & List Supported
               </span>
             </div>
@@ -132,11 +137,11 @@
             </p>
 
             <div class="space-y-4">
-              <div v-for="(p, idx) in formPilihan" :key="idx"
-                class="p-3.5 rounded-xl border transition-all"
+              <div v-for="(p, idx) in formPilihan" :key="idx" class="p-3.5 rounded-xl border transition-all"
                 style="background: var(--bg-secondary); border-color: var(--border-subtle)">
                 <div class="flex items-center justify-between gap-2 mb-2">
-                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold text-white shadow-xs"
+                  <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold text-white shadow-xs"
                     :class="skorColor(p.skor)">
                     Skor {{ p.skor }}
                   </span>
@@ -163,7 +168,7 @@
             <button @click="handleSave" :disabled="isSaving"
               class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 active:scale-[0.97] transition-all shadow-md cursor-pointer">
               <Save class="w-4 h-4" />
-              {{ isSaving ? 'Menyimpan...' : (isEdit ? 'Perbarui Indikator' : 'Simpan Indikator Baru') }}
+              {{ saveButtonText }}
             </button>
           </div>
         </div>
@@ -197,12 +202,15 @@
             </div>
 
             <!-- Preview Card Container -->
-            <div class="rounded-xl p-4 border" style="background: var(--bg-surface); border-color: var(--border-primary)">
+            <div class="rounded-xl p-4 border"
+              style="background: var(--bg-surface); border-color: var(--border-primary)">
               <div class="flex items-start gap-2.5 mb-3">
-                <span class="inline-flex items-center justify-center min-w-[2rem] h-7 rounded-lg text-xs font-bold bg-emerald-500 text-white flex-shrink-0">
+                <span
+                  class="inline-flex items-center justify-center min-w-[2rem] h-7 rounded-lg text-xs font-bold bg-emerald-500 text-white flex-shrink-0">
                   No. {{ formItem.nomor_urut || 1 }}
                 </span>
-                <h4 class="text-sm font-bold leading-relaxed break-words whitespace-pre-line" style="color: var(--text-heading)">
+                <h4 class="text-sm font-bold leading-relaxed break-words whitespace-pre-line"
+                  style="color: var(--text-heading)">
                   {{ formItem.pertanyaan || 'Pertanyaan indikator akan tampil di sini...' }}
                 </h4>
               </div>
@@ -213,7 +221,8 @@
                 style="background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-subtle)">
                 <FileCheck class="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <div class="flex-1 min-w-0">
-                  <strong class="font-semibold block text-emerald-700 dark:text-emerald-400 mb-0.5">Bukti yang diminta:</strong>
+                  <strong class="font-semibold block text-emerald-700 dark:text-emerald-400 mb-0.5">Bukti yang
+                    diminta:</strong>
                   <span class="leading-relaxed whitespace-pre-line">{{ formItem.bukti_yang_diminta }}</span>
                 </div>
               </div>
@@ -226,11 +235,13 @@
                 <div v-for="p in formPilihan" :key="p.skor"
                   class="p-2.5 rounded-lg border text-xs flex items-start gap-2.5"
                   style="background: var(--bg-card); border-color: var(--border-primary)">
-                  <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 mt-0.5"
+                  <span
+                    class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 mt-0.5"
                     :class="skorColor(p.skor)">
                     {{ p.skor }}
                   </span>
-                  <span class="leading-relaxed break-words whitespace-pre-line flex-1" style="color: var(--text-primary)">
+                  <span class="leading-relaxed break-words whitespace-pre-line flex-1"
+                    style="color: var(--text-primary)">
                     {{ p.label || `Kriteria skor ${p.skor}` }}
                   </span>
                 </div>
@@ -238,7 +249,8 @@
             </div>
 
             <p class="text-[11px] leading-relaxed text-center" style="color: var(--text-muted)">
-              Tampilan di atas mensimulasikan persis bagaimana soal dan opsi jawaban akan dirender di layar pengisian pengguna.
+              Tampilan di atas mensimulasikan persis bagaimana soal dan opsi jawaban akan dirender di layar pengisian
+              pengguna.
             </p>
           </div>
         </div>
@@ -249,47 +261,73 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, watch, nextTick } from "vue";
+<script setup lang="ts">
+import { ref, reactive, computed, watch, nextTick } from "vue";
 import { EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
 import { ArrowLeft, Save, Sparkles, Eye, FileCheck } from "lucide-vue-next";
 
-const props = defineProps({
-  isEdit: { type: Boolean, default: false },
-  indikatorId: { type: [Number, String], default: null },
-  isLoading: { type: Boolean, default: false },
-  isFetchingItem: { type: Boolean, default: false },
-  isSaving: { type: Boolean, default: false },
-  initialForm: {
-    type: Object,
-    default: () => ({
-      bagian_target: "A",
-      nomor_urut: 1,
-      pertanyaan: "",
-      bukti_yang_diminta: "",
-    }),
-  },
-  initialPilihan: {
-    type: Array,
-    default: () => [
-      { skor: 1, label: "Kurang" },
-      { skor: 2, label: "Cukup" },
-      { skor: 3, label: "Baik" },
-      { skor: 4, label: "Sangat Baik" },
-    ],
-  },
-});
+interface FormItem {
+  bagian_target: string;
+  nomor_urut: number;
+  pertanyaan: string;
+  bukti_yang_diminta: string;
+}
 
-const emit = defineEmits(["save"]);
+interface PilihanItem {
+  skor: number;
+  label: string;
+}
 
-const formItem = reactive({
+interface SavePayload {
+  formItem: FormItem;
+  formPilihan: PilihanItem[];
+}
+
+// Extend HTMLElement to support custom _autoResizeHandler property
+interface AutoResizeElement extends HTMLTextAreaElement {
+  _autoResizeHandler?: () => void;
+}
+
+const props = defineProps<{
+  isEdit?: boolean;
+  indikatorId?: number | string | null;
+  isLoading?: boolean;
+  isFetchingItem?: boolean;
+  isSaving?: boolean;
+  initialForm?: FormItem;
+  initialPilihan?: PilihanItem[];
+}>();
+
+const emit = defineEmits<{
+  save: [payload: SavePayload];
+}>();
+
+const headerTitleText = computed<string>(() =>
+  props.isEdit ? "Edit Indikator Soal EDM" : "Tambah Indikator Soal EDM",
+);
+
+const subTitleText = computed<string>(() =>
+  props.isEdit
+    ? "Perbarui pertanyaan, daftar bukti fisik, dan kriteria skor evaluasi diri"
+    : "Form isian lengkap untuk pertanyaan, daftar bukti fisik, dan kriteria skor",
+);
+
+const saveButtonText = computed<string>(() =>
+  props.isSaving
+    ? "Menyimpan..."
+    : props.isEdit
+      ? "Perbarui Indikator"
+      : "Simpan Indikator Baru",
+);
+
+const formItem = reactive<FormItem>({
   bagian_target: "A",
   nomor_urut: 1,
   pertanyaan: "",
   bukti_yang_diminta: "",
 });
 
-const formPilihan = ref([
+const formPilihan = ref<PilihanItem[]>([
   { skor: 1, label: "Kurang" },
   { skor: 2, label: "Cukup" },
   { skor: 3, label: "Baik" },
@@ -298,7 +336,7 @@ const formPilihan = ref([
 
 // Auto-resize directive
 const vAutoResize = {
-  mounted(el) {
+  mounted(el: AutoResizeElement) {
     el.style.resize = "none";
     el.style.overflow = "hidden";
     el.style.minHeight = "2.75rem";
@@ -310,18 +348,20 @@ const vAutoResize = {
     el.addEventListener("input", resize);
     resize();
   },
-  updated(el) {
+  updated(el: AutoResizeElement) {
     el.style.height = "auto";
     el.style.height = el.scrollHeight + "px";
   },
-  unmounted(el) {
-    el.removeEventListener("input", el._autoResizeHandler);
+  unmounted(el: AutoResizeElement) {
+    if (el._autoResizeHandler) {
+      el.removeEventListener("input", el._autoResizeHandler);
+    }
   },
 };
 
-const triggerAutoResize = async () => {
+const triggerAutoResize = async (): Promise<void> => {
   await nextTick();
-  document.querySelectorAll("textarea").forEach((el) => {
+  document.querySelectorAll<AutoResizeElement>("textarea").forEach((el) => {
     if (el._autoResizeHandler) el._autoResizeHandler();
   });
 };
@@ -334,7 +374,7 @@ watch(
       triggerAutoResize();
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 
 watch(
@@ -345,20 +385,31 @@ watch(
       triggerAutoResize();
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 
-const bagianColor = (name) => {
-  const c = { A: "bg-blue-600", B: "bg-emerald-600", C: "bg-amber-600", D: "bg-violet-600", E: "bg-rose-600" };
+const bagianColor = (name: string): string => {
+  const c: Record<string, string> = {
+    A: "bg-blue-600",
+    B: "bg-emerald-600",
+    C: "bg-amber-600",
+    D: "bg-violet-600",
+    E: "bg-rose-600",
+  };
   return c[name] ?? "bg-zinc-600";
 };
 
-const skorColor = (skor) => {
-  const c = { 1: "bg-rose-500", 2: "bg-amber-500", 3: "bg-emerald-500", 4: "bg-blue-600" };
+const skorColor = (skor: number): string => {
+  const c: Record<number, string> = {
+    1: "bg-rose-500",
+    2: "bg-amber-500",
+    3: "bg-emerald-500",
+    4: "bg-blue-600",
+  };
   return c[skor] ?? "bg-zinc-500";
 };
 
-const handleSave = () => {
+const handleSave = (): void => {
   emit("save", {
     formItem: { ...formItem },
     formPilihan: formPilihan.value.map((p) => ({ ...p })),
