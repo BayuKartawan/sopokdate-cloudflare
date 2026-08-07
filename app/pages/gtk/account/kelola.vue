@@ -9,37 +9,58 @@
           <!-- Action Buttons -->
           <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto">
             <!-- Row 1 (mobile): Buat Akun Otomatis full width -->
-            <button @click="handleSeedGuru" :disabled="isSeeding"
-              class="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 disabled:cursor-not-allowed">
-              <UserPlus v-if="!isSeeding" class="w-4 h-4 flex-shrink-0" />
-              <Loader2 v-else class="w-4 h-4 animate-spin flex-shrink-0" />
-              <span class="leading-none">{{ isSeeding ? "Membuat..." : "Buat Akun Otomatis" }}</span>
-            </button>
+            <UiBaseButton
+              :text="isSeeding ? 'Membuat...' : 'Buat Akun'"
+              :loading="isSeeding"
+              title="Buat Akun Otomatis"
+              :disabled="isSeeding"
+              class="w-full sm:w-auto"
+              @click="handleSeedGuru"
+            >
+              <template #icon>
+                <UserPlus class="w-4 h-4 flex-shrink-0" />
+              </template>
+            </UiBaseButton>
 
             <!-- Row 2 (mobile): Ekspor, Cetak, Refresh sejajar -->
             <div class="flex items-center gap-2">
               <!-- Export Excel Button -->
-              <button @click="exportToExcel" :disabled="filteredUsers.length === 0"
-                class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-teal-600 hover:bg-teal-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Ekspor ke Excel">
-                <FileSpreadsheet class="w-4 h-4 flex-shrink-0" />
-                <span class="leading-none">Ekspor</span>
-              </button>
+              <UiBaseButton
+                text="Ekspor"
+                title="Ekspor ke Excel"
+                :disabled="filteredUsers.length === 0"
+                class="flex-1 sm:flex-initial"
+                @click="exportToExcel"
+              >
+                <template #icon>
+                  <FileSpreadsheet class="w-4 h-4 flex-shrink-0" />
+                </template>
+              </UiBaseButton>
 
               <!-- Print Button -->
-              <button @click="printAccounts" :disabled="filteredUsers.length === 0"
-                class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Cetak Akun">
-                <Printer class="w-4 h-4 flex-shrink-0" />
-                <span class="leading-none">Cetak</span>
-              </button>
+              <UiBaseButton
+                text="Cetak"
+                title="Cetak Akun"
+                :disabled="filteredUsers.length === 0"
+                class="flex-1 sm:flex-initial"
+                @click="printAccounts"
+              >
+                <template #icon>
+                  <Printer class="w-4 h-4 flex-shrink-0" />
+                </template>
+              </UiBaseButton>
 
               <!-- Refresh Button -->
-              <button @click="loadUsers" :disabled="isLoading"
-                class="flex items-center justify-center p-2 rounded-lg transition-all duration-200 bg-zinc-700 hover:bg-zinc-600 text-zinc-200 disabled:opacity-50"
-                title="Refresh">
-                <RefreshCw class="w-5 h-5 flex-shrink-0" :class="{ 'animate-spin': isLoading }" />
-              </button>
+              <UiBaseButton
+                text="Refresh"
+                title="Refresh"
+                :disabled="isLoading"
+                @click="loadUsers"
+              >
+                <template #icon>
+                  <RefreshCw class="w-4 h-4 flex-shrink-0" :class="{ 'animate-spin': isLoading }" />
+                </template>
+              </UiBaseButton>
             </div>
           </div>
         </div>
@@ -184,43 +205,66 @@
                   <td class="px-4 py-3">
                     <div class="flex items-center justify-center gap-1">
                       <!-- QR Code Login -->
-                      <button @click="openQrModal(user)"
-                        class="p-1.5 rounded-md text-zinc-400 hover:text-blue-400 hover:bg-zinc-800 transition-all"
-                        title="QR Login">
-                        <QrCode class="w-3.5 h-3.5" />
-                      </button>
+                      <UiBaseButton
+                        text=""
+                        title="QR Login"
+                        icon-only
+                        size="sm"
+                        @click="openQrModal(user)"
+                      >
+                        <template #icon><QrCode class="w-3.5 h-3.5" /></template>
+                      </UiBaseButton>
 
                       <!-- Edit Password Manual -->
-                      <button @click="openEditPasswordModal(user)" :disabled="actionLoading === user.id"
-                        class="p-1.5 rounded-md text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800 transition-all disabled:opacity-50"
-                        title="Edit Password Manual">
-                        <Key class="w-3.5 h-3.5" />
-                      </button>
+                      <UiBaseButton
+                        text=""
+                        title="Edit Password Manual"
+                        icon-only
+                        size="sm"
+                        :disabled="actionLoading === user.id"
+                        @click="openEditPasswordModal(user)"
+                      >
+                        <template #icon><Key class="w-3.5 h-3.5" /></template>
+                      </UiBaseButton>
 
                       <!-- Reset Password -->
-                      <button @click="resetPassword(user)" :disabled="actionLoading === user.id"
-                        class="p-1.5 rounded-md text-zinc-400 hover:text-amber-400 hover:bg-zinc-800 transition-all disabled:opacity-50"
-                        title="Reset Password">
-                        <RefreshCw class="w-3.5 h-3.5" />
-                      </button>
+                      <UiBaseButton
+                        text=""
+                        title="Reset Password"
+                        icon-only
+                        size="sm"
+                        :disabled="actionLoading === user.id"
+                        @click="resetPassword(user)"
+                      >
+                        <template #icon><RefreshCw class="w-3.5 h-3.5" /></template>
+                      </UiBaseButton>
 
                       <!-- Toggle Active -->
-                      <button @click="toggleActive(user)" :disabled="actionLoading === user.id || user.role === 'admin'
-                        " class="p-1.5 rounded-md transition-all disabled:opacity-30" :class="user.is_active
-                            ? 'text-zinc-400 hover:text-red-400 hover:bg-zinc-800'
-                            : 'text-zinc-400 hover:text-green-400 hover:bg-zinc-800'
-                          " :title="user.is_active ? 'Nonaktifkan' : 'Aktifkan'">
-                        <Ban v-if="user.is_active" class="w-3.5 h-3.5" />
-                        <Check v-else class="w-3.5 h-3.5" />
-                      </button>
+                      <UiBaseButton
+                        text=""
+                        :title="user.is_active ? 'Nonaktifkan' : 'Aktifkan'"
+                        icon-only
+                        size="sm"
+                        :disabled="actionLoading === user.id || user.role === 'admin'"
+                        @click="toggleActive(user)"
+                      >
+                        <template #icon>
+                          <Ban v-if="user.is_active" class="w-3.5 h-3.5" />
+                          <Check v-else class="w-3.5 h-3.5" />
+                        </template>
+                      </UiBaseButton>
 
                       <!-- Delete -->
-                      <button @click="deleteUser(user)" :disabled="actionLoading === user.id || user.role === 'admin'
-                        "
-                        class="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-all disabled:opacity-30"
-                        title="Hapus Akun">
-                        <Trash2 class="w-3.5 h-3.5" />
-                      </button>
+                      <UiBaseButton
+                        text=""
+                        title="Hapus Akun"
+                        icon-only
+                        size="sm"
+                        :disabled="actionLoading === user.id || user.role === 'admin'"
+                        @click="deleteUser(user)"
+                      >
+                        <template #icon><Trash2 class="w-3.5 h-3.5" /></template>
+                      </UiBaseButton>
                     </div>
                   </td>
                 </tr>
@@ -306,54 +350,64 @@
                 <span class="text-xs text-zinc-500">Aksi Akun</span>
                 <div class="flex items-center gap-1">
                   <!-- QR Code Login -->
-                  <button @click="openQrModal(user)"
-                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-blue-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-colors duration-200"
-                    title="QR Login">
-                    <QrCode class="w-3 h-3" />
-                    <span>QR</span>
-                  </button>
+                  <UiBaseButton
+                    text="QR"
+                    title="QR Login"
+                    size="sm"
+                    @click="openQrModal(user)"
+                  >
+                    <template #icon><QrCode class="w-3 h-3" /></template>
+                  </UiBaseButton>
 
                   <!-- Edit Password Manual -->
-                  <button @click="openEditPasswordModal(user)" :disabled="actionLoading === user.id"
-                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-emerald-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-colors duration-200 disabled:opacity-50"
-                    title="Edit Password Manual">
-                    <Key class="w-3 h-3" />
-                    <span>Edit</span>
-                  </button>
+                  <UiBaseButton
+                    text="Edit"
+                    title="Edit Password Manual"
+                    size="sm"
+                    :disabled="actionLoading === user.id"
+                    @click="openEditPasswordModal(user)"
+                  >
+                    <template #icon><Key class="w-3 h-3" /></template>
+                  </UiBaseButton>
 
                   <!-- Reset Password -->
-                  <button @click="resetPassword(user)" :disabled="actionLoading === user.id"
-                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-800 text-amber-400 hover:bg-zinc-700/80 border border-zinc-700/50 transition-colors duration-200 disabled:opacity-50"
-                    title="Reset Password">
-                    <RefreshCw class="w-3 h-3" :class="{ 'animate-spin': actionLoading === user.id }" />
-                    <span>Reset</span>
-                  </button>
+                  <UiBaseButton
+                    text="Reset"
+                    title="Reset Password"
+                    size="sm"
+                    :disabled="actionLoading === user.id"
+                    @click="resetPassword(user)"
+                  >
+                    <template #icon>
+                      <RefreshCw class="w-3 h-3" :class="{ 'animate-spin': actionLoading === user.id }" />
+                    </template>
+                  </UiBaseButton>
 
                   <!-- Toggle Active -->
-                  <button @click="toggleActive(user)" :disabled="actionLoading === user.id || user.role === 'admin'
-                    "
-                    class="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border transition-colors duration-200 disabled:opacity-30"
-                    :class="user.is_active
-                        ? 'bg-zinc-800 text-red-400 border-zinc-700/50 hover:bg-zinc-700/80'
-                        : 'bg-zinc-800 text-green-400 border-zinc-700/50 hover:bg-zinc-700/80'
-                      ">
-                    <template v-if="user.is_active">
-                      <Ban class="w-3 h-3" />
-                      <span>Nonaktif</span>
+                  <UiBaseButton
+                    :text="user.is_active ? 'Nonaktif' : 'Aktifkan'"
+                    :title="user.is_active ? 'Nonaktifkan' : 'Aktifkan'"
+                    size="sm"
+                    :disabled="actionLoading === user.id || user.role === 'admin'"
+                    @click="toggleActive(user)"
+                  >
+                    <template #icon>
+                      <Ban v-if="user.is_active" class="w-3 h-3" />
+                      <Check v-else class="w-3 h-3" />
                     </template>
-                    <template v-else>
-                      <Check class="w-3 h-3" />
-                      <span>Aktifkan</span>
-                    </template>
-                  </button>
+                  </UiBaseButton>
 
                   <!-- Delete -->
-                  <button @click="deleteUser(user)" :disabled="actionLoading === user.id || user.role === 'admin'
-                    "
-                    class="p-1 rounded-md bg-zinc-800 text-zinc-400 hover:text-red-400 hover:bg-zinc-700 border border-zinc-700/50 transition-colors duration-200 disabled:opacity-30"
-                    title="Hapus Akun">
-                    <Trash2 class="w-3 h-3" />
-                  </button>
+                  <UiBaseButton
+                    text=""
+                    title="Hapus Akun"
+                    icon-only
+                    size="sm"
+                    :disabled="actionLoading === user.id || user.role === 'admin'"
+                    @click="deleteUser(user)"
+                  >
+                    <template #icon><Trash2 class="w-3 h-3" /></template>
+                  </UiBaseButton>
                 </div>
               </div>
             </div>
@@ -417,14 +471,8 @@
 
           <!-- Footer -->
           <div class="flex items-center justify-end gap-3 mt-6 pt-3 border-t border-zinc-800">
-            <button @click="closeQrModal"
-              class="px-4 py-2 text-sm font-medium rounded-lg text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-750 transition-all">
-              Tutup
-            </button>
-            <button @click="downloadQrCodeSvg"
-              class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-all duration-200">
-              <span>Unduh SVG</span>
-            </button>
+            <UiBaseButton text="Tutup" @click="closeQrModal" />
+            <UiBaseButton text="Unduh SVG" @click="downloadQrCodeSvg" />
           </div>
         </div>
       </div>
@@ -489,15 +537,17 @@
 
           <!-- Footer -->
           <div class="flex items-center justify-end gap-3 mt-6 pt-3 border-t border-zinc-800">
-            <button @click="closeEditPasswordModal" :disabled="isSubmittingManualPassword"
-              class="px-4 py-2 text-sm font-medium rounded-lg text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-750 transition-all">
-              Batal
-            </button>
-            <button @click="saveManualPassword" :disabled="isSubmittingManualPassword"
-              class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 transition-all duration-200">
-              <Loader2 v-if="isSubmittingManualPassword" class="w-4 h-4 animate-spin" />
-              <span>Simpan</span>
-            </button>
+            <UiBaseButton
+              text="Batal"
+              :disabled="isSubmittingManualPassword"
+              @click="closeEditPasswordModal"
+            />
+            <UiBaseButton
+              text="Simpan"
+              :loading="isSubmittingManualPassword"
+              :disabled="isSubmittingManualPassword"
+              @click="saveManualPassword"
+            />
           </div>
         </div>
       </div>

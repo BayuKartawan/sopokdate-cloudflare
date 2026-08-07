@@ -3,7 +3,7 @@ import { ref, shallowRef } from "vue";
 export interface Toast {
   id: number;
   message: string;
-  type: "success" | "failure" | "warning" | "info";
+  type: "success" | "failure" | "warning" | "info" | "error";
   timeout: number;
 }
 

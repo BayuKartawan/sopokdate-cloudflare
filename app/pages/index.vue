@@ -3,18 +3,24 @@
     <!-- Main Container -->
     <div class="page-layout px-4 sm:px-6">
       <!-- Welcome Header -->
-      <div class="mt-6 p-5 sm:p-6 rounded-2xl border transition-all duration-300 relative overflow-hidden group shadow-sm hover:shadow-md"
+      <div
+        class="mt-6 p-5 sm:p-6 rounded-2xl border transition-all duration-300 relative overflow-hidden group shadow-sm hover:shadow-md"
         :style="{
           backgroundColor: 'var(--bg-secondary)',
           borderColor: 'var(--border-primary)',
         }">
         <!-- Background Glow effects -->
-        <div class="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 group-hover:scale-110 transition-transform duration-500"></div>
-        <div class="absolute -left-16 -bottom-16 w-48 h-48 rounded-full bg-violet-500/10 dark:bg-violet-500/5 group-hover:scale-110 transition-transform duration-500"></div>
+        <div
+          class="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 group-hover:scale-110 transition-transform duration-500">
+        </div>
+        <div
+          class="absolute -left-16 -bottom-16 w-48 h-48 rounded-full bg-violet-500/10 dark:bg-violet-500/5 group-hover:scale-110 transition-transform duration-500">
+        </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
           <div class="flex items-center gap-4">
-            <div class="p-3.5 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-md shadow-emerald-500/20 transform group-hover:scale-105 transition-transform duration-300">
+            <div
+              class="p-3.5 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-md shadow-emerald-500/20 transform group-hover:scale-105 transition-transform duration-300">
               <User class="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
             <div>
@@ -29,7 +35,7 @@
               </p>
             </div>
           </div>
-          
+
           <div class="hidden sm:block text-right">
             <div class="text-xs" :style="{ color: 'var(--text-muted)' }">Tanggal Hari Ini</div>
             <div class="text-sm font-semibold mt-1" :style="{ color: 'var(--text-secondary)' }">
@@ -42,24 +48,25 @@
       <!-- Quick Action Cards Section -->
       <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Card 1: Rekap Tanggal Absen Belum Terkirim -->
-        <div
-          @click="openMissingModal"
+        <div @click="openMissingModal"
           class="group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 hover:shadow-lg cursor-pointer flex flex-col justify-between"
           :style="{
             backgroundColor: 'var(--bg-secondary)',
             borderColor: 'var(--border-primary)',
-          }"
-        >
+          }">
           <div class="flex items-start justify-between gap-3 mb-3">
-            <div class="p-3 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform duration-300 border border-amber-500/20">
+            <div
+              class="p-3 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform duration-300 border border-amber-500/20">
               <CalendarX class="w-6 h-6" />
             </div>
-            <span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+            <span
+              class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
               <span>Semester Aktif</span>
             </span>
           </div>
           <div>
-            <h3 class="text-base font-bold mb-1 group-hover:text-emerald-500 transition-colors" :style="{ color: 'var(--text-heading)' }">
+            <h3 class="text-base font-bold mb-1 group-hover:text-emerald-500 transition-colors"
+              :style="{ color: 'var(--text-heading)' }">
               Tanggal Belum Kirim Absen
             </h3>
             <p class="text-xs leading-relaxed" :style="{ color: 'var(--text-secondary)' }">
@@ -71,31 +78,34 @@
               </template>
             </p>
           </div>
-          <div class="mt-4 flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400 pt-3 border-t" :style="{ borderColor: 'var(--border-subtle)' }">
+          <div
+            class="mt-4 flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400 pt-3 border-t"
+            :style="{ borderColor: 'var(--border-subtle)' }">
             <span>Periksa Tanggal Belum Absen</span>
             <ChevronRight class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </div>
         </div>
 
         <!-- Card 2: Lihat Jadwal Hari Ini -->
-        <div
-          @click="openTodayScheduleModal"
+        <div @click="openTodayScheduleModal"
           class="group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 hover:shadow-lg cursor-pointer flex flex-col justify-between"
           :style="{
             backgroundColor: 'var(--bg-secondary)',
             borderColor: 'var(--border-primary)',
-          }"
-        >
+          }">
           <div class="flex items-start justify-between gap-3 mb-3">
-            <div class="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300 border border-emerald-500/20">
+            <div
+              class="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300 border border-emerald-500/20">
               <Clock class="w-6 h-6" />
             </div>
-            <span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <span
+              class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               <span>Hari {{ namaHariIni }}</span>
             </span>
           </div>
           <div>
-            <h3 class="text-base font-bold mb-1 group-hover:text-emerald-500 transition-colors" :style="{ color: 'var(--text-heading)' }">
+            <h3 class="text-base font-bold mb-1 group-hover:text-emerald-500 transition-colors"
+              :style="{ color: 'var(--text-heading)' }">
               Jadwal Mengajar Hari Ini
             </h3>
             <p class="text-xs leading-relaxed" :style="{ color: 'var(--text-secondary)' }">
@@ -107,7 +117,9 @@
               </template>
             </p>
           </div>
-          <div class="mt-4 flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400 pt-3 border-t" :style="{ borderColor: 'var(--border-subtle)' }">
+          <div
+            class="mt-4 flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400 pt-3 border-t"
+            :style="{ borderColor: 'var(--border-subtle)' }">
             <span>Lihat Jam & Kelas Hari Ini</span>
             <ChevronRight class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </div>
@@ -124,7 +136,8 @@
           <div class="flex items-center justify-between mb-4 pb-2 border-b"
             :style="{ borderColor: 'var(--border-primary)' }">
             <div class="flex items-center gap-2">
-              <span class="p-1.5 sm:p-2 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+              <span
+                class="p-1.5 sm:p-2 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                 <Bell class="w-4 h-4 sm:w-5 sm:h-5" />
               </span>
               <h2 class="text-sm sm:text-lg font-semibold" :style="{ color: 'var(--text-heading)' }">
@@ -222,28 +235,19 @@
       <!-- Modal 1: Cek Tanggal Belum Kirim Absen -->
       <Teleport to="body">
         <Transition name="modal-fade">
-          <div
-            v-if="showMissingModal"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-          >
+          <div v-if="showMissingModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
             <!-- Backdrop -->
-            <div
-              class="absolute inset-0 bg-black/75"
-              @click="showMissingModal = false"
-            ></div>
+            <div class="absolute inset-0 bg-black/75" @click="showMissingModal = false"></div>
 
             <!-- Modal Card -->
             <div
-              class="relative z-10 w-full max-w-2xl theme-bg theme-border border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-            >
+              class="relative z-10 w-full max-w-2xl theme-bg theme-border border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
               <!-- Modal Header -->
               <div
-                class="flex items-center justify-between p-4 sm:p-5 theme-bg-secondary border-b theme-border shrink-0"
-              >
+                class="flex items-center justify-between p-4 sm:p-5 theme-bg-secondary border-b theme-border shrink-0">
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20"
-                  >
+                    class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
                     <CalendarX class="w-5 h-5 text-amber-600 dark:text-amber-400" />
                   </div>
                   <div>
@@ -255,33 +259,22 @@
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  @click="showMissingModal = false"
-                  class="p-2 rounded-lg theme-text-muted hover:theme-text hover:theme-bg-tertiary transition-colors"
-                >
+                <button type="button" @click="showMissingModal = false"
+                  class="p-2 rounded-lg theme-text-muted hover:theme-text hover:theme-bg-tertiary transition-colors">
                   <X class="w-5 h-5" />
                 </button>
               </div>
 
               <!-- Modal Controls / Filters -->
               <div
-                class="p-4 theme-bg-secondary/50 border-b theme-border grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0"
-              >
+                class="p-4 theme-bg-secondary/50 border-b theme-border grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0">
                 <!-- Pilihan Kelas -->
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-semibold theme-text-muted">Pilih Kelas</label>
-                  <select
-                    v-model="missingSelectedClass"
-                    :disabled="isWaliKelas && userRole === 'guru'"
-                    class="h-9 px-3 rounded-lg theme-border border theme-bg theme-text text-xs outline-none focus:ring-2 focus:ring-emerald-500"
-                  >
+                  <select v-model="missingSelectedClass" :disabled="isWaliKelas && userRole === 'guru'"
+                    class="h-9 px-3 rounded-lg theme-border border theme-bg theme-text text-xs outline-none focus:ring-2 focus:ring-emerald-500">
                     <option value="" disabled>-- Pilih Kelas --</option>
-                    <option
-                      v-for="k in accessibleClassesForMissing"
-                      :key="k.id_kelas"
-                      :value="k.id_kelas"
-                    >
+                    <option v-for="k in accessibleClassesForMissing" :key="k.id_kelas" :value="k.id_kelas">
                       {{ k.nama_kelas }}
                     </option>
                   </select>
@@ -316,7 +309,8 @@
                 <div v-else-if="!missingSelectedClass" class="text-center py-12">
                   <CalendarX class="w-12 h-12 theme-text-muted mx-auto mb-2 opacity-50" />
                   <p class="text-sm font-semibold theme-text">Silakan Pilih Kelas</p>
-                  <p class="text-xs theme-text-muted mt-1">Pilih kelas di atas untuk melihat tanggal yang belum diabsen.</p>
+                  <p class="text-xs theme-text-muted mt-1">Pilih kelas di atas untuk melihat tanggal yang belum diabsen.
+                  </p>
                 </div>
 
                 <!-- All Submitted State -->
@@ -324,19 +318,18 @@
                   <CheckCircle2 class="w-14 h-14 text-emerald-500 mx-auto mb-3" />
                   <p class="text-base font-bold theme-text">Semua Absensi Sudah Terkirim!</p>
                   <p class="text-xs theme-text-muted mt-1 max-w-md mx-auto">
-                    Tidak ada tanggal efektif mengajar yang terlewat pada semester aktif ini untuk kelas {{ currentMissingClassName }}.
+                    Tidak ada tanggal efektif mengajar yang terlewat pada semester aktif ini untuk kelas {{
+                    currentMissingClassName }}.
                   </p>
                 </div>
 
                 <!-- List of Missing Dates -->
                 <div v-else class="flex flex-col gap-2.5">
-                  <div
-                    v-for="item in missingDatesList"
-                    :key="item.dateStr"
-                    class="flex items-center justify-between p-3 sm:p-3.5 rounded-xl border theme-border theme-bg-secondary hover:theme-bg-tertiary transition-colors"
-                  >
+                  <div v-for="item in missingDatesList" :key="item.dateStr"
+                    class="flex items-center justify-between p-3 sm:p-3.5 rounded-xl border theme-border theme-bg-secondary hover:theme-bg-tertiary transition-colors">
                     <div class="flex items-center gap-3 min-w-0">
-                      <div class="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs shrink-0 font-mono">
+                      <div
+                        class="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs shrink-0 font-mono">
                         {{ item.dayNum }}
                       </div>
                       <div class="min-w-0">
@@ -347,16 +340,12 @@
                           <span class="text-[11px] font-medium theme-text-muted">
                             Hari {{ item.namaHari }}
                           </span>
-                          <span
-                            v-if="item.isJadwalMapel"
-                            class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold border border-blue-500/20"
-                          >
+                          <span v-if="item.isJadwalMapel"
+                            class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold border border-blue-500/20">
                             Jadwal Mapel
                           </span>
-                          <span
-                            v-else-if="item.isWali"
-                            class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20"
-                          >
+                          <span v-else-if="item.isWali"
+                            class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20">
                             Wali Kelas
                           </span>
                         </div>
@@ -364,11 +353,8 @@
                     </div>
 
                     <!-- Direct Action Link -->
-                    <button
-                      type="button"
-                      @click="goToInputAbsensi(item.dateStr, missingSelectedClass)"
-                      class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer"
-                    >
+                    <button type="button" @click="goToInputAbsensi(item.dateStr, missingSelectedClass)"
+                      class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer">
                       <span>Isi Absen</span>
                       <ExternalLink class="w-3.5 h-3.5" />
                     </button>
@@ -377,13 +363,11 @@
               </div>
 
               <!-- Modal Footer -->
-              <div class="p-4 theme-bg-secondary border-t theme-border flex items-center justify-between shrink-0 text-xs theme-text-muted">
+              <div
+                class="p-4 theme-bg-secondary border-t theme-border flex items-center justify-between shrink-0 text-xs theme-text-muted">
                 <span>Periode Semester Aktif: <strong>{{ awalSemesterAktifStr }} s.d. {{ todayStr }}</strong></span>
-                <button
-                  type="button"
-                  @click="showMissingModal = false"
-                  class="px-4 py-2 rounded-xl theme-border border theme-bg theme-text font-semibold hover:theme-bg-tertiary transition-colors cursor-pointer"
-                >
+                <button type="button" @click="showMissingModal = false"
+                  class="px-4 py-2 rounded-xl theme-border border theme-bg theme-text font-semibold hover:theme-bg-tertiary transition-colors cursor-pointer">
                   Tutup
                 </button>
               </div>
@@ -395,28 +379,19 @@
       <!-- Modal 2: Lihat Jadwal Hari Ini -->
       <Teleport to="body">
         <Transition name="modal-fade">
-          <div
-            v-if="showScheduleModal"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-          >
+          <div v-if="showScheduleModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
             <!-- Backdrop -->
-            <div
-              class="absolute inset-0 bg-black/75"
-              @click="showScheduleModal = false"
-            ></div>
+            <div class="absolute inset-0 bg-black/75" @click="showScheduleModal = false"></div>
 
             <!-- Modal Card -->
             <div
-              class="relative z-10 w-full max-w-2xl theme-bg theme-border border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-            >
+              class="relative z-10 w-full max-w-2xl theme-bg theme-border border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
               <!-- Modal Header -->
               <div
-                class="flex items-center justify-between p-4 sm:p-5 theme-bg-secondary border-b theme-border shrink-0"
-              >
+                class="flex items-center justify-between p-4 sm:p-5 theme-bg-secondary border-b theme-border shrink-0">
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20"
-                  >
+                    class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                     <Clock class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
@@ -428,32 +403,21 @@
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  @click="showScheduleModal = false"
-                  class="p-2 rounded-lg theme-text-muted hover:theme-text hover:theme-bg-tertiary transition-colors"
-                >
+                <button type="button" @click="showScheduleModal = false"
+                  class="p-2 rounded-lg theme-text-muted hover:theme-text hover:theme-bg-tertiary transition-colors">
                   <X class="w-5 h-5" />
                 </button>
               </div>
 
               <!-- Filter for Admin / Selector -->
-              <div
-                v-if="userRole === 'admin' || userRole === 'kepala_madrasah'"
-                class="p-4 theme-bg-secondary/50 border-b theme-border flex items-center justify-between gap-3 shrink-0"
-              >
+              <div v-if="userRole === 'admin' || userRole === 'kepala_madrasah'"
+                class="p-4 theme-bg-secondary/50 border-b theme-border flex items-center justify-between gap-3 shrink-0">
                 <div class="flex flex-col gap-1 w-full sm:w-64">
                   <label class="text-xs font-semibold theme-text-muted">Filter Kelas</label>
-                  <select
-                    v-model="scheduleSelectedClass"
-                    class="h-9 px-3 rounded-lg theme-border border theme-bg theme-text text-xs outline-none focus:ring-2 focus:ring-emerald-500"
-                  >
+                  <select v-model="scheduleSelectedClass"
+                    class="h-9 px-3 rounded-lg theme-border border theme-bg theme-text text-xs outline-none focus:ring-2 focus:ring-emerald-500">
                     <option value="">-- Semua Kelas --</option>
-                    <option
-                      v-for="k in sortedClasses"
-                      :key="k.id_kelas"
-                      :value="k.id_kelas"
-                    >
+                    <option v-for="k in sortedClasses" :key="k.id_kelas" :value="k.id_kelas">
                       {{ k.nama_kelas || k.id_kelas }}
                     </option>
                   </select>
@@ -469,7 +433,8 @@
                 <div v-if="namaHariIni === 'Minggu'" class="text-center py-12">
                   <CalendarDays class="w-12 h-12 text-emerald-500 mx-auto mb-2 opacity-60" />
                   <p class="text-sm font-bold theme-text">Hari Minggu - Libur Sekolah</p>
-                  <p class="text-xs theme-text-muted mt-1">Tidak ada aktivitas jadwal mengajar reguler pada hari Minggu.</p>
+                  <p class="text-xs theme-text-muted mt-1">Tidak ada aktivitas jadwal mengajar reguler pada hari Minggu.
+                  </p>
                 </div>
 
                 <!-- Empty Schedule State -->
@@ -483,13 +448,11 @@
 
                 <!-- Schedule List -->
                 <div v-else class="flex flex-col gap-3">
-                  <div
-                    v-for="sch in todayScheduleList"
-                    :key="sch.id || (sch.kelas_id + sch.jam_ke)"
-                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-xl border theme-border theme-bg-secondary hover:theme-bg-tertiary transition-colors"
-                  >
+                  <div v-for="sch in todayScheduleList" :key="sch.id || (sch.kelas_id + sch.jam_ke)"
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-xl border theme-border theme-bg-secondary hover:theme-bg-tertiary transition-colors">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-xs shrink-0 font-mono">
+                      <div
+                        class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-xs shrink-0 font-mono">
                         Jam {{ sch.jam_ke || sch.jamKe || '-' }}
                       </div>
                       <div>
@@ -500,17 +463,16 @@
                           <span class="font-semibold text-emerald-600 dark:text-emerald-400">
                             Kelas {{ getKelasName(sch.kelas_id || sch.kelasId || sch.kelas) }}
                           </span>
-                          <span v-if="userRole !== 'guru'">• Guru: {{ getGuruName(sch.guru_id || sch.guruId || sch.guru, sch) }}</span>
+                          <span v-if="userRole !== 'guru'">• Guru: {{ getGuruName(sch.guru_id || sch.guruId || sch.guru,
+                            sch)
+                            }}</span>
                         </div>
                       </div>
                     </div>
 
                     <!-- Quick Link to Input Absensi -->
-                    <button
-                      type="button"
-                      @click="goToInputAbsensiToday(sch.kelas_id || sch.kelasId || sch.kelas)"
-                      class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-sm cursor-pointer self-end sm:self-center"
-                    >
+                    <button type="button" @click="goToInputAbsensiToday(sch.kelas_id || sch.kelasId || sch.kelas)"
+                      class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-sm cursor-pointer self-end sm:self-center">
                       <span>Input Absensi</span>
                       <ExternalLink class="w-3.5 h-3.5" />
                     </button>
@@ -519,21 +481,16 @@
               </div>
 
               <!-- Modal Footer -->
-              <div class="p-4 theme-bg-secondary border-t theme-border flex items-center justify-between shrink-0 text-xs theme-text-muted">
+              <div
+                class="p-4 theme-bg-secondary border-t theme-border flex items-center justify-between shrink-0 text-xs theme-text-muted">
                 <span>Hari ini: <strong>{{ currentFormattedDate }}</strong></span>
                 <div class="flex items-center gap-2">
-                  <button
-                    type="button"
-                    @click="goToJadwalCetak"
-                    class="px-3 py-1.5 rounded-lg theme-border border theme-bg text-emerald-600 dark:text-emerald-400 font-semibold hover:theme-bg-tertiary transition-colors cursor-pointer"
-                  >
+                  <button type="button" @click="goToJadwalCetak"
+                    class="px-3 py-1.5 rounded-lg theme-border border theme-bg text-emerald-600 dark:text-emerald-400 font-semibold hover:theme-bg-tertiary transition-colors cursor-pointer">
                     Cetak Lengkap
                   </button>
-                  <button
-                    type="button"
-                    @click="showScheduleModal = false"
-                    class="px-4 py-1.5 rounded-lg theme-border border theme-bg theme-text font-semibold hover:theme-bg-tertiary transition-colors cursor-pointer"
-                  >
+                  <button type="button" @click="showScheduleModal = false"
+                    class="px-4 py-1.5 rounded-lg theme-border border theme-bg theme-text font-semibold hover:theme-bg-tertiary transition-colors cursor-pointer">
                     Tutup
                   </button>
                 </div>
@@ -547,7 +504,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
 import {
   Bell, Plus, Pencil, Trash2, User,
@@ -561,6 +518,20 @@ import { authenticatedFetch, fetchFromApi } from "~/utils/api";
 import { dapatkanTahunDanSemester, dapatkanAwalSemesterAktif } from "~/utils/dateHelper";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import CrudModal from "~/components/ui/CrudModal.vue";
+
+interface MissingDateCandidate {
+  dateStr: string;
+  formattedDate: string;
+  dayNum: string;
+  namaHari: string;
+  isJadwalMapel: boolean;
+  isWali: boolean;
+}
+
+interface AccessibleClass {
+  id_kelas: string;
+  nama_kelas: string;
+}
 
 definePageMeta({
   requiresAuth: true,
@@ -586,13 +557,13 @@ const { cardData: jadwalData, loadData: loadJadwal } = useTableData();
 const { cardData: gtkData, loadData: loadGtk } = useTableData();
 const { cardData: kurikulumData, loadData: loadKurikulum } = useTableData();
 
-const userDisplayName = ref("");
-const userRole = ref("");
-const userGtkId = ref(null);
-const isWaliKelas = ref(false);
-const waliKelasClassId = ref("");
+const userDisplayName = ref<string>("");
+const userRole = ref<string>("");
+const userGtkId = ref<number | null>(null);
+const isWaliKelas = ref<boolean>(false);
+const waliKelasClassId = ref<string>("");
 
-const userRoleLabel = computed(() => {
+const userRoleLabel = computed<string>(() => {
   const r = userRole.value;
   if (r === "admin") return "Admin";
   if (r === "guru") return "Guru";
@@ -600,7 +571,7 @@ const userRoleLabel = computed(() => {
   return r;
 });
 
-const currentFormattedDate = computed(() => {
+const currentFormattedDate = computed<string>(() => {
   return new Date().toLocaleDateString("id-ID", {
     weekday: "long",
     day: "numeric",
@@ -609,22 +580,22 @@ const currentFormattedDate = computed(() => {
   });
 });
 
-const NAMA_HARI_MAP = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+const NAMA_HARI_MAP: string[] = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
-const namaHariIni = computed(() => {
+const namaHariIni = computed<string>(() => {
   return NAMA_HARI_MAP[new Date().getDay()];
 });
 
-const todayStr = computed(() => {
+const todayStr = computed<string>(() => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 });
 
-const awalSemesterAktifStr = computed(() => {
+const awalSemesterAktifStr = computed<string>(() => {
   return dapatkanAwalSemesterAktif(new Date());
 });
 
-const sortedClasses = computed(() => {
+const sortedClasses = computed<any[]>(() => {
   return [...(kelasData.value || [])].sort((a, b) => {
     const levelA = Number(a.tingkat) || 0;
     const levelB = Number(b.tingkat) || 0;
@@ -638,58 +609,58 @@ const sortedClasses = computed(() => {
 // =============================================
 // MODAL 1: Cek Tanggal Belum Kirim Absen
 // =============================================
-const showMissingModal = ref(false);
-const missingSelectedClass = ref("");
-const isLoadingMissing = ref(false);
-const missingDatesList = ref([]);
-const totalHariEfektifModal = ref(0);
-const totalSudahKirimModal = ref(0);
-const hariLiburKalender = ref([]);
-const hariLiburMingguanIndex = ref(0);
+const showMissingModal = ref<boolean>(false);
+const missingSelectedClass = ref<string>("");
+const isLoadingMissing = ref<boolean>(false);
+const missingDatesList = ref<MissingDateCandidate[]>([]);
+const totalHariEfektifModal = ref<number>(0);
+const totalSudahKirimModal = ref<number>(0);
+const hariLiburKalender = ref<any[]>([]);
+const hariLiburMingguanIndex = ref<number>(0);
 
-const accessibleClassesForMissing = computed(() => {
+const accessibleClassesForMissing = computed<AccessibleClass[]>(() => {
   if (!kelasData.value) return [];
   if (userRole.value === "admin" || userRole.value === "kepala_madrasah") {
-    return kelasData.value.map(c => ({ id_kelas: c.id_kelas || c.idKelas, nama_kelas: c.nama_kelas || c.namaKelas }));
+    return kelasData.value.map((c: any) => ({ id_kelas: c.id_kelas || c.idKelas, nama_kelas: c.nama_kelas || c.namaKelas }));
   }
   if (userRole.value === "guru") {
-    const list = [];
+    const list: AccessibleClass[] = [];
     if (isWaliKelas.value && waliKelasClassId.value) {
-      const match = kelasData.value.find(c => (c.id_kelas || c.idKelas) === waliKelasClassId.value);
+      const match = kelasData.value.find((c: any) => (c.id_kelas || c.idKelas) === waliKelasClassId.value);
       if (match) list.push({ id_kelas: match.id_kelas || match.idKelas, nama_kelas: match.nama_kelas || match.namaKelas });
     }
-    (jadwalData.value || []).forEach(sch => {
+    (jadwalData.value || []).forEach((sch: any) => {
       const gId = sch.guru_id || sch.guruId || sch.guru;
       const cId = sch.kelas_id || sch.kelasId || sch.kelas;
       if (String(gId) === String(userGtkId.value)) {
         if (!list.some(item => item.id_kelas === cId)) {
-          const match = kelasData.value.find(c => (c.id_kelas || c.idKelas) === cId);
+          const match = kelasData.value.find((c: any) => (c.id_kelas || c.idKelas) === cId);
           if (match) list.push({ id_kelas: match.id_kelas || match.idKelas, nama_kelas: match.nama_kelas || match.namaKelas });
         }
       }
     });
     if (list.length === 0) {
-      return kelasData.value.map(c => ({ id_kelas: c.id_kelas || c.idKelas, nama_kelas: c.nama_kelas || c.namaKelas }));
+      return kelasData.value.map((c: any) => ({ id_kelas: c.id_kelas || c.idKelas, nama_kelas: c.nama_kelas || c.namaKelas }));
     }
     return list;
   }
   return [];
 });
 
-const currentMissingClassName = computed(() => {
+const currentMissingClassName = computed<string>(() => {
   if (!missingSelectedClass.value) return "";
-  const match = kelasData.value.find(k => (k.id_kelas || k.idKelas) === missingSelectedClass.value);
+  const match = kelasData.value.find((k: any) => (k.id_kelas || k.idKelas) === missingSelectedClass.value);
   return match ? (match.nama_kelas || match.namaKelas) : missingSelectedClass.value;
 });
 
-const formatDateIndo = (dateStr) => {
+const formatDateIndo = (dateStr: string): string => {
   if (!dateStr) return "";
   const d = new Date(dateStr + "T00:00:00");
   if (isNaN(d.getTime())) return dateStr;
   return d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
 };
 
-const openMissingModal = async () => {
+const openMissingModal = async (): Promise<void> => {
   showMissingModal.value = true;
   if (!missingSelectedClass.value) {
     if (accessibleClassesForMissing.value.length > 0) {
@@ -699,20 +670,20 @@ const openMissingModal = async () => {
   await fetchAndCalculateMissingDates();
 };
 
-watch(missingSelectedClass, async (newVal) => {
+watch(missingSelectedClass, async (newVal: string) => {
   if (showMissingModal.value && newVal) {
     await fetchAndCalculateMissingDates();
   }
 });
 
-const checkSubmittedStatusForDate = async (dateStr, classId) => {
+const checkSubmittedStatusForDate = async (dateStr: string, classId: string): Promise<boolean> => {
   try {
     const response = await authenticatedFetch(
       `/api/absensi?tanggal=${encodeURIComponent(dateStr)}&kelas_id=${encodeURIComponent(classId)}`
     );
     const data = await response.json();
     if (Array.isArray(data)) {
-      return data.some((s) => s.status !== null && s.status !== undefined);
+      return data.some((s: any) => s.status !== null && s.status !== undefined);
     }
     return false;
   } catch {
@@ -720,7 +691,7 @@ const checkSubmittedStatusForDate = async (dateStr, classId) => {
   }
 };
 
-const fetchAndCalculateMissingDates = async () => {
+const fetchAndCalculateMissingDates = async (): Promise<void> => {
   if (!missingSelectedClass.value) {
     missingDatesList.value = [];
     totalHariEfektifModal.value = 0;
@@ -739,7 +710,7 @@ const fetchAndCalculateMissingDates = async () => {
           filter_val: currentInfo.tahunPelajaran,
         });
         if (Array.isArray(kalenderData)) {
-          hariLiburKalender.value = kalenderData.filter((item) => item.tipe === "libur");
+          hariLiburKalender.value = kalenderData.filter((item: any) => item.tipe === "libur");
         }
       } catch (e) {
         console.error("Gagal load kalender:", e);
@@ -751,7 +722,7 @@ const fetchAndCalculateMissingDates = async () => {
           filter_val: currentInfo.tahunPelajaran,
         });
         if (Array.isArray(configData) && configData.length > 0) {
-          const match = configData.find((item) => item.tahun_pelajaran === currentInfo.tahunPelajaran);
+          const match = configData.find((item: any) => item.tahun_pelajaran === currentInfo.tahunPelajaran);
           if (match) hariLiburMingguanIndex.value = parseInt(match.hari_libur_mingguan);
         }
       } catch (e) {
@@ -760,9 +731,9 @@ const fetchAndCalculateMissingDates = async () => {
     }
 
     // 2. Ambil jadwal mengajar guru ini untuk kelas terpilih
-    const scheduledDays = new Set();
+    const scheduledDays = new Set<string>();
     if (userRole.value === "guru" && userGtkId.value) {
-      (jadwalData.value || []).forEach((sch) => {
+      (jadwalData.value || []).forEach((sch: any) => {
         const gId = sch.guru_id || sch.guruId || sch.guru;
         const cId = sch.kelas_id || sch.kelasId || sch.kelas;
         if (String(gId) === String(userGtkId.value) && String(cId) === String(missingSelectedClass.value)) {
@@ -777,7 +748,7 @@ const fetchAndCalculateMissingDates = async () => {
     // 3. Kumpulkan daftar tanggal wajib
     const start = new Date(awalSemesterAktifStr.value + "T00:00:00");
     const end = new Date(todayStr.value + "T00:00:00");
-    const requiredCandidates = [];
+    const requiredCandidates: MissingDateCandidate[] = [];
     const current = new Date(start);
 
     while (current <= end) {
@@ -790,7 +761,7 @@ const fetchAndCalculateMissingDates = async () => {
       const namaHariLower = namaHari.toLowerCase();
 
       if (dayIndex === hariLiburMingguanIndex.value) { current.setDate(current.getDate() + 1); continue; }
-      const isHoliday = hariLiburKalender.value.some(h => dateStr >= h.tanggal_mulai && dateStr <= h.tanggal_selesai);
+      const isHoliday = hariLiburKalender.value.some((h: any) => dateStr >= h.tanggal_mulai && dateStr <= h.tanggal_selesai);
       if (isHoliday) { current.setDate(current.getDate() + 1); continue; }
 
       let isRequired = false;
@@ -813,7 +784,7 @@ const fetchAndCalculateMissingDates = async () => {
     // 4. Periksa status pengisian via /api/absensi
     let totalEfektif = requiredCandidates.length;
     let totalSudah = 0;
-    const missingList = [];
+    const missingList: MissingDateCandidate[] = [];
     const BATCH_SIZE = 10;
 
     for (let i = 0; i < requiredCandidates.length; i += BATCH_SIZE) {
@@ -842,7 +813,7 @@ const fetchAndCalculateMissingDates = async () => {
   }
 };
 
-const goToInputAbsensi = (dateStr, classId) => {
+const goToInputAbsensi = (dateStr: string, classId: string): void => {
   showMissingModal.value = false;
   navigateTo({ path: "/absensi/siswa", query: { tanggal: dateStr, kelas_id: classId } });
 };
@@ -850,21 +821,21 @@ const goToInputAbsensi = (dateStr, classId) => {
 // =============================================
 // MODAL 2: Jadwal Hari Ini
 // =============================================
-const showScheduleModal = ref(false);
-const scheduleSelectedClass = ref("");
+const showScheduleModal = ref<boolean>(false);
+const scheduleSelectedClass = ref<string>("");
 
-const todayScheduleList = computed(() => {
+const todayScheduleList = computed<any[]>(() => {
   const schedules = jadwalData.value || [];
   const hariIni = namaHariIni.value;
 
-  let filtered = schedules.filter(sch => {
+  let filtered = schedules.filter((sch: any) => {
     const schHari = String(sch.hari || "").trim();
     return schHari.toLowerCase() === hariIni.toLowerCase();
   });
 
   // Guru: hanya tampilkan jadwal guru tersebut
   if (userRole.value === "guru" && userGtkId.value) {
-    filtered = filtered.filter(sch => {
+    filtered = filtered.filter((sch: any) => {
       const gId = sch.guru_id || sch.guruId || sch.guru;
       return String(gId) === String(userGtkId.value);
     });
@@ -872,14 +843,14 @@ const todayScheduleList = computed(() => {
 
   // Admin filter by class
   if ((userRole.value === "admin" || userRole.value === "kepala_madrasah") && scheduleSelectedClass.value) {
-    filtered = filtered.filter(sch => {
+    filtered = filtered.filter((sch: any) => {
       const cId = sch.kelas_id || sch.kelasId || sch.kelas;
       return cId === scheduleSelectedClass.value;
     });
   }
 
   // Sort by jam_ke
-  return filtered.sort((a, b) => {
+  return filtered.sort((a: any, b: any) => {
     const jamA = Number(a.jam_ke || a.jamKe || 0);
     const jamB = Number(b.jam_ke || b.jamKe || 0);
     if (jamA !== jamB) return jamA - jamB;
@@ -889,35 +860,35 @@ const todayScheduleList = computed(() => {
   });
 });
 
-const getKelasName = (id) => {
+const getKelasName = (id?: any): string => {
   if (!id) return "-";
-  const kelas = (kelasData.value || []).find(k => (k.id_kelas || k.idKelas) === id);
+  const kelas = (kelasData.value || []).find((k: any) => (k.id_kelas || k.idKelas) === id);
   return kelas ? (kelas.nama_kelas || kelas.namaKelas || id) : id;
 };
 
-const getMapelName = (id, sch) => {
+const getMapelName = (id?: any, sch?: any): string => {
   if (!id) return sch?.nama_mapel || sch?.mapel || "-";
-  const mapel = (kurikulumData.value || []).find(m => m.id === Number(id));
+  const mapel = (kurikulumData.value || []).find((m: any) => m.id === Number(id));
   return mapel ? (mapel.nama_mapel || mapel.namaMapel) : (sch?.nama_mapel || `Mapel ID: ${id}`);
 };
 
-const getGuruName = (id, sch) => {
+const getGuruName = (id?: any, sch?: any): string => {
   if (!id) return sch?.nama_guru || sch?.guru || "-";
-  const guru = (gtkData.value || []).find(g => g.id === Number(id));
+  const guru = (gtkData.value || []).find((g: any) => g.id === Number(id));
   return guru ? (guru.nama_lengkap || guru.namaLengkap) : (sch?.nama_guru || `Guru ID: ${id}`);
 };
 
-const openTodayScheduleModal = () => {
+const openTodayScheduleModal = (): void => {
   scheduleSelectedClass.value = "";
   showScheduleModal.value = true;
 };
 
-const goToInputAbsensiToday = (classId) => {
+const goToInputAbsensiToday = (classId: string): void => {
   showScheduleModal.value = false;
   navigateTo({ path: "/absensi/siswa", query: { tanggal: todayStr.value, kelas_id: classId } });
 };
 
-const goToJadwalCetak = () => {
+const goToJadwalCetak = (): void => {
   showScheduleModal.value = false;
   navigateTo("/jadwal/cetak");
 };
@@ -925,14 +896,14 @@ const goToJadwalCetak = () => {
 // =============================================
 // Helpers: Wali Kelas detection
 // =============================================
-function cleanName(name) {
+function cleanName(name?: string): string {
   if (!name) return "";
   let cleaned = name.split(",")[0];
   cleaned = cleaned.replace(/^(h\.|hj\.|dra\.|drs\.|prof\.|dr\.)\s+/gi, "");
   return cleaned.replace(/\./g, "").replace(/\s+/g, " ").trim().toLowerCase();
 }
 
-const checkWaliKelasStatus = async () => {
+const checkWaliKelasStatus = async (): Promise<void> => {
   if (userRole.value !== "guru" || !userGtkId.value) return;
   try {
     const gtkDataFetched = await fetchFromApi("data_gtk", false, null, {
@@ -941,7 +912,7 @@ const checkWaliKelasStatus = async () => {
     });
     if (!Array.isArray(gtkDataFetched)) return;
 
-    const myRecord = gtkDataFetched.find(g =>
+    const myRecord = gtkDataFetched.find((g: any) =>
       g.id === userGtkId.value || String(g.id) === String(userGtkId.value)
     );
     if (!myRecord) return;
@@ -949,7 +920,7 @@ const checkWaliKelasStatus = async () => {
     const namaGuru = myRecord.nama_lengkap || myRecord.title || myRecord.NamaLengkap || "";
     const classes = kelasData.value || [];
 
-    const myClass = classes.find(c => {
+    const myClass = classes.find((c: any) => {
       const cWali = c.wali_kelas || c.waliKelas || c["Wali Kelas"] || "";
       const myPegId = myRecord.peg_id || myRecord.PegID || myRecord["Peg ID"];
       const myId = myRecord.id;
@@ -971,9 +942,9 @@ const checkWaliKelasStatus = async () => {
 // =============================================
 // CRUD Modal states (existing)
 // =============================================
-const showModal = ref(false);
-const modalMode = ref("create");
-const editingItem = ref({});
+const showModal = ref<boolean>(false);
+const modalMode = ref<"create" | "edit">("create");
+const editingItem = ref<Record<string, any>>({});
 
 const announcementFields = [
   {
@@ -1016,7 +987,7 @@ const announcementFields = [
   },
 ];
 
-const openCreateModal = () => {
+const openCreateModal = (): void => {
   modalMode.value = "create";
   editingItem.value = {
     title: "",
@@ -1032,7 +1003,7 @@ const openCreateModal = () => {
   showModal.value = true;
 };
 
-const openEditModal = (item) => {
+const openEditModal = (item: any): void => {
   modalMode.value = "edit";
   editingItem.value = {
     id: item.id,
@@ -1045,7 +1016,7 @@ const openEditModal = (item) => {
   showModal.value = true;
 };
 
-const handleFormSubmit = async (formData) => {
+const handleFormSubmit = async (formData: any): Promise<void> => {
   let success = false;
   if (modalMode.value === "create") {
     success = await createItem(formData);
@@ -1058,7 +1029,7 @@ const handleFormSubmit = async (formData) => {
   }
 };
 
-const handleDelete = (item) => {
+const handleDelete = (item: any): void => {
   deleteItem(item.id, `pengumuman "${item.title}"`);
 };
 
@@ -1107,12 +1078,13 @@ onMounted(async () => {
 .modal-fade-enter-active {
   transition: opacity 0.2s ease;
 }
+
 .modal-fade-leave-active {
   transition: opacity 0.15s ease;
 }
+
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
 }
 </style>
-

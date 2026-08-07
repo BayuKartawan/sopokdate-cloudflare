@@ -1,83 +1,50 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center px-4 py-8">
-    <div class="text-center max-w-md mx-auto">
-      <!-- 404 Number with enhanced styling -->
-      <div class="relative mb-8">
-        <h1
-          class="text-8xl md:text-9xl font-black select-none transition-colors duration-300 drop-shadow-2xl"
-          :style="{ color: 'var(--text-faint)' }"
-        >
-          404
-        </h1>
-        <!-- Decorative elements -->
-        <div
-          class="absolute -top-4 -right-4 w-8 h-8 rounded-full animate-pulse bg-indigo-400"
-        ></div>
-        <div
-          class="absolute -bottom-2 -left-2 w-6 h-6 rounded-full animate-bounce delay-300 bg-purple-400"
-        ></div>
-      </div>
+  <div class="min-h-screen flex items-center justify-center px-6"
+    :style="{ backgroundColor: 'var(--bg-primary)' }">
+    <div class="text-center max-w-sm mx-auto">
 
-      <!-- Main heading -->
-      <h2
-        class="text-2xl md:text-4xl font-bold tracking-tight mb-4 transition-colors duration-300"
-        :style="{ color: 'var(--text-heading)' }"
-      >
-        Oops! Page Not Found
-      </h2>
+      <!-- 404 -->
+      <p class="text-7xl font-black tracking-tighter mb-2 select-none"
+        :style="{ color: 'var(--text-faint)' }">
+        404
+      </p>
+
+      <!-- Divider -->
+      <div class="w-12 h-px mx-auto mb-6 rounded-full"
+        :style="{ backgroundColor: 'var(--border-secondary)' }"></div>
+
+      <!-- Heading -->
+      <h1 class="text-xl font-semibold mb-2"
+        :style="{ color: 'var(--text-heading)' }">
+        Halaman Tidak Ditemukan
+      </h1>
 
       <!-- Description -->
-      <p
-        class="text-lg mb-8 leading-relaxed transition-colors duration-300"
-        :style="{ color: 'var(--text-secondary)' }"
-      >
-        The page you're looking for seems to have wandered off into the digital
-        void.
+      <p class="text-sm leading-relaxed mb-8"
+        :style="{ color: 'var(--text-muted)' }">
+        Halaman yang kamu cari tidak tersedia atau mungkin sudah dipindahkan.
       </p>
 
-      <!-- Action buttons -->
-      <div
-        class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center"
-      >
-        <NuxtLink
-          to="/"
-          class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 shadow-lg bg-indigo-600 hover:bg-indigo-700 text-white"
-        >
-          <Home class="w-4 h-4 mr-2" stroke-width="2" />
-          Go Back Home
-        </NuxtLink>
+      <!-- Actions -->
+      <div class="flex items-center justify-center gap-3">
+        <UiBaseButton text="Beranda" to="/">
+          <template #icon>
+            <Home class="w-4 h-4" stroke-width="2" />
+          </template>
+        </UiBaseButton>
 
-        <button
-          @click="goBack"
-          class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 border-2 hover:bg-[var(--bg-secondary)]"
-          :style="{
-            borderColor: 'var(--border-secondary)',
-            color: 'var(--text-secondary)',
-          }"
-        >
-          <ArrowLeft class="w-4 h-4 mr-2" stroke-width="2" />
-          Go Back
-        </button>
+        <UiBaseButton text="Kembali" @click="goBack">
+          <template #icon>
+            <ArrowLeft class="w-4 h-4" stroke-width="2" />
+          </template>
+        </UiBaseButton>
       </div>
 
-      <!-- Additional help text -->
-      <p
-        class="text-sm mt-8 transition-colors duration-300"
-        :style="{ color: 'var(--text-muted)' }"
-      >
-        If you believe this is an error, please
-        <a
-          href="mailto:support@example.com"
-          class="underline transition-colors duration-200 text-indigo-400 hover:text-indigo-300"
-        >
-          contact support
-        </a>
-      </p>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { Home, ArrowLeft } from "lucide-vue-next";
 
 definePageMeta({
@@ -87,8 +54,7 @@ definePageMeta({
 
 const router = useRouter();
 
-// Go back function
-const goBack = () => {
+const goBack = (): void => {
   if (window.history.length > 1) {
     router.go(-1);
   } else {
