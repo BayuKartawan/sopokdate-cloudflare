@@ -204,63 +204,50 @@
       <!-- /content -->
 
       <!-- ── Modal: Import Excel ─────────────────────────────── -->
-      <Teleport to="body">
-        <div v-if="showImportModal"
-          class="fixed inset-0 z-[999] flex items-end sm:items-center justify-center sm:p-4"
-          style="background:var(--shadow-overlay)"
-          @click.self="showImportModal = false">
-          <div class="relative w-full sm:max-w-xl rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 shadow-2xl max-h-[92dvh] overflow-y-auto"
-            style="background:var(--bg-card);border:1px solid var(--border-primary)">
+      <BaseExcelUploadModal
+        :show="showImportModal"
+        title="Import Indikator EDM dari Excel"
+        subtitle="Import pertanyaan, bukti fisik, dan pilihan evaluasi dari file Excel"
+        download-description="Upload file Excel (.xlsx) dengan kolom: bagian_target (A–E), nomor_urut, pertanyaan, bukti_yang_diminta, pilihan_1, pilihan_2, pilihan_3, pilihan_4"
+        download-button-text="Unduh Template Excel"
+        :is-parsing="isParsing"
+        :has-parsed-data="importPreview.length > 0"
+        :total-rows="importPreview.length"
+        :summary="summary"
+        :summary-labels="summaryLabels"
+        :submit-button-text="isSaving ? 'Mengimpor...' : 'Import Data Indikator'"
+        submit-icon="check"
+        :submit-disabled="isSaving || importPreview.length === 0"
+        @close="closeImportModal"
+        @download-template="downloadTemplate"
+        @file-selected="onFileSelected"
+        @reset="resetImport"
+        @submit="handleImport"
+      >
+        <template #table-header>
+          <tr>
+            <th class="p-3 font-semibold w-12">No</th>
+            <th class="p-3 font-semibold w-24">Bagian</th>
+            <th class="p-3 font-semibold w-20">No Urut</th>
+            <th class="p-3 font-semibold">Pertanyaan</th>
+            <th class="p-3 font-semibold">Bukti Fisik</th>
+          </tr>
+        </template>
 
-            <div class="sm:hidden w-10 h-1 rounded-full mx-auto mb-4" style="background:var(--border-secondary)"></div>
-
-            <h3 class="text-base sm:text-lg font-semibold mb-1" style="color:var(--text-heading)">
-              Import Indikator dari Excel
-            </h3>
-            <p class="text-xs mb-4" style="color:var(--text-muted)">
-              Upload file Excel (.xlsx) dengan kolom: bagian_target (A–E), nomor_urut, pertanyaan, bukti_yang_diminta, pilihan_1, pilihan_2, pilihan_3, pilihan_4
-            </p>
-
-            <div class="space-y-4">
-              <button @click="downloadTemplate" type="button"
-                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer"
-                style="background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-primary)">
-                <Download class="w-3.5 h-3.5" />
-                Download Template Excel
-              </button>
-
-              <input ref="fileInput" type="file" accept=".xlsx,.xls" @change="onFileChange"
-                class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer"
-                style="color:var(--text-muted)" />
-
-              <!-- Preview -->
-              <div v-if="importPreview.length > 0"
-                class="max-h-48 overflow-y-auto space-y-1.5 p-3 rounded-lg"
-                style="background:var(--bg-secondary)">
-                <p class="text-xs font-medium mb-2" style="color:var(--text-heading)">
-                  Preview Data ({{ importPreview.length }} indikator):
-                </p>
-                <div v-for="(row, i) in importPreview" :key="i" class="text-xs truncate" style="color:var(--text-secondary)">
-                  <span class="font-medium">Bag.{{ row.bagian_target }} #{{ row.nomor_urut }}</span>
-                  — {{ row.pertanyaan }}
-                </div>
-              </div>
-            </div>
-
-            <div class="flex justify-end gap-2 mt-6">
-              <button @click="showImportModal = false"
-                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
-                style="color:var(--text-secondary);background:var(--bg-secondary)">
-                Batal
-              </button>
-              <button @click="handleImport" :disabled="isSaving || importPreview.length === 0"
-                class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all cursor-pointer">
-                {{ isSaving ? 'Mengimpor...' : `Import ${importPreview.length} Data` }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </Teleport>
+        <template #table-body>
+          <tr v-for="(row, i) in importPreview" :key="i" class="hover:bg-zinc-900/30">
+            <td class="p-3 text-zinc-500">{{ i + 1 }}</td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold text-white shrink-0" :class="bagianColor(row.bagian_target)">
+                Bag. {{ row.bagian_target }}
+              </span>
+            </td>
+            <td class="p-3 text-zinc-300 font-mono">#{{ row.nomor_urut }}</td>
+            <td class="p-3 text-zinc-200 font-medium max-w-xs truncate">{{ row.pertanyaan }}</td>
+            <td class="p-3 text-zinc-400 max-w-xs truncate">{{ row.bukti_yang_diminta || '-' }}</td>
+          </tr>
+        </template>
+      </BaseExcelUploadModal>
 
     </div>
   </div>
@@ -271,6 +258,7 @@ import { ref, computed, onMounted } from "vue";
 import { useEdm, EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import * as XLSX from "xlsx";
+import BaseExcelUploadModal from "~/components/ui/BaseExcelUploadModal.vue";
 import {
   ListChecks, Plus, Upload, Download, Pencil, Trash2,
   FileCheck, CircleDot, ChevronLeft, ChevronRight,
@@ -326,7 +314,31 @@ const visibleBagianList = computed(() => {
 // ── Import Modal ──────────────────────────────────────────────
 const showImportModal = ref(false);
 const importPreview   = ref([]);
+const isParsing       = ref(false);
 const fileInput       = ref(null);
+
+const summaryLabels = {
+  newLabel: "Indikator Baru",
+  updateLabel: "Update",
+  errorLabel: "Error / Ditolak",
+};
+
+const summary = computed(() => ({
+  newCount: importPreview.value.length,
+  updateCount: 0,
+  errorCount: 0,
+}));
+
+const resetImport = () => {
+  importPreview.value = [];
+  isParsing.value = false;
+  if (fileInput.value) fileInput.value.value = "";
+};
+
+const closeImportModal = () => {
+  resetImport();
+  showImportModal.value = false;
+};
 
 // ── Helpers ───────────────────────────────────────────────────
 const bagianColor = (name) => {
@@ -392,9 +404,9 @@ const downloadTemplate = () => {
 };
 
 // ── Excel Import ──────────────────────────────────────────────
-const onFileChange = async (e) => {
-  const file = e.target.files[0];
+const onFileSelected = async (file) => {
   if (!file) return;
+  isParsing.value = true;
   try {
     const data = await file.arrayBuffer();
     const wb   = XLSX.read(data, { type: "array" });
@@ -415,6 +427,8 @@ const onFileChange = async (e) => {
   } catch {
     Notify?.failure?.("Gagal membaca file Excel");
     importPreview.value = [];
+  } finally {
+    isParsing.value = false;
   }
 };
 
@@ -425,9 +439,7 @@ const handleImport = async () => {
     items:             importPreview.value,
   });
   if (ok) {
-    showImportModal.value = false;
-    importPreview.value   = [];
-    if (fileInput.value) fileInput.value.value = "";
+    closeImportModal();
     await loadData();
   }
 };

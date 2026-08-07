@@ -3,11 +3,11 @@
     class="min-h-screen flex items-center justify-center relative overflow-hidden"
     :style="{ backgroundColor: 'var(--bg-surface)' }"
   >
-    <!-- Decorative background elements removed to avoid blur -->
+    <!-- Decorative background elements removed to avoid-->
 
     <div class="container mx-auto px-4 relative z-10">
       <div class="max-w-[360px] w-full mx-auto group">
-        <!-- Glow wrapper removed to avoid blur -->
+        <!-- Glow wrapper removed to avoid -->
 
         <div
           class="card rounded-2xl p-6 sm:p-8 border shadow-2xl transition-all duration-300 relative overflow-hidden"

@@ -141,7 +141,7 @@
         <!-- Premium Stats Widgets -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
+            class="bg-zinc-900/40 border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Total Alumni</span>
             <div class="flex items-baseline gap-1.5">
               <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--text-heading)]">{{ stats.total }}</span>
@@ -149,7 +149,7 @@
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
+            class="bg-zinc-900/40 border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Melanjutkan Studi</span>
             <div class="flex items-baseline gap-1.5">
               <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-400">{{ stats.continuing }}</span>
@@ -157,7 +157,7 @@
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
+            class="bg-zinc-900/40 border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Tahun Lulus Terbanyak</span>
             <div class="flex items-baseline gap-1.5 flex-wrap">
               <span class="text-xl sm:text-2xl lg:text-3xl font-bold text-violet-400">{{ stats.topYear }}</span>
@@ -165,7 +165,7 @@
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
+            class="bg-zinc-900/40 border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5">
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Tujuan Terpopuler</span>
             <div class="flex items-end">
               <span class="text-sm sm:text-base lg:text-lg font-bold text-amber-400 truncate max-w-full leading-snug"

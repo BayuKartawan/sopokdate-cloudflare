@@ -42,25 +42,25 @@
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-5 rounded-xl border theme-bg-secondary theme-border mb-6">
           <div class="flex flex-col gap-1.5 min-w-[200px]">
             <label class="text-xs font-semibold theme-text-muted">Tahun Pelajaran</label>
-            <select
+            <UiSearchableSelect
               v-model="tapel"
-              class="theme-input px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500"
-            >
-              <option :value="tapelOption" v-for="tapelOption in tapelOptions" :key="tapelOption">
-                {{ tapelOption }}
-              </option>
-            </select>
+              :options="tapelOptions"
+              placeholder="Tahun Pelajaran"
+              search-placeholder="Cari tahun..."
+            />
           </div>
 
           <div class="flex flex-col gap-1.5 min-w-[200px]">
             <label class="text-xs font-semibold theme-text-muted">Semester</label>
-            <select
+            <UiSearchableSelect
               v-model="semester"
-              class="theme-input px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500"
-            >
-              <option value="Ganjil">Ganjil</option>
-              <option value="Genap">Genap</option>
-            </select>
+              :options="[
+                { label: 'Ganjil', value: 'Ganjil' },
+                { label: 'Genap', value: 'Genap' },
+              ]"
+              placeholder="Semester"
+              search-placeholder="Cari semester..."
+            />
           </div>
 
           <div class="flex items-end flex-1 sm:max-w-xs gap-1.5 min-w-[200px]">
@@ -154,15 +154,17 @@
           <!-- Add Asesmen Form (Hidden if Locked) -->
           <div v-if="!isLocked" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div class="grid grid-cols-1 sm:flex sm:items-center gap-2 flex-1">
-              <select
+              <UiSearchableSelect
                 v-model="newAsesmenPreset"
-                class="theme-input px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm"
-              >
-                <option value="Asesmen Harian">Asesmen Harian</option>
-                <option value="UTS">UTS (Ujian Tengah Semester)</option>
-                <option value="UAS">UAS (Ujian Akhir Semester)</option>
-                <option value="Lainnya">Lainnya (Input Manual)</option>
-              </select>
+                :options="[
+                  { label: 'Asesmen Harian', value: 'Asesmen Harian' },
+                  { label: 'UTS (Ujian Tengah Semester)', value: 'UTS' },
+                  { label: 'UAS (Ujian Akhir Semester)', value: 'UAS' },
+                  { label: 'Lainnya (Input Manual)', value: 'Lainnya' },
+                ]"
+                placeholder="Pilih Preset Asesmen"
+                search-placeholder="Cari preset..."
+              />
               
               <input
                 v-if="newAsesmenPreset === 'Lainnya'"

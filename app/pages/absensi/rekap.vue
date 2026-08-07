@@ -326,20 +326,15 @@
             <label class="text-xs font-semibold text-zinc-400"
               >Kelas / Rombel</label
             >
-            <select
+            <UiSearchableSelect
               v-model="selectedClass"
+              :options="dataKelas || []"
+              option-label="namaKelas"
+              option-value="idKelas"
+              placeholder="-- Pilih Kelas --"
+              search-placeholder="Cari kelas..."
               :disabled="isLoading || isWaliKelas"
-              class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <option value="" disabled>-- Pilih Kelas --</option>
-              <option
-                v-for="kelas in dataKelas"
-                :key="kelas.idKelas"
-                :value="kelas.idKelas"
-              >
-                {{ kelas.namaKelas }}
-              </option>
-            </select>
+            />
           </div>
 
           <!-- Tahun Pelajaran -->
@@ -347,29 +342,29 @@
             <label class="text-xs font-semibold text-zinc-400"
               >Tahun Pelajaran</label
             >
-            <select
+            <UiSearchableSelect
               v-model="selectedTapel"
+              :options="tapelOptions"
+              placeholder="Tahun Pelajaran"
+              search-placeholder="Cari tahun..."
               :disabled="isLoading"
-              class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-            >
-              <option v-for="opt in tapelOptions" :key="opt" :value="opt">
-                {{ opt }}
-              </option>
-            </select>
+            />
           </div>
 
           <!-- Tipe Rekap -->
           <div class="flex flex-col gap-1.5">
             <label class="text-xs font-semibold text-zinc-400">Tipe Rekap</label>
-            <select
+            <UiSearchableSelect
               v-model="rekapType"
+              :options="[
+                { label: 'Per Semester', value: 'semester' },
+                { label: 'Per Bulan', value: 'bulanan' },
+                { label: 'Per Minggu / Kustom', value: 'mingguan' },
+              ]"
+              placeholder="Tipe Rekap"
+              search-placeholder="Cari tipe..."
               :disabled="isLoading"
-              class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-            >
-              <option value="semester">Per Semester</option>
-              <option value="bulanan">Per Bulan</option>
-              <option value="mingguan">Per Minggu / Kustom</option>
-            </select>
+            />
           </div>
 
           <!-- Sub Filter (Semester / Bulan / Rentang Tanggal) -->
@@ -377,28 +372,28 @@
             <!-- Jika Tipe Rekap = Semester -->
             <template v-if="rekapType === 'semester'">
               <label class="text-xs font-semibold text-zinc-400">Semester</label>
-              <select
+              <UiSearchableSelect
                 v-model="selectedSemester"
+                :options="[
+                  { label: 'Ganjil', value: 'Ganjil' },
+                  { label: 'Genap', value: 'Genap' },
+                ]"
+                placeholder="Semester"
+                search-placeholder="Cari semester..."
                 :disabled="isLoading"
-                class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-              >
-                <option value="Ganjil">Ganjil</option>
-                <option value="Genap">Genap</option>
-              </select>
+              />
             </template>
 
             <!-- Jika Tipe Rekap = Bulanan -->
             <template v-else-if="rekapType === 'bulanan'">
               <label class="text-xs font-semibold text-zinc-400">Pilih Bulan</label>
-              <select
+              <UiSearchableSelect
                 v-model="selectedMonth"
+                :options="monthNames.map((name, index) => ({ label: name, value: index + 1 }))"
+                placeholder="Pilih Bulan"
+                search-placeholder="Cari bulan..."
                 :disabled="isLoading"
-                class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-              >
-                <option v-for="(name, index) in monthNames" :key="index" :value="index + 1">
-                  {{ name }}
-                </option>
-              </select>
+              />
             </template>
 
             <!-- Jika Tipe Rekap = Mingguan / Kustom -->
@@ -602,28 +597,28 @@
           <!-- Tahun Pelajaran -->
           <div class="flex flex-col gap-1.5">
             <label class="text-xs font-semibold text-zinc-400">Tahun Pelajaran</label>
-            <select
+            <UiSearchableSelect
               v-model="statusTapel"
+              :options="tapelOptions"
+              placeholder="Tahun Pelajaran"
+              search-placeholder="Cari tahun..."
               :disabled="isLoadingStatus"
-              class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-            >
-              <option v-for="opt in tapelOptions" :key="opt" :value="opt">
-                {{ opt }}
-              </option>
-            </select>
+            />
           </div>
 
           <!-- Semester -->
           <div class="flex flex-col gap-1.5">
             <label class="text-xs font-semibold text-zinc-400">Semester</label>
-            <select
+            <UiSearchableSelect
               v-model="statusSemester"
+              :options="[
+                { label: 'Ganjil', value: 'Ganjil' },
+                { label: 'Genap', value: 'Genap' },
+              ]"
+              placeholder="Semester"
+              search-placeholder="Cari semester..."
               :disabled="isLoadingStatus"
-              class="h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-            >
-              <option value="Ganjil">Ganjil</option>
-              <option value="Genap">Genap</option>
-            </select>
+            />
           </div>
         </div>
 
@@ -793,7 +788,7 @@
           >
             <!-- Backdrop -->
             <div
-              class="absolute inset-0 bg-black/75 backdrop-blur-sm"
+              class="absolute inset-0 bg-black/75"
               @click="showMissingModal = false"
             ></div>
 
@@ -836,20 +831,15 @@
                 <!-- Pilihan Kelas -->
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-semibold theme-text-muted">Pilih Kelas</label>
-                  <select
+                  <UiSearchableSelect
                     v-model="missingSelectedClass"
+                    :options="accessibleClassesForMissing"
+                    option-label="nama_kelas"
+                    option-value="id_kelas"
+                    placeholder="-- Pilih Kelas --"
+                    search-placeholder="Cari kelas..."
                     :disabled="isWaliKelas && userRole === 'guru'"
-                    class="h-9 px-3 rounded-lg theme-border border theme-bg theme-text text-xs outline-none focus:ring-2 focus:ring-emerald-500"
-                  >
-                    <option value="" disabled>-- Pilih Kelas --</option>
-                    <option
-                      v-for="k in accessibleClassesForMissing"
-                      :key="k.id_kelas"
-                      :value="k.id_kelas"
-                    >
-                      {{ k.nama_kelas }}
-                    </option>
-                  </select>
+                  />
                 </div>
 
                 <!-- Summary Status -->

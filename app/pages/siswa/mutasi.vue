@@ -60,7 +60,7 @@
         <!-- Premium Stats Widgets -->
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5"
+            class="bg-zinc-900/40 border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5"
           >
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Total Mutasi</span>
             <div class="flex items-baseline gap-1.5">
@@ -69,7 +69,7 @@
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5"
+            class="bg-zinc-900/40 border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5"
           >
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Pindah Keluar</span>
             <div class="flex items-baseline gap-1.5">
@@ -78,7 +78,7 @@
             </div>
           </div>
           <div
-            class="bg-zinc-900/40 backdrop-blur-md border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5 col-span-2 lg:col-span-1"
+            class="bg-zinc-900/40 border border-zinc-800/60 p-3.5 sm:p-4 rounded-xl flex flex-col justify-between gap-1.5 col-span-2 lg:col-span-1"
           >
             <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500 leading-tight">Jenis Mutasi Terbanyak</span>
             <div class="flex items-baseline gap-1.5 flex-wrap">

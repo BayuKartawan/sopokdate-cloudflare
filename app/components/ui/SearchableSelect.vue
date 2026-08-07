@@ -3,11 +3,12 @@
     <!-- Trigger Button -->
     <button ref="triggerRef" type="button" @click="toggleDropdown" :class="[
       'w-full text-left rounded-lg border px-3 py-1.5 text-[11px] transition-all flex items-center justify-between !h-8',
+      disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer',
     ]" :style="{
         backgroundColor: 'var(--bg-secondary)',
         borderColor: 'var(--border-secondary)',
         color: 'var(--text-primary)',
-      }">
+      }" :disabled="disabled">
       <span class="truncate">{{ selectedLabel || placeholder }}</span>
       <ChevronDown class="w-3 h-3 ml-1" :style="{ color: 'var(--text-secondary)' }" stroke-width="2.5" />
     </button>
@@ -41,13 +42,13 @@
         <!-- Options List -->
         <div class="max-h-60 overflow-y-auto custom-scrollbar">
           <div v-for="(option, idx) in filteredOptions" :key="idx" @click="selectOption(option)" :class="[
-            'px-3 py-2 text-[11px] cursor-pointer transition-colors flex items-center justify-between',
+            'px-3 py-2 text-[11px] cursor-pointer transition-colors flex items-start justify-between gap-2',
             isSelected(option)
               ? 'bg-emerald-500/20 text-emerald-500 dark:text-emerald-400'
               : 'hover:bg-[var(--bg-secondary)]',
           ]" :style="!isSelected(option) ? { color: 'var(--text-primary)' } : {}">
-            <span class="truncate">{{ getOptionLabel(option) }}</span>
-            <Check v-if="isSelected(option)" class="w-3 h-3" stroke-width="3" />
+            <span class="break-words whitespace-normal leading-relaxed">{{ getOptionLabel(option) }}</span>
+            <Check v-if="isSelected(option)" class="w-3 h-3 shrink-0 mt-0.5" stroke-width="3" />
           </div>
           <div v-if="filteredOptions.length === 0" class="px-3 py-4 text-center text-[11px] italic"
             :style="{ color: 'var(--text-muted)' }">
@@ -86,6 +87,10 @@ const props = defineProps({
   },
   optionLabel: String,
   optionValue: String,
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits<{
@@ -128,6 +133,7 @@ const updatePosition = (): void => {
 };
 
 const toggleDropdown = (): void => {
+  if (props.disabled) return;
   isOpen.value = !isOpen.value;
   if (isOpen.value) {
     searchQuery.value = "";

@@ -9,8 +9,8 @@
           borderColor: 'var(--border-primary)',
         }">
         <!-- Background Glow effects -->
-        <div class="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-        <div class="absolute -left-16 -bottom-16 w-48 h-48 rounded-full bg-violet-500/10 dark:bg-violet-500/5 blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
+        <div class="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 group-hover:scale-110 transition-transform duration-500"></div>
+        <div class="absolute -left-16 -bottom-16 w-48 h-48 rounded-full bg-violet-500/10 dark:bg-violet-500/5 group-hover:scale-110 transition-transform duration-500"></div>
 
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
           <div class="flex items-center gap-4">
@@ -228,7 +228,7 @@
           >
             <!-- Backdrop -->
             <div
-              class="absolute inset-0 bg-black/75 backdrop-blur-sm"
+              class="absolute inset-0 bg-black/75"
               @click="showMissingModal = false"
             ></div>
 
@@ -401,7 +401,7 @@
           >
             <!-- Backdrop -->
             <div
-              class="absolute inset-0 bg-black/75 backdrop-blur-sm"
+              class="absolute inset-0 bg-black/75"
               @click="showScheduleModal = false"
             ></div>
 

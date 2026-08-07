@@ -3,7 +3,7 @@
     <Transition name="modal-fade">
       <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="$emit('close')">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+        <div class="absolute inset-0 bg-black/60" />
 
         <!-- Modal Content -->
         <div
@@ -44,7 +44,7 @@
               <table class="w-full text-left border-collapse text-xs sm:text-sm text-zinc-300 min-w-[500px]">
                 <thead>
                   <tr
-                    class="border-b border-zinc-700/80 bg-zinc-800/50 text-zinc-400 font-medium sticky top-0 z-10 backdrop-blur-md">
+                    class="border-b border-zinc-700/80 bg-zinc-800/50 text-zinc-400 font-medium sticky top-0 z-10">
                     <th class="p-3 w-10 text-center">
                       <input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll"
                         class="rounded bg-zinc-800 border-zinc-600 text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer" />

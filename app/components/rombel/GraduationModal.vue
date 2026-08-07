@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="modal-fade">
-      <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
         @click.self="$emit('close')">
         <!-- Modal Content -->
         <div

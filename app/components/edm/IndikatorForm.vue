@@ -70,13 +70,12 @@
               <div class="sm:col-span-2">
                 <label class="block text-xs font-semibold mb-1.5" style="color: var(--text-secondary)">Bagian Target
                   *</label>
-                <select v-model="formItem.bagian_target"
-                  class="w-full rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-                  style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input)">
-                  <option v-for="b in EDM_BAGIAN_LIST" :key="b.code" :value="b.code">
-                    Bagian {{ b.code }}: {{ b.title }}
-                  </option>
-                </select>
+                <UiSearchableSelect
+                  v-model="formItem.bagian_target"
+                  :options="EDM_BAGIAN_LIST.map(b => ({ label: `Bagian ${b.code}: ${b.title}`, value: b.code }))"
+                  placeholder="Pilih Bagian Target"
+                  search-placeholder="Cari bagian..."
+                />
               </div>
 
               <div>
@@ -265,6 +264,7 @@
 import { ref, reactive, computed, watch, nextTick } from "vue";
 import { EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
 import { ArrowLeft, Save, Sparkles, Eye, FileCheck } from "lucide-vue-next";
+import UiSearchableSelect from "~/components/ui/SearchableSelect.vue";
 
 interface FormItem {
   bagian_target: string;

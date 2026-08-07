@@ -75,19 +75,14 @@
           class="flex flex-col gap-1.5 w-full sm:w-72"
         >
           <label class="text-xs font-semibold text-zinc-400">Pilih Kelas</label>
-          <select
+          <UiSearchableSelect
             v-model="selectedKelas"
-            class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-          >
-            <option value="">-- Pilih Kelas --</option>
-            <option
-              v-for="k in sortedClasses"
-              :key="k.id_kelas"
-              :value="k.id_kelas"
-            >
-              {{ k.nama_kelas || k.id_kelas }}
-            </option>
-          </select>
+            :options="sortedClasses"
+            option-label="nama_kelas"
+            option-value="id_kelas"
+            placeholder="-- Pilih Kelas --"
+            search-placeholder="Cari kelas..."
+          />
         </div>
 
         <!-- Guru Selector -->
@@ -98,15 +93,14 @@
           <label class="text-xs font-semibold text-zinc-400"
             >Pilih Guru Pengajar</label
           >
-          <select
+          <UiSearchableSelect
             v-model="selectedGuru"
-            class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-          >
-            <option value="">-- Pilih Guru --</option>
-            <option v-for="g in gtkData" :key="g.id" :value="g.id">
-              {{ g.nama_lengkap }}
-            </option>
-          </select>
+            :options="gtkData || []"
+            option-label="nama_lengkap"
+            option-value="id"
+            placeholder="-- Pilih Guru --"
+            search-placeholder="Cari nama guru..."
+          />
         </div>
 
         <!-- Hari Selector -->
@@ -115,15 +109,12 @@
           class="flex flex-col gap-1.5 w-full sm:w-72"
         >
           <label class="text-xs font-semibold text-zinc-400">Pilih Hari</label>
-          <select
+          <UiSearchableSelect
             v-model="selectedHari"
-            class="w-full h-10 px-3 rounded-lg border border-zinc-700/50 bg-zinc-900 text-zinc-100 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-          >
-            <option value="">-- Pilih Hari --</option>
-            <option v-for="d in days" :key="d" :value="d">
-              {{ d }}
-            </option>
-          </select>
+            :options="days"
+            placeholder="-- Pilih Hari --"
+            search-placeholder="Cari hari..."
+          />
         </div>
 
         <!-- Search GTK (only for rekap tab) -->
