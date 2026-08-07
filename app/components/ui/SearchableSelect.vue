@@ -2,7 +2,7 @@
   <div class="relative searchable-select" ref="dropdownRef">
     <!-- Trigger Button -->
     <button ref="triggerRef" type="button" @click="toggleDropdown" :class="[
-      'w-full text-left rounded-lg border px-3 py-1.5 text-[11px] transition-all flex items-center justify-between !h-8',
+      'w-full text-left rounded-lg border pl-4 pr-3 py-2 text-sm transition-all flex items-center justify-between',
       disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer',
     ]" :style="{
         backgroundColor: 'var(--bg-secondary)',

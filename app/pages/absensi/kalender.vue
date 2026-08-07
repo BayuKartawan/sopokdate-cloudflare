@@ -55,14 +55,12 @@
           <label class="text-xs font-semibold theme-text-muted"
             >Tahun Pelajaran</label
           >
-          <select
+          <SearchableSelect
             v-model="selectedTapel"
-            class="h-10 px-3 rounded-lg theme-input theme-border-input border outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
-          >
-            <option v-for="opt in tapelOptions" :key="opt" :value="opt">
-              {{ opt }}
-            </option>
-          </select>
+            :options="tapelOptions"
+            placeholder="Pilih Tahun Pelajaran..."
+            search-placeholder="Cari tahun..."
+          />
         </div>
 
         <!-- Weekly Holiday Setting -->
@@ -71,25 +69,22 @@
             >Hari Libur Mingguan</label
           >
           <div class="flex items-center gap-2">
-            <select
+            <SearchableSelect
               v-model="hariLiburMingguan"
+              :options="hariLiburOptions"
+              option-label="label"
+              option-value="value"
+              placeholder="Pilih Hari..."
+              search-placeholder="Cari hari..."
               :disabled="!isAdmin || isSavingSettings"
-              class="h-10 px-3 rounded-lg theme-input theme-border-input border outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm flex-1 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <option :value="0">Minggu</option>
-              <option :value="1">Senin</option>
-              <option :value="2">Selasa</option>
-              <option :value="3">Rabu</option>
-              <option :value="4">Kamis</option>
-              <option :value="5">Jumat</option>
-              <option :value="6">Sabtu</option>
-            </select>
+              class="flex-1"
+            />
             <BaseButton
               v-if="isAdmin"
               :text="isSavingSettings ? '...' : 'Simpan'"
               @click="saveWeeklyHoliday"
               :disabled="isSavingSettings"
-              class="!bg-[var(--bg-tertiary)] !text-[var(--text-primary)] hover:!bg-[var(--bg-secondary)] !h-10 !px-4 !py-0 shrink-0"
+              class="!bg-[var(--bg-tertiary)] !text-[var(--text-primary)] hover:!bg-[var(--bg-secondary)] !px-4 shrink-0"
             />
           </div>
         </div>
@@ -687,6 +682,7 @@ import {
 } from "lucide-vue-next";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
+import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
@@ -721,6 +717,16 @@ const tapelOptions = computed(() => {
   }
   return options;
 });
+
+const hariLiburOptions = [
+  { label: "Minggu", value: 0 },
+  { label: "Senin", value: 1 },
+  { label: "Selasa", value: 2 },
+  { label: "Rabu", value: 3 },
+  { label: "Kamis", value: 4 },
+  { label: "Jumat", value: 5 },
+  { label: "Sabtu", value: 6 },
+];
 
 // Modal Fields (Includes start and end dates)
 const modalFields = [

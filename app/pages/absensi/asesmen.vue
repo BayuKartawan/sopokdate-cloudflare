@@ -4,17 +4,13 @@
       <!-- Section Header -->
       <div class="flex flex-col gap-4 mb-6">
         <div>
-          <h2
-            class="text-xl sm:text-2xl font-bold flex items-center gap-2 flex-wrap"
-            :style="{ color: 'var(--text-heading)' }"
-          >
+          <h2 class="text-xl sm:text-2xl font-bold flex items-center gap-2 flex-wrap"
+            :style="{ color: 'var(--text-heading)' }">
             <CalendarCheck class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             <span>Asesmen Siswa</span>
             <!-- Unsaved warning badge -->
-            <span
-              v-if="hasUnsavedChanges"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20"
-            >
+            <span v-if="hasUnsavedChanges"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20">
               <span class="w-2 h-2 rounded-full bg-amber-600 dark:bg-amber-400"></span>
               Ada Perubahan (Belum Simpan)
             </span>
@@ -26,52 +22,39 @@
       </div>
 
       <!-- Warning Banner if Edit Lock is Active -->
-      <div
-        v-if="isLocked && currentStep > 1"
-        class="p-4 bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20 text-amber-800 dark:text-amber-400 rounded-xl flex items-center gap-3 mb-6 text-sm"
-      >
+      <div v-if="isLocked && currentStep > 1"
+        class="p-4 bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20 text-amber-800 dark:text-amber-400 rounded-xl flex items-center gap-3 mb-6 text-sm">
         <AlertTriangle class="w-5 h-5 shrink-0" />
         <div>
-          <span class="font-bold">Mode Lihat Saja:</span> Pengeditan asesmen semester lampau/mendatang dikunci. Hanya Admin yang dapat mengubah data di luar semester berjalan.
+          <span class="font-bold">Mode Lihat Saja:</span> Pengeditan asesmen semester lampau/mendatang dikunci. Hanya
+          Admin yang dapat mengubah data di luar semester berjalan.
         </div>
       </div>
 
       <!-- STEP 1: PILIH MAPEL -->
       <div v-if="currentStep === 1">
         <!-- Filter Tapel & Semester -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-5 rounded-xl border theme-bg-secondary theme-border mb-6">
+        <div
+          class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-5 rounded-xl border theme-bg-secondary theme-border mb-6">
           <div class="flex flex-col gap-1.5 min-w-[200px]">
             <label class="text-xs font-semibold theme-text-muted">Tahun Pelajaran</label>
-            <UiSearchableSelect
-              v-model="tapel"
-              :options="tapelOptions"
-              placeholder="Tahun Pelajaran"
-              search-placeholder="Cari tahun..."
-            />
+            <UiSearchableSelect v-model="tapel" :options="tapelOptions" placeholder="Tahun Pelajaran"
+              search-placeholder="Cari tahun..." />
           </div>
 
           <div class="flex flex-col gap-1.5 min-w-[200px]">
             <label class="text-xs font-semibold theme-text-muted">Semester</label>
-            <UiSearchableSelect
-              v-model="semester"
-              :options="[
-                { label: 'Ganjil', value: 'Ganjil' },
-                { label: 'Genap', value: 'Genap' },
-              ]"
-              placeholder="Semester"
-              search-placeholder="Cari semester..."
-            />
+            <UiSearchableSelect v-model="semester" :options="[
+              { label: 'Ganjil', value: 'Ganjil' },
+              { label: 'Genap', value: 'Genap' },
+            ]" placeholder="Semester" search-placeholder="Cari semester..." />
           </div>
 
           <div class="flex items-end flex-1 sm:max-w-xs gap-1.5 min-w-[200px]">
             <div class="flex flex-col gap-1.5 w-full">
               <label class="text-xs font-semibold theme-text-muted">Cari Mapel / Kelas</label>
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Cari mata pelajaran atau kelas..."
-                class="theme-input px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full"
-              />
+              <input v-model="searchQuery" type="text" placeholder="Cari mata pelajaran atau kelas..."
+                class="theme-input px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 w-full" />
             </div>
           </div>
         </div>
@@ -83,25 +66,24 @@
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="filteredMapels.length === 0" class="border theme-border rounded-xl p-8 text-center theme-bg-secondary">
+        <div v-else-if="filteredMapels.length === 0"
+          class="border theme-border rounded-xl p-8 text-center theme-bg-secondary">
           <CalendarDays class="w-12 h-12 mx-auto theme-text-faint mb-3" />
           <h3 class="font-bold text-lg mb-1">Tidak Ada Mapel Terjadwal</h3>
           <p class="theme-text-muted text-sm max-w-md mx-auto">
-            Tidak ditemukan jadwal mata pelajaran yang aktif untuk semester terpilih, atau belum ada alokasi jam mengajar yang diatur.
+            Tidak ditemukan jadwal mata pelajaran yang aktif untuk semester terpilih, atau belum ada alokasi jam
+            mengajar yang diatur.
           </p>
         </div>
 
         <!-- List Mapel Grid -->
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div
-            v-for="mapel in filteredMapels"
-            :key="mapel.alokasi_id"
-            @click="selectMapel(mapel)"
-            class="border theme-border rounded-xl p-5 theme-bg theme-bg-card-hover cursor-pointer transition-colors flex flex-col justify-between"
-          >
+          <div v-for="mapel in filteredMapels" :key="mapel.alokasi_id" @click="selectMapel(mapel)"
+            class="border theme-border rounded-xl p-5 theme-bg theme-bg-card-hover cursor-pointer transition-colors flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between gap-2 mb-2">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10">
+                <span
+                  class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10">
                   Kelas {{ mapel.nama_kelas }}
                 </span>
                 <span class="text-xs theme-text-muted">
@@ -115,7 +97,7 @@
                 Kode: {{ mapel.kode_mapel }}
               </p>
             </div>
-            
+
             <div class="border-t theme-border pt-3 mt-4 flex items-center justify-between text-xs theme-text-muted">
               <span class="truncate">
                 Guru: <span class="font-semibold">{{ mapel.nama_guru }}</span>
@@ -129,13 +111,12 @@
       <!-- STEP 2: KELOLA JENIS ASESMEN -->
       <div v-else-if="currentStep === 2">
         <!-- Breadcrumb / Header Info Mapel & Add Form -->
-        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-5 rounded-xl border theme-bg-secondary theme-border mb-6">
+        <div
+          class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-5 rounded-xl border theme-bg-secondary theme-border mb-6">
           <div class="flex items-center gap-3">
-            <button
-              @click="backToStep1"
+            <button @click="backToStep1"
               class="p-2 rounded-lg border theme-border theme-bg hover:theme-bg-secondary transition-colors"
-              title="Kembali ke Daftar Mapel"
-            >
+              title="Kembali ke Daftar Mapel">
               <ChevronLeft class="w-5 h-5" />
             </button>
             <div>
@@ -154,31 +135,19 @@
           <!-- Add Asesmen Form (Hidden if Locked) -->
           <div v-if="!isLocked" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div class="grid grid-cols-1 sm:flex sm:items-center gap-2 flex-1">
-              <UiSearchableSelect
-                v-model="newAsesmenPreset"
-                :options="[
-                  { label: 'Asesmen Harian', value: 'Asesmen Harian' },
-                  { label: 'UTS (Ujian Tengah Semester)', value: 'UTS' },
-                  { label: 'UAS (Ujian Akhir Semester)', value: 'UAS' },
-                  { label: 'Lainnya (Input Manual)', value: 'Lainnya' },
-                ]"
-                placeholder="Pilih Preset Asesmen"
-                search-placeholder="Cari preset..."
-              />
-              
-              <input
-                v-if="newAsesmenPreset === 'Lainnya'"
-                v-model="newAsesmenCustom"
-                type="text"
-                placeholder="Nama Asesmen..."
-                class="theme-input px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm"
-              />
+              <UiSearchableSelect v-model="newAsesmenPreset" :options="[
+                { label: 'Asesmen Harian', value: 'Asesmen Harian' },
+                { label: 'UTS (Ujian Tengah Semester)', value: 'UTS' },
+                { label: 'UAS (Ujian Akhir Semester)', value: 'UAS' },
+                { label: 'Lainnya (Input Manual)', value: 'Lainnya' },
+              ]" placeholder="Pilih Preset Asesmen" search-placeholder="Cari preset..." />
 
-              <button
-                @click="addJenisAsesmen"
-                :disabled="isAddingJenis"
-                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5"
-              >
+              <input v-if="newAsesmenPreset === 'Lainnya'" v-model="newAsesmenCustom" type="text"
+                placeholder="Nama Asesmen..."
+                class="theme-input px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm" />
+
+              <button @click="addJenisAsesmen" :disabled="isAddingJenis"
+                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5">
                 <Loader2 v-if="isAddingJenis" class="w-4 h-4 animate-spin" />
                 <Plus v-else class="w-4 h-4" />
                 <span>Tambah</span>
@@ -194,7 +163,8 @@
         </div>
 
         <!-- Empty State Jenis Asesmen -->
-        <div v-else-if="jenisAsesmens.length === 0" class="border theme-border rounded-xl p-8 text-center theme-bg-secondary">
+        <div v-else-if="jenisAsesmens.length === 0"
+          class="border theme-border rounded-xl p-8 text-center theme-bg-secondary">
           <GraduationCap class="w-12 h-12 mx-auto theme-text-faint mb-3" />
           <h3 class="font-bold text-lg mb-1">Belum Ada Asesmen</h3>
           <p class="theme-text-muted text-sm max-w-md mx-auto">
@@ -204,23 +174,17 @@
 
         <!-- List Jenis Asesmen Grid -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div
-            v-for="jenis in jenisAsesmens"
-            :key="jenis.id"
-            class="border theme-border rounded-xl p-5 theme-bg flex flex-col justify-between"
-          >
+          <div v-for="jenis in jenisAsesmens" :key="jenis.id"
+            class="border theme-border rounded-xl p-5 theme-bg flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between gap-2 mb-3">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10">
+                <span
+                  class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10">
                   {{ getJenisBadge(jenis.nama_asesmen) }}
                 </span>
-                
-                <button
-                  v-if="!isLocked"
-                  @click="deleteJenisAsesmen(jenis)"
-                  class="p-1 rounded text-red-500 hover:bg-red-500/10 transition-colors"
-                  title="Hapus Asesmen"
-                >
+
+                <button v-if="!isLocked" @click="deleteJenisAsesmen(jenis)"
+                  class="p-1 rounded text-red-500 hover:bg-red-500/10 transition-colors" title="Hapus Asesmen">
                   <Trash2 class="w-4 h-4" />
                 </button>
               </div>
@@ -228,13 +192,14 @@
               <h4 class="font-bold text-lg mb-1 leading-tight" :style="{ color: 'var(--text-heading)' }">
                 {{ jenis.nama_asesmen }}
               </h4>
-              
+
               <p class="text-xs theme-text-secondary mb-3">
                 <span class="font-semibold">Materi:</span> {{ jenis.materi || 'Tidak ada cakupan materi' }}
               </p>
-              
+
               <p class="text-xs theme-text-muted">
-                Terisi: <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ jenis.jumlah_nilai }} siswa</span>
+                Terisi: <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ jenis.jumlah_nilai }}
+                  siswa</span>
               </p>
             </div>
 
@@ -242,11 +207,9 @@
               <span class="text-[11px] theme-text-muted">
                 Dibuat: {{ formatDate(jenis.created_at) }}
               </span>
-              
-              <button
-                @click="selectJenisAsesmen(jenis)"
-                class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg transition-colors flex items-center gap-1"
-              >
+
+              <button @click="selectJenisAsesmen(jenis)"
+                class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg transition-colors flex items-center gap-1">
                 <span>{{ isLocked ? 'Lihat Nilai' : 'Input Nilai' }}</span>
                 <ChevronRight class="w-3.5 h-3.5" />
               </button>
@@ -258,13 +221,12 @@
       <!-- STEP 3: INPUT NILAI -->
       <div v-else-if="currentStep === 3">
         <!-- Header Info Asesmen & Back Button -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-xl border theme-bg-secondary theme-border mb-6">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-xl border theme-bg-secondary theme-border mb-6">
           <div class="flex items-center gap-3">
-            <button
-              @click="backToStep2"
+            <button @click="backToStep2"
               class="p-2 rounded-lg border theme-border theme-bg hover:theme-bg-secondary transition-colors"
-              title="Kembali ke Kategori Asesmen"
-            >
+              title="Kembali ke Kategori Asesmen">
               <ChevronLeft class="w-5 h-5" />
             </button>
             <div>
@@ -275,24 +237,22 @@
                 {{ selectedJenis?.nama_asesmen }}
               </h3>
               <p class="text-xs theme-text-muted mt-0.5">
-                Mapel: {{ selectedMapel?.nama_mapel }} | Kelas: {{ selectedMapel?.nama_kelas }} | Materi: {{ selectedJenis?.materi || '-' }}
+                Mapel: {{ selectedMapel?.nama_mapel }} | Kelas: {{ selectedMapel?.nama_kelas }} | Materi: {{
+                  selectedJenis?.materi || '-' }}
               </p>
             </div>
           </div>
 
           <!-- Actions (Hidden/Disabled if Locked) -->
           <div class="flex items-center gap-3">
-            <button
-              v-if="!isLocked"
-              @click="saveGrades"
-              :disabled="isSavingGrades || !hasUnsavedChanges"
-              class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5"
-            >
+            <button v-if="!isLocked" @click="saveGrades" :disabled="isSavingGrades || !hasUnsavedChanges"
+              class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5">
               <Loader2 v-if="isSavingGrades" class="w-4 h-4 animate-spin" />
               <Save v-else class="w-4 h-4" />
               <span>Simpan Perubahan</span>
             </button>
-            <span v-else class="text-xs font-semibold theme-text-muted theme-bg-secondary px-3 py-1.5 border theme-border rounded-lg">
+            <span v-else
+              class="text-xs font-semibold theme-text-muted theme-bg-secondary px-3 py-1.5 border theme-border rounded-lg">
               Mode Baca
             </span>
           </div>
@@ -304,14 +264,10 @@
             <span>Cakupan Materi Pembelajaran</span>
             <span class="text-red-500">* (Wajib diisi)</span>
           </label>
-          <input
-            v-model="selectedJenis.materi"
-            type="text"
-            placeholder="Tuliskan cakupan materi yang diujikan dalam asesmen ini..."
-            :disabled="isLocked"
+          <input v-model="selectedJenis.materi" type="text"
+            placeholder="Tuliskan cakupan materi yang diujikan dalam asesmen ini..." :disabled="isLocked"
             @input="markAsChanged"
-            class="theme-input w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:opacity-75 disabled:cursor-not-allowed"
-          />
+            class="theme-input w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:opacity-75 disabled:cursor-not-allowed" />
         </div>
 
         <!-- Loader -->
@@ -321,11 +277,13 @@
         </div>
 
         <!-- Empty State Siswa -->
-        <div v-else-if="studentGrades.length === 0" class="border theme-border rounded-xl p-8 text-center theme-bg-secondary">
+        <div v-else-if="studentGrades.length === 0"
+          class="border theme-border rounded-xl p-8 text-center theme-bg-secondary">
           <Users class="w-12 h-12 mx-auto theme-text-faint mb-3" />
           <h3 class="font-bold text-lg mb-1">Tidak Ada Siswa Terdaftar</h3>
           <p class="theme-text-muted text-sm max-w-md mx-auto">
-            Tidak ditemukan siswa yang terdaftar di kelas {{ selectedMapel?.nama_kelas }} untuk tahun pelajaran {{ tapel }}.
+            Tidak ditemukan siswa yang terdaftar di kelas {{ selectedMapel?.nama_kelas }} untuk tahun pelajaran {{ tapel
+            }}.
           </p>
         </div>
 
@@ -344,11 +302,8 @@
                 </tr>
               </thead>
               <tbody class="theme-text text-sm">
-                <tr
-                  v-for="(student, index) in studentGrades"
-                  :key="student.siswa_id"
-                  :class="[index > 0 ? 'border-t theme-border' : '', 'hover:theme-bg-secondary transition-colors']"
-                >
+                <tr v-for="(student, index) in studentGrades" :key="student.siswa_id"
+                  :class="[index > 0 ? 'border-t theme-border' : '', 'hover:theme-bg-secondary transition-colors']">
                   <td class="py-3 px-4 text-center theme-text-faint font-mono">{{ index + 1 }}</td>
                   <td class="py-3 px-4 font-semibold theme-text">
                     {{ student.nama }}
@@ -357,26 +312,14 @@
                     {{ student.nisn || student.nis_lokal || '-' }}
                   </td>
                   <td class="py-3 px-4 text-center">
-                    <input
-                      v-model.number="student.nilai"
-                      type="number"
-                      min="0"
-                      max="100"
-                      placeholder="-"
-                      @input="markAsChanged"
-                      :disabled="isLocked"
-                      class="theme-input w-20 px-2 py-1.5 border rounded text-center focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:opacity-70 disabled:cursor-not-allowed"
-                    />
+                    <input v-model.number="student.nilai" type="number" min="0" max="100" placeholder="-"
+                      @input="markAsChanged" :disabled="isLocked"
+                      class="theme-input w-20 px-2 py-1.5 border rounded text-center focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:opacity-70 disabled:cursor-not-allowed" />
                   </td>
                   <td class="py-3 px-4">
-                    <input
-                      v-model="student.catatan"
-                      type="text"
-                      placeholder="Masukkan catatan opsional..."
-                      @input="markAsChanged"
-                      :disabled="isLocked"
-                      class="theme-input w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:opacity-70 disabled:cursor-not-allowed"
-                    />
+                    <input v-model="student.catatan" type="text" placeholder="Masukkan catatan opsional..."
+                      @input="markAsChanged" :disabled="isLocked"
+                      class="theme-input w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:opacity-70 disabled:cursor-not-allowed" />
                   </td>
                 </tr>
               </tbody>
@@ -385,11 +328,8 @@
 
           <!-- MOBILE CARDS VIEW -->
           <div class="grid grid-cols-1 gap-4 md:hidden">
-            <div
-              v-for="(student, index) in studentGrades"
-              :key="student.siswa_id"
-              class="border theme-border rounded-xl p-4 theme-bg flex flex-col gap-3"
-            >
+            <div v-for="(student, index) in studentGrades" :key="student.siswa_id"
+              class="border theme-border rounded-xl p-4 theme-bg flex flex-col gap-3">
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
                   <div class="flex items-center gap-1.5">
@@ -407,28 +347,16 @@
               <div class="grid grid-cols-3 items-center gap-3 pt-2 border-t theme-border">
                 <div class="col-span-1">
                   <label class="text-xs font-semibold theme-text-muted block mb-1">Nilai (0-100)</label>
-                  <input
-                    v-model.number="student.nilai"
-                    type="number"
-                    min="0"
-                    max="100"
-                    placeholder="-"
-                    @input="markAsChanged"
-                    :disabled="isLocked"
-                    class="theme-input w-full px-2 py-1.5 border rounded text-center focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:opacity-70 disabled:cursor-not-allowed"
-                  />
+                  <input v-model.number="student.nilai" type="number" min="0" max="100" placeholder="-"
+                    @input="markAsChanged" :disabled="isLocked"
+                    class="theme-input w-full px-2 py-1.5 border rounded text-center focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:opacity-70 disabled:cursor-not-allowed" />
                 </div>
-                
+
                 <div class="col-span-2">
                   <label class="text-xs font-semibold theme-text-muted block mb-1">Catatan</label>
-                  <input
-                    v-model="student.catatan"
-                    type="text"
-                    placeholder="Catatan..."
-                    @input="markAsChanged"
+                  <input v-model="student.catatan" type="text" placeholder="Catatan..." @input="markAsChanged"
                     :disabled="isLocked"
-                    class="theme-input w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:opacity-70 disabled:cursor-not-allowed"
-                  />
+                    class="theme-input w-full px-3 py-1.5 border rounded focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm disabled:opacity-70 disabled:cursor-not-allowed" />
                 </div>
               </div>
             </div>
@@ -440,12 +368,8 @@
               Menampilkan <span class="font-bold theme-text-secondary">{{ studentGrades.length }}</span> siswa
             </span>
 
-            <button
-              v-if="!isLocked"
-              @click="saveGrades"
-              :disabled="isSavingGrades || !hasUnsavedChanges"
-              class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5"
-            >
+            <button v-if="!isLocked" @click="saveGrades" :disabled="isSavingGrades || !hasUnsavedChanges"
+              class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5">
               <Loader2 v-if="isSavingGrades" class="w-4 h-4 animate-spin" />
               <Save v-else class="w-4 h-4" />
               <span>Simpan Perubahan</span>
@@ -594,7 +518,7 @@ const fetchJenisAsesmen = async () => {
     const gtkId = selectedMapel.value.guru_id;
     const mapelId = selectedMapel.value.mapel_id;
     const kelasId = selectedMapel.value.kelas_id;
-    
+
     let url = `/api/asesmen/jenis?mapel_id=${mapelId}&kelas_id=${kelasId}&tapel=${encodeURIComponent(tapel.value)}&semester=${encodeURIComponent(semester.value)}`;
     if (role !== "admin") {
       url += `&guru_id=${gtkId}`;
@@ -620,7 +544,7 @@ const addJenisAsesmen = async () => {
     Notify.warning("Pengeditan terkunci di luar semester aktif");
     return;
   }
-  
+
   let namaAsesmen = newAsesmenPreset.value;
   if (namaAsesmen === "Lainnya") {
     if (!newAsesmenCustom.value.trim()) {
@@ -727,7 +651,7 @@ const fetchStudentGrades = async () => {
     const response = await authenticatedFetch(`/api/asesmen/nilai?jenis_asesmen_id=${selectedJenis.value.id}`);
     if (!response.ok) throw new Error("Gagal mengambil nilai siswa");
     const data = await response.json();
-    
+
     studentGrades.value = data.map(s => ({
       siswa_id: s.siswa_id,
       nama: s.nama,

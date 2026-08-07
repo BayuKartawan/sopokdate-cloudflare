@@ -150,12 +150,26 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from "vue";
 import { Printer as PrinterIcon } from "lucide-vue-next";
 import KopSurat from "~/components/document/KopSurat.vue";
 
-const bulanList = [
+interface KwitansiForm {
+  jenisPembayaran: string;
+  noKwitansi: string;
+  diterimaDari: string;
+  nominal: string;
+  untukPembayaran: string;
+  tempat: string;
+  tanggal: string;
+  namaPenerima: string;
+  jabatanPenerima: string;
+  namaKamad: string;
+  namaBendahara: string;
+}
+
+const bulanList: string[] = [
   "Januari",
   "Februari",
   "Maret",
@@ -171,16 +185,16 @@ const bulanList = [
 ];
 const now = new Date();
 
-const labelClass = computed(() => [
+const labelClass = computed<string[]>(() => [
   "block text-sm font-medium mb-1.5",
   "text-zinc-300",
 ]);
-const inputClass = computed(() => [
+const inputClass = computed<string[]>(() => [
   "w-full rounded-lg border px-3 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2",
   "bg-zinc-800 border-zinc-600 text-zinc-100 focus:ring-emerald-500/40",
 ]);
 
-const form = ref({
+const form = ref<KwitansiForm>({
   jenisPembayaran: "honor",
   noKwitansi: "",
   diterimaDari: "",
@@ -194,16 +208,16 @@ const form = ref({
   namaBendahara: "Erpahardiana, S.Pd",
 });
 
-const printArea = ref(null);
+const printArea = ref<HTMLElement | null>(null);
 
-const formatNominal = (e) => {
-  let val = e.target.value.replace(/\D/g, "");
+const formatNominal = (e: Event): void => {
+  let val = (e.target as HTMLInputElement).value.replace(/\D/g, "");
   if (val) val = parseInt(val).toLocaleString("id-ID");
   form.value.nominal = val;
 };
 
-const angkaKeTerbilang = (n) => {
-  const b = [
+const angkaKeTerbilang = (n: number): string => {
+  const b: string[] = [
     "",
     "Satu",
     "Dua",
@@ -245,7 +259,7 @@ const angkaKeTerbilang = (n) => {
   return "";
 };
 
-const terbilang = computed(() => {
+const terbilang = computed<string>(() => {
   const raw = form.value.nominal.replace(/\D/g, "");
   if (!raw || parseInt(raw) === 0) return "";
   return (
@@ -253,16 +267,17 @@ const terbilang = computed(() => {
   );
 });
 
-const formatTanggal = (d) => {
+const formatTanggal = (d: string): string => {
   if (!d) return "............................";
   const dt = new Date(d);
   return `${dt.getDate()} ${bulanList[dt.getMonth()]} ${dt.getFullYear()}`;
 };
 
-const handlePrint = () => {
+const handlePrint = (): void => {
   if (!printArea.value) return;
   const w = window.open("", "_blank");
-  
+  if (!w) return;
+
   // Ambil semua style dan stylesheet dari dokumen utama agar Tailwind terapan sempurna
   const styles = Array.from(document.querySelectorAll("link[rel='stylesheet'], style"))
     .map(style => style.outerHTML)

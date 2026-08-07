@@ -164,7 +164,7 @@
         <div v-if="activeTab === 'aktif'" class="flex flex-col md:flex-row gap-4 items-center w-full">
           <!-- Search Input -->
           <div class="w-full md:flex-1">
-            <Search @searchUpdated="handleSearch" class="h-10 sm:h-11"
+            <Search @searchUpdated="handleSearch"
               placeholder="Cari nama, NISN, atau NIS lokal..." />
           </div>
 
@@ -175,7 +175,6 @@
               :options="classOptionsWithAll"
               placeholder="Pilih Kelas..."
               searchPlaceholder="Cari kelas..."
-              class="!h-10 sm:!h-11 text-sm"
             />
           </div>
         </div>
@@ -220,7 +219,7 @@
           <!-- Top controls for Buku Induk -->
           <div class="flex flex-col md:flex-row gap-4 items-center mb-6">
             <div class="w-full md:flex-1">
-              <Search @searchUpdated="(q) => searchQueryBukuInduk = q" class="h-10 sm:h-11"
+              <Search @searchUpdated="(q) => searchQueryBukuInduk = q"
                 placeholder="Cari nama, NISN, atau NIS lokal di Buku Induk..." />
             </div>
             <div class="w-full md:w-64 flex gap-2">

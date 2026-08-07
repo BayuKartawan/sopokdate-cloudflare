@@ -3,12 +3,8 @@
     <!-- Navigation components (conditional based on login status) -->
     <template v-if="isLoggedIn">
       <!-- Navbar -->
-      <Navbar
-        :isSidebarOpen="isSidebarOpen"
-        @toggleSidebar="toggleSidebar"
-        :class="{ 'lg:pl-64': isSidebarOpen && !isMobileView }"
-        class="transition-all duration-300"
-      />
+      <Navbar :isSidebarOpen="isSidebarOpen" @toggleSidebar="toggleSidebar"
+        :class="{ 'lg:pl-64': isSidebarOpen && !isMobileView }" class="transition-all duration-300" />
 
       <!-- Sidebar (Desktop) -->
       <Sidebar v-if="!isMobileView" :isSidebarOpen="isSidebarOpen" @closeSidebar="closeSidebar" />
@@ -18,27 +14,21 @@
     </template>
 
     <!-- Main content -->
-    <main
-      :class="[
-        isLoggedIn ? 'pt-0 pb-16 lg:pt-16 lg:pb-0 safe-area-main' : '',
-        {
-          'lg:pl-64': isSidebarOpen && !isMobileView && isLoggedIn,
-        },
-      ]"
-      class="flex-grow transition-all duration-300 min-h-screen"
-    >
+    <main :class="[
+      isLoggedIn ? 'pt-0 pb-16 lg:pt-16 lg:pb-0 safe-area-main' : '',
+      {
+        'lg:pl-64': isSidebarOpen && !isMobileView && isLoggedIn,
+      },
+    ]" class="flex-grow transition-all duration-300 min-h-screen">
       <slot />
     </main>
 
-    <Footer
-      v-if="isLoggedIn"
-      :class="{ 'lg:pl-64': isSidebarOpen && !isMobileView }"
-      class="transition-all duration-300"
-    />
+    <Footer v-if="isLoggedIn" :class="{ 'lg:pl-64': isSidebarOpen && !isMobileView }"
+      class="transition-all duration-300" />
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useAuth } from "~/composables/auth/useAuth";
 
@@ -47,24 +37,29 @@ import Sidebar from "~/components/layout/Sidebar.vue";
 import MobileMenuModal from "~/components/layout/MobileMenuModal.vue";
 import Footer from "~/components/layout/Footer.vue";
 
+interface User {
+  email: string;
+  role: string;
+}
+
 const router = useRouter();
 const { logoutDirect, isTokenValid, decodeJWT, resetAllLocalStorage, refreshMenuAccess } =
   useAuth();
 
 // --- State
-const user = ref(null);
-const isSidebarOpen = ref(false);
-const isMobileView = ref(false);
+const user = ref < User | null > (null);
+const isSidebarOpen = ref < boolean > (false);
+const isMobileView = ref < boolean > (false);
 
 // --- Computed Properties
-const isLoggedIn = computed(() => !!user.value);
+const isLoggedIn = computed < boolean > (() => !!user.value);
 
 // --- Functions
 
 /**
  * Check apakah user sedang login dengan validasi JWT
  */
-const checkUserAuth = () => {
+const checkUserAuth = (): void => {
   const token = localStorage.getItem("user-token");
 
   if (!token) {
@@ -93,7 +88,7 @@ const checkUserAuth = () => {
 /**
  * Check session expiry dan logout jika expired
  */
-const checkSessionExpiry = () => {
+const checkSessionExpiry = (): boolean => {
   const userToken = localStorage.getItem("user-token");
   const expiryTime = localStorage.getItem("sessionExpiry");
 
@@ -109,7 +104,7 @@ const checkSessionExpiry = () => {
 /**
  * Check last visit and reset storage if > 1 week
  */
-const checkLastVisit = () => {
+const checkLastVisit = (): boolean => {
   const lastVisit = localStorage.getItem("lastVisit");
   const currentTime = Date.now();
   const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
@@ -131,7 +126,7 @@ const checkLastVisit = () => {
 /**
  * Check viewport size untuk responsive sidebar
  */
-const checkViewport = () => {
+const checkViewport = (): void => {
   isMobileView.value = window.innerWidth < 1024;
   isSidebarOpen.value = !isMobileView.value;
 };
@@ -139,21 +134,21 @@ const checkViewport = () => {
 /**
  * Toggle sidebar open/close
  */
-const toggleSidebar = () => {
+const toggleSidebar = (): void => {
   isSidebarOpen.value = !isSidebarOpen.value;
 };
 
 /**
  * Close sidebar (untuk mobile)
  */
-const closeSidebar = () => {
+const closeSidebar = (): void => {
   isSidebarOpen.value = false;
 };
 
 /**
  * Handle window resize
  */
-const handleResize = () => {
+const handleResize = (): void => {
   checkViewport();
   if (isMobileView.value && isSidebarOpen.value) {
     closeSidebar();
@@ -193,7 +188,7 @@ onMounted(() => {
   });
 
   // 6. Listen to storage events (untuk multi-tab logout sync)
-  const handleStorageChange = (e) => {
+  const handleStorageChange = (e: StorageEvent): void => {
     if (e.key === "user-token" && !e.newValue) {
       user.value = null;
       router.push("/login");

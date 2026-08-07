@@ -8,67 +8,43 @@
     </div>
 
     <!-- Form Pengisian -->
-    <div
-      class="rounded-xl border overflow-hidden mb-8 bg-zinc-900 border-zinc-700"
-    >
-      <div
-        class="px-6 py-3 border-b font-semibold text-sm bg-zinc-800 border-zinc-700 text-zinc-200"
-      >
+    <div class="rounded-xl border overflow-hidden mb-8 bg-zinc-900 border-zinc-700">
+      <div class="px-6 py-3 border-b font-semibold text-sm bg-zinc-800 border-zinc-700 text-zinc-200">
         Formulir Konfigurasi Nota
       </div>
       <div class="p-6 space-y-6">
         <!-- Grid Header Config -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <h3
-              class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3"
-            >
+            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">
               Informasi Toko / Penyedia
             </h3>
             <div class="space-y-4">
               <div>
                 <label :class="labelClass">Nama Toko / Judul Utama</label>
-                <input
-                  v-model="form.headerTitle"
-                  type="text"
-                  :class="inputClass"
-                  placeholder="Contoh: UD. Hanif Photo"
-                />
+                <input v-model="form.headerTitle" type="text" :class="inputClass"
+                  placeholder="Contoh: UD. Hanif Photo" />
               </div>
               <div>
                 <label :class="labelClass">Deskripsi / Layanan 1</label>
-                <input
-                  v-model="form.headerSub1"
-                  type="text"
-                  :class="inputClass"
-                  placeholder="Contoh: Photo, Cetak Photo, Photo copy, ATK,"
-                />
+                <input v-model="form.headerSub1" type="text" :class="inputClass"
+                  placeholder="Contoh: Photo, Cetak Photo, Photo copy, ATK," />
               </div>
               <div>
                 <label :class="labelClass">Deskripsi / Layanan 2</label>
-                <input
-                  v-model="form.headerSub2"
-                  type="text"
-                  :class="inputClass"
-                  placeholder="Contoh: Laminating, Pulsa Semua operator"
-                />
+                <input v-model="form.headerSub2" type="text" :class="inputClass"
+                  placeholder="Contoh: Laminating, Pulsa Semua operator" />
               </div>
               <div>
                 <label :class="labelClass">Alamat Toko</label>
-                <input
-                  v-model="form.alamat"
-                  type="text"
-                  :class="inputClass"
-                  placeholder="Contoh: Jl Raya Sikur-Sakra"
-                />
+                <input v-model="form.alamat" type="text" :class="inputClass"
+                  placeholder="Contoh: Jl Raya Sikur-Sakra" />
               </div>
             </div>
           </div>
 
           <div>
-            <h3
-              class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3"
-            >
+            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-3">
               Informasi Pelanggan & Tanggal
             </h3>
             <div class="space-y-4">
@@ -78,21 +54,12 @@
               </div>
               <div>
                 <label :class="labelClass">Tuan / Toko (Nama Pelanggan)</label>
-                <input
-                  v-model="form.tuanToko"
-                  type="text"
-                  :class="inputClass"
-                  placeholder="Nama penerima/pembeli"
-                />
+                <input v-model="form.tuanToko" type="text" :class="inputClass" placeholder="Nama penerima/pembeli" />
               </div>
               <div>
                 <label :class="labelClass">Nama Pengirim (Hormat Kami)</label>
-                <input
-                  v-model="form.namaPengirim"
-                  type="text"
-                  :class="inputClass"
-                  placeholder="Nama yang bertanda tangan (opsional)"
-                />
+                <input v-model="form.namaPengirim" type="text" :class="inputClass"
+                  placeholder="Nama yang bertanda tangan (opsional)" />
               </div>
             </div>
           </div>
@@ -103,15 +70,11 @@
         <!-- Detail Barang -->
         <div>
           <div class="flex items-center justify-between mb-4">
-            <h3
-              class="text-xs font-bold uppercase tracking-wider text-zinc-400"
-            >
+            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">
               Daftar Barang / Jasa
             </h3>
-            <button
-              @click="addItem"
-              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 cursor-pointer"
-            >
+            <button @click="addItem"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 cursor-pointer">
               <Plus class="w-3.5 h-3.5" stroke-width="3" />
               Tambah Baris
             </button>
@@ -120,9 +83,7 @@
           <div class="overflow-x-auto">
             <table class="w-full border-collapse text-left">
               <thead>
-                <tr
-                  class="text-xs font-bold uppercase text-zinc-500 border-b border-zinc-800"
-                >
+                <tr class="text-xs font-bold uppercase text-zinc-500 border-b border-zinc-800">
                   <th class="pb-3 w-12 text-center">No</th>
                   <th class="pb-3 w-24 px-2">Banyak</th>
                   <th class="pb-3 px-2">Nama Barang / Uraian</th>
@@ -133,65 +94,35 @@
               </thead>
               <tbody class="divide-y divide-zinc-800/60">
                 <tr v-if="form.items.length === 0">
-                  <td
-                    colspan="6"
-                    class="text-center py-6 text-zinc-500 text-sm"
-                  >
+                  <td colspan="6" class="text-center py-6 text-zinc-500 text-sm">
                     Belum ada data barang. Klik "Tambah Baris" di atas untuk
                     mulai mengisi.
                   </td>
                 </tr>
-                <tr
-                  v-for="(item, idx) in form.items"
-                  :key="idx"
-                  class="group transition-all hover:bg-zinc-800/20"
-                >
-                  <td
-                    class="py-2.5 text-center text-xs font-semibold text-zinc-500"
-                  >
+                <tr v-for="(item, idx) in form.items" :key="idx" class="group transition-all hover:bg-zinc-800/20">
+                  <td class="py-2.5 text-center text-xs font-semibold text-zinc-500">
                     {{ idx + 1 }}
                   </td>
                   <td class="py-2 px-2">
-                    <input
-                      v-model="item.banyak"
-                      type="text"
-                      :class="inputClass"
-                      class="!py-1.5 !text-xs text-center"
-                      placeholder="5"
-                    />
+                    <input v-model="item.banyak" type="text" :class="inputClass" class="!py-1.5 !text-xs text-center"
+                      placeholder="5" />
                   </td>
                   <td class="py-2 px-2">
-                    <input
-                      v-model="item.namaBarang"
-                      type="text"
-                      :class="inputClass"
-                      class="!py-1.5 !text-xs"
-                      placeholder="Nama barang..."
-                    />
+                    <input v-model="item.namaBarang" type="text" :class="inputClass" class="!py-1.5 !text-xs"
+                      placeholder="Nama barang..." />
                   </td>
                   <td class="py-2 px-2">
-                    <input
-                      v-model="item.hargaStr"
-                      type="text"
-                      :class="inputClass"
-                      class="!py-1.5 !text-xs monospace"
-                      placeholder="0"
-                      @input="formatHargaInput($event, idx)"
-                    />
+                    <input v-model="item.hargaStr" type="text" :class="inputClass" class="!py-1.5 !text-xs monospace"
+                      placeholder="0" @input="formatHargaInput($event, idx)" />
                   </td>
                   <td class="py-2 px-2">
-                    <div
-                      class="text-xs font-bold text-zinc-300 py-1.5 monospace"
-                    >
+                    <div class="text-xs font-bold text-zinc-300 py-1.5 monospace">
                       Rp {{ formatUang(calcJumlah(item)) }}
                     </div>
                   </td>
                   <td class="py-2 text-right">
-                    <button
-                      v-if="form.items.length > 1"
-                      @click="removeItem(idx)"
-                      class="w-7 h-7 rounded-md flex items-center justify-center text-red-400 hover:bg-red-500/10 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
-                    >
+                    <button v-if="form.items.length > 1" @click="removeItem(idx)"
+                      class="w-7 h-7 rounded-md flex items-center justify-center text-red-400 hover:bg-red-500/10 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100 cursor-pointer">
                       <Trash2 class="w-3.5 h-3.5" stroke-width="2" />
                     </button>
                   </td>
@@ -202,16 +133,12 @@
         </div>
 
         <div class="flex justify-end pt-4 gap-3 border-t border-zinc-800">
-          <button
-            @click="handleReset"
-            class="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-center"
-          >
+          <button @click="handleReset"
+            class="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-center">
             Reset Data
           </button>
-          <button
-            @click="handlePrint"
-            class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white"
-          >
+          <button @click="handlePrint"
+            class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white">
             <Printer class="w-4 h-4" /> Cetak Nota
           </button>
         </div>
@@ -221,22 +148,14 @@
     <!-- Live Preview -->
     <div class="rounded-xl border overflow-hidden bg-zinc-900 border-zinc-700">
       <div
-        class="px-6 py-3 border-b font-semibold text-sm flex justify-between bg-zinc-800 border-zinc-700 text-zinc-200"
-      >
+        class="px-6 py-3 border-b font-semibold text-sm flex justify-between bg-zinc-800 border-zinc-700 text-zinc-200">
         <span>Preview Nota Belanja</span>
-        <span class="text-xs font-normal text-zinc-400"
-          >A5 Portrait (Cocok dengan Cetakan)</span
-        >
+        <span class="text-xs font-normal text-zinc-400">A5 Portrait (Cocok dengan Cetakan)</span>
       </div>
 
       <!-- Preview Container -->
-      <div
-        class="p-4 md:p-8 flex justify-center overflow-x-auto bg-zinc-950/60"
-      >
-        <div
-          ref="printArea"
-          class="bg-white text-black shadow-2xl print-container"
-        >
+      <div class="p-4 md:p-8 flex justify-center overflow-x-auto bg-zinc-950/60">
+        <div ref="printArea" class="bg-white text-black shadow-2xl print-container">
           <!-- Header Nota Box -->
           <div class="nota-header-box">
             <!-- Left Info (Toko) -->
@@ -286,11 +205,7 @@
             </thead>
             <tbody>
               <!-- Rendered items + pad to 10 rows -->
-              <tr
-                v-for="(item, idx) in paddedItems"
-                :key="idx"
-                class="item-row"
-              >
+              <tr v-for="(item, idx) in paddedItems" :key="idx" class="item-row">
                 <td class="col-banyak">
                   {{ item.banyak || "" }}
                 </td>
@@ -345,20 +260,37 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from "vue";
 import { Plus, Trash2, Printer } from "lucide-vue-next";
 
-const labelClass = computed(() => [
+interface NotaItem {
+  banyak: string;
+  namaBarang: string;
+  hargaStr: string;
+}
+
+interface NotaForm {
+  headerTitle: string;
+  headerSub1: string;
+  headerSub2: string;
+  alamat: string;
+  tanggal: string;
+  tuanToko: string;
+  namaPengirim: string;
+  items: NotaItem[];
+}
+
+const labelClass = computed<string[]>(() => [
   "block text-sm font-medium mb-1 text-zinc-300",
 ]);
-const inputClass = computed(() => [
+const inputClass = computed<string[]>(() => [
   "w-full rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 bg-zinc-800 border-zinc-600 text-zinc-100 focus:ring-emerald-500/40",
 ]);
 
 const now = new Date();
 
-const getDefaultForm = () => ({
+const getDefaultForm = (): NotaForm => ({
   headerTitle: "UD. Hanif Photo",
   headerSub1: "Photo, Cetak Photo, Photo copy , ATK,",
   headerSub2: "Laminating, Pulsa Semua operator",
@@ -373,57 +305,57 @@ const getDefaultForm = () => ({
   ],
 });
 
-const form = ref(getDefaultForm());
-const printArea = ref(null);
+const form = ref<NotaForm>(getDefaultForm());
+const printArea = ref<HTMLElement | null>(null);
 
-const addItem = () => {
+const addItem = (): void => {
   form.value.items.push({ banyak: "", namaBarang: "", hargaStr: "" });
 };
 
-const removeItem = (idx) => {
+const removeItem = (idx: number): void => {
   form.value.items.splice(idx, 1);
 };
 
-const handleReset = () => {
+const handleReset = (): void => {
   form.value.tanggal = "";
   form.value.tuanToko = "";
   form.value.namaPengirim = "";
   form.value.items = [];
 };
 
-const parseNum = (str) => {
+const parseNum = (str?: string | number | null): number => {
   if (!str) return 0;
   const raw = String(str).replace(/\D/g, "");
   return raw ? parseInt(raw, 10) : 0;
 };
 
-const parseBanyak = (str) => {
+const parseBanyak = (str?: string | number | null): number => {
   if (!str) return 0;
   const clean = String(str).replace(",", ".");
   const num = parseFloat(clean);
   return isNaN(num) ? 0 : num;
 };
 
-const calcJumlah = (item) => {
+const calcJumlah = (item: NotaItem): number => {
   const q = parseBanyak(item.banyak);
   const p = parseNum(item.hargaStr);
   return Math.round(q * p);
 };
 
-const formatHargaInput = (e, index) => {
-  let val = e.target.value.replace(/\D/g, "");
+const formatHargaInput = (e: Event, index: number): void => {
+  let val = (e.target as HTMLInputElement).value.replace(/\D/g, "");
   if (val) {
     val = parseInt(val, 10).toLocaleString("id-ID");
   }
   form.value.items[index].hargaStr = val;
 };
 
-const totalSemua = computed(() => {
+const totalSemua = computed<number>(() => {
   return form.value.items.reduce((acc, item) => acc + calcJumlah(item), 0);
 });
 
 // Pad items to at least 10 rows
-const paddedItems = computed(() => {
+const paddedItems = computed<NotaItem[]>(() => {
   const currentItems = [...form.value.items];
   const minRows = 10;
   if (currentItems.length < minRows) {
@@ -435,7 +367,7 @@ const paddedItems = computed(() => {
   return currentItems;
 });
 
-const formatUang = (num) => {
+const formatUang = (num?: number | null): string => {
   if (num === undefined || num === null) return "0,00";
   return num.toLocaleString("id-ID", {
     minimumFractionDigits: 2,
@@ -443,14 +375,14 @@ const formatUang = (num) => {
   });
 };
 
-const formatUangTanpaDesimal = (num) => {
+const formatUangTanpaDesimal = (num?: number | null): string => {
   if (num === undefined || num === null) return "0";
   return num.toLocaleString("id-ID");
 };
 
-const formatTanggal = (d) => {
+const formatTanggal = (d: string): string => {
   if (!d) return "...........................";
-  const bulanList = [
+  const bulanList: string[] = [
     "Januari",
     "Februari",
     "Maret",
@@ -469,9 +401,10 @@ const formatTanggal = (d) => {
   return `${dt.getDate()} ${bulanList[dt.getMonth()]} ${dt.getFullYear()}`;
 };
 
-const handlePrint = () => {
+const handlePrint = (): void => {
   if (!printArea.value) return;
   const w = window.open("", "_blank");
+  if (!w) return;
   w.document.write(`
     <!DOCTYPE html>
     <html>
@@ -766,15 +699,18 @@ const handlePrint = () => {
   text-align: center;
   font-weight: 600;
 }
+
 .col-nama {
   width: 53%;
   text-align: left;
 }
+
 .col-harga {
   width: 18%;
   text-align: right;
   font-family: monospace;
 }
+
 .col-jumlah {
   width: 17%;
   text-align: right;

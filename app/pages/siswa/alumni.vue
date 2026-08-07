@@ -180,29 +180,35 @@
         <div class="flex flex-col md:flex-row gap-3 sm:gap-4 items-center w-full">
           <!-- Search Input -->
           <div class="w-full md:flex-1">
-            <Search @searchUpdated="handleSearch" class="h-10 sm:h-11"
+            <Search @searchUpdated="handleSearch"
               placeholder="Cari nama alumni, NISN, alamat..." />
           </div>
 
           <!-- Filters Group -->
           <div class="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto">
             <!-- Year Filter -->
-            <select v-model="selectedYear"
-              class="w-full sm:w-48 h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm cursor-pointer">
-              <option value="Semua Tahun">Semua Tahun Lulus</option>
-              <option v-for="year in yearOptions" :key="year" :value="year">
-                Lulus {{ year }}
-              </option>
-            </select>
+            <div class="w-full sm:w-48">
+              <SearchableSelect
+                v-model="selectedYear"
+                :options="yearFilterOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="Semua Tahun Lulus"
+                search-placeholder="Cari tahun..."
+              />
+            </div>
 
             <!-- Destination Filter -->
-            <select v-model="selectedDestination"
-              class="w-full sm:w-56 h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm cursor-pointer">
-              <option value="Semua Tujuan">Semua Studi Lanjut</option>
-              <option v-for="dest in destinationOptions" :key="dest" :value="dest">
-                {{ dest }}
-              </option>
-            </select>
+            <div class="w-full sm:w-56">
+              <SearchableSelect
+                v-model="selectedDestination"
+                :options="destinationFilterOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="Semua Studi Lanjut"
+                search-placeholder="Cari tujuan..."
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -272,6 +278,7 @@ import {
   FileSpreadsheet,
 } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
+import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
 import KopSurat from "~/components/document/KopSurat.vue";
@@ -575,6 +582,21 @@ const destinationOptions = computed(() => {
 
   const uniqueDests = [...new Set(dests)].sort();
   return [...uniqueDests, "Tidak Melanjutkan"];
+});
+
+// Formatted options for SearchableSelect components
+const yearFilterOptions = computed(() => {
+  return [
+    { label: "Semua Tahun Lulus", value: "Semua Tahun" },
+    ...yearOptions.value.map((y) => ({ label: `Lulus ${y}`, value: y })),
+  ];
+});
+
+const destinationFilterOptions = computed(() => {
+  return [
+    { label: "Semua Studi Lanjut", value: "Semua Tujuan" },
+    ...destinationOptions.value.map((d) => ({ label: d, value: d })),
+  ];
 });
 
 // Dynamic Kepala Madrasah lookup from GTK data

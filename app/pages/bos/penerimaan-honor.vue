@@ -7,105 +7,60 @@
       </p>
     </div>
 
-    <div
-      class="rounded-xl border overflow-hidden mb-8 bg-zinc-900 border-zinc-700"
-    >
-      <div
-        class="px-6 py-3 border-b font-semibold text-sm bg-zinc-800 border-zinc-700 text-zinc-200"
-      >
+    <div class="rounded-xl border overflow-hidden mb-8 bg-zinc-900 border-zinc-700">
+      <div class="px-6 py-3 border-b font-semibold text-sm bg-zinc-800 border-zinc-700 text-zinc-200">
         Formulir Data Penerimaan
       </div>
       <div class="p-6">
-        <div
-          class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 items-end"
-        >
+        <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
           <!-- Row 1 -->
           <div class="sm:col-span-2 lg:col-span-2">
             <label :class="labelClass">Jenis Honor</label>
-            <SearchableSelect
-              v-model="form.jenisHonor"
-              :options="jenisHonorOptions"
-              @change="onJenisHonorChange"
-              placeholder="Pilih Jenis Honor"
-            />
+            <SearchableSelect v-model="form.jenisHonor" :options="jenisHonorOptions" @change="onJenisHonorChange"
+              placeholder="Pilih Jenis Honor" />
             <!-- Input Manual Jika Pilih LAINNYA -->
-            <div
-              v-if="form.jenisHonor === 'LAINNYA (INPUT MANUAL)'"
-              class="mt-2"
-            >
-              <input
-                v-model="form.customJenisHonor"
-                type="text"
-                placeholder="Masukkan Jenis Honor Manual..."
-                :class="inputClass"
-              />
+            <div v-if="form.jenisHonor === 'LAINNYA (INPUT MANUAL)'" class="mt-2">
+              <input v-model="form.customJenisHonor" type="text" placeholder="Masukkan Jenis Honor Manual..."
+                :class="inputClass" />
             </div>
           </div>
           <div>
             <label :class="labelClass">Bulan Mulai</label>
-            <SearchableSelect
-              v-model="form.bulanMulai"
-              :options="bulanOptions"
-              placeholder="Pilih Bulan"
-            />
+            <SearchableSelect v-model="form.bulanMulai" :options="bulanOptions" placeholder="Pilih Bulan" />
           </div>
           <div>
             <label :class="labelClass">Bulan Selesai</label>
-            <SearchableSelect
-              v-model="form.bulanSelesai"
-              :options="bulanOptions"
-              placeholder="Pilih Bulan"
-            />
+            <SearchableSelect v-model="form.bulanSelesai" :options="bulanOptions" placeholder="Pilih Bulan" />
           </div>
 
           <div>
             <label :class="labelClass">Tanggal Cetak</label>
-            <input
-              v-model="form.tanggal"
-              type="date"
-              :min="dateRange.min"
-              :max="dateRange.max"
-              :class="inputClass"
-            />
+            <input v-model="form.tanggal" type="date" :min="dateRange.min" :max="dateRange.max" :class="inputClass" />
           </div>
           <div>
             <label :class="labelClass">Tinggi Baris</label>
-            <SearchableSelect
-              v-model="form.tinggiBaris"
-              :options="tinggiBarisOptions"
-              placeholder="Pilih Tinggi"
-            />
+            <SearchableSelect v-model="form.tinggiBaris" :options="tinggiBarisOptions" placeholder="Pilih Tinggi" />
           </div>
         </div>
 
         <!-- Daftar Penerima Section -->
         <div class="mt-8">
           <div class="flex items-center justify-between mb-4">
-            <h3
-              class="text-sm font-bold uppercase tracking-wider flex items-center text-zinc-400"
-            >
+            <h3 class="text-sm font-bold uppercase tracking-wider flex items-center text-zinc-400">
               Daftar Penerima Honor
-              <span
-                v-if="canAddRecipient"
-                class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700"
-              >
+              <span v-if="canAddRecipient"
+                class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
                 {{ form.penerimaList.length }} Orang
               </span>
             </h3>
             <div class="flex gap-2">
-              <button
-                v-if="canAddRecipient"
-                @click="addAllGtk"
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600/20 text-blue-400 hover:bg-blue-600/30"
-              >
+              <button v-if="canAddRecipient" @click="addAllGtk"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600/20 text-blue-400 hover:bg-blue-600/30">
                 <Users class="w-3.5 h-3.5" stroke-width="3" />
                 Tambah Semua GTK
               </button>
-              <button
-                v-if="canAddRecipient"
-                @click="addPenerima"
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30"
-              >
+              <button v-if="canAddRecipient" @click="addPenerima"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30">
                 <Plus class="w-3.5 h-3.5" stroke-width="3" />
                 Tambah Penerima
               </button>
@@ -115,9 +70,7 @@
           <div class="overflow-x-auto">
             <table class="w-full border-collapse">
               <thead>
-                <tr
-                  class="text-left text-[10px] uppercase tracking-widest text-zinc-500"
-                >
+                <tr class="text-left text-[10px] uppercase tracking-widest text-zinc-500">
                   <th class="pb-3 pl-2 w-10">No</th>
                   <th class="pb-3 px-2">Nama Penerima</th>
                   <th v-if="isHonorGuru" class="pb-3 px-2 w-20 text-center">
@@ -129,40 +82,21 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-zinc-800">
-                <tr
-                  v-for="(p, idx) in form.penerimaList"
-                  :key="idx"
-                  class="group transition-all hover:bg-zinc-800/30"
-                >
+                <tr v-for="(p, idx) in form.penerimaList" :key="idx" class="group transition-all hover:bg-zinc-800/30">
                   <td class="py-2.5 pl-2 text-xs font-medium text-zinc-500">
                     {{ idx + 1 }}
                   </td>
                   <td class="py-2 px-2">
-                    <SearchableSelect
-                      v-model="p.nama"
-                      :options="sortedGtkDataNames"
-                      placeholder="Pilih Penerima"
-                      search-placeholder="Cari nama GTK..."
-                      @change="(val) => onGtkChangeName(val, idx)"
-                    />
+                    <SearchableSelect v-model="p.nama" :options="sortedGtkDataNames" placeholder="Pilih Penerima"
+                      search-placeholder="Cari nama GTK..." @change="(val) => onGtkChangeName(val, idx)" />
                   </td>
                   <td v-if="isHonorGuru" class="py-2 px-2">
-                    <input
-                      v-model.number="p.jamPerBulan"
-                      type="number"
-                      :class="inputClass"
-                      class="!py-1.5 !text-[11px] !h-8 text-center"
-                    />
+                    <input v-model.number="p.jamPerBulan" type="number" :class="inputClass"
+                      class="!py-1.5 !text-[11px] !h-8 text-center" />
                   </td>
                   <td class="py-2 px-2">
-                    <input
-                      v-model="p.satuanStr"
-                      type="text"
-                      placeholder="0"
-                      @input="(e) => formatSatuan(e, idx)"
-                      :class="inputClass"
-                      class="!py-1.5 !text-[11px] !h-8 monospace"
-                    />
+                    <input v-model="p.satuanStr" type="text" placeholder="0" @input="(e) => formatSatuan(e, idx)"
+                      :class="inputClass" class="!py-1.5 !text-[11px] !h-8 monospace" />
                   </td>
                   <td class="py-2 px-2">
                     <div class="text-[11px] font-bold text-emerald-400">
@@ -170,11 +104,8 @@
                     </div>
                   </td>
                   <td v-if="canAddRecipient" class="py-2 pr-2 text-right">
-                    <button
-                      v-if="form.penerimaList.length > 1"
-                      @click="removePenerima(idx)"
-                      class="w-7 h-7 rounded-md flex items-center justify-center text-red-400 hover:bg-red-500/10 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"
-                    >
+                    <button v-if="form.penerimaList.length > 1" @click="removePenerima(idx)"
+                      class="w-7 h-7 rounded-md flex items-center justify-center text-red-400 hover:bg-red-500/10 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100">
                       <Trash2 class="w-3.5 h-3.5" stroke-width="2.5" />
                     </button>
                   </td>
@@ -185,18 +116,13 @@
         </div>
 
         <div
-          class="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-3 mt-6 pt-4 border-t border-zinc-700"
-        >
-          <button
-            @click="handleReset"
-            class="px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-center flex justify-center"
-          >
+          class="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-3 mt-6 pt-4 border-t border-zinc-700">
+          <button @click="handleReset"
+            class="px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-center flex justify-center">
             Reset Data
           </button>
-          <button
-            @click="handlePrint"
-            class="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white"
-          >
+          <button @click="handlePrint"
+            class="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white">
             <Printer class="w-4 h-4" />
             Cetak Landscape
           </button>
@@ -207,14 +133,15 @@
     <!-- Preview -->
     <div class="rounded-xl border bg-zinc-900 border-zinc-700">
       <div
-        class="px-6 py-3 border-b font-semibold text-sm flex justify-between bg-zinc-800 border-zinc-700 text-zinc-200 rounded-t-xl"
-      >
+        class="px-6 py-3 border-b font-semibold text-sm flex justify-between bg-zinc-800 border-zinc-700 text-zinc-200 rounded-t-xl">
         <span>Preview Dokumen</span>
         <span class="text-xs font-normal text-zinc-400">A4 Landscape</span>
       </div>
       <!-- Mobile scroll hint -->
-      <div class="flex items-center gap-1.5 px-4 py-2 text-[10px] text-zinc-400 bg-zinc-800/60 border-b border-zinc-700 sm:hidden">
-        <svg class="w-3.5 h-3.5 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <div
+        class="flex items-center gap-1.5 px-4 py-2 text-[10px] text-zinc-400 bg-zinc-800/60 border-b border-zinc-700 sm:hidden">
+        <svg class="w-3.5 h-3.5 shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
         </svg>
         Geser ke kanan untuk melihat dokumen penuh
@@ -267,30 +194,19 @@
           </div>
 
           <!-- Tabel Data (Unified Template) -->
-          <table
-            class="w-full table-fixed border-collapse print-table text-[11pt]"
-          >
+          <table class="w-full table-fixed border-collapse print-table text-[11pt]">
             <thead>
               <tr class="bg-gray-100">
                 <th class="py-2 px-1 text-center w-8 border border-black">
                   No
                 </th>
-                <th
-                  class="py-2 px-2 text-center border border-black"
-                  :class="isHonorGuru ? 'w-56' : ''"
-                >
+                <th class="py-2 px-2 text-center border border-black" :class="isHonorGuru ? 'w-56' : ''">
                   Nama Lengkap
                 </th>
-                <th
-                  class="py-2 px-2 text-center border border-black"
-                  :class="isHonorGuru ? 'w-28' : ''"
-                >
+                <th class="py-2 px-2 text-center border border-black" :class="isHonorGuru ? 'w-28' : ''">
                   Jabatan
                 </th>
-                <th
-                  v-if="isHonorGuru"
-                  class="py-2 px-1 text-center w-16 border border-black"
-                >
+                <th v-if="isHonorGuru" class="py-2 px-1 text-center w-16 border border-black">
                   Jum. Jam/Bln
                 </th>
                 <th class="py-2 px-1 text-center w-16 border border-black">
@@ -308,20 +224,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="(p, idx) in form.penerimaList"
-                :key="idx"
-                :class="(idx + 1) % 2 === 0 ? 'bg-gray-50' : ''"
-              >
+              <tr v-for="(p, idx) in form.penerimaList" :key="idx" :class="(idx + 1) % 2 === 0 ? 'bg-gray-50' : ''">
                 <td class="py-2 px-1 text-center border border-black">
                   {{ idx + 1 }}
                 </td>
                 <td class="py-2 px-2 border border-black">{{ p.nama }}</td>
                 <td class="py-2 px-2 border border-black">{{ p.jabatan }}</td>
-                <td
-                  v-if="isHonorGuru"
-                  class="py-2 px-1 text-center border border-black"
-                >
+                <td v-if="isHonorGuru" class="py-2 px-1 text-center border border-black">
                   {{ p.jamPerBulan }}
                 </td>
                 <td class="py-2 px-1 text-center border border-black">
@@ -339,14 +248,9 @@
                     <span>{{ formatUang(calcPenerimaan(p)) }}</span>
                   </div>
                 </td>
-                <td
-                  class="py-2 px-2 border border-black text-[11pt] align-top sig-cell"
-                  :style="{ position: 'relative', height: rowHeightPx + 'px' }"
-                >
-                  <div
-                    v-if="(idx + 1) % 2 !== 0"
-                    style="position: absolute; left: 4px; top: 4px"
-                  >
+                <td class="py-2 px-2 border border-black text-[11pt] align-top sig-cell"
+                  :style="{ position: 'relative', height: rowHeightPx + 'px' }">
+                  <div v-if="(idx + 1) % 2 !== 0" style="position: absolute; left: 4px; top: 4px">
                     {{ idx + 1 }}.
                   </div>
                   <div v-else style="position: absolute; left: 50%; top: 4px">
@@ -356,16 +260,10 @@
               </tr>
               <!-- Row Jumlah -->
               <tr class="font-bold bg-gray-100">
-                <td
-                  :colspan="isHonorGuru ? 3 : 3"
-                  class="py-2 px-2 text-center border border-black"
-                >
+                <td :colspan="isHonorGuru ? 3 : 3" class="py-2 px-2 text-center border border-black">
                   Jumlah
                 </td>
-                <td
-                  v-if="isHonorGuru"
-                  class="py-2 px-1 text-center border border-black"
-                >
+                <td v-if="isHonorGuru" class="py-2 px-1 text-center border border-black">
                   {{ totalJam }}
                 </td>
                 <td class="py-2 px-1 text-center border border-black">
@@ -383,9 +281,7 @@
                     <span>{{ formatUang(totalSemua) }}</span>
                   </div>
                 </td>
-                <td
-                  class="py-2 px-2 border border-black bg-white sig-cell-last"
-                ></td>
+                <td class="py-2 px-2 border border-black bg-white sig-cell-last"></td>
               </tr>
             </tbody>
           </table>
@@ -418,35 +314,58 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
 import { Users, Plus, Trash2, Printer } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
 import { useBosHonor } from "~/composables/utils/useBosHonor";
 import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 
+interface Penerima {
+  nama: string;
+  jabatan: string;
+  jamPerBulan: number;
+  satuanStr: string;
+}
+
+interface HonorForm {
+  namaMadrasah: string;
+  kecamatan: string;
+  kabupaten: string;
+  jenisHonor: string;
+  customJenisHonor: string;
+  bulanMulai: string;
+  bulanSelesai: string;
+  penerimaList: Penerima[];
+  namaKamad: string;
+  namaBendahara: string;
+  tempat: string;
+  tanggal: string;
+  tinggiBaris: string;
+}
+
 const { cardData: gtkData, loadData } = useTableData();
 const { jenisHonorOptions, bulanList } = useBosHonor();
 
-const bulanOptions = computed(() => bulanList.map((b) => b.toUpperCase()));
-const tinggiBarisOptions = [
+const bulanOptions = computed<string[]>(() => bulanList.map((b: string) => b.toUpperCase()));
+const tinggiBarisOptions: Array<{ label: string; value: string }> = [
   { label: "Kecil", value: "kecil" },
   { label: "Default", value: "default" },
   { label: "Besar", value: "besar" },
 ];
 const now = new Date();
 
-const labelClass = computed(() => [
+const labelClass = computed<string[]>(() => [
   "block text-sm font-medium mb-1.5",
   "text-zinc-300",
 ]);
-const inputClass = computed(() => [
+const inputClass = computed<string[]>(() => [
   "w-full rounded-lg border px-3 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2",
   "bg-zinc-800 border-zinc-600 text-zinc-100 focus:ring-emerald-500/40",
 ]);
 
-const calculateSafeLastDay = (monthName, year) => {
-  const monthIdx = bulanList.findIndex((b) => b.toUpperCase() === monthName);
+const calculateSafeLastDay = (monthName: string, year: number): string => {
+  const monthIdx = bulanList.findIndex((b: string) => b.toUpperCase() === monthName);
   if (monthIdx === -1) return "";
 
   // Gunakan 12:00 siang untuk menghindari masalah pergeseran tanggal saat manipulasi
@@ -462,7 +381,7 @@ const calculateSafeLastDay = (monthName, year) => {
   return `${y}-${m}-${d}`;
 };
 
-const getDefaultForm = () => ({
+const getDefaultForm = (): HonorForm => ({
   namaMadrasah: "MI NW PENYENGGIR",
   kecamatan: "SIKUR",
   kabupaten: "LOMBOK TIMUR",
@@ -485,14 +404,14 @@ const getDefaultForm = () => ({
   tinggiBaris: "default",
 });
 
-const form = ref(getDefaultForm());
+const form = ref<HonorForm>(getDefaultForm());
 
-const isHonorGuru = computed(
+const isHonorGuru = computed<boolean>(
   () => form.value.jenisHonor === "HONOR GURU MADRASAH",
 );
 
-const canAddRecipient = computed(() => {
-  const singleTypes = [
+const canAddRecipient = computed<boolean>(() => {
+  const singleTypes: string[] = [
     "HONOR OPERATOR MADRASAH",
     "HONOR BENDAHARA MADRASAH",
     "HONOR KEPALA MADRASAH",
@@ -500,19 +419,19 @@ const canAddRecipient = computed(() => {
   return !singleTypes.includes(form.value.jenisHonor);
 });
 
-const rowHeightPx = computed(() => {
+const rowHeightPx = computed<number>(() => {
   if (form.value.tinggiBaris === "kecil") return 32;
   if (form.value.tinggiBaris === "besar") return 56;
   return 42;
 });
 
 // Fungsi Otomatis Tahun
-const tahunAnggaran = computed(() => {
+const tahunAnggaran = computed<number>(() => {
   if (!form.value.tanggal) return now.getFullYear();
   return new Date(form.value.tanggal).getFullYear();
 });
 
-const tahunPelajaran = computed(() => {
+const tahunPelajaran = computed<string>(() => {
   if (!form.value.tanggal)
     return `${now.getFullYear()}/${now.getFullYear() + 1}`;
   const d = new Date(form.value.tanggal);
@@ -522,20 +441,20 @@ const tahunPelajaran = computed(() => {
   return month >= 7 ? `${year}/${year + 1}` : `${year - 1}/${year}`;
 });
 
-const periodeBulanText = computed(() => {
+const periodeBulanText = computed<string>(() => {
   if (form.value.bulanMulai === form.value.bulanSelesai) {
     return `${form.value.bulanMulai} ${tahunAnggaran.value}`;
   }
   return `${form.value.bulanMulai} - ${form.value.bulanSelesai} ${tahunAnggaran.value}`;
 });
 
-const dateRange = computed(() => {
+const dateRange = computed<{ min: string; max: string }>(() => {
   const year = tahunAnggaran.value;
   const startIdx = bulanList.findIndex(
-    (b) => b.toUpperCase() === form.value.bulanMulai,
+    (b: string) => b.toUpperCase() === form.value.bulanMulai,
   );
   const endIdx = bulanList.findIndex(
-    (b) => b.toUpperCase() === form.value.bulanSelesai,
+    (b: string) => b.toUpperCase() === form.value.bulanSelesai,
   );
 
   if (startIdx === -1 || endIdx === -1) return { min: "", max: "" };
@@ -548,12 +467,12 @@ const dateRange = computed(() => {
 });
 
 // Logika Volume Otomatis
-const volume = computed(() => {
+const volume = computed<number>(() => {
   const startIdx = bulanList.findIndex(
-    (b) => b.toUpperCase() === form.value.bulanMulai,
+    (b: string) => b.toUpperCase() === form.value.bulanMulai,
   );
   const endIdx = bulanList.findIndex(
-    (b) => b.toUpperCase() === form.value.bulanSelesai,
+    (b: string) => b.toUpperCase() === form.value.bulanSelesai,
   );
   if (startIdx === -1 || endIdx === -1) return 1;
   return Math.max(1, endIdx - startIdx + 1);
@@ -562,10 +481,10 @@ const volume = computed(() => {
 // Watcher untuk validasi rentang bulan
 watch(
   () => form.value.bulanMulai,
-  (newMulai) => {
-    const startIdx = bulanList.findIndex((b) => b.toUpperCase() === newMulai);
+  (newMulai: string) => {
+    const startIdx = bulanList.findIndex((b: string) => b.toUpperCase() === newMulai);
     const endIdx = bulanList.findIndex(
-      (b) => b.toUpperCase() === form.value.bulanSelesai,
+      (b: string) => b.toUpperCase() === form.value.bulanSelesai,
     );
 
     if (startIdx > endIdx) {
@@ -581,11 +500,11 @@ watch(
 
 watch(
   () => form.value.bulanSelesai,
-  (newSelesai) => {
+  (newSelesai: string) => {
     const startIdx = bulanList.findIndex(
-      (b) => b.toUpperCase() === form.value.bulanMulai,
+      (b: string) => b.toUpperCase() === form.value.bulanMulai,
     );
-    const endIdx = bulanList.findIndex((b) => b.toUpperCase() === newSelesai);
+    const endIdx = bulanList.findIndex((b: string) => b.toUpperCase() === newSelesai);
 
     if (endIdx < startIdx) {
       form.value.bulanMulai = newSelesai;
@@ -613,30 +532,30 @@ watch(
   { immediate: true },
 );
 
-const printArea = ref(null);
+const printArea = ref<HTMLElement | null>(null);
 
-const sortedGtkData = computed(() => {
+const sortedGtkData = computed<any[]>(() => {
   if (!gtkData.value) return [];
   return [...gtkData.value].sort((a, b) =>
     (a.title || "").localeCompare(b.title || ""),
   );
 });
 
-const sortedGtkDataNames = computed(() => {
-  return sortedGtkData.value.map((gtk) => formatTitle(gtk.title));
+const sortedGtkDataNames = computed<string[]>(() => {
+  return sortedGtkData.value.map((gtk: any) => formatTitle(gtk.title));
 });
 
-const onGtkChangeName = (val, index) => {
-  const selectedName = val;
+const onGtkChangeName = (val: any, index: number): void => {
+  const selectedName = typeof val === "string" ? val : String(val?.label || val?.value || val || "");
   const selected = sortedGtkData.value.find(
-    (g) => formatTitle(g.title) === selectedName,
+    (g: any) => formatTitle(g.title) === selectedName,
   );
   if (selected) {
     form.value.penerimaList[index].jabatan = selected.Tugas || "Guru";
   }
 };
 
-const onJenisHonorChange = () => {
+const onJenisHonorChange = (): void => {
   const currentJenis = form.value.jenisHonor;
   // Reset seluruh form ke default
   form.value = getDefaultForm();
@@ -727,7 +646,7 @@ const onJenisHonorChange = () => {
   }
 };
 
-const addPenerima = () => {
+const addPenerima = (): void => {
   form.value.penerimaList.push({
     nama: "",
     jabatan: isHonorGuru.value ? "Guru Kelas" : "",
@@ -736,7 +655,7 @@ const addPenerima = () => {
   });
 };
 
-const addAllGtk = () => {
+const addAllGtk = (): void => {
   const nominal = prompt("Masukkan nominal satuan (Rp) untuk semua GTK:", "0");
   if (nominal === null) return;
 
@@ -744,7 +663,7 @@ const addAllGtk = () => {
   if (val) val = parseInt(val, 10).toLocaleString("id-ID");
   else val = "0";
 
-  form.value.penerimaList = sortedGtkData.value.map((gtk) => ({
+  form.value.penerimaList = sortedGtkData.value.map((gtk: any) => ({
     nama: formatTitle(gtk.title),
     jabatan: gtk.Tugas || (isHonorGuru.value ? "Guru Kelas" : ""),
     jamPerBulan: isHonorGuru.value ? 24 : 1,
@@ -752,55 +671,55 @@ const addAllGtk = () => {
   }));
 };
 
-const removePenerima = (index) => {
+const removePenerima = (index: number): void => {
   form.value.penerimaList.splice(index, 1);
 };
 
-const handleReset = () => {
+const handleReset = (): void => {
   onJenisHonorChange();
 };
 
-const parseNum = (str) => {
+const parseNum = (str?: string | number | null): number => {
   const raw = String(str || "").replace(/\D/g, "");
   return raw ? parseInt(raw, 10) : 0;
 };
 
-const calcPenerimaan = (p) => {
+const calcPenerimaan = (p: Penerima): number => {
   if (!p) return 0;
   return parseNum(p.satuanStr) * (p.jamPerBulan || 1) * volume.value;
 };
 
-const totalJam = computed(() =>
+const totalJam = computed<number>(() =>
   form.value.penerimaList.reduce((acc, p) => acc + (p.jamPerBulan || 0), 0),
 );
-const totalVolume = computed(
+const totalVolume = computed<number>(
   () => volume.value * form.value.penerimaList.length,
 );
-const totalSatuan = computed(() =>
+const totalSatuan = computed<number>(() =>
   form.value.penerimaList.reduce((acc, p) => acc + parseNum(p.satuanStr), 0),
 );
-const totalSemua = computed(() =>
+const totalSemua = computed<number>(() =>
   form.value.penerimaList.reduce((acc, p) => acc + calcPenerimaan(p), 0),
 );
 
-const totalSatuanStr = computed(() => {
+const totalSatuanStr = computed<string>(() => {
   if (form.value.penerimaList.length === 1)
     return formatUang(parseNum(form.value.penerimaList[0].satuanStr));
   return formatUang(totalSatuan.value);
 });
 
-const formatSatuan = (e, index) => {
-  let val = e.target.value.replace(/\D/g, "");
+const formatSatuan = (e: Event, index: number): void => {
+  let val = (e.target as HTMLInputElement).value.replace(/\D/g, "");
   if (val) val = parseInt(val, 10).toLocaleString("id-ID");
   form.value.penerimaList[index].satuanStr = val;
 };
 
-function formatTitle(title) {
+function formatTitle(title?: string): string {
   if (!title) return "";
   return title.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-function formatNameWithDegree(fullName) {
+function formatNameWithDegree(fullName?: string): string {
   if (!fullName) return "";
   const parts = fullName.split(",");
   const name = parts[0].trim().toUpperCase();
@@ -827,7 +746,7 @@ onMounted(() => {
   loadData("DataGtk");
 });
 
-const formatUang = (num) => {
+const formatUang = (num: number): string => {
   // Format menjadi 1.500.000,00
   return num.toLocaleString("id-ID", {
     minimumFractionDigits: 2,
@@ -835,13 +754,13 @@ const formatUang = (num) => {
   });
 };
 
-const formatTanggal = (d) => {
+const formatTanggal = (d?: string): string => {
   if (!d) return "............................";
   const dt = new Date(d);
   return `${dt.getDate()} ${bulanList[dt.getMonth()]} ${dt.getFullYear()}`;
 };
 
-const handlePrint = () => {
+const handlePrint = (): void => {
   window.print();
 };
 </script>
@@ -869,6 +788,7 @@ table.print-table td {
   border-top: none !important;
   border-bottom: none !important;
 }
+
 .sig-cell-last {
   border-top: none !important;
   border-bottom: 1px solid black !important;
@@ -892,6 +812,7 @@ table.print-table td {
     /* Ruang di kanan agar tidak mentok */
     padding-right: 0;
   }
+
   .preview-scroll-area::after {
     content: '';
     display: block;

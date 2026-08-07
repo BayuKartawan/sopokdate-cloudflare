@@ -360,7 +360,7 @@ export function useAuth() {
     );
   };
 
-  const logoutDirect = async (router: any, notiflix: any): Promise<boolean> => {
+  const logoutDirect = async (router: any, notiflix?: any): Promise<boolean> => {
     isLoading.value = true;
 
     try {

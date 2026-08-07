@@ -93,7 +93,6 @@
           <div class="w-full md:flex-1">
             <Search
               @searchUpdated="handleSearch"
-              class="h-10 sm:h-11"
               placeholder="Cari nama, NISN, kelas..."
             />
           </div>
@@ -101,26 +100,28 @@
           <!-- Filters Group -->
           <div class="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto">
             <!-- Jenis Mutasi Filter -->
-            <select
-              v-model="selectedJenis"
-              class="w-full sm:w-48 h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm cursor-pointer"
-            >
-              <option value="Semua Jenis">Semua Jenis Mutasi</option>
-              <option v-for="jenis in jenisOptions" :key="jenis" :value="jenis">
-                {{ jenis }}
-              </option>
-            </select>
+            <div class="w-full sm:w-48">
+              <SearchableSelect
+                v-model="selectedJenis"
+                :options="jenisFilterOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="Semua Jenis Mutasi"
+                search-placeholder="Cari jenis..."
+              />
+            </div>
 
             <!-- Kelas Filter -->
-            <select
-              v-model="selectedKelas"
-              class="w-full sm:w-44 h-10 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-200 outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm cursor-pointer"
-            >
-              <option value="Semua Kelas">Semua Kelas</option>
-              <option v-for="kelas in kelasOptions" :key="kelas" :value="kelas">
-                {{ kelas }}
-              </option>
-            </select>
+            <div class="w-full sm:w-44">
+              <SearchableSelect
+                v-model="selectedKelas"
+                :options="kelasFilterOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="Semua Kelas"
+                search-placeholder="Cari kelas..."
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -192,6 +193,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { LogOut, Plus, FileSpreadsheet } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
+import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
 import PersonCard from "~/components/data/PersonCard.vue";
 import Pagination from "~/components/ui/Pagination.vue";
@@ -343,6 +345,17 @@ const kelasOptions = computed(() => {
   const all = dataMutasi.value.map((k) => k.kelas).filter((k) => k && k.trim() !== "");
   return [...new Set(all)].sort();
 });
+
+// Formatted options for SearchableSelect
+const jenisFilterOptions = computed(() => [
+  { label: "Semua Jenis Mutasi", value: "Semua Jenis" },
+  ...jenisOptions.value.map((j) => ({ label: j, value: j })),
+]);
+
+const kelasFilterOptions = computed(() => [
+  { label: "Semua Kelas", value: "Semua Kelas" },
+  ...kelasOptions.value.map((k) => ({ label: k, value: k })),
+]);
 
 // Filtering
 const filteredData = computed(() => {
