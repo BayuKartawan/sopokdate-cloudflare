@@ -32,30 +32,43 @@
 
         <!-- Tambah Mapel Button (Admin Only) -->
         <div v-if="isAdmin && activeTab === 'kurikulum'" class="w-full sm:w-auto mt-2 sm:mt-0 flex flex-wrap gap-2">
-          <button @click="syncFromEmisGtk" :disabled="emisMatrixRows.length === 0"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-indigo-650 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all shadow-lg shadow-indigo-950/20">
-            <RefreshCw class="w-4 h-4" />
-            Sync EMIS Mapel GTK
-          </button>
-          <button @click="showUploadModal = true"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-all border border-zinc-700 shadow-lg shadow-zinc-950/20">
-            <FileSpreadsheet class="w-4 h-4" />
-            Upload Excel
-          </button>
-          <button @click="addSubjectRow"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-lg shadow-emerald-950/20">
-            <Plus class="w-4 h-4" />
-            Tambah Mapel
-          </button>
+          <UiBaseButton
+            text="Sync EMIS Mapel GTK"
+            title="Sinkronkan kurikulum dengan referensi Mapel EMIS-GTK"
+            :disabled="emisMatrixRows.length === 0"
+            class="flex-1 sm:flex-none"
+            @click="syncFromEmisGtk"
+          >
+            <template #icon><RefreshCw class="w-4 h-4" /></template>
+          </UiBaseButton>
+          <UiBaseButton
+            text="Upload Excel"
+            title="Upload data kurikulum dari file Excel"
+            class="flex-1 sm:flex-none"
+            @click="showUploadModal = true"
+          >
+            <template #icon><FileSpreadsheet class="w-4 h-4" /></template>
+          </UiBaseButton>
+          <UiBaseButton
+            text="Tambah Mapel"
+            title="Tambah baris mata pelajaran baru ke kurikulum"
+            class="flex-1 sm:flex-none"
+            @click="addSubjectRow"
+          >
+            <template #icon><Plus class="w-4 h-4" /></template>
+          </UiBaseButton>
         </div>
 
         <!-- Tambah Mapel EMIS Button (Admin Only) -->
         <div v-if="isAdmin && activeTab === 'emis_mapel'" class="w-full sm:w-auto mt-2 sm:mt-0 flex flex-wrap gap-2">
-          <button @click="addEmisSubjectRow"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-lg shadow-emerald-950/20">
-            <Plus class="w-4 h-4" />
-            Tambah Mapel EMIS
-          </button>
+          <UiBaseButton
+            text="Tambah Mapel EMIS"
+            title="Tambah baris mata pelajaran baru ke referensi EMIS-GTK"
+            class="flex-1 sm:flex-none"
+            @click="addEmisSubjectRow"
+          >
+            <template #icon><Plus class="w-4 h-4" /></template>
+          </UiBaseButton>
         </div>
       </div>
 
@@ -281,11 +294,14 @@
                   <span class="text-xs sm:text-sm font-normal text-zinc-400">JP / hari</span>
                 </h3>
               </div>
-              <button @click="resetSimulator" :disabled="totalSelectedJP === 0"
-                class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-zinc-700/50">
-                <RefreshCw class="w-3.5 h-3.5" />
-                Reset Grid
-              </button>
+              <UiBaseButton
+                text="Reset Grid"
+                title="Reset semua slot JP yang dipilih"
+                :disabled="totalSelectedJP === 0"
+                @click="resetSimulator"
+              >
+                <template #icon><RefreshCw class="w-3.5 h-3.5" /></template>
+              </UiBaseButton>
             </div>
           </div>
 

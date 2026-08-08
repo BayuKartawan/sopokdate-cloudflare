@@ -21,39 +21,31 @@
           <!-- Action Buttons -->
           <div class="flex flex-wrap items-center gap-2">
             <!-- Tambah Mutasi Button (Admin Only) -->
-            <BaseButton v-if="isAdmin" text="Tambah" @click="openCreateModal"
-              class="!bg-orange-600 !text-white hover:!bg-orange-500 !border-orange-600 shadow-md shadow-orange-950/30">
+            <BaseButton v-if="isAdmin" text="Tambah" title="Tambah data mutasi baru" @click="openCreateModal">
               <template #icon>
                 <Plus class="w-4 h-4" />
               </template>
             </BaseButton>
 
             <!-- Upload Excel Button (Admin Only) -->
-            <BaseButton v-if="isAdmin" text="Upload" @click="showUploadModal = true"
-              class="!bg-zinc-800 hover:!bg-zinc-700 !text-zinc-200 !border-zinc-700">
+            <BaseButton v-if="isAdmin" text="Upload" title="Upload data mutasi dari file Excel" @click="showUploadModal = true">
               <template #icon>
                 <FileSpreadsheet class="w-4 h-4" />
               </template>
             </BaseButton>
 
             <!-- Export Excel Button -->
-            <button
-              @click="exportToExcel"
+            <BaseButton
+              :text="isExporting ? 'Ekspor...' : 'Ekspor'"
+              title="Ekspor data mutasi ke file Excel"
+              :loading="isExporting"
               :disabled="isExporting || sortedData.length === 0"
-              class="flex items-center justify-center gap-1.5 border px-3 py-1.5 rounded-md text-sm hover:translate-y-[1px] focus:ring-1 focus:ring-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              :style="{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }"
+              @click="exportToExcel"
             >
-              <svg v-if="!isExporting" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <svg v-else class="w-4 h-4 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              <span>{{ isExporting ? 'Ekspor...' : 'Ekspor' }}</span>
-            </button>
+              <template #icon>
+                <FileSpreadsheet class="w-4 h-4 shrink-0" />
+              </template>
+            </BaseButton>
           </div>
         </div>
 

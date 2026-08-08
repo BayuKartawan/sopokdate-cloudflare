@@ -1,11 +1,13 @@
 <template>
   <div class="page-layout">
     <!-- Breadcrumb / Tab Components -->
-    <div v-if="isAdmin && !isLoading" class="flex border-b border-zinc-700 mb-6 space-x-6">
+    <div v-if="isAdmin && !isLoading" class="flex border-b theme-border mb-6 space-x-6">
       <button
         @click="activeTab = 'generator'"
         class="pb-3 text-sm font-semibold transition-all border-b-2 px-1 focus:outline-none flex items-center gap-2"
-        :class="activeTab === 'generator' ? 'border-blue-500 text-blue-400 font-bold' : 'border-transparent text-zinc-400 hover:text-zinc-200'"
+        :class="activeTab === 'generator'
+          ? 'border-blue-500 text-blue-500 font-bold'
+          : 'border-transparent theme-text-muted hover:theme-text'"
       >
         <FileText class="w-4 h-4" />
         Generator Surat
@@ -13,7 +15,9 @@
       <button
         @click="activeTab = 'crud'"
         class="pb-3 text-sm font-semibold transition-all border-b-2 px-1 focus:outline-none flex items-center gap-2"
-        :class="activeTab === 'crud' ? 'border-blue-500 text-blue-400 font-bold' : 'border-transparent text-zinc-400 hover:text-zinc-200'"
+        :class="activeTab === 'crud'
+          ? 'border-blue-500 text-blue-500 font-bold'
+          : 'border-transparent theme-text-muted hover:theme-text'"
       >
         <Settings class="w-4 h-4" />
         Kelola Template (Admin)
@@ -32,7 +36,7 @@
         <!-- On mobile: show sidebar first, then main form. On xl and up: original order restored -->
         <div class="xl:col-span-2 order-2 xl:order-1">
           <div
-            class="rounded-xl shadow-sm border overflow-hidden bg-zinc-900 border-zinc-700"
+            class="rounded-xl shadow-sm border overflow-hidden theme-bg theme-border"
           >
             <div class="p-6 md:p-8">
               <FormUniversal
@@ -47,7 +51,7 @@
         <div class="xl:col-span-1 order-1 xl:order-2">
           <div class="sticky top-16 space-y-6">
             <div
-              class="rounded-xl shadow-sm border overflow-hidden p-5 bg-zinc-900 border-zinc-700"
+              class="rounded-xl shadow-sm border overflow-hidden p-5 theme-bg theme-border"
             >
               <BaseButton text="Buat banyak surat" to="/dokumen/surat/massal" />
             </div>

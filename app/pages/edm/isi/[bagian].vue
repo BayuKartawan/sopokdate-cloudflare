@@ -225,34 +225,44 @@
         <!-- Pagination Controls Bar -->
         <div class="pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3"
           style="border-color: var(--border-subtle)">
-          <button @click="prevPage" :disabled="currentPage === 1"
-            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed border cursor-pointer"
-            style="background: var(--bg-secondary); color: var(--text-primary); border-color: var(--border-primary)">
-            <ChevronLeft class="w-4 h-4" />
-            Sebelumnya
-          </button>
+          <UiBaseButton
+            text="Sebelumnya"
+            title="Soal sebelumnya"
+            :disabled="currentPage === 1"
+            @click="prevPage"
+          >
+            <template #icon><ChevronLeft class="w-4 h-4" /></template>
+          </UiBaseButton>
 
           <div class="text-xs sm:text-sm font-semibold text-center" style="color: var(--text-secondary)">
             Soal {{ currentPage }} dari {{ totalPages }}
           </div>
 
-          <button @click="nextPage" :disabled="currentPage === totalPages"
-            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed text-white bg-emerald-600 hover:bg-emerald-700 cursor-pointer">
-            Selanjutnya
-            <ChevronRight class="w-4 h-4" />
-          </button>
+          <UiBaseButton
+            text="Selanjutnya"
+            title="Soal berikutnya"
+            :disabled="currentPage === totalPages"
+            @click="nextPage"
+          >
+            <template #icon><ChevronRight class="w-4 h-4" /></template>
+          </UiBaseButton>
         </div>
       </div>
     </div>
 
     <!-- Bottom Save Button -->
     <div v-if="indikatorList.length > 0" class="mt-6 flex justify-center">
-      <button @click="handleSaveAll" :disabled="isSaving"
-        class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 active:scale-[0.97] transition-all shadow-lg w-full sm:w-auto cursor-pointer"
-        :class="hasUnsavedChanges ? 'ring-2 ring-emerald-500 ring-offset-2' : ''">
-        <Save class="w-5 h-5" />
-        {{ isSaving ? 'Menyimpan...' : 'Simpan Semua Jawaban Bagian' }}
-      </button>
+      <UiBaseButton
+        :text="isSaving ? 'Menyimpan...' : 'Simpan Semua Jawaban Bagian'"
+        title="Simpan semua jawaban untuk bagian ini"
+        :loading="isSaving"
+        :disabled="isSaving"
+        :class="hasUnsavedChanges ? 'ring-2 ring-emerald-500 ring-offset-2' : ''"
+        class="w-full sm:w-auto"
+        @click="handleSaveAll"
+      >
+        <template #icon><Save class="w-5 h-5" /></template>
+      </UiBaseButton>
     </div>
     </div>
   </div>

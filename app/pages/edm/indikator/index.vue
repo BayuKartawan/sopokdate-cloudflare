@@ -22,17 +22,20 @@
 
           <!-- Action buttons -->
           <div class="flex gap-2 sm:ml-auto">
-            <button @click="showImportModal = true"
-              class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer"
-              style="background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-primary)">
-              <Upload class="w-4 h-4 shrink-0" />
-              <span>Import Excel</span>
-            </button>
-            <NuxtLink :to="{ path: '/edm/indikator/tambah', query: { tahun_id: selectedTahunId, bagian: filterBagian || activeBagianTab || 'A' } }"
-              class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] transition-all shadow-sm">
-              <Plus class="w-4 h-4 shrink-0" />
-              <span>Tambah Indikator</span>
-            </NuxtLink>
+            <UiBaseButton
+              text="Import Excel"
+              title="Import data indikator dari file Excel"
+              @click="showImportModal = true"
+            >
+              <template #icon><Upload class="w-4 h-4 shrink-0" /></template>
+            </UiBaseButton>
+            <UiBaseButton
+              text="Tambah Indikator"
+              title="Tambah indikator baru ke halaman form"
+              :to="{ path: '/edm/indikator/tambah', query: { tahun_id: selectedTahunId, bagian: filterBagian || activeBagianTab || 'A' } }"
+            >
+              <template #icon><Plus class="w-4 h-4 shrink-0" /></template>
+            </UiBaseButton>
           </div>
         </div>
       </div>

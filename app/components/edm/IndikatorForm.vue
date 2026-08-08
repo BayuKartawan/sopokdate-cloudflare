@@ -34,12 +34,15 @@
             style="background: var(--bg-secondary); color: var(--text-primary)">
             Batal
           </NuxtLink>
-          <button @click="handleSave" :disabled="isSaving"
-            class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 active:scale-[0.97] transition-all shadow-md cursor-pointer">
-            <Save class="w-4 h-4" />
-            <span class="hidden sm:inline">{{ saveButtonText }}</span>
-            <span class="sm:hidden">{{ isSaving ? 'Simpan...' : 'Simpan' }}</span>
-          </button>
+          <UiBaseButton
+            :text="saveButtonText"
+            title="Simpan indikator ke database"
+            :loading="isSaving"
+            :disabled="isSaving"
+            @click="handleSave"
+          >
+            <template #icon><Save class="w-4 h-4" /></template>
+          </UiBaseButton>
         </div>
       </div>
 
@@ -164,11 +167,15 @@
               style="background: var(--bg-secondary); color: var(--text-primary)">
               Batal
             </NuxtLink>
-            <button @click="handleSave" :disabled="isSaving"
-              class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 active:scale-[0.97] transition-all shadow-md cursor-pointer">
-              <Save class="w-4 h-4" />
-              {{ saveButtonText }}
-            </button>
+            <UiBaseButton
+              :text="saveButtonText"
+              title="Simpan indikator ke database"
+              :loading="isSaving"
+              :disabled="isSaving"
+              @click="handleSave"
+            >
+              <template #icon><Save class="w-4 h-4" /></template>
+            </UiBaseButton>
           </div>
         </div>
 

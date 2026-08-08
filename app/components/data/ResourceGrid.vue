@@ -19,8 +19,12 @@
             <!-- Export Buttons -->
             <div class="flex items-center gap-2">
               <!-- Tambah Button (Admin Only) -->
-              <BaseButton v-if="isAdmin" text="Tambah" @click="openCreateModal"
-                class="!bg-emerald-600 !text-white hover:!bg-emerald-500">
+              <BaseButton
+                v-if="isAdmin"
+                text="Tambah"
+                title="Tambah data baru"
+                @click="openCreateModal"
+              >
                 <template #icon>
                   <Plus class="w-4 h-4" />
                 </template>
@@ -37,36 +41,27 @@
                   <table class="w-full border-collapse border border-stone-300">
                     <thead>
                       <tr class="bg-stone-100">
-                        <th class="border border-stone-300 p-2 text-left">
-                          No
-                        </th>
-                        <th class="border border-stone-300 p-2 text-left">
-                          Judul
-                        </th>
-                        <th class="border border-stone-300 p-2 text-left">
-                          Keterangan
-                        </th>
+                        <th class="border border-stone-300 p-2 text-left">No</th>
+                        <th class="border border-stone-300 p-2 text-left">Judul</th>
+                        <th class="border border-stone-300 p-2 text-left">Keterangan</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="(item, index) in sortedData" :key="index">
-                        <td class="border border-stone-300 p-2 text-center">
-                          {{ index + 1 }}
-                        </td>
-                        <td class="border border-stone-300 p-2">
-                          {{ item.title || item.nama }}
-                        </td>
-                        <td class="border border-stone-300 p-2">
-                          {{ item.description || "" }}
-                        </td>
+                        <td class="border border-stone-300 p-2 text-center">{{ index + 1 }}</td>
+                        <td class="border border-stone-300 p-2">{{ item.title || item.nama }}</td>
+                        <td class="border border-stone-300 p-2">{{ item.description || "" }}</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               </PrintButton>
 
-              <BaseButton text="Excel" @click="exportToExcel"
-                class="shadow-sm bg-emerald-600 border-emerald-500 text-white hover:bg-emerald-500">
+              <BaseButton
+                text="Excel"
+                title="Ekspor data ke file Excel (CSV)"
+                @click="exportToExcel"
+              >
                 <template #icon>
                   <FileSpreadsheet class="w-4 h-4" />
                 </template>
@@ -132,23 +127,38 @@
                     <div class="flex items-center gap-1 shrink-0">
                       <!-- Admin Edit/Delete -->
                       <template v-if="isAdmin">
-                        <button @click.stop="openEditModal(item)"
-                          class="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-card-hover)]"
-                          :style="{ color: 'var(--text-secondary)' }" title="Edit">
-                          <PencilIcon class="w-4 h-4" />
-                        </button>
-                        <button @click.stop="handleDelete(item)"
-                          class="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-card-hover)]"
-                          :style="{ color: 'var(--text-secondary)' }" title="Hapus">
-                          <Trash2 class="w-4 h-4" />
-                        </button>
+                        <BaseButton
+                          icon-only
+                          size="sm"
+                          title="Edit item ini"
+                          @click.stop="openEditModal(item)"
+                        >
+                          <template #icon>
+                            <PencilIcon class="w-4 h-4" />
+                          </template>
+                        </BaseButton>
+                        <BaseButton
+                          icon-only
+                          size="sm"
+                          title="Hapus item ini"
+                          @click.stop="handleDelete(item)"
+                        >
+                          <template #icon>
+                            <Trash2 class="w-4 h-4" />
+                          </template>
+                        </BaseButton>
                       </template>
 
-                      <button @click.prevent="copyLink(item.link)"
-                        class="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-card-hover)]"
-                        :style="{ color: 'var(--text-secondary)' }" title="Salin Link">
-                        <ExternalLink class="w-4 h-4" />
-                      </button>
+                      <BaseButton
+                        icon-only
+                        size="sm"
+                        title="Salin link"
+                        @click.prevent="copyLink(item.link)"
+                      >
+                        <template #icon>
+                          <ExternalLink class="w-4 h-4" />
+                        </template>
+                      </BaseButton>
                     </div>
                   </div>
                 </div>

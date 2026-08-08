@@ -37,25 +37,28 @@
             <!-- Admin Only Actions -->
             <template v-if="isAdmin">
               <div class="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto">
-                <button
+                <UiBaseButton
                   v-if="hasPromotedStudents"
-                  @click="handleResetPromotions"
+                  text="Tahun Ajaran Baru"
+                  :loading="isResetting"
                   :disabled="isResetting"
-                  class="flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-medium rounded-lg bg-zinc-800 hover:bg-zinc-750 border border-zinc-700/60 text-zinc-300 disabled:opacity-50 transition-all shadow-sm w-full sm:w-auto"
+                  class="w-full sm:w-auto"
+                  @click="handleResetPromotions"
                 >
-                  <RefreshCw
-                    :class="{ 'animate-spin': isResetting }"
-                    class="w-4 h-4 text-emerald-400 shrink-0"
-                  />
-                  <span>Tahun Ajaran Baru</span>
-                </button>
-                <button
+                  <template #icon>
+                    <RefreshCw class="w-4 h-4 shrink-0" />
+                  </template>
+                </UiBaseButton>
+
+                <UiBaseButton
+                  text="Tambah Rombel"
+                  class="w-full sm:w-auto"
                   @click="openCreateModal"
-                  class="flex items-center justify-center gap-2 px-4 py-2 text-xs sm:text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-sm w-full sm:w-auto"
                 >
-                  <Plus class="w-4 h-4 shrink-0" />
-                  <span>Tambah Rombel</span>
-                </button>
+                  <template #icon>
+                    <Plus class="w-4 h-4 shrink-0" />
+                  </template>
+                </UiBaseButton>
               </div>
             </template>
           </div>

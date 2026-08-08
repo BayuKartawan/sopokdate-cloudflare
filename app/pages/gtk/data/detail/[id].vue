@@ -49,22 +49,24 @@
 
             <!-- Admin Actions -->
             <div v-if="isAdmin" class="flex items-center gap-2 flex-shrink-0">
-              <button
+              <BaseButton
+                text="Edit"
+                title="Edit data GTK ini"
                 @click="openEditModal(gtkDetail)"
-                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-colors"
-                title="Edit"
               >
-                <Pencil class="w-3.5 h-3.5" />
-                Edit
-              </button>
-              <button
+                <template #icon>
+                  <Pencil class="w-3.5 h-3.5" />
+                </template>
+              </BaseButton>
+              <BaseButton
+                text="Hapus"
+                title="Hapus data GTK ini secara permanen"
                 @click="handleDelete(gtkDetail)"
-                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600 hover:bg-red-500 text-white transition-colors"
-                title="Hapus"
               >
-                <Trash2 class="w-3.5 h-3.5" />
-                Hapus
-              </button>
+                <template #icon>
+                  <Trash2 class="w-3.5 h-3.5" />
+                </template>
+              </BaseButton>
             </div>
           </div>
         </div>
@@ -181,6 +183,7 @@ import { useTableData } from "~/composables/data/useTableData";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { useCrud } from "~/composables/data/useCrud";
 import CrudModal from "~/components/ui/CrudModal.vue";
+import BaseButton from "~/components/ui/BaseButton.vue";
 
 const { cardData, loadData } = useTableData();
 const route = useRoute();

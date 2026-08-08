@@ -35,7 +35,7 @@
       >
         <h3 class="text-base font-bold mb-2">Data tidak ditemukan</h3>
         <p class="text-sm text-zinc-400 mb-4">{{ error }}</p>
-        <BaseButton text="Kembali ke Daftar" @click="$emit('click-back')" />
+        <BaseButton text="Kembali ke Daftar" title="Kembali ke daftar" @click="$emit('click-back')" />
       </div>
 
       <!-- Detail Content -->
@@ -79,8 +79,8 @@
               <slot name="actions"></slot>
               <BaseButton
                 text="Kembali"
+                title="Kembali ke daftar"
                 @click="$emit('click-back')"
-                class="text-xs"
               />
             </div>
           </div>

@@ -146,13 +146,15 @@
                 placeholder="Nama Asesmen..."
                 class="theme-input px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-sm" />
 
-              <button @click="addJenisAsesmen" :disabled="isAddingJenis"
-                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5">
-                <Loader2 v-if="isAddingJenis" class="w-4 h-4 animate-spin" />
-                <Plus v-else class="w-4 h-4" />
-                <span>Tambah</span>
-              </button>
-            </div>
+              <UiBaseButton
+                text="Tambah"
+                title="Tambah kategori asesmen baru"
+                :loading="isAddingJenis"
+                :disabled="isAddingJenis"
+                @click="addJenisAsesmen"
+              >
+                <template #icon><Plus class="w-4 h-4" /></template>
+              </UiBaseButton>            </div>
           </div>
         </div>
 
@@ -208,11 +210,14 @@
                 Dibuat: {{ formatDate(jenis.created_at) }}
               </span>
 
-              <button @click="selectJenisAsesmen(jenis)"
-                class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg transition-colors flex items-center gap-1">
-                <span>{{ isLocked ? 'Lihat Nilai' : 'Input Nilai' }}</span>
-                <ChevronRight class="w-3.5 h-3.5" />
-              </button>
+              <UiBaseButton
+                :text="isLocked ? 'Lihat Nilai' : 'Input Nilai'"
+                :title="isLocked ? 'Lihat nilai siswa untuk asesmen ini' : 'Input nilai siswa untuk asesmen ini'"
+                size="sm"
+                @click="selectJenisAsesmen(jenis)"
+              >
+                <template #icon><ChevronRight class="w-3.5 h-3.5" /></template>
+              </UiBaseButton>
             </div>
           </div>
         </div>
@@ -245,12 +250,16 @@
 
           <!-- Actions (Hidden/Disabled if Locked) -->
           <div class="flex items-center gap-3">
-            <button v-if="!isLocked" @click="saveGrades" :disabled="isSavingGrades || !hasUnsavedChanges"
-              class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5">
-              <Loader2 v-if="isSavingGrades" class="w-4 h-4 animate-spin" />
-              <Save v-else class="w-4 h-4" />
-              <span>Simpan Perubahan</span>
-            </button>
+            <UiBaseButton
+              v-if="!isLocked"
+              text="Simpan Perubahan"
+              title="Simpan semua perubahan nilai siswa"
+              :loading="isSavingGrades"
+              :disabled="isSavingGrades || !hasUnsavedChanges"
+              @click="saveGrades"
+            >
+              <template #icon><Save class="w-4 h-4" /></template>
+            </UiBaseButton>
             <span v-else
               class="text-xs font-semibold theme-text-muted theme-bg-secondary px-3 py-1.5 border theme-border rounded-lg">
               Mode Baca
@@ -368,12 +377,16 @@
               Menampilkan <span class="font-bold theme-text-secondary">{{ studentGrades.length }}</span> siswa
             </span>
 
-            <button v-if="!isLocked" @click="saveGrades" :disabled="isSavingGrades || !hasUnsavedChanges"
-              class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5">
-              <Loader2 v-if="isSavingGrades" class="w-4 h-4 animate-spin" />
-              <Save v-else class="w-4 h-4" />
-              <span>Simpan Perubahan</span>
-            </button>
+            <UiBaseButton
+              v-if="!isLocked"
+              text="Simpan Perubahan"
+              title="Simpan semua perubahan nilai siswa"
+              :loading="isSavingGrades"
+              :disabled="isSavingGrades || !hasUnsavedChanges"
+              @click="saveGrades"
+            >
+              <template #icon><Save class="w-4 h-4" /></template>
+            </UiBaseButton>
             <span v-else class="text-xs font-semibold theme-text-muted">
               Pengeditan Terkunci
             </span>

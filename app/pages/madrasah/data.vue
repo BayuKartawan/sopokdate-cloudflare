@@ -5,20 +5,20 @@
       <!-- dataMadrasah Section with New Layout -->
       <section>
         <div
-          class="rounded-lg shadow-sm border overflow-hidden transition-all duration-300 bg-zinc-900 border-zinc-800"
+          class="rounded-lg shadow-sm border overflow-hidden transition-all duration-300 theme-bg theme-border"
         >
           <!-- Section Header -->
           <div
-            class="px-6 md:px-8 py-6 transition-all duration-300 bg-zinc-800"
+            class="px-6 md:px-8 py-6 transition-all duration-300 theme-bg-secondary"
           >
             <div
               class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
             >
               <div class="flex items-center gap-3">
                 <div>
-                  <h2 class="text-2xl md:text-3xl text-white">Data Madrasah</h2>
+                  <h2 class="text-2xl md:text-3xl theme-text-heading">Data Madrasah</h2>
                   <p
-                    class="text-sm mt-1 transition-colors duration-300 text-zinc-300"
+                    class="text-sm mt-1 transition-colors duration-300 theme-text-secondary"
                   >
                     Kumpulan data madrasah dan informasi akreditasi
                   </p>
@@ -27,13 +27,15 @@
 
               <!-- Admin Actions -->
               <div v-if="isAdmin" class="flex items-center gap-2">
-                <button
+                <BaseButton
+                  text="Edit Data"
+                  title="Edit data madrasah"
                   @click="openEditModal"
-                  class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition-all"
                 >
-                  <Pencil class="w-4 h-4" />
-                  Edit Data
-                </button>
+                  <template #icon>
+                    <Pencil class="w-4 h-4" />
+                  </template>
+                </BaseButton>
               </div>
             </div>
           </div>
@@ -42,10 +44,10 @@
           <div class="p-6">
             <div v-if="dataMadrasah.length === 0" class="text-center py-12">
               <Database
-                class="w-16 h-16 mx-auto mb-4 transition-colors duration-300 text-zinc-600"
+                class="w-16 h-16 mx-auto mb-4 transition-colors duration-300 theme-text-muted"
                 stroke-width="1.5"
               />
-              <p class="transition-colors duration-300 text-zinc-400">
+              <p class="transition-colors duration-300 theme-text-muted">
                 Tidak ada data madrasah yang ditemukan
               </p>
             </div>
@@ -55,28 +57,23 @@
               <div
                 v-for="(item, index) in visibleDataMadrasahItems"
                 :key="index"
-                class="overflow-hidden transition-all duration-300 bg-zinc-900 border-zinc-800/50"
+                class="overflow-hidden transition-all duration-300"
               >
                 <div class="flow-root">
-                  <dl
-                    :class="[
-                      'divide-y text-sm transition-colors duration-300',
-                      'divide-zinc-700/50 [&>*:nth-child(even)]:bg-zinc-800/50',
-                    ]"
-                  >
-                    <!-- Dynamic Fields -->
+                  <dl class="text-sm transition-colors duration-300">                    <!-- Dynamic Fields -->
                     <div
-                      v-for="field in tableFields"
+                      v-for="(field, fieldIndex) in tableFields"
                       :key="field.key"
-                      class="grid grid-cols-1 gap-1 p-3 sm:grid-cols-3 sm:gap-4"
+                      class="grid grid-cols-1 gap-1 p-3 sm:grid-cols-3 sm:gap-4 transition-colors duration-300"
+                      :class="fieldIndex % 2 === 0 ? 'theme-bg' : 'theme-bg-secondary'"
                     >
                       <dt
-                        class="font-medium transition-colors duration-300 text-gray-200"
+                        class="font-medium transition-colors duration-300 theme-text"
                       >
                         {{ field.label }}
                       </dt>
                       <dd
-                        class="sm:col-span-2 transition-colors duration-300 text-gray-300"
+                        class="sm:col-span-2 transition-colors duration-300 theme-text-secondary cursor-pointer hover:text-emerald-500 select-all"
                         @click="copyToClipboard(item[field.key] || '-')"
                         title="Klik untuk menyalin"
                       >
@@ -113,6 +110,7 @@ import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import CrudModal from "~/components/ui/CrudModal.vue";
+import BaseButton from "~/components/ui/BaseButton.vue";
 
 const { cardData: dataMadrasah, loadData, refreshData } = useTableData();
 const { Notify } = useNotiflix();

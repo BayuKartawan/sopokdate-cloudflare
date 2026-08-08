@@ -254,7 +254,7 @@
 
     <!-- Empty State -->
     <div v-else class="text-center py-12">
-      <div class="text-zinc-600 space-y-3">
+      <div class="theme-text-muted space-y-3">
         <FileText class="w-16 h-16 mx-auto" />
         <div>
           <h3 class="text-sm font-medium mb-1" :style="{ color: 'var(--text-secondary)' }">

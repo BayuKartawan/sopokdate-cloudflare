@@ -20,20 +20,24 @@
     >
       <template #actions>
         <template v-if="isAdmin && !siswaDetail?._isMutasi">
-          <button
+          <BaseButton
+            text="Edit"
+            title="Edit data siswa ini"
             @click="openEditModal(siswaDetail)"
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-amber-400 border border-amber-500/30 hover:bg-amber-500/10 transition-all"
           >
-            <Pencil class="w-3.5 h-3.5" />
-            Edit
-          </button>
-          <button
+            <template #icon>
+              <Pencil class="w-3.5 h-3.5" />
+            </template>
+          </BaseButton>
+          <BaseButton
+            text="Mutasi Keluar"
+            title="Pindahkan siswa ini ke daftar mutasi keluar"
             @click="handleMutasiKeluar(siswaDetail)"
-            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-orange-400 border border-orange-500/30 hover:bg-orange-500/10 transition-all"
           >
-            <LogOut class="w-3.5 h-3.5" />
-            Mutasi Keluar
-          </button>
+            <template #icon>
+              <LogOut class="w-3.5 h-3.5" />
+            </template>
+          </BaseButton>
         </template>
       </template>
     </SiswaDetailLayout>
@@ -57,6 +61,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { Pencil, LogOut } from "lucide-vue-next";
 import SiswaDetailLayout from "~/components/siswa/SiswaDetailLayout.vue";
 import CrudModal from "~/components/ui/CrudModal.vue";
+import BaseButton from "~/components/ui/BaseButton.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";

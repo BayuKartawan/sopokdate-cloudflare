@@ -82,7 +82,7 @@ const loadingIcon = Loader2;
 const iconSize = computed(() => (props.size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4"));
 
 const classes = computed(() => [
-  "flex items-center justify-center gap-2 border rounded-md text-sm transition-all duration-200",
+  "inline-flex items-center justify-center gap-2 border rounded-md text-sm font-medium transition-all duration-200",
   "hover:translate-y-[1px] focus:ring-1 focus:ring-zinc-500 focus:ring-offset-1",
   "disabled:opacity-50 disabled:cursor-not-allowed",
   props.iconOnly
@@ -90,8 +90,8 @@ const classes = computed(() => [
       ? "p-1.5"
       : "p-2"
     : props.size === "sm"
-      ? "px-2 py-1"
-      : "px-3 py-1.5",
+      ? "h-8 px-2"
+      : "h-9 px-3",
 ]);
 
 const styleVars = {

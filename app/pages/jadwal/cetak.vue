@@ -134,13 +134,13 @@
 
       <!-- Action Buttons (Hidden on print) -->
       <div v-if="hasSelection" class="flex justify-end gap-3 mb-6 print:hidden">
-        <button
+        <UiBaseButton
+          text="Cetak Jadwal"
+          title="Cetak jadwal yang ditampilkan"
           @click="handlePrint"
-          class="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-lg shadow-emerald-950/20"
         >
-          <Printer class="w-4 h-4" />
-          Cetak Jadwal
-        </button>
+          <template #icon><Printer class="w-4 h-4" /></template>
+        </UiBaseButton>
       </div>
 
       <!-- Printable Area (always light mode to match print output) -->

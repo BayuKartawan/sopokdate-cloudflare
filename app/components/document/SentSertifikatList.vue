@@ -6,32 +6,38 @@
         <Search @searchUpdated="handleSearch" />
       </div>
       <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-        <button @click="refreshDataList" :disabled="isLoading"
-          class="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-all duration-200 bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 disabled:opacity-50 cursor-pointer">
-          <RefreshCw :class="{ 'animate-spin': isLoading }" class="w-4 h-4" />
-          Refresh
-        </button>
+        <BaseButton
+          text="Refresh"
+          title="Muat ulang data sertifikat"
+          :loading="isLoading"
+          @click="refreshDataList"
+        >
+          <template #icon>
+            <RefreshCw class="w-4 h-4" />
+          </template>
+        </BaseButton>
       </div>
     </div>
 
-    <!-- Data State -->
+    <!-- Loading State -->
     <div v-if="isLoading" class="flex flex-col items-center justify-center py-12">
       <RefreshCw class="w-8 h-8 animate-spin text-emerald-500 mb-2" />
-      <p class="text-zinc-400 text-sm">Memuat data rekap sertifikat...</p>
+      <p class="theme-text-muted text-sm">Memuat data rekap sertifikat...</p>
     </div>
 
+    <!-- Empty State -->
     <div v-else-if="filteredData.length === 0"
-      class="text-center bg-zinc-900 border border-zinc-800 rounded-lg py-12 text-zinc-400">
+      class="text-center theme-bg-secondary border theme-border rounded-lg py-12 theme-text-muted">
       <p class="text-base">Tidak ada data rekap sertifikat yang ditemukan.</p>
-      <p class="text-xs text-zinc-500 mt-1">
-        Data akan muncul setelah Anda mengirim data cetak sertifikat juara
-        kelas.
+      <p class="text-xs theme-text-faint mt-1">
+        Data akan muncul setelah Anda mengirim data cetak sertifikat juara kelas.
       </p>
     </div>
 
-    <div v-else class="bg-zinc-900 border border-zinc-800 rounded-lg overflow-x-auto">
-      <table class="min-w-full text-zinc-300 text-sm">
-        <thead class="bg-zinc-800/50 text-zinc-400 border-b border-zinc-800">
+    <!-- Table -->
+    <div v-else class="theme-bg border theme-border rounded-lg overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="theme-bg-secondary theme-text-muted">
           <tr>
             <th class="py-3 px-4 text-left font-semibold">No</th>
             <th class="py-3 px-4 text-left font-semibold">No Surat</th>
@@ -45,47 +51,46 @@
             <th class="py-3 px-4 text-center font-semibold">Aksi</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-zinc-800/50">
-          <tr v-for="(item, index) in paginatedData" :key="index" class="hover:bg-zinc-800/30 transition-colors">
-            <td class="py-3 px-4">{{ startNumber + index }}</td>
-            <td class="py-3 px-4 font-mono text-zinc-400 text-xs">
-              {{ item.nomor }}
-            </td>
-            <td class="py-3 px-4 font-semibold text-zinc-200">
-              {{ item.nama_lengkap }}
-            </td>
-            <td class="py-3 px-4">{{ item.nisn || item.nis }}</td>
-            <td class="py-3 px-4 text-center">{{ item.kelas }}</td>
+        <tbody class="[&>tr+tr]:border-t [&>tr+tr]:border-[var(--border-primary)]">
+          <tr
+            v-for="(item, index) in paginatedData"
+            :key="index"
+            class="hover:theme-bg-secondary transition-colors"
+          >
+            <td class="py-3 px-4 theme-text-secondary">{{ startNumber + index }}</td>
+            <td class="py-3 px-4 font-mono theme-text-muted text-xs">{{ item.nomor }}</td>
+            <td class="py-3 px-4 font-semibold theme-text">{{ item.nama_lengkap }}</td>
+            <td class="py-3 px-4 theme-text-secondary">{{ item.nisn || item.nis }}</td>
+            <td class="py-3 px-4 text-center theme-text-secondary">{{ item.kelas }}</td>
             <td class="py-3 px-4 text-center">
-              <span
-                class="inline-block bg-emerald-950/50 text-emerald-400 border border-emerald-800/30 px-2 py-0.5 rounded text-xs font-semibold">
+              <span class="inline-block bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 px-2 py-0.5 rounded text-xs font-semibold">
                 {{ item.juara }}
               </span>
             </td>
-            <td class="py-3 px-4 text-zinc-400 text-xs">
-              {{ item.wali_kelas }}
-            </td>
-            <td class="py-3 px-4 text-zinc-400 text-xs">
-              {{ formatTanggalIndo(item.date) }}
-            </td>
-            <td class="py-3 px-4 text-zinc-400 text-xs">
-              Sem. {{ item.semester }} <br />
+            <td class="py-3 px-4 theme-text-muted text-xs">{{ item.wali_kelas }}</td>
+            <td class="py-3 px-4 theme-text-muted text-xs">{{ formatTanggalIndo(item.date) }}</td>
+            <td class="py-3 px-4 theme-text-muted text-xs">
+              Sem. {{ item.semester }}<br />
               TP. {{ item.tahun_pelajaran }}
             </td>
             <td class="py-3 px-4 text-center">
-              <button @click="printItem(item)"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-emerald-600 text-white hover:bg-emerald-500 text-xs font-semibold cursor-pointer transition-colors"
-                title="Cetak Ulang Sertifikat">
-                <Printer class="w-3.5 h-3.5" />
-                Cetak
-              </button>
+              <BaseButton
+                text="Cetak"
+                size="sm"
+                title="Cetak ulang sertifikat ini"
+                @click="printItem(item)"
+              >
+                <template #icon>
+                  <Printer class="w-3.5 h-3.5" />
+                </template>
+              </BaseButton>
             </td>
           </tr>
         </tbody>
       </table>
 
       <!-- Pagination -->
-      <div class="p-4 border-t border-zinc-800">
+      <div class="p-4 border-t theme-border">
         <Pagination :currentPage="currentPage" :totalPages="totalPages" @pageChanged="handlePageChange" />
       </div>
     </div>
@@ -98,6 +103,7 @@ import { useRouter } from "vue-router";
 import { Printer, RefreshCw } from "lucide-vue-next";
 import Search from "~/components/ui/Search.vue";
 import Pagination from "~/components/ui/Pagination.vue";
+import BaseButton from "~/components/ui/BaseButton.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { formatTanggalIndo } from "~/utils/date";
 

@@ -9,8 +9,7 @@
       <!-- Action Buttons -->
       <div class="flex items-center gap-2">
         <!-- Tambah Akun Button (Admin Only) -->
-        <BaseButton v-if="isAdmin" text="Tambah" @click="openCreateModal"
-          class="!bg-emerald-600 !text-white hover:!bg-emerald-500">
+        <BaseButton v-if="isAdmin" text="Tambah" @click="openCreateModal">
           <template #icon>
             <Plus class="w-4 h-4" />
           </template>

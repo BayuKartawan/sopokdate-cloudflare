@@ -24,8 +24,8 @@
           <!-- Print Button -->
           <BaseButton
             text="Cetak Kalender"
+            title="Buka pratinjau cetak kalender pendidikan"
             @click="openPrintPreview"
-            class="!bg-[var(--bg-tertiary)] !text-[var(--text-primary)] hover:!bg-[var(--bg-secondary)] shadow-lg"
           >
             <template #icon>
               <Printer class="w-4 h-4" />
@@ -36,8 +36,8 @@
           <BaseButton
             v-if="isAdmin"
             text="Tambah Agenda / Libur"
+            title="Tambah agenda atau hari libur baru"
             @click="openCreateModal"
-            class="!bg-emerald-600 !text-white hover:!bg-emerald-500 shadow-lg shadow-emerald-900/20"
           >
             <template #icon>
               <Plus class="w-4 h-4" />
@@ -82,9 +82,10 @@
             <BaseButton
               v-if="isAdmin"
               :text="isSavingSettings ? '...' : 'Simpan'"
+              title="Simpan pengaturan hari libur mingguan"
               @click="saveWeeklyHoliday"
               :disabled="isSavingSettings"
-              class="!bg-[var(--bg-tertiary)] !text-[var(--text-primary)] hover:!bg-[var(--bg-secondary)] !px-4 shrink-0"
+              class="shrink-0"
             />
           </div>
         </div>
@@ -228,8 +229,8 @@
             <div class="flex items-center gap-1.5 shrink-0">
               <BaseButton
                 text="Cetak"
+                title="Cetak kalender pendidikan"
                 @click="doPrint"
-                class="!bg-emerald-600 !text-white hover:!bg-emerald-500 !h-7 !text-xs !px-3"
               >
                 <template #icon>
                   <Printer class="w-3 h-3" />

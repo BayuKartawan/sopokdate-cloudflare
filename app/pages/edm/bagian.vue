@@ -13,11 +13,15 @@
         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
           {{ selectedTahunLabel }}
         </span>
-        <button @click="handleSave" :disabled="isSaving"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 active:scale-[0.97] transition-all shadow-sm cursor-pointer">
-          <Save class="w-4 h-4" />
-          {{ isSaving ? 'Menyimpan...' : 'Simpan Pembagian' }}
-        </button>
+        <UiBaseButton
+          :text="isSaving ? 'Menyimpan...' : 'Simpan Pembagian'"
+          title="Simpan pembagian guru ke dalam bagian EDM"
+          :loading="isSaving"
+          :disabled="isSaving"
+          @click="handleSave"
+        >
+          <template #icon><Save class="w-4 h-4" /></template>
+        </UiBaseButton>
       </div>
     </div>
 
