@@ -1,5 +1,10 @@
 <template>
-  <AccountTable :key="tableKey" :title="pageTitle" :initialTable="tableName" />
+  <AccountTable
+    :key="tableKey"
+    :title="pageTitle"
+    :initialTable="tableName"
+    :breadcrumbs="breadcrumbs"
+  />
 </template>
 
 <script setup>
@@ -30,4 +35,11 @@ const currentConfig = computed(() => {
 const tableName = computed(() => currentConfig.value.name);
 const pageTitle = computed(() => `Daftar Akun ${currentConfig.value.label}`);
 const tableKey = computed(() => currentConfig.value.name);
+
+const breadcrumbs = computed(() => [
+  { label: "Beranda", to: "/" },
+  { label: "GTK" },
+  { label: "Akun" },
+  { label: currentConfig.value.label },
+]);
 </script>

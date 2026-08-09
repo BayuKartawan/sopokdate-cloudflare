@@ -1,15 +1,9 @@
 <template>
   <div class="page-layout">
     <!-- Header Text -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between mb-5 gap-4">
-      <h1 class="text-2xl" :style="{ color: 'var(--text-heading)' }">
-        {{ title }}
-      </h1>
-
-      <!-- Action Buttons -->
-      <div class="flex items-center gap-2">
-        <!-- Tambah Akun Button (Admin Only) -->
-        <BaseButton v-if="isAdmin" text="Tambah" @click="openCreateModal">
+    <UiPageHeader :title="title" :breadcrumbs="breadcrumbs">
+      <template #actions>
+        <BaseButton v-if="isAdmin" text="Tambah" title="Tambah akun baru" @click="openCreateModal">
           <template #icon>
             <Plus class="w-4 h-4" />
           </template>
@@ -29,39 +23,29 @@
                 <tr class="bg-stone-100">
                   <th class="border border-stone-300 p-2 text-left">No</th>
                   <th class="border border-stone-300 p-2 text-left">Nama</th>
-                  <th class="border border-stone-300 p-2 text-left">
-                    Username
-                  </th>
-                  <th class="border border-stone-300 p-2 text-left">
-                    Password
-                  </th>
+                  <th class="border border-stone-300 p-2 text-left">Username</th>
+                  <th class="border border-stone-300 p-2 text-left">Password</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(item, index) in sortedData" :key="index">
                   <td class="border border-stone-300 p-2">{{ index + 1 }}</td>
                   <td class="border border-stone-300 p-2">{{ item.nama }}</td>
-                  <td class="border border-stone-300 p-2 font-mono">
-                    {{ item.username }}
-                  </td>
-                  <td class="border border-stone-300 p-2 font-mono">
-                    {{ item.password }}
-                  </td>
+                  <td class="border border-stone-300 p-2 font-mono">{{ item.username }}</td>
+                  <td class="border border-stone-300 p-2 font-mono">{{ item.password }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </PrintButton>
 
-        <BaseButton text="Excel" @click="exportToExcel"
-          class="shadow-sm border-emerald-600 text-emerald-600 dark:text-emerald-400"
-          :style="{ backgroundColor: 'var(--bg-secondary)' }">
+        <BaseButton text="Excel" title="Ekspor data ke Excel" @click="exportToExcel">
           <template #icon>
             <FileSpreadsheet class="w-4 h-4" />
           </template>
         </BaseButton>
-      </div>
-    </div>
+      </template>
+    </UiPageHeader>
 
     <!-- Search and Dropdown -->
     <div class="w-full flex flex-col sm:flex-row gap-3 sm:gap-4 mb-2">
@@ -252,6 +236,11 @@ interface DropdownOption {
   label: string;
 }
 
+interface Breadcrumb {
+  label: string;
+  to?: string;
+}
+
 interface AkunItem {
   id?: string;
   _id?: string;
@@ -287,6 +276,7 @@ const props = defineProps<{
   dropdownOptions?: DropdownOption[] | null;
   showEmptyStateDetails?: boolean;
   pageSize?: number;
+  breadcrumbs?: Breadcrumb[];
 }>();
 
 const { pageSize = 12, dropdownOptions = null, showEmptyStateDetails = false } = props;

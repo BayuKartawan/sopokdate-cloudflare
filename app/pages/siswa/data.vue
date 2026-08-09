@@ -3,34 +3,23 @@
     <div class="page-layout">
       <!-- Top Section: Title & Actions -->
       <div class="flex flex-col gap-4 sm:gap-6 mb-6">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div class="min-w-0 flex-1">
-            <h2 class="text-xl sm:text-2xl font-bold flex items-center gap-2" :style="{ color: 'var(--text-heading)' }">
-              <GraduationCap class="w-7 h-7 text-emerald-400 shrink-0" />
-              Data Siswa
-            </h2>
-            <p class="text-sm mt-1" style="color: var(--text-muted)">
-              Manajemen dan informasi seluruh siswa madrasah
-            </p>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex flex-wrap items-center gap-2">
-            <!-- Tambah Siswa Button (Admin Only) -->
+        <UiPageHeader
+          title="Data Siswa"
+          :breadcrumbs="[
+            { label: 'Beranda', to: '/' },
+            { label: 'Akademik' },
+            { label: 'Data Siswa' },
+          ]"
+        >
+          <template #actions>
             <BaseButton v-if="isAdmin" text="Tambah" title="Tambah data siswa baru" @click="openCreateModal">
-              <template #icon>
-                <Plus class="w-4 h-4" />
-              </template>
+              <template #icon><Plus class="w-4 h-4" /></template>
             </BaseButton>
 
-            <!-- Upload Excel Button (Admin Only) -->
             <BaseButton v-if="isAdmin" text="Upload" title="Upload data siswa dari file Excel" @click="showUploadModal = true">
-              <template #icon>
-                <FileSpreadsheet class="w-4 h-4" />
-              </template>
+              <template #icon><FileSpreadsheet class="w-4 h-4" /></template>
             </BaseButton>
 
-            <!-- Export Excel Button -->
             <BaseButton
               :text="isExporting ? 'Ekspor...' : 'Ekspor'"
               title="Ekspor data siswa ke file Excel"
@@ -38,83 +27,46 @@
               :disabled="isExporting || sortedData.length === 0"
               @click="exportToExcel"
             >
-              <template #icon>
-                <FileSpreadsheet class="w-4 h-4 shrink-0" />
-              </template>
+              <template #icon><FileSpreadsheet class="w-4 h-4 shrink-0" /></template>
             </BaseButton>
 
-            <!-- Print Button -->
             <PrintButton>
               <div class="p-10 mx-auto bg-white text-black">
-                <!-- Kop Surat -->
                 <KopSurat class="mb-4" />
-
-                <!-- Header -->
                 <div class="text-center mb-6">
                   <h1 class="font-bold uppercase text-lg">Daftar Data Siswa</h1>
                   <p class="text-sm">Kelas/Rombel: {{ selectedClass }}</p>
                 </div>
-
-                <!-- Tabel Cetak -->
                 <table class="w-full table-auto border border-gray-800 mb-4 text-xs">
                   <thead class="bg-gray-100">
                     <tr>
                       <th class="border border-gray-800 px-2 py-1.5 w-8">No</th>
                       <th class="border border-gray-800 px-2 py-1.5">Nama</th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-24">
-                        NISN
-                      </th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-24">
-                        NIS Lokal
-                      </th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-10">
-                        L/P
-                      </th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-32">
-                        Kelas / Rombel
-                      </th>
+                      <th class="border border-gray-800 px-2 py-1.5 w-24">NISN</th>
+                      <th class="border border-gray-800 px-2 py-1.5 w-24">NIS Lokal</th>
+                      <th class="border border-gray-800 px-2 py-1.5 w-10">L/P</th>
+                      <th class="border border-gray-800 px-2 py-1.5 w-32">Kelas / Rombel</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-if="!sortedData || sortedData.length === 0">
                       <td colspan="6" class="border border-gray-800 px-2 py-4 text-center text-gray-500">
-                        {{
-                          isLoading
-                            ? "Memuat data..."
-                            : "Tidak ada data siswa tersedia"
-                        }}
+                        {{ isLoading ? "Memuat data..." : "Tidak ada data siswa tersedia" }}
                       </td>
                     </tr>
                     <tr v-else v-for="(siswa, index) in sortedData" :key="siswa.nisn || index">
-                      <td class="border border-gray-800 px-2 py-1 text-center">
-                        {{ index + 1 }}
-                      </td>
-                      <td class="border border-gray-800 px-2 py-1 font-semibold">
-                        {{ toTitleCase(siswa.nama) }}
-                      </td>
-                      <td class="border border-gray-800 px-2 py-1 text-center">
-                        {{ siswa.nisn || "-" }}
-                      </td>
-                      <td class="border border-gray-800 px-2 py-1 text-center">
-                        {{ siswa.nis_lokal || "-" }}
-                      </td>
-                      <td class="border border-gray-800 px-2 py-1 text-center">
-                        {{ getJenisKelaminAbbr(siswa.jenis_kelamin) }}
-                      </td>
-                      <td class="border border-gray-800 px-2 py-1 text-center">
-                        {{ getClassName(siswa.kelas) }}
-                      </td>
+                      <td class="border border-gray-800 px-2 py-1 text-center">{{ index + 1 }}</td>
+                      <td class="border border-gray-800 px-2 py-1 font-semibold">{{ toTitleCase(siswa.nama) }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center">{{ siswa.nisn || "-" }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center">{{ siswa.nis_lokal || "-" }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center">{{ getJenisKelaminAbbr(siswa.jenis_kelamin) }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center">{{ getClassName(siswa.kelas) }}</td>
                     </tr>
                   </tbody>
                 </table>
-
-                <!-- Footer Cetak -->
                 <div class="flex justify-between items-end mt-8 text-xs">
                   <div>
-                    <p class="italic">
-                      Dicetak dari SopokDate pada pukul {{ currentTime }} WITA,
-                      tanggal {{ currentDate }}
-                    </p>
+                    <p class="italic">Dicetak dari SopokDate pada pukul {{ currentTime }} WITA, tanggal {{ currentDate }}</p>
                   </div>
                   <div class="text-center w-48">
                     <p class="mb-16">Kepala Madrasah</p>
@@ -124,8 +76,8 @@
                 </div>
               </div>
             </PrintButton>
-          </div>
-        </div>
+          </template>
+        </UiPageHeader>
 
 
         <!-- Tab switcher (Admin Only) -->
@@ -342,7 +294,6 @@
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import {
   Database,
-  GraduationCap,
   Plus,
   FileSpreadsheet,
 } from "lucide-vue-next";

@@ -2,75 +2,57 @@
   <div class="min-h-screen">
     <div class="page-layout pb-24 px-4 sm:px-6 lg:px-8">
       <!-- Header -->
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <div class="flex-1">
-          <h2 class="text-lg sm:text-xl lg:text-2xl font-bold flex items-center gap-2"
-            :style="{ color: 'var(--text-heading)' }">
-            <BookOpen v-if="activeTab === 'kurikulum'"
-              class="w-6 h-6 sm:w-7 sm:h-7 text-emerald-650 dark:text-emerald-400" />
-            <ClipboardList v-else-if="activeTab === 'emis_mapel'"
-              class="w-6 h-6 sm:w-7 sm:h-7 text-emerald-650 dark:text-emerald-400" />
-            <CalendarRange v-else class="w-6 h-6 sm:w-7 sm:h-7 text-emerald-650 dark:text-emerald-400" />
-            {{
-              activeTab === "kurikulum"
-                ? "Kurikulum Pelajaran"
-                : activeTab === "emis_mapel"
-                  ? "Referensi Mapel EMIS-GTK"
-                  : "Mapping JP Mingguan"
-            }}
-          </h2>
-          <p class="text-xs sm:text-sm text-zinc-400 mt-1">
-            {{
-              activeTab === "kurikulum"
-                ? "Kelola mata pelajaran dan batasan alokasi jam mengajar dalam satu minggu langsung melalui tabel matriks"
-                : activeTab === "emis_mapel"
-                  ? "Atur referensi mata pelajaran dan JP dari EMIS-GTK secara manual"
-                  : "Simulasikan dan visualisasikan total jam pelajaran (JP) dalam satu minggu secara interaktif"
-            }}
-          </p>
-        </div>
+      <UiPageHeader
+        :title="activeTab === 'kurikulum'
+          ? 'Kurikulum Pelajaran'
+          : activeTab === 'emis_mapel'
+            ? 'Referensi Mapel EMIS-GTK'
+            : 'Mapping JP Mingguan'"
+        :breadcrumbs="[
+          { label: 'Beranda', to: '/' },
+          { label: 'Jadwal' },
+          { label: 'Kurikulum' },
+        ]"
+      >
+        <template #actions>
+          <!-- Tombol aksi tab Kurikulum -->
+          <template v-if="isAdmin && activeTab === 'kurikulum'">
+            <UiBaseButton
+              text="Sync EMIS"
+              title="Sinkronkan kurikulum dengan referensi Mapel EMIS-GTK"
+              :disabled="emisMatrixRows.length === 0"
+              @click="syncFromEmisGtk"
+            >
+              <template #icon><RefreshCw class="w-4 h-4" /></template>
+            </UiBaseButton>
+            <UiBaseButton
+              text="Upload"
+              title="Upload data kurikulum dari file Excel"
+              @click="showUploadModal = true"
+            >
+              <template #icon><FileSpreadsheet class="w-4 h-4" /></template>
+            </UiBaseButton>
+            <UiBaseButton
+              text="Tambah Mapel"
+              title="Tambah baris mata pelajaran baru ke kurikulum"
+              @click="addSubjectRow"
+            >
+              <template #icon><Plus class="w-4 h-4" /></template>
+            </UiBaseButton>
+          </template>
 
-        <!-- Tambah Mapel Button (Admin Only) -->
-        <div v-if="isAdmin && activeTab === 'kurikulum'" class="w-full sm:w-auto mt-2 sm:mt-0 flex flex-wrap gap-2">
-          <UiBaseButton
-            text="Sync EMIS Mapel GTK"
-            title="Sinkronkan kurikulum dengan referensi Mapel EMIS-GTK"
-            :disabled="emisMatrixRows.length === 0"
-            class="flex-1 sm:flex-none"
-            @click="syncFromEmisGtk"
-          >
-            <template #icon><RefreshCw class="w-4 h-4" /></template>
-          </UiBaseButton>
-          <UiBaseButton
-            text="Upload Excel"
-            title="Upload data kurikulum dari file Excel"
-            class="flex-1 sm:flex-none"
-            @click="showUploadModal = true"
-          >
-            <template #icon><FileSpreadsheet class="w-4 h-4" /></template>
-          </UiBaseButton>
-          <UiBaseButton
-            text="Tambah Mapel"
-            title="Tambah baris mata pelajaran baru ke kurikulum"
-            class="flex-1 sm:flex-none"
-            @click="addSubjectRow"
-          >
-            <template #icon><Plus class="w-4 h-4" /></template>
-          </UiBaseButton>
-        </div>
-
-        <!-- Tambah Mapel EMIS Button (Admin Only) -->
-        <div v-if="isAdmin && activeTab === 'emis_mapel'" class="w-full sm:w-auto mt-2 sm:mt-0 flex flex-wrap gap-2">
-          <UiBaseButton
-            text="Tambah Mapel EMIS"
-            title="Tambah baris mata pelajaran baru ke referensi EMIS-GTK"
-            class="flex-1 sm:flex-none"
-            @click="addEmisSubjectRow"
-          >
-            <template #icon><Plus class="w-4 h-4" /></template>
-          </UiBaseButton>
-        </div>
-      </div>
+          <!-- Tombol aksi tab EMIS Mapel -->
+          <template v-if="isAdmin && activeTab === 'emis_mapel'">
+            <UiBaseButton
+              text="Tambah Mapel EMIS"
+              title="Tambah baris mata pelajaran baru ke referensi EMIS-GTK"
+              @click="addEmisSubjectRow"
+            >
+              <template #icon><Plus class="w-4 h-4" /></template>
+            </UiBaseButton>
+          </template>
+        </template>
+      </UiPageHeader>
 
       <!-- Tab Switcher -->
       <div class="flex overflow-x-auto border-b border-zinc-800 mb-6 scrollbar-hide">

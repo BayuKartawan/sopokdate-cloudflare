@@ -1,28 +1,26 @@
 <template>
   <div class="min-h-screen">
     <div class="page-layout">
-      <!-- Breadcrumb Components -->
-
-      <!-- dataGtk Section -->
 
       <div class="flex flex-col gap-4 sm:gap-6">
-        <!-- Title and Action Buttons Row -->
-        <div class="flex flex-wrap items-center gap-4">
-          <h2 class="text-xl sm:text-2xl" :style="{ color: 'var(--text-heading)' }">Data GTK</h2>
-          <div class="flex items-center gap-2 ml-auto">
-            <!-- Tambah GTK Button (Admin Only) -->
+        <UiPageHeader
+          title="Data GTK"
+          :breadcrumbs="[
+            { label: 'Beranda', to: '/' },
+            { label: 'GTK' },
+            { label: 'Data GTK' },
+          ]"
+        >
+          <template #actions>
             <BaseButton
               v-if="isAdmin"
               text="Tambah"
               title="Tambah data GTK baru"
               @click="openCreateModal"
             >
-              <template #icon>
-                <Plus class="w-4 h-4" />
-              </template>
+              <template #icon><Plus class="w-4 h-4" /></template>
             </BaseButton>
 
-            <!-- Export Excel Button -->
             <BaseButton
               :text="isExporting ? 'Mengekspor...' : 'Export'"
               title="Ekspor data GTK ke file Excel"
@@ -30,91 +28,48 @@
               :disabled="isExporting || sortedData.length === 0"
               @click="exportToExcel"
             >
-              <template #icon>
-                <FileSpreadsheet class="w-4 h-4" />
-              </template>
+              <template #icon><FileSpreadsheet class="w-4 h-4" /></template>
             </BaseButton>
 
-            <!-- Print Button -->
             <PrintButton>
               <div class="p-10 mx-auto bg-white text-black">
-                <!-- kop surat -->
                 <KopSurat class="mb-4" />
-
-                <!-- Header -->
                 <div class="text-center mb-4">
                   <h1 class="font-bold uppercase">Data GTK</h1>
                   <p class="text-sm">( Guru dan Tenaga Kependidikan )</p>
                 </div>
-
-                <!-- Tabel -->
-                <table
-                  class="w-full table-auto border border-gray-800 mb-1 text-sm"
-                >
+                <table class="w-full table-auto border border-gray-800 mb-1 text-sm">
                   <thead class="bg-gray-100">
                     <tr>
                       <th class="border border-gray-800 px-2 py-1">No</th>
                       <th class="border border-gray-800 px-2 py-1">Nama</th>
                       <th class="border border-gray-800 px-2 py-1">Tugas</th>
-                      <th class="border border-gray-800 px-2 py-1">
-                        Jenis Kelamin
-                      </th>
-                      <th class="border border-gray-800 px-2 py-1">
-                        Tempat, Tanggal Lahir
-                      </th>
+                      <th class="border border-gray-800 px-2 py-1">Jenis Kelamin</th>
+                      <th class="border border-gray-800 px-2 py-1">Tempat, Tanggal Lahir</th>
                       <th class="border border-gray-800 px-2 py-1">NUPTK</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <!-- Tampilkan pesan loading jika data belum tersedia -->
                     <tr v-if="!sortedData || sortedData.length === 0">
-                      <td
-                        colspan="6"
-                        class="border border-gray-800 px-2 py-4 text-center text-gray-500"
-                      >
-                        {{
-                          isLoading
-                            ? "Memuat data..."
-                            : "Tidak ada data guru tersedia"
-                        }}
+                      <td colspan="6" class="border border-gray-800 px-2 py-4 text-center text-gray-500">
+                        {{ isLoading ? "Memuat data..." : "Tidak ada data guru tersedia" }}
                       </td>
                     </tr>
-                    <!-- Tampilkan data guru -->
-                    <tr
-                      v-else
-                      v-for="(guru, index) in sortedData"
-                      :key="guru.id || index"
-                    >
-                      <td class="border border-gray-800 px-2 py-1 text-center">
-                        {{ index + 1 }}
-                      </td>
-                      <td class="border border-gray-800 px-2 py-1">
-                        {{ toTitleCase(guru.title) }}
-                      </td>
-                      <td class="border border-gray-800 px-2 py-1">
-                        {{ guru.Tugas }}
-                      </td>
-                      <td class="border border-gray-800 px-2 py-1">
-                        {{ guru.JenisKelamin }}
-                      </td>
-                      <td class="border border-gray-800 px-2 py-1">
-                        {{ guru.TempatLahir }}, {{ guru.TanggalLahir }}
-                      </td>
-                      <td class="border border-gray-800 px-2 py-1">
-                        {{ guru.NUPTK }}
-                      </td>
+                    <tr v-else v-for="(guru, index) in sortedData" :key="guru.id || index">
+                      <td class="border border-gray-800 px-2 py-1 text-center">{{ index + 1 }}</td>
+                      <td class="border border-gray-800 px-2 py-1">{{ toTitleCase(guru.title) }}</td>
+                      <td class="border border-gray-800 px-2 py-1">{{ guru.Tugas }}</td>
+                      <td class="border border-gray-800 px-2 py-1">{{ guru.JenisKelamin }}</td>
+                      <td class="border border-gray-800 px-2 py-1">{{ guru.TempatLahir }}, {{ guru.TanggalLahir }}</td>
+                      <td class="border border-gray-800 px-2 py-1">{{ guru.NUPTK }}</td>
                     </tr>
                   </tbody>
                 </table>
-
                 <div>
                   <p class="text-xs italic">
-                    dicetak dari SopokDate pada pukul {{ currentTime }} WITA,
-                    tanggal {{ currentDate }}
+                    dicetak dari SopokDate pada pukul {{ currentTime }} WITA, tanggal {{ currentDate }}
                   </p>
                 </div>
-
-                <!-- Tanda Tangan -->
                 <div class="flex justify-end mt-4">
                   <div class="text-center">
                     <p class="mb-15">Kepala Madrasah</p>
@@ -130,8 +85,8 @@
                 </div>
               </div>
             </PrintButton>
-          </div>
-        </div>
+          </template>
+        </UiPageHeader>
 
         <!-- Search Row -->
         <div class="w-full">

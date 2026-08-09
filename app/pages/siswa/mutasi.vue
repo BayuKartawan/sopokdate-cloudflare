@@ -4,37 +4,23 @@
     <div class="page-layout">
       <!-- Top Section: Title & Actions -->
       <div class="flex flex-col gap-4 sm:gap-6 mb-6">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div class="min-w-0 flex-1">
-            <h2
-              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
-              :style="{ color: 'var(--text-heading)' }"
-            >
-              <LogOut class="w-7 h-7 text-orange-400 shrink-0" />
-              Data Mutasi Siswa
-            </h2>
-            <p class="text-sm text-zinc-400 mt-1">
-              Catatan siswa yang telah keluar / mutasi dari madrasah
-            </p>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex flex-wrap items-center gap-2">
-            <!-- Tambah Mutasi Button (Admin Only) -->
+        <UiPageHeader
+          title="Data Mutasi Siswa"
+          :breadcrumbs="[
+            { label: 'Beranda', to: '/' },
+            { label: 'Akademik' },
+            { label: 'Data Mutasi' },
+          ]"
+        >
+          <template #actions>
             <BaseButton v-if="isAdmin" text="Tambah" title="Tambah data mutasi baru" @click="openCreateModal">
-              <template #icon>
-                <Plus class="w-4 h-4" />
-              </template>
+              <template #icon><Plus class="w-4 h-4" /></template>
             </BaseButton>
 
-            <!-- Upload Excel Button (Admin Only) -->
             <BaseButton v-if="isAdmin" text="Upload" title="Upload data mutasi dari file Excel" @click="showUploadModal = true">
-              <template #icon>
-                <FileSpreadsheet class="w-4 h-4" />
-              </template>
+              <template #icon><FileSpreadsheet class="w-4 h-4" /></template>
             </BaseButton>
 
-            <!-- Export Excel Button -->
             <BaseButton
               :text="isExporting ? 'Ekspor...' : 'Ekspor'"
               title="Ekspor data mutasi ke file Excel"
@@ -42,12 +28,10 @@
               :disabled="isExporting || sortedData.length === 0"
               @click="exportToExcel"
             >
-              <template #icon>
-                <FileSpreadsheet class="w-4 h-4 shrink-0" />
-              </template>
+              <template #icon><FileSpreadsheet class="w-4 h-4 shrink-0" /></template>
             </BaseButton>
-          </div>
-        </div>
+          </template>
+        </UiPageHeader>
 
         <!-- Premium Stats Widgets -->
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">

@@ -2,49 +2,33 @@
   <div class="min-h-screen">
     <div class="page-layout">
       <!-- Top Section: Title and Actions -->
-      <div
-        class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6"
+      <UiPageHeader
+        title="Kalender Pendidikan"
+        :breadcrumbs="[
+          { label: 'Beranda', to: '/' },
+          { label: 'Absensi' },
+          { label: 'Kalender Pendidikan' },
+        ]"
       >
-        <div>
-          <h2
-            class="text-xl sm:text-2xl font-bold flex items-center gap-2"
-            :style="{ color: 'var(--text-heading)' }"
-          >
-            <Calendar class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
-            Kalender Pendidikan
-          </h2>
-          <p class="text-sm theme-text-muted mt-1">
-            Kelola hari libur nasional, libur sekolah, dan agenda kegiatan
-            madrasah
-          </p>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex items-center gap-2 self-start sm:self-auto">
-          <!-- Print Button -->
+        <template #actions>
           <BaseButton
-            text="Cetak Kalender"
+            text="Cetak"
             title="Buka pratinjau cetak kalender pendidikan"
             @click="openPrintPreview"
           >
-            <template #icon>
-              <Printer class="w-4 h-4" />
-            </template>
+            <template #icon><Printer class="w-4 h-4" /></template>
           </BaseButton>
 
-          <!-- Add Button (Admin Only) -->
           <BaseButton
             v-if="isAdmin"
-            text="Tambah Agenda / Libur"
+            text="Tambah"
             title="Tambah agenda atau hari libur baru"
             @click="openCreateModal"
           >
-            <template #icon>
-              <Plus class="w-4 h-4" />
-            </template>
+            <template #icon><Plus class="w-4 h-4" /></template>
           </BaseButton>
-        </div>
-      </div>
+        </template>
+      </UiPageHeader>
 
       <!-- Filters & Stats Section -->
       <div
@@ -672,7 +656,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import {
-  Calendar,
   Plus,
   Pencil,
   Trash2,

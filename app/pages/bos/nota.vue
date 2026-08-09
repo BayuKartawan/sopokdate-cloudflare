@@ -73,11 +73,14 @@
             <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">
               Daftar Barang / Jasa
             </h3>
-            <button @click="addItem"
-              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 cursor-pointer">
-              <Plus class="w-3.5 h-3.5" stroke-width="3" />
-              Tambah Baris
-            </button>
+            <BaseButton
+              text="Tambah Baris"
+              size="sm"
+              title="Tambah baris barang baru"
+              @click="addItem"
+            >
+              <template #icon><Plus class="w-3.5 h-3.5" /></template>
+            </BaseButton>
           </div>
 
           <div class="overflow-x-auto">
@@ -121,10 +124,15 @@
                     </div>
                   </td>
                   <td class="py-2 text-right">
-                    <button v-if="form.items.length > 1" @click="removeItem(idx)"
-                      class="w-7 h-7 rounded-md flex items-center justify-center text-red-400 hover:bg-red-500/10 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100 cursor-pointer">
-                      <Trash2 class="w-3.5 h-3.5" stroke-width="2" />
-                    </button>
+                    <BaseButton
+                      v-if="form.items.length > 1"
+                      icon-only
+                      size="sm"
+                      title="Hapus baris ini"
+                      @click="removeItem(idx)"
+                    >
+                      <template #icon><Trash2 class="w-3.5 h-3.5 text-red-500" /></template>
+                    </BaseButton>
                   </td>
                 </tr>
               </tbody>
@@ -133,14 +141,10 @@
         </div>
 
         <div class="flex justify-end pt-4 gap-3 border-t border-zinc-800">
-          <button @click="handleReset"
-            class="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-center">
-            Reset Data
-          </button>
-          <button @click="handlePrint"
-            class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white">
-            <Printer class="w-4 h-4" /> Cetak Nota
-          </button>
+          <BaseButton text="Reset Data" title="Reset form ke data awal" @click="handleReset" />
+          <BaseButton text="Cetak Nota" title="Cetak nota belanja ini" @click="handlePrint">
+            <template #icon><Printer class="w-4 h-4" /></template>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -263,6 +267,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { Plus, Trash2, Printer } from "lucide-vue-next";
+import BaseButton from "~/components/ui/BaseButton.vue";
 
 interface NotaItem {
   banyak: string;

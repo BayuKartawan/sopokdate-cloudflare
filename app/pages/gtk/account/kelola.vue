@@ -2,19 +2,21 @@
   <div class="min-h-screen">
     <div class="page-layout px-4 sm:px-6">
       <!-- Header -->
-      <div class="flex flex-col gap-4 sm:gap-6 mt-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h2 class="text-xl text-white sm:text-2xl">Kelola Akun Guru</h2>
-
-          <!-- Action Buttons -->
-          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto">
-            <!-- Row 1 (mobile): Buat Akun Otomatis full width -->
+      <div class="flex flex-col gap-2 mt-4">
+        <UiPageHeader
+          title="Kelola Akun Guru"
+          :breadcrumbs="[
+            { label: 'Beranda', to: '/' },
+            { label: 'GTK' },
+            { label: 'Kelola Akun' },
+          ]"
+        >
+          <template #actions>
             <UiBaseButton
               :text="isSeeding ? 'Membuat...' : 'Buat Akun'"
               :loading="isSeeding"
               title="Buat Akun Otomatis"
               :disabled="isSeeding"
-              class="w-full sm:w-auto"
               @click="handleSeedGuru"
             >
               <template #icon>
@@ -22,48 +24,40 @@
               </template>
             </UiBaseButton>
 
-            <!-- Row 2 (mobile): Ekspor, Cetak, Refresh sejajar -->
-            <div class="flex items-center gap-2">
-              <!-- Export Excel Button -->
-              <UiBaseButton
-                text="Ekspor"
-                title="Ekspor ke Excel"
-                :disabled="filteredUsers.length === 0"
-                class="flex-1 sm:flex-initial"
-                @click="exportToExcel"
-              >
-                <template #icon>
-                  <FileSpreadsheet class="w-4 h-4 flex-shrink-0" />
-                </template>
-              </UiBaseButton>
+            <UiBaseButton
+              text="Ekspor"
+              title="Ekspor ke Excel"
+              :disabled="filteredUsers.length === 0"
+              @click="exportToExcel"
+            >
+              <template #icon>
+                <FileSpreadsheet class="w-4 h-4 flex-shrink-0" />
+              </template>
+            </UiBaseButton>
 
-              <!-- Print Button -->
-              <UiBaseButton
-                text="Cetak"
-                title="Cetak Akun"
-                :disabled="filteredUsers.length === 0"
-                class="flex-1 sm:flex-initial"
-                @click="printAccounts"
-              >
-                <template #icon>
-                  <Printer class="w-4 h-4 flex-shrink-0" />
-                </template>
-              </UiBaseButton>
+            <UiBaseButton
+              text="Cetak"
+              title="Cetak Akun"
+              :disabled="filteredUsers.length === 0"
+              @click="printAccounts"
+            >
+              <template #icon>
+                <Printer class="w-4 h-4 flex-shrink-0" />
+              </template>
+            </UiBaseButton>
 
-              <!-- Refresh Button -->
-              <UiBaseButton
-                text="Refresh"
-                title="Refresh"
-                :disabled="isLoading"
-                @click="loadUsers"
-              >
-                <template #icon>
-                  <RefreshCw class="w-4 h-4 flex-shrink-0" :class="{ 'animate-spin': isLoading }" />
-                </template>
-              </UiBaseButton>
-            </div>
-          </div>
-        </div>
+            <UiBaseButton
+              text="Refresh"
+              title="Refresh"
+              :disabled="isLoading"
+              @click="loadUsers"
+            >
+              <template #icon>
+                <RefreshCw class="w-4 h-4 flex-shrink-0" :class="{ 'animate-spin': isLoading }" />
+              </template>
+            </UiBaseButton>
+          </template>
+        </UiPageHeader>
 
         <!-- Info banner -->
         <div class="p-3 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20">

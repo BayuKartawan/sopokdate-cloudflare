@@ -57,10 +57,13 @@
           </div>
         </div>
         <div class="flex justify-end pt-2">
-          <button @click="handlePrint"
-            class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white">
-            <PrinterIcon class="w-4 h-4" /> Cetak
-          </button>
+          <BaseButton
+            text="Cetak"
+            title="Cetak kwitansi ini"
+            @click="handlePrint"
+          >
+            <template #icon><PrinterIcon class="w-4 h-4" /></template>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -154,6 +157,7 @@
 import { ref, computed } from "vue";
 import { Printer as PrinterIcon } from "lucide-vue-next";
 import KopSurat from "~/components/document/KopSurat.vue";
+import BaseButton from "~/components/ui/BaseButton.vue";
 
 interface KwitansiForm {
   jenisPembayaran: string;

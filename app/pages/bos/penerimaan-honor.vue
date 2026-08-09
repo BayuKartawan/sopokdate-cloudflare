@@ -54,16 +54,24 @@
               </span>
             </h3>
             <div class="flex gap-2">
-              <button v-if="canAddRecipient" @click="addAllGtk"
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600/20 text-blue-400 hover:bg-blue-600/30">
-                <Users class="w-3.5 h-3.5" stroke-width="3" />
-                Tambah Semua GTK
-              </button>
-              <button v-if="canAddRecipient" @click="addPenerima"
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30">
-                <Plus class="w-3.5 h-3.5" stroke-width="3" />
-                Tambah Penerima
-              </button>
+              <BaseButton
+                v-if="canAddRecipient"
+                text="Tambah Semua GTK"
+                size="sm"
+                title="Tambah seluruh GTK sebagai penerima"
+                @click="addAllGtk"
+              >
+                <template #icon><Users class="w-3.5 h-3.5" /></template>
+              </BaseButton>
+              <BaseButton
+                v-if="canAddRecipient"
+                text="Tambah Penerima"
+                size="sm"
+                title="Tambah satu penerima baru"
+                @click="addPenerima"
+              >
+                <template #icon><Plus class="w-3.5 h-3.5" /></template>
+              </BaseButton>
             </div>
           </div>
 
@@ -104,10 +112,15 @@
                     </div>
                   </td>
                   <td v-if="canAddRecipient" class="py-2 pr-2 text-right">
-                    <button v-if="form.penerimaList.length > 1" @click="removePenerima(idx)"
-                      class="w-7 h-7 rounded-md flex items-center justify-center text-red-400 hover:bg-red-500/10 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100">
-                      <Trash2 class="w-3.5 h-3.5" stroke-width="2.5" />
-                    </button>
+                    <BaseButton
+                      v-if="form.penerimaList.length > 1"
+                      icon-only
+                      size="sm"
+                      title="Hapus penerima ini"
+                      @click="removePenerima(idx)"
+                    >
+                      <template #icon><Trash2 class="w-3.5 h-3.5 text-red-500" /></template>
+                    </BaseButton>
                   </td>
                 </tr>
               </tbody>
@@ -115,17 +128,11 @@
           </div>
         </div>
 
-        <div
-          class="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-3 mt-6 pt-4 border-t border-zinc-700">
-          <button @click="handleReset"
-            class="px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-center flex justify-center">
-            Reset Data
-          </button>
-          <button @click="handlePrint"
-            class="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white">
-            <Printer class="w-4 h-4" />
-            Cetak Landscape
-          </button>
+        <div class="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-3 mt-6 pt-4 border-t border-zinc-700">
+          <BaseButton text="Reset Data" title="Reset form ke data awal" @click="handleReset" />
+          <BaseButton text="Cetak Landscape" title="Cetak dokumen dalam format landscape" @click="handlePrint">
+            <template #icon><Printer class="w-4 h-4" /></template>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -320,6 +327,7 @@ import { Users, Plus, Trash2, Printer } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
 import { useBosHonor } from "~/composables/utils/useBosHonor";
 import SearchableSelect from "~/components/ui/SearchableSelect.vue";
+import BaseButton from "~/components/ui/BaseButton.vue";
 
 interface Penerima {
   nama: string;
