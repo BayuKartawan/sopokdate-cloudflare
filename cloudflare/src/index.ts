@@ -58,6 +58,10 @@ import {
   handleGetEdmJawaban,
   handlePostEdmJawaban,
   handleGetEdmRekap,
+  handleUploadEdmBukti,
+  handleGetEdmBukti,
+  handleDeleteEdmBukti,
+  handleDownloadEdmBukti,
 } from "./handlers/edm";
 
 import type { Env } from "./types";
@@ -319,6 +323,25 @@ app.post("/api/edm/jawaban", async (c) => {
 
 app.get("/api/edm/rekap", async (c) => {
   return await handleGetEdmRekap(c.req.raw, c.env);
+});
+
+// --- EDM Bukti File (R2) Routes ---
+app.post("/api/edm/bukti/upload", async (c) => {
+  return await handleUploadEdmBukti(c.req.raw, c.env);
+});
+
+app.get("/api/edm/bukti/download/*", async (c) => {
+  const r2Key = c.req.path.replace("/api/edm/bukti/download/", "");
+  return await handleDownloadEdmBukti(c.req.raw, c.env, decodeURIComponent(r2Key));
+});
+
+app.get("/api/edm/bukti", async (c) => {
+  return await handleGetEdmBukti(c.req.raw, c.env);
+});
+
+app.delete("/api/edm/bukti/:id", async (c) => {
+  const id = c.req.param("id");
+  return await handleDeleteEdmBukti(c.req.raw, c.env, id);
 });
 
 export default app;

@@ -649,14 +649,12 @@ export async function handlePostEdmJawaban(
   try {
     const statements: D1PreparedStatement[] = [];
     const upsertQuery = `
-      INSERT INTO edm_jawaban (indikator_id, bagian_id, gtk_id, skor, jawaban_text, bukti_url, bukti_filename, updated_at)
-      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, datetime('now'))
+      INSERT INTO edm_jawaban (indikator_id, bagian_id, gtk_id, skor, jawaban_text, updated_at)
+      VALUES (?1, ?2, ?3, ?4, ?5, datetime('now'))
       ON CONFLICT(indikator_id, bagian_id) DO UPDATE SET
         gtk_id = excluded.gtk_id,
         skor = excluded.skor,
         jawaban_text = excluded.jawaban_text,
-        bukti_url = excluded.bukti_url,
-        bukti_filename = excluded.bukti_filename,
         updated_at = datetime('now')
     `;
 
@@ -668,8 +666,6 @@ export async function handlePostEdmJawaban(
           gtk_id || null,
           j.skor ?? null,
           j.jawaban_text || "",
-          j.bukti_url || "",
-          j.bukti_filename || "",
         ),
       );
     }
@@ -753,7 +749,8 @@ export async function handleGetEdmRekap(
       `SELECT 
          i.id, i.bagian_target, i.bagian_target AS kelompok_target, i.nomor_urut, i.pertanyaan,
          j.skor AS rata_rata_skor,
-         j.jawaban_text, j.bukti_url,
+         j.jawaban_text,
+         (SELECT COUNT(*) FROM edm_bukti_file bf WHERE bf.indikator_id = i.id AND bf.bagian_id = j.bagian_id) AS jumlah_bukti_file,
          g.nama_lengkap AS updated_by_nama
        FROM edm_indikator i
        LEFT JOIN edm_jawaban j ON j.indikator_id = i.id
@@ -774,3 +771,265 @@ export async function handleGetEdmRekap(
     return errorResponse(`Database error: ${err.message}`, 500);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Bukti File EDM — R2 Upload/List/Delete/Download
+// ---------------------------------------------------------------------------
+
+const ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "application/pdf",
+];
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+const MAX_FILES_PER_INDIKATOR = 10;
+
+// Helper: generate unique key for R2
+function generateR2Key(bagianId: number, indikatorId: number, filename: string): string {
+  const timestamp = Date.now();
+  const rand = Math.random().toString(36).substring(2, 8);
+  const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
+  return `edm/${bagianId}/${indikatorId}/${timestamp}-${rand}-${safeName}`;
+}
+
+// ---------------------------------------------------------------------------
+// POST /api/edm/bukti/upload — Upload files ke R2
+// FormData: files (multiple), indikator_id, bagian_id, gtk_id
+// ---------------------------------------------------------------------------
+export async function handleUploadEdmBukti(
+  request: Request,
+  env: Env,
+): Promise<Response> {
+  try {
+    const contentType = request.headers.get("Content-Type") || "";
+    if (!contentType.includes("multipart/form-data")) {
+      return errorResponse("Content-Type harus multipart/form-data", 400);
+    }
+
+    const formData = await request.formData();
+    const indikatorId = parseInt(formData.get("indikator_id") as string);
+    const bagianId = parseInt(formData.get("bagian_id") as string);
+    const gtkId = formData.get("gtk_id") ? parseInt(formData.get("gtk_id") as string) : null;
+
+    if (!indikatorId || !bagianId) {
+      return errorResponse("Field 'indikator_id' dan 'bagian_id' wajib diisi", 400);
+    }
+
+    // Collect files from form data
+    const files: File[] = [];
+    for (const [key, value] of formData.entries()) {
+      if (key === "files" && typeof value !== "string") {
+        files.push(value as File);
+      }
+    }
+
+
+    if (files.length === 0) {
+      return errorResponse("Tidak ada file yang diupload", 400);
+    }
+
+    // Check existing file count for this indikator+bagian
+    const existingCount = await env.DB.prepare(
+      "SELECT COUNT(*) as cnt FROM edm_bukti_file WHERE indikator_id = ?1 AND bagian_id = ?2"
+    ).bind(indikatorId, bagianId).first<{ cnt: number }>();
+
+    const currentCount = existingCount?.cnt || 0;
+    if (currentCount + files.length > MAX_FILES_PER_INDIKATOR) {
+      return errorResponse(
+        `Melebihi batas file. Saat ini ${currentCount} file, maks ${MAX_FILES_PER_INDIKATOR} file per soal. Anda hanya bisa upload ${MAX_FILES_PER_INDIKATOR - currentCount} file lagi.`,
+        400
+      );
+    }
+
+    // Validate each file
+    for (const file of files) {
+      if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+        return errorResponse(
+          `Tipe file "${file.name}" tidak diizinkan (${file.type}). Hanya JPG, PNG, WEBP, dan PDF yang diizinkan.`,
+          400
+        );
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        return errorResponse(
+          `File "${file.name}" terlalu besar (${sizeMB} MB). Maksimal 2 MB per file.`,
+          400
+        );
+      }
+    }
+
+    // Upload each file to R2 and insert metadata to DB
+    const uploaded: any[] = [];
+    const dbStatements: D1PreparedStatement[] = [];
+
+    for (const file of files) {
+      const r2Key = generateR2Key(bagianId, indikatorId, file.name);
+      const arrayBuffer = await file.arrayBuffer();
+
+      // Upload to R2
+      await env.R2.put(r2Key, arrayBuffer, {
+        httpMetadata: {
+          contentType: file.type,
+        },
+        customMetadata: {
+          originalName: file.name,
+          indikatorId: String(indikatorId),
+          bagianId: String(bagianId),
+        },
+      });
+
+      // Insert DB record
+      dbStatements.push(
+        env.DB.prepare(
+          `INSERT INTO edm_bukti_file (indikator_id, bagian_id, r2_key, original_name, mime_type, file_size, uploaded_by)
+           VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
+        ).bind(indikatorId, bagianId, r2Key, file.name, file.type, file.size, gtkId)
+      );
+
+      uploaded.push({
+        r2_key: r2Key,
+        original_name: file.name,
+        mime_type: file.type,
+        file_size: file.size,
+      });
+    }
+
+    if (dbStatements.length > 0) {
+      await env.DB.batch(dbStatements);
+    }
+
+    // Fetch the inserted records to get IDs
+    const insertedFiles = await env.DB.prepare(
+      `SELECT id, r2_key, original_name, mime_type, file_size, uploaded_by, created_at
+       FROM edm_bukti_file
+       WHERE indikator_id = ?1 AND bagian_id = ?2
+       ORDER BY created_at DESC
+       LIMIT ?3`
+    ).bind(indikatorId, bagianId, files.length).all();
+
+    return jsonResponse({
+      success: true,
+      message: `${files.length} file berhasil diupload`,
+      files: insertedFiles.results,
+    });
+  } catch (err: any) {
+    return errorResponse(`Upload error: ${err.message}`, 500);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/edm/bukti?indikator_id=X&bagian_id=Y — List file bukti
+// ---------------------------------------------------------------------------
+export async function handleGetEdmBukti(
+  request: Request,
+  env: Env,
+): Promise<Response> {
+  const url = new URL(request.url);
+  const indikatorId = url.searchParams.get("indikator_id");
+  const bagianId = url.searchParams.get("bagian_id");
+
+  if (!indikatorId || !bagianId) {
+    return errorResponse("Parameter 'indikator_id' dan 'bagian_id' diperlukan", 400);
+  }
+
+  try {
+    const result = await env.DB.prepare(
+      `SELECT bf.*, g.nama_lengkap AS uploader_nama
+       FROM edm_bukti_file bf
+       LEFT JOIN data_gtk g ON bf.uploaded_by = g.id
+       WHERE bf.indikator_id = ?1 AND bf.bagian_id = ?2
+       ORDER BY bf.created_at ASC`
+    ).bind(parseInt(indikatorId), parseInt(bagianId)).all();
+
+    return jsonResponse(result.results);
+  } catch (err: any) {
+    return errorResponse(`Database error: ${err.message}`, 500);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// DELETE /api/edm/bukti/:id — Hapus file dari R2 + DB
+// ---------------------------------------------------------------------------
+export async function handleDeleteEdmBukti(
+  request: Request,
+  env: Env,
+  id: string,
+): Promise<Response> {
+  try {
+    // Get file record first
+    const file = await env.DB.prepare(
+      "SELECT * FROM edm_bukti_file WHERE id = ?1"
+    ).bind(parseInt(id)).first<{ id: number; r2_key: string; original_name: string }>();
+
+    if (!file) {
+      return errorResponse("File tidak ditemukan", 404);
+    }
+
+    // Delete from R2
+    await env.R2.delete(file.r2_key);
+
+    // Delete from DB
+    await env.DB.prepare("DELETE FROM edm_bukti_file WHERE id = ?1")
+      .bind(parseInt(id))
+      .run();
+
+    return jsonResponse({
+      success: true,
+      message: `File "${file.original_name}" berhasil dihapus`,
+    });
+  } catch (err: any) {
+    return errorResponse(`Delete error: ${err.message}`, 500);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/edm/bukti/download/:key+ — Download/preview file dari R2
+// ---------------------------------------------------------------------------
+export async function handleDownloadEdmBukti(
+  request: Request,
+  env: Env,
+  r2Key: string,
+): Promise<Response> {
+  try {
+    let cleanKey = r2Key || "";
+    if (cleanKey.includes("%")) {
+      try {
+        cleanKey = decodeURIComponent(cleanKey);
+      } catch {
+        // ignore fallback
+      }
+    }
+    // Normalize commas from array joins and URL-encoded slashes %2F
+    cleanKey = cleanKey.replace(/%2F/gi, "/").replace(/,/g, "/");
+
+    let object = await env.R2.get(cleanKey);
+
+    // Fallback try raw r2Key if cleanKey differed and object was not found
+    if (!object && cleanKey !== r2Key) {
+      object = await env.R2.get(r2Key);
+    }
+
+    if (!object) {
+      return errorResponse("File tidak ditemukan di storage", 404);
+    }
+
+    const headers = new Headers();
+    headers.set("Content-Type", object.httpMetadata?.contentType || "application/octet-stream");
+    headers.set("Cache-Control", "public, max-age=31536000, immutable");
+
+    // For images and PDFs, display inline; otherwise download
+    const contentType = object.httpMetadata?.contentType || "";
+    if (contentType.startsWith("image/") || contentType === "application/pdf") {
+      headers.set("Content-Disposition", "inline");
+    } else {
+      const originalName = object.customMetadata?.originalName || "file";
+      headers.set("Content-Disposition", `attachment; filename="${originalName}"`);
+    }
+
+    return new Response(object.body, { headers });
+  } catch (err: any) {
+    return errorResponse(`Download error: ${err.message}`, 500);
+  }
+}
+

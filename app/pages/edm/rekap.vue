@@ -138,11 +138,12 @@
                 </td>
                 <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">
                   <div v-if="ind.jawaban_text">{{ ind.jawaban_text }}</div>
-                  <a v-if="ind.bukti_url" :href="ind.bukti_url" target="_blank" class="text-emerald-600 hover:underline flex items-center gap-1 mt-0.5">
-                    Link Bukti ↗
-                  </a>
-                  <span v-if="!ind.jawaban_text && !ind.bukti_url" style="color: var(--text-muted)">-</span>
+                  <span v-if="ind.jumlah_bukti_file" class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    📎 {{ ind.jumlah_bukti_file }} file bukti (R2)
+                  </span>
+                  <span v-if="!ind.jawaban_text && !ind.jumlah_bukti_file" style="color: var(--text-muted)">-</span>
                 </td>
+
                 <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">
                   {{ ind.updated_by_nama || '-' }}
                 </td>

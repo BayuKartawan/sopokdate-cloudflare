@@ -33,23 +33,24 @@ export function decodeMockJWT(token: string): any {
 }
 
 /**
- * Validate auth header and return decoded payload.
+ * Validate auth header (or query param 'token') and return decoded payload.
  * Throws createError on failure.
  */
 export function requireAuth(event: any): { token: string; payload: any; role: string; gtkId: string | null } {
-  const authHeader = getHeader(event, "authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  let authHeader = getHeader(event, "authorization");
+  let token = authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : null;
+
+  if (!token) {
+    const query = getQuery(event);
+    if (query.token && typeof query.token === "string") {
+      token = query.token;
+    }
+  }
+
+  if (!token || !validateMockJWT(token)) {
     throw createError({
       statusCode: 401,
       statusMessage: "Unauthorized: Token tidak ditemukan atau format salah",
-    });
-  }
-
-  const token = authHeader.substring(7);
-  if (!validateMockJWT(token)) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: "Unauthorized: Sesi tidak valid atau telah kedaluwarsa",
     });
   }
 
@@ -132,3 +133,80 @@ export async function proxyMutation(
     });
   }
 }
+
+/**
+ * Proxy a FormData POST request to Cloudflare Worker
+ */
+export async function proxyFormData(
+  targetUrl: string,
+  event: any,
+  role: string,
+  gtkId: string | null,
+): Promise<any> {
+  const config = useRuntimeConfig();
+  const rawBody = await readRawBody(event, false);
+  const contentType = getHeader(event, "content-type") || "";
+
+  try {
+    return await $fetch(targetUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": contentType,
+        Authorization: `Bearer ${config.apiWorkerToken}`,
+        "X-User-Role": role,
+        "X-User-Gtk-Id": gtkId || "",
+      },
+      body: rawBody,
+    });
+  } catch (error: any) {
+    console.error(`Gagal proxy FormData ke Worker (${targetUrl}):`, error);
+    throw createError({
+      statusCode: 502,
+      statusMessage: `Bad Gateway: ${error.message}`,
+    });
+  }
+}
+
+/**
+ * Proxy a stream/binary GET request (file download) from Cloudflare Worker
+ */
+export async function proxyStream(
+  targetUrl: string,
+  event: any,
+): Promise<any> {
+  const config = useRuntimeConfig();
+  try {
+    const response = await fetch(targetUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${config.apiWorkerToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw createError({
+        statusCode: response.status,
+        statusMessage: errText,
+      });
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (contentType) setHeader(event, "Content-Type", contentType);
+
+    const contentDisposition = response.headers.get("content-disposition");
+    if (contentDisposition) setHeader(event, "Content-Disposition", contentDisposition);
+
+    const cacheControl = response.headers.get("cache-control");
+    if (cacheControl) setHeader(event, "Cache-Control", cacheControl);
+
+    return response.body;
+  } catch (error: any) {
+    console.error(`Gagal proxy stream ke Worker (${targetUrl}):`, error);
+    throw createError({
+      statusCode: error.statusCode || 502,
+      statusMessage: error.statusMessage || `Bad Gateway: ${error.message}`,
+    });
+  }
+}
+

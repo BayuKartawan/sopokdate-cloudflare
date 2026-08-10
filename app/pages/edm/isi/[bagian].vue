@@ -205,22 +205,111 @@
           </div>
         </div>
 
-        <!-- Bukti URL -->
+        <!-- Bukti File Upload (R2) -->
         <div class="mb-6">
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--text-muted)">
-            Link / URL Bukti Fisik (opsional):
+          <label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--text-muted)">
+            Upload Bukti Fisik (opsional):
           </label>
-          <div class="flex items-center gap-2">
-            <LinkIcon class="w-4 h-4 flex-shrink-0" style="color: var(--text-muted)" />
+
+          <!-- File Count & Size Info -->
+          <div class="flex items-center gap-3 mb-2.5">
+            <span class="text-xs font-medium px-2 py-0.5 rounded-full"
+              :class="currentFileCount >= 10 ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'">
+              {{ currentFileCount }}/10 file
+            </span>
+            <span class="text-xs" style="color: var(--text-muted)">
+              Maks 2 MB/file · JPG, PNG, WEBP, PDF
+            </span>
+          </div>
+
+          <!-- Drop Zone -->
+          <div
+            v-if="currentFileCount < 10"
+            class="relative rounded-xl border-2 border-dashed p-6 text-center transition-all cursor-pointer group"
+            :class="isDragging ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30' : 'hover:border-emerald-400'"
+            :style="!isDragging ? 'border-color: var(--border-input); background: var(--bg-input)' : ''"
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="handleFileDrop"
+            @click="triggerFileInput"
+          >
             <input
-              :value="localAnswers[currentItem.id]?.bukti_url || ''"
-              @input="(e) => updateAnswerField(currentItem.id, 'bukti_url', e.target.value)"
-              type="url"
-              class="flex-1 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 min-w-0"
-              style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input)"
-              placeholder="URL bukti (link Google Drive, Dropbox, dll)">
+              ref="fileInputRef"
+              type="file"
+              multiple
+              accept=".jpg,.jpeg,.png,.webp,.pdf"
+              class="hidden"
+              @change="handleFileSelect"
+            >
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
+                :class="isDragging ? 'bg-emerald-500/20' : 'bg-emerald-500/10'">
+                <Upload class="w-6 h-6" :class="isDragging ? 'text-emerald-500' : 'text-emerald-600 dark:text-emerald-400'" />
+              </div>
+              <div>
+                <p class="text-sm font-medium" style="color: var(--text-heading)">
+                  <span v-if="isDragging">Lepaskan file di sini</span>
+                  <span v-else>Drag & drop file, atau <span class="text-emerald-600 dark:text-emerald-400 underline">pilih file</span></span>
+                </p>
+                <p class="text-xs mt-0.5" style="color: var(--text-muted)">
+                  Gambar (JPG, PNG, WEBP) atau PDF · Maks 2 MB per file
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload Progress -->
+          <div v-if="isUploading" class="mt-3 rounded-xl p-3" style="background: var(--bg-secondary); border: 1px solid var(--border-subtle)">
+            <div class="flex items-center gap-3">
+              <div class="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
+              <span class="text-sm font-medium" style="color: var(--text-heading)">Mengupload file...</span>
+            </div>
+          </div>
+
+          <!-- Uploaded Files List -->
+          <div v-if="currentBuktiFiles.length > 0" class="mt-3 space-y-2">
+            <div v-for="file in currentBuktiFiles" :key="file.id"
+              class="flex items-center gap-3 p-3 rounded-xl transition-all group/file"
+              style="background: var(--bg-secondary); border: 1px solid var(--border-subtle)">
+
+              <!-- Thumbnail / Icon -->
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden"
+                style="background: var(--bg-tertiary)">
+                <img v-if="file.mime_type.startsWith('image/')"
+                  :src="getBuktiPreviewUrl(file.r2_key)"
+                  :alt="file.original_name"
+                  class="w-10 h-10 object-cover rounded-lg">
+                <FileText v-else class="w-5 h-5 text-rose-500" />
+              </div>
+
+              <!-- File Info -->
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate" style="color: var(--text-heading)">
+                  {{ file.original_name }}
+                </p>
+                <p class="text-xs" style="color: var(--text-muted)">
+                  {{ formatFileSize(file.file_size) }}
+                  <span v-if="file.uploader_nama"> · oleh {{ file.uploader_nama }}</span>
+                </p>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex items-center gap-1.5 opacity-60 group-hover/file:opacity-100 transition-opacity">
+                <a :href="getBuktiPreviewUrl(file.r2_key)" target="_blank"
+                  class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-emerald-500/10"
+                  title="Preview / Download">
+                  <ExternalLink class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                </a>
+                <button @click="handleDeleteFile(file.id)"
+                  class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-rose-500/10 cursor-pointer"
+                  title="Hapus file">
+                  <Trash2 class="w-4 h-4 text-rose-500" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+
 
         <!-- Pagination Controls Bar -->
         <div class="pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3"
@@ -269,13 +358,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useEdm, EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import {
-  ArrowLeft, Save, FileCheck, Link as LinkIcon, UsersRound, ListChecks, Plus,
-  ChevronLeft, ChevronRight, CheckCircle2
+  ArrowLeft, Save, FileCheck, UsersRound, ListChecks, Plus,
+  ChevronLeft, ChevronRight, CheckCircle2,
+  Upload, FileText, ExternalLink, Trash2
 } from "lucide-vue-next";
 
 const route = useRoute();
@@ -283,6 +373,7 @@ const { Notify } = useNotiflix();
 const {
   isLoading, isSaving, listTahun, selectedTahunId,
   fetchTahunAnggaran, fetchBagian, fetchIndikator, fetchJawaban, saveJawaban,
+  uploadBuktiFiles, fetchBuktiFiles, deleteBuktiFile, getBuktiDownloadUrl,
 } = useEdm();
 
 const bagianCode = computed(() => {
@@ -387,7 +478,6 @@ const setAnswer = (indikatorId, skor) => {
       indikator_id: indikatorId,
       skor: null,
       jawaban_text: "",
-      bukti_url: "",
       updated_by_nama: "",
     };
   }
@@ -405,7 +495,6 @@ const updateAnswerField = (indikatorId, field, value) => {
       indikator_id: indikatorId,
       skor: null,
       jawaban_text: "",
-      bukti_url: "",
       updated_by_nama: "",
     };
   }
@@ -419,7 +508,6 @@ const resetAnswers = () => {
       indikator_id: item.id,
       skor: null,
       jawaban_text: "",
-      bukti_url: "",
       updated_by_nama: "",
     };
   });
@@ -433,7 +521,6 @@ const loadExistingAnswers = async (tahunId, bId) => {
     if (localAnswers[j.indikator_id]) {
       localAnswers[j.indikator_id].skor = j.skor;
       localAnswers[j.indikator_id].jawaban_text = j.jawaban_text || "";
-      localAnswers[j.indikator_id].bukti_url = j.bukti_url || "";
       localAnswers[j.indikator_id].updated_by_nama = j.updated_by_nama || "";
     }
   });
@@ -452,9 +539,9 @@ const handleSaveAll = async () => {
       indikator_id: item.id,
       skor: ans.skor ?? null,
       jawaban_text: ans.jawaban_text || "",
-      bukti_url: ans.bukti_url || "",
     };
   });
+
 
   const ok = await saveJawaban({
     bagian_id: myBagianId.value,
@@ -469,6 +556,128 @@ const handleSaveAll = async () => {
     }
   }
 };
+
+// ── Bukti File Upload (R2) ──
+const buktiFilesMap = reactive({}); // { [indikator_id]: BuktiFile[] }
+const isUploading = ref(false);
+const isDragging = ref(false);
+const fileInputRef = ref(null);
+
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+
+const currentBuktiFiles = computed(() => {
+  if (!currentItem.value) return [];
+  return buktiFilesMap[currentItem.value.id] || [];
+});
+
+const currentFileCount = computed(() => currentBuktiFiles.value.length);
+
+const formatFileSize = (bytes) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const getBuktiPreviewUrl = (r2Key) => {
+  const token = typeof window !== "undefined" ? localStorage.getItem("user-token") : null;
+  return `/api/edm/bukti/download/${r2Key}?token=${token}`;
+};
+
+
+const triggerFileInput = () => {
+  fileInputRef.value?.click();
+};
+
+const validateFiles = (files) => {
+  const errors = [];
+  for (const file of files) {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      errors.push(`"${file.name}" — tipe tidak diizinkan (${file.type})`);
+    }
+    if (file.size > MAX_SIZE) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      errors.push(`"${file.name}" — terlalu besar (${sizeMB} MB, maks 2 MB)`);
+    }
+  }
+  if (currentFileCount.value + files.length > 10) {
+    errors.push(`Melebihi batas 10 file (saat ini ${currentFileCount.value} file)`);
+  }
+  return errors;
+};
+
+const processUpload = async (fileList) => {
+  if (!currentItem.value || !myBagianId.value) return;
+
+  const files = Array.from(fileList);
+  if (files.length === 0) return;
+
+  // Client-side validation
+  const errors = validateFiles(files);
+  if (errors.length > 0) {
+    Notify?.failure?.(errors[0]);
+    return;
+  }
+
+  isUploading.value = true;
+  try {
+    const uploaded = await uploadBuktiFiles(
+      files,
+      currentItem.value.id,
+      myBagianId.value,
+      myGtkId.value || undefined,
+    );
+
+    if (uploaded.length > 0) {
+      // Reload file list for current indikator
+      await loadBuktiForIndikator(currentItem.value.id);
+    }
+  } finally {
+    isUploading.value = false;
+  }
+};
+
+const handleFileSelect = (event) => {
+  const files = event.target.files;
+  if (files && files.length > 0) {
+    processUpload(files);
+  }
+  // Reset input
+  if (fileInputRef.value) {
+    fileInputRef.value.value = "";
+  }
+};
+
+const handleFileDrop = (event) => {
+  isDragging.value = false;
+  const files = event.dataTransfer?.files;
+  if (files && files.length > 0) {
+    processUpload(files);
+  }
+};
+
+const handleDeleteFile = async (fileId) => {
+  if (!currentItem.value) return;
+  const ok = await deleteBuktiFile(fileId);
+  if (ok) {
+    await loadBuktiForIndikator(currentItem.value.id);
+  }
+};
+
+const loadBuktiForIndikator = async (indikatorId) => {
+  if (!myBagianId.value) return;
+  const files = await fetchBuktiFiles(indikatorId, myBagianId.value);
+  buktiFilesMap[indikatorId] = files;
+};
+
+// Load bukti files when page changes
+watch(currentPage, async () => {
+  if (currentItem.value && myBagianId.value) {
+    if (!buktiFilesMap[currentItem.value.id]) {
+      await loadBuktiForIndikator(currentItem.value.id);
+    }
+  }
+});
 
 onMounted(async () => {
   await fetchTahunAnggaran();
@@ -494,6 +703,12 @@ onMounted(async () => {
 
   if (myBagianId.value) {
     await loadExistingAnswers(tahunId, myBagianId.value);
+
+    // Load bukti files for first indikator
+    if (indikatorList.value.length > 0) {
+      await loadBuktiForIndikator(indikatorList.value[0].id);
+    }
   }
 });
 </script>
+

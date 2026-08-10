@@ -63,8 +63,21 @@ export interface JawabanEdm {
   kelompok_id?: number;
   skor?: number | null;
   jawaban_text?: string;
-  bukti_url?: string;
-  bukti_filename?: string;
+}
+
+
+export interface BuktiFile {
+  id: number;
+  jawaban_id?: number;
+  indikator_id: number;
+  bagian_id: number;
+  r2_key: string;
+  original_name: string;
+  mime_type: string;
+  file_size: number;
+  uploaded_by?: number;
+  uploader_nama?: string;
+  created_at?: string;
 }
 
 // ── Global Shared State (shared across all pages/components) ──
@@ -452,6 +465,94 @@ export function useEdm() {
   };
 
   /**
+   * Upload bukti files ke R2
+   */
+  const uploadBuktiFiles = async (
+    files: File[],
+    indikatorId: number,
+    bagianId: number,
+    gtkId?: number,
+  ): Promise<BuktiFile[]> => {
+    try {
+      const token = getAuthToken();
+      const formData = new FormData();
+      formData.append("indikator_id", String(indikatorId));
+      formData.append("bagian_id", String(bagianId));
+      if (gtkId) formData.append("gtk_id", String(gtkId));
+      for (const file of files) {
+        formData.append("files", file);
+      }
+
+      const res = await fetch("/api/edm/bukti/upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal mengupload file");
+      Notify?.success?.(data.message || "File berhasil diupload");
+      return data.files || [];
+    } catch (err: any) {
+      Notify?.failure?.(err.message || "Gagal mengupload file bukti");
+      return [];
+    }
+  };
+
+  /**
+   * Fetch daftar bukti file per indikator
+   */
+  const fetchBuktiFiles = async (
+    indikatorId: number,
+    bagianId: number,
+  ): Promise<BuktiFile[]> => {
+    try {
+      const token = getAuthToken();
+      const res = await fetch(
+        `/api/edm/bukti?indikator_id=${indikatorId}&bagian_id=${bagianId}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      if (res.ok) {
+        return await res.json();
+      }
+      return [];
+    } catch (err) {
+      console.error("Gagal memuat bukti file:", err);
+      return [];
+    }
+  };
+
+  /**
+   * Hapus bukti file
+   */
+  const deleteBuktiFile = async (fileId: number): Promise<boolean> => {
+    try {
+      const token = getAuthToken();
+      const res = await fetch(`/api/edm/bukti/${fileId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal menghapus file");
+      Notify?.success?.(data.message || "File berhasil dihapus");
+      return true;
+    } catch (err: any) {
+      Notify?.failure?.(err.message || "Gagal menghapus file bukti");
+      return false;
+    }
+  };
+
+  /**
+   * Get download/preview URL for bukti file
+   */
+  const getBuktiDownloadUrl = (r2Key: string): string => {
+    return `/api/edm/bukti/download/${r2Key}`;
+  };
+
+
+  /**
    * Set selected tahun and persist to localStorage
    */
   const setSelectedTahunId = (id: number | null) => {
@@ -493,5 +594,11 @@ export function useEdm() {
     fetchJawaban,
     saveJawaban,
     fetchRekap,
+
+    // Bukti File R2
+    uploadBuktiFiles,
+    fetchBuktiFiles,
+    deleteBuktiFile,
+    getBuktiDownloadUrl,
   };
 }
