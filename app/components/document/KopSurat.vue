@@ -1,18 +1,23 @@
+<script setup lang="ts">
+import LogoSopokdate from '~/assets/logo-sopokdate.vue';
+
+</script>
+
 <template>
   <div class="w-full border-black border-b-3 pb-1">
     <div class="flex items-center justify-between mb-1">
       <div class="flex-shrink-0">
-        <img src="/assets/images/logo-madrasah.svg" alt="Logo Kemenag" height="85" width="85" />
+        <LogoSopokdate width="70" height="70" />
       </div>
       <div class="text-center flex-grow px-4">
         <div class="font-semibold leading-tight">
-          <div class="text-[12pt]">
+          <div class="text-[12pt] tracking-wider">
             PONDOK PESANTREN "NURUL FALAH" PENYENGGIR
           </div>
           <div class="text-[11pt] -mt-1">
             DESA SIKUR BARAT KEC. SIKUR KABUPATEN LOMBOK TIMUR
           </div>
-          <div class="text-[12pt]">MADRASAH IBTIDA'IYAH NW PENYENGGIR</div>
+          <div class="text-[12pt] tracking-wider">MADRASAH IBTIDA'IYAH NW PENYENGGIR</div>
           <div class="text-[11pt] -mt-1">
             "TERAKREDITASI B" NOMOR: 087/BAN-PDM/SK/2024
           </div>

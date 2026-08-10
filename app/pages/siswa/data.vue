@@ -30,22 +30,26 @@
               <template #icon><FileSpreadsheet class="w-4 h-4 shrink-0" /></template>
             </BaseButton>
 
-            <PrintButton>
-              <div class="p-10 mx-auto bg-white text-black">
+            <PrintButton :options="printOptions" v-model="printFormat" :documentTitle="printDocumentTitle">
+              <div class="w-full print:p-0 print:pt-0 p-4 sm:p-8 pt-0 sm:pt-0 mx-auto bg-white text-black">
                 <KopSurat class="mb-4" />
                 <div class="text-center mb-6">
-                  <h1 class="font-bold uppercase text-lg">Daftar Data Siswa</h1>
+                  <h1 class="font-bold uppercase text-lg">
+                    {{ printFormat === 'sensitif' ? 'Daftar Data Sensitif Siswa' : 'Daftar Data Siswa' }}
+                  </h1>
                   <p class="text-sm">Kelas/Rombel: {{ selectedClass }}</p>
                 </div>
-                <table class="w-full table-auto border border-gray-800 mb-4 text-xs">
+
+                <!-- Tabel Data Umum -->
+                <table v-if="printFormat === 'umum'" class="w-full table-auto border border-gray-800 mb-4 text-xs">
                   <thead class="bg-gray-100">
                     <tr>
-                      <th class="border border-gray-800 px-2 py-1.5 w-8">No</th>
-                      <th class="border border-gray-800 px-2 py-1.5">Nama</th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-24">NISN</th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-24">NIS Lokal</th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-10">L/P</th>
-                      <th class="border border-gray-800 px-2 py-1.5 w-32">Kelas / Rombel</th>
+                      <th class="border border-gray-800 px-2 py-1.5 w-8 whitespace-nowrap">No</th>
+                      <th class="border border-gray-800 px-2 py-1.5 text-left">Nama</th>
+                      <th class="border border-gray-800 px-2 py-1.5 whitespace-nowrap">NISN</th>
+                      <th class="border border-gray-800 px-2 py-1.5 whitespace-nowrap">NIS Lokal</th>
+                      <th class="border border-gray-800 px-2 py-1.5 whitespace-nowrap">L/P</th>
+                      <th class="border border-gray-800 px-2 py-1.5 whitespace-nowrap">Kelas / Rombel</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -55,23 +59,60 @@
                       </td>
                     </tr>
                     <tr v-else v-for="(siswa, index) in sortedData" :key="siswa.nisn || index">
-                      <td class="border border-gray-800 px-2 py-1 text-center">{{ index + 1 }}</td>
-                      <td class="border border-gray-800 px-2 py-1 font-semibold">{{ toTitleCase(siswa.nama) }}</td>
-                      <td class="border border-gray-800 px-2 py-1 text-center">{{ siswa.nisn || "-" }}</td>
-                      <td class="border border-gray-800 px-2 py-1 text-center">{{ siswa.nis_lokal || "-" }}</td>
-                      <td class="border border-gray-800 px-2 py-1 text-center">{{ getJenisKelaminAbbr(siswa.jenis_kelamin) }}</td>
-                      <td class="border border-gray-800 px-2 py-1 text-center">{{ getClassName(siswa.kelas) }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{{ index + 1 }}</td>
+                      <td class="border border-gray-800 px-2 py-1 font-semibold text-left">{{ toTitleCase(siswa.nama) }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{{ siswa.nisn || "-" }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{{ siswa.nis_lokal || "-" }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{{ getJenisKelaminAbbr(siswa.jenis_kelamin) }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{{ getClassName(siswa.kelas) }}</td>
                     </tr>
                   </tbody>
                 </table>
+
+                <!-- Tabel Data Sensitif -->
+                <table v-else-if="printFormat === 'sensitif'" class="w-full table-auto border border-gray-800 mb-4 text-xs">
+                  <thead class="bg-gray-100">
+                    <tr>
+                      <th class="border border-gray-800 px-2 py-1.5 w-8 whitespace-nowrap">No</th>
+                      <th class="border border-gray-800 px-2 py-1.5 text-left">Nama Siswa</th>
+                      <th class="border border-gray-800 px-2 py-1.5 whitespace-nowrap">L/P</th>
+                      <th class="border border-gray-800 px-2 py-1.5 whitespace-nowrap">NISN</th>
+                      <th class="border border-gray-800 px-2 py-1.5 whitespace-nowrap">NIK</th>
+                      <th class="border border-gray-800 px-2 py-1.5 whitespace-nowrap">Tempat Lahir</th>
+                      <th class="border border-gray-800 px-2 py-1.5 whitespace-nowrap">Tgl Lahir</th>
+                      <th class="border border-gray-800 px-2 py-1.5 whitespace-nowrap">Umur</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="!sortedData || sortedData.length === 0">
+                      <td colspan="8" class="border border-gray-800 px-2 py-4 text-center text-gray-500">
+                        {{ isLoading ? "Memuat data..." : "Tidak ada data siswa tersedia" }}
+                      </td>
+                    </tr>
+                    <tr v-else v-for="(siswa, index) in sortedData" :key="siswa.nisn || index">
+                      <td class="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{{ index + 1 }}</td>
+                      <td class="border border-gray-800 px-2 py-1 font-semibold text-left">{{ toTitleCase(siswa.nama) }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{{ getJenisKelaminAbbr(siswa.jenis_kelamin) }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{{ siswa.nisn || "-" }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{{ siswa.nik || "-" }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-left whitespace-nowrap">{{ toTitleCase(siswa.tempat_lahir) || "-" }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-center whitespace-nowrap">{{ formatDateDisplay(siswa.tanggal_lahir || siswa['tanggal lahir']) }}</td>
+                      <td class="border border-gray-800 px-2 py-1 text-left whitespace-nowrap">{{ calculateAge(siswa.tanggal_lahir || siswa['tanggal lahir']) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
                 <div class="flex justify-between items-end mt-8 text-xs">
                   <div>
                     <p class="italic">Dicetak dari SopokDate pada pukul {{ currentTime }} WITA, tanggal {{ currentDate }}</p>
                   </div>
-                  <div class="text-center w-48">
-                    <p class="mb-16">Kepala Madrasah</p>
-                    <p class="font-bold underline">{{ kepalaMadrasahName }}</p>
-                    <p>NIP: {{ kepalaMadrasahNIP }}</p>
+                  <div class="text-center w-48 flex flex-col items-center">
+                    <p class="mb-1">Kepala Madrasah</p>
+                    <div class="my-1 bg-white inline-block">
+                      <QrcodeVue :value="printQrValue" :size="75" render-as="svg" />
+                    </div>
+                    <p class="font-bold underline mt-1">{{ kepalaMadrasahName }}</p>
+                    <p>NUPTK: {{ kepalaMadrasahNIP }}</p>
                   </div>
                 </div>
               </div>
@@ -306,6 +347,7 @@ import CrudModal from "~/components/ui/CrudModal.vue";
 import PersonCard from "~/components/data/PersonCard.vue";
 import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import Pagination from "~/components/ui/Pagination.vue";
+import QrcodeVue from "qrcode.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { fetchFromApi } from "~/utils/api";
@@ -434,6 +476,26 @@ const searchQueryBukuInduk = ref("");
 const currentPageBukuInduk = ref(1);
 const ITEMS_PER_PAGE_BUKU_INDUK = 15;
 
+// State for Print format & options
+const printFormat = ref("umum");
+const printOptions = [
+  { label: "Cetak Data Umum", value: "umum", description: "Nama, NISN, NIS Lokal, L/P, Kelas" },
+  { label: "Cetak Data Sensitif", value: "sensitif", description: "Nama, L/P, NISN, NIK, Tempat & Tgl Lahir, Umur" },
+];
+
+const printQrValue = computed(() => {
+  const docType = printFormat.value === "sensitif" ? "Daftar Data Sensitif Siswa" : "Daftar Data Siswa";
+  const total = sortedData.value ? sortedData.value.length : 0;
+  return `Dokumen: ${docType}\nKelas/Rombel: ${selectedClass.value}\nJumlah Siswa: ${total}\nKepala Madrasah: ${kepalaMadrasahName.value}\nNIP/NUPTK: ${kepalaMadrasahNIP.value}\nTanggal Cetak: ${currentDate.value} ${currentTime.value} WITA`;
+});
+
+const printDocumentTitle = computed(() => {
+  const type = printFormat.value === "sensitif" ? "Data_Sensitif_Siswa" : "Data_Siswa";
+  const classClean = (selectedClass.value || "Semua_Kelas").replace(/[^a-zA-Z0-9]/g, "_");
+  const dateClean = (currentDate.value || "").replace(/\//g, "-");
+  return `${type}_${classClean}_${dateClean}`;
+});
+
 // State for Print timestamp
 const currentDate = ref("");
 const currentTime = ref("");
@@ -520,6 +582,16 @@ const calculateAge = (birthDateString) => {
   }
   
   return `${years} Tahun, ${months} Bulan, ${days} Hari`;
+};
+
+const formatDateDisplay = (dateStr) => {
+  if (!dateStr) return "-";
+  const d = parseIndonesianDate(dateStr);
+  if (!d) return String(dateStr);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 // Generate options for filtering classes dynamically using Nama Kelas

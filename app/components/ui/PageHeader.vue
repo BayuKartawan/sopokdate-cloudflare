@@ -1,11 +1,11 @@
 <!-- app/components/ui/PageHeader.vue -->
 <template>
-  <div class="mb-5 rounded-xl border theme-bg-secondary theme-border overflow-hidden">
+  <div class="mb-5 rounded-xl border theme-bg-secondary theme-border">
 
     <!-- Breadcrumb (di dalam container, di atas) -->
     <nav
       v-if="breadcrumbs && breadcrumbs.length"
-      class="flex items-center justify-center gap-1 text-xs theme-text-muted flex-wrap px-4 py-2 border-b theme-border"
+      class="flex items-center justify-center gap-1 text-xs theme-text-muted flex-wrap px-4 py-2 border-b theme-border rounded-t-xl"
     >
       <template v-for="(crumb, i) in breadcrumbs" :key="i">
         <NuxtLink
