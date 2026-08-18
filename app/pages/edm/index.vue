@@ -272,7 +272,7 @@ import {
 const {
   isLoading, isSaving, listTahun, selectedTahunId,
   fetchTahunAnggaran, refetchTahunAnggaran, saveTahunAnggaran,
-  setSelectedTahunId, fetchBagian, fetchIndikator, fetchRekap,
+  setSelectedTahunId, fetchBagian, fetchInstrumen, fetchIndikator, fetchRekap,
 } = useEdm();
 
 const isAdmin = computed(() => {
@@ -362,14 +362,13 @@ const loadDashboardData = async () => {
   if (!selectedTahunId.value) return;
   const tahunId = selectedTahunId.value;
 
-  const [bagianData, indikator, rekap] = await Promise.all([
+  const [bagianData, rekap] = await Promise.all([
     fetchBagian(tahunId),
-    fetchIndikator(tahunId),
     fetchRekap(tahunId),
   ]);
 
   bagianList.value = bagianData;
-  totalIndikator.value = indikator.length;
+  totalIndikator.value = fetchInstrumen().length;
   rekapData.value = rekap;
 
   if (currentTahun.value) {

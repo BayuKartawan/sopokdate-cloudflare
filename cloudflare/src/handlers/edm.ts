@@ -1,6 +1,14 @@
 // handlers/edm.ts
 import { jsonResponse, errorResponse } from "../utils";
 import type { Env } from "../types";
+import {
+  EDM_KATEGORI,
+  EDM_BAGIAN_META,
+  getAllInstrumen,
+  getInstrumenByKategori,
+  getInstrumenByKodeSoal,
+  getKategoriByKode,
+} from "../edm-instrumen";
 
 // ---------------------------------------------------------------------------
 // Helper & Constants
@@ -17,15 +25,24 @@ function getRequestUser(request: Request): RequestUser {
   return { role, gtkId };
 }
 
-export const EDM_BAGIAN_LIST = [
-  { code: "A", name: "Bagian A: Aspek Budaya Kedisiplinan bagi Warga Madrasah", title: "Aspek Budaya Kedisiplinan bagi Warga Madrasah" },
-  { code: "B", name: "Bagian B: Aspek Budaya Melakukan Pengembangan Diri bagi Guru dan Tenaga Kependidikan", title: "Aspek Budaya Melakukan Pengembangan Diri bagi Guru dan Tenaga Kependidikan" },
-  { code: "C", name: "Bagian C: Aspek Budaya Guru Melakukan Penyiapan, Pelaksanaan dan Penilaian Atas Proses Pembelajaran", title: "Aspek Budaya Guru Melakukan Penyiapan, Pelaksanaan dan Penilaian Atas Proses Pembelajaran" },
-  { code: "D", name: "Bagian D: Aspek Budaya Madrasah Menyediakan Sarana Belajar untuk Guru dan Siswa", title: "Aspek Budaya Madrasah Menyediakan Sarana Belajar untuk Guru dan Siswa" },
-  { code: "E", name: "Bagian E: Aspek Budaya Madrasah Melakukan Pengelolaan Anggaran yang Transparan dan Berorientasi pada Peningkatan Mutu", title: "Aspek Budaya Madrasah Melakukan Pengelolaan Anggaran yang Transparan dan Berorientasi pada Peningkatan Mutu" },
-];
+export const EDM_BAGIAN_LIST = EDM_BAGIAN_META;
 
 const BAGIAN_NAMES = ["A", "B", "C", "D", "E"];
+
+// ---------------------------------------------------------------------------
+// GET /api/edm/instrumen — Return instrumen dari memory (hardcode)
+// ---------------------------------------------------------------------------
+export async function handleGetEdmInstrumen(
+  request: Request,
+  env: Env,
+): Promise<Response> {
+  const url = new URL(request.url);
+  const kategori = url.searchParams.get("kategori") || url.searchParams.get("bagian_target");
+  if (kategori) {
+    return jsonResponse(getInstrumenByKategori(kategori));
+  }
+  return jsonResponse(getAllInstrumen());
+}
 
 // ---------------------------------------------------------------------------
 // GET /api/edm/tahun-anggaran
@@ -77,7 +94,6 @@ export async function handlePostEdmTahunAnggaran(
   try {
     const statements: D1PreparedStatement[] = [];
 
-    // Jika is_active = 1, nonaktifkan semua yang lain
     if (is_active === 1) {
       statements.push(
         env.DB.prepare(
@@ -87,7 +103,6 @@ export async function handlePostEdmTahunAnggaran(
     }
 
     if (id) {
-      // Update existing
       statements.push(
         env.DB.prepare(
           `UPDATE edm_tahun_anggaran 
@@ -96,7 +111,6 @@ export async function handlePostEdmTahunAnggaran(
         ).bind(tahun, is_active ?? 0, juknis || "", id),
       );
     } else {
-      // Insert new + auto-create 5 bagian
       statements.push(
         env.DB.prepare(
           `INSERT INTO edm_tahun_anggaran (tahun, is_active, juknis) VALUES (?1, ?2, ?3)`,
@@ -106,7 +120,6 @@ export async function handlePostEdmTahunAnggaran(
 
     await env.DB.batch(statements);
 
-    // Jika baru dibuat, buat 5 bagian otomatis
     if (!id) {
       const inserted = await env.DB.prepare(
         "SELECT id FROM edm_tahun_anggaran WHERE tahun = ?1",
@@ -179,14 +192,12 @@ export async function handleGetEdmBagian(
   }
 
   try {
-    // Ambil bagian
     const bagianResult = await env.DB.prepare(
       `SELECT id, tahun_anggaran_id, nama_bagian, nama_bagian AS nama_kelompok, created_at FROM edm_bagian WHERE tahun_anggaran_id = ?1 ORDER BY nama_bagian ASC`,
     )
       .bind(parseInt(tahunAnggaranId))
       .all();
 
-    // Ambil anggota setiap bagian
     const bagianIds = bagianResult.results.map((b: any) => b.id);
 
     if (bagianIds.length === 0) {
@@ -204,7 +215,6 @@ export async function handleGetEdmBagian(
       .bind(...bagianIds)
       .all();
 
-    // Group anggota by bagian_id
     const anggotaMap: Record<number, any[]> = {};
     for (const a of anggotaResult.results as any[]) {
       if (!anggotaMap[a.bagian_id]) anggotaMap[a.bagian_id] = [];
@@ -226,7 +236,6 @@ export const handleGetEdmKelompok = handleGetEdmBagian;
 
 // ---------------------------------------------------------------------------
 // POST /api/edm/bagian — Simpan pembagian bagian (batch)
-// body: { tahun_anggaran_id, bagian: [ { nama_bagian: "A", gtk_ids: [1,2,3] }, ... ] }
 // ---------------------------------------------------------------------------
 export async function handlePostEdmBagian(
   request: Request,
@@ -257,7 +266,6 @@ export async function handlePostEdmBagian(
   }
 
   try {
-    // Validasi: cek duplikat gtk_id antar bagian
     const allGtkIds = new Set<number>();
     for (const b of listBagian) {
       for (const gtkId of b.gtk_ids) {
@@ -270,7 +278,6 @@ export async function handlePostEdmBagian(
       }
     }
 
-    // Ambil bagian_id berdasarkan tahun
     const bagianResult = await env.DB.prepare(
       `SELECT id, nama_bagian FROM edm_bagian WHERE tahun_anggaran_id = ?1`,
     )
@@ -284,7 +291,6 @@ export async function handlePostEdmBagian(
 
     const statements: D1PreparedStatement[] = [];
 
-    // Hapus semua anggota bagian existing untuk tahun ini
     for (const b of bagianResult.results as any[]) {
       statements.push(
         env.DB.prepare("DELETE FROM edm_anggota_bagian WHERE bagian_id = ?1").bind(
@@ -293,7 +299,6 @@ export async function handlePostEdmBagian(
       );
     }
 
-    // Insert anggota baru
     for (const b of listBagian) {
       const name = b.nama_bagian || b.nama_kelompok;
       if (!name) continue;
@@ -325,209 +330,6 @@ export async function handlePostEdmBagian(
 export const handlePostEdmKelompok = handlePostEdmBagian;
 
 // ---------------------------------------------------------------------------
-// GET /api/edm/indikator?tahun_anggaran_id=X&bagian_target=A
-// ---------------------------------------------------------------------------
-export async function handleGetEdmIndikator(
-  request: Request,
-  env: Env,
-): Promise<Response> {
-  const url = new URL(request.url);
-  const tahunAnggaranId = url.searchParams.get("tahun_anggaran_id");
-  const bagianTarget = url.searchParams.get("bagian_target") || url.searchParams.get("kelompok_target");
-
-  if (!tahunAnggaranId) {
-    return errorResponse("Parameter 'tahun_anggaran_id' diperlukan");
-  }
-
-  try {
-    let query: string;
-    let stmt: D1PreparedStatement;
-
-    if (bagianTarget) {
-      query = `SELECT *, bagian_target AS kelompok_target FROM edm_indikator 
-               WHERE tahun_anggaran_id = ?1 AND bagian_target = ?2
-               ORDER BY nomor_urut ASC`;
-      stmt = env.DB.prepare(query).bind(parseInt(tahunAnggaranId), bagianTarget);
-    } else {
-      query = `SELECT *, bagian_target AS kelompok_target FROM edm_indikator 
-               WHERE tahun_anggaran_id = ?1
-               ORDER BY bagian_target ASC, nomor_urut ASC`;
-      stmt = env.DB.prepare(query).bind(parseInt(tahunAnggaranId));
-    }
-
-    const result = await stmt.all();
-    return jsonResponse(result.results);
-  } catch (err: any) {
-    return errorResponse(`Database error: ${err.message}`, 500);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// POST /api/edm/indikator — Tambah / batch import indikator
-// ---------------------------------------------------------------------------
-export async function handlePostEdmIndikator(
-  request: Request,
-  env: Env,
-): Promise<Response> {
-  const user = getRequestUser(request);
-  if (user.role !== "admin") {
-    return errorResponse("Hanya admin yang dapat mengelola indikator EDM", 403);
-  }
-
-  let body: any;
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse("Invalid JSON body");
-  }
-
-  const { tahun_anggaran_id, items } = body;
-
-  if (!tahun_anggaran_id) {
-    return errorResponse("Field 'tahun_anggaran_id' wajib diisi");
-  }
-
-  try {
-    const statements: D1PreparedStatement[] = [];
-    const insertQuery = `
-      INSERT INTO edm_indikator 
-        (tahun_anggaran_id, bagian_target, nomor_urut, pertanyaan, bukti_yang_diminta, pilihan)
-      VALUES (?1, ?2, ?3, ?4, ?5, ?6)
-    `;
-
-    if (items && Array.isArray(items)) {
-      // Batch import
-      for (const item of items) {
-        statements.push(
-          env.DB.prepare(insertQuery).bind(
-            tahun_anggaran_id,
-            item.bagian_target || item.kelompok_target || "A",
-            item.nomor_urut || 0,
-            item.pertanyaan || "",
-            item.bukti_yang_diminta || "",
-            typeof item.pilihan === "string"
-              ? item.pilihan
-              : JSON.stringify(item.pilihan || []),
-          ),
-        );
-      }
-    } else {
-      // Single insert
-      const {
-        bagian_target,
-        kelompok_target,
-        nomor_urut,
-        pertanyaan,
-        bukti_yang_diminta,
-        pilihan,
-      } = body;
-
-      if (!pertanyaan) {
-        return errorResponse("Field 'pertanyaan' wajib diisi");
-      }
-
-      statements.push(
-        env.DB.prepare(insertQuery).bind(
-          tahun_anggaran_id,
-          bagian_target || kelompok_target || "A",
-          nomor_urut || 0,
-          pertanyaan,
-          bukti_yang_diminta || "",
-          typeof pilihan === "string" ? pilihan : JSON.stringify(pilihan || []),
-        ),
-      );
-    }
-
-    if (statements.length > 0) {
-      await env.DB.batch(statements);
-    }
-
-    return jsonResponse({
-      success: true,
-      message: `${statements.length} indikator EDM berhasil ditambahkan`,
-    });
-  } catch (err: any) {
-    return errorResponse(`Database error: ${err.message}`, 500);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// PUT /api/edm/indikator/:id — Update indikator
-// ---------------------------------------------------------------------------
-export async function handlePutEdmIndikator(
-  request: Request,
-  env: Env,
-  id: string,
-): Promise<Response> {
-  const user = getRequestUser(request);
-  if (user.role !== "admin") {
-    return errorResponse("Hanya admin yang dapat mengelola indikator EDM", 403);
-  }
-
-  let body: any;
-  try {
-    body = await request.json();
-  } catch {
-    return errorResponse("Invalid JSON body");
-  }
-
-  const {
-    bagian_target,
-    kelompok_target,
-    nomor_urut,
-    pertanyaan,
-    bukti_yang_diminta,
-    pilihan,
-  } = body;
-
-  try {
-    await env.DB.prepare(
-      `UPDATE edm_indikator SET
-         bagian_target = ?1, nomor_urut = ?2,
-         pertanyaan = ?3, bukti_yang_diminta = ?4, pilihan = ?5,
-         updated_at = datetime('now')
-       WHERE id = ?6`,
-    )
-      .bind(
-        bagian_target || kelompok_target || "A",
-        nomor_urut || 0,
-        pertanyaan || "",
-        bukti_yang_diminta || "",
-        typeof pilihan === "string" ? pilihan : JSON.stringify(pilihan || []),
-        parseInt(id),
-      )
-      .run();
-
-    return jsonResponse({ success: true, message: "Indikator EDM berhasil diperbarui" });
-  } catch (err: any) {
-    return errorResponse(`Database error: ${err.message}`, 500);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// DELETE /api/edm/indikator/:id
-// ---------------------------------------------------------------------------
-export async function handleDeleteEdmIndikator(
-  request: Request,
-  env: Env,
-  id: string,
-): Promise<Response> {
-  const user = getRequestUser(request);
-  if (user.role !== "admin") {
-    return errorResponse("Hanya admin yang dapat menghapus indikator EDM", 403);
-  }
-
-  try {
-    await env.DB.prepare("DELETE FROM edm_indikator WHERE id = ?1")
-      .bind(parseInt(id))
-      .run();
-    return jsonResponse({ success: true, message: "Indikator EDM berhasil dihapus" });
-  } catch (err: any) {
-    return errorResponse(`Database error: ${err.message}`, 500);
-  }
-}
-
-// ---------------------------------------------------------------------------
 // GET /api/edm/jawaban?tahun_anggaran_id=X&bagian_target=A&bagian_id=Y
 // ---------------------------------------------------------------------------
 export async function handleGetEdmJawaban(
@@ -544,49 +346,43 @@ export async function handleGetEdmJawaban(
   }
 
   try {
-    let query: string;
-    let params: any[];
+    let query = `
+      SELECT j.*, j.bagian_id AS kelompok_id, g.nama_lengkap AS updated_by_nama
+      FROM edm_jawaban j
+      INNER JOIN edm_bagian b ON j.bagian_id = b.id
+      LEFT JOIN data_gtk g ON j.gtk_id = g.id
+      WHERE b.tahun_anggaran_id = ?1
+    `;
+    const params: any[] = [parseInt(tahunAnggaranId)];
 
     if (bagianId) {
-      query = `
-        SELECT j.*, j.bagian_id AS kelompok_id, i.pertanyaan, i.bukti_yang_diminta,
-               i.pilihan, i.nomor_urut, i.bagian_target, i.bagian_target AS kelompok_target,
-               g.nama_lengkap AS updated_by_nama
-        FROM edm_jawaban j
-        INNER JOIN edm_indikator i ON j.indikator_id = i.id
-        LEFT JOIN data_gtk g ON j.gtk_id = g.id
-        WHERE i.tahun_anggaran_id = ?1 AND j.bagian_id = ?2
-        ORDER BY i.nomor_urut ASC
-      `;
-      params = [parseInt(tahunAnggaranId), parseInt(bagianId)];
-    } else if (bagianTarget) {
-      query = `
-        SELECT j.*, j.bagian_id AS kelompok_id, i.pertanyaan, i.bukti_yang_diminta,
-               i.pilihan, i.nomor_urut, i.bagian_target, i.bagian_target AS kelompok_target,
-               g.nama_lengkap AS updated_by_nama
-        FROM edm_jawaban j
-        INNER JOIN edm_indikator i ON j.indikator_id = i.id
-        LEFT JOIN data_gtk g ON j.gtk_id = g.id
-        WHERE i.tahun_anggaran_id = ?1 AND i.bagian_target = ?2
-        ORDER BY i.nomor_urut ASC
-      `;
-      params = [parseInt(tahunAnggaranId), bagianTarget];
-    } else {
-      query = `
-        SELECT j.*, j.bagian_id AS kelompok_id, i.pertanyaan, i.bukti_yang_diminta,
-               i.pilihan, i.nomor_urut, i.bagian_target, i.bagian_target AS kelompok_target,
-               g.nama_lengkap AS updated_by_nama
-        FROM edm_jawaban j
-        INNER JOIN edm_indikator i ON j.indikator_id = i.id
-        LEFT JOIN data_gtk g ON j.gtk_id = g.id
-        WHERE i.tahun_anggaran_id = ?1
-        ORDER BY i.bagian_target ASC, i.nomor_urut ASC
-      `;
-      params = [parseInt(tahunAnggaranId)];
+      query += ` AND j.bagian_id = ?2`;
+      params.push(parseInt(bagianId));
     }
 
     const result = await env.DB.prepare(query).bind(...params).all();
-    return jsonResponse(result.results);
+    const rows = result.results as any[];
+
+    // Enrich rows with instrumen details from hardcode module
+    const enriched = rows.map((r) => {
+      const inst = getInstrumenByKodeSoal(r.kode_soal);
+      return {
+        ...r,
+        pertanyaan: inst?.pertanyaan || "",
+        bukti_yang_diminta: inst?.bukti || "",
+        pilihan: inst?.pilihan || [],
+        nomor_urut: inst?.urutan ? parseInt(inst.urutan) : 0,
+        bagian_target: inst?.kategori || "A",
+        kelompok_target: inst?.kategori || "A",
+        bobot: inst?.bobot || 3,
+      };
+    });
+
+    if (bagianTarget) {
+      return jsonResponse(enriched.filter((item) => item.bagian_target === bagianTarget));
+    }
+
+    return jsonResponse(enriched);
   } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
   }
@@ -594,7 +390,6 @@ export async function handleGetEdmJawaban(
 
 // ---------------------------------------------------------------------------
 // POST /api/edm/jawaban — Simpan batch jawaban per bagian (Synced)
-// body: { bagian_id, gtk_id, jawaban: [ { indikator_id, skor, jawaban_text, bukti_url, bukti_filename }, ... ] }
 // ---------------------------------------------------------------------------
 export async function handlePostEdmJawaban(
   request: Request,
@@ -614,11 +409,10 @@ export async function handlePostEdmJawaban(
     kelompok_id?: number;
     gtk_id?: number;
     jawaban?: Array<{
-      indikator_id: number;
+      kode_soal?: string;
+      indikator_id?: number | string;
       skor?: number;
-      jawaban_text?: string;
-      bukti_url?: string;
-      bukti_filename?: string;
+      upload_text?: string;
     }>;
   };
 
@@ -630,7 +424,6 @@ export async function handlePostEdmJawaban(
     );
   }
 
-  // Jika bukan admin, pastikan guru adalah anggota bagian ini
   if (user.role !== "admin" && gtk_id) {
     const membership = await env.DB.prepare(
       "SELECT id FROM edm_anggota_bagian WHERE bagian_id = ?1 AND gtk_id = ?2",
@@ -649,23 +442,26 @@ export async function handlePostEdmJawaban(
   try {
     const statements: D1PreparedStatement[] = [];
     const upsertQuery = `
-      INSERT INTO edm_jawaban (indikator_id, bagian_id, gtk_id, skor, jawaban_text, updated_at)
+      INSERT INTO edm_jawaban (kode_soal, bagian_id, gtk_id, skor, upload_text, updated_at)
       VALUES (?1, ?2, ?3, ?4, ?5, datetime('now'))
-      ON CONFLICT(indikator_id, bagian_id) DO UPDATE SET
+      ON CONFLICT(kode_soal, bagian_id) DO UPDATE SET
         gtk_id = excluded.gtk_id,
         skor = excluded.skor,
-        jawaban_text = excluded.jawaban_text,
+        upload_text = excluded.upload_text,
         updated_at = datetime('now')
     `;
 
     for (const j of jawaban) {
+      const kodeSoal = j.kode_soal || String(j.indikator_id || "");
+      if (!kodeSoal) continue;
+
       statements.push(
         env.DB.prepare(upsertQuery).bind(
-          j.indikator_id,
+          kodeSoal,
           targetBagianId,
           gtk_id || null,
           j.skor ?? null,
-          j.jawaban_text || "",
+          j.upload_text ?? null,
         ),
       );
     }
@@ -698,74 +494,134 @@ export async function handleGetEdmRekap(
   }
 
   try {
-    // Per-bagian summary
-    const bagianSummary = await env.DB.prepare(
-      `SELECT 
-         b.id AS bagian_id,
-         b.id AS kelompok_id,
-         b.nama_bagian,
-         b.nama_bagian AS nama_kelompok,
-         (SELECT COUNT(*) FROM edm_anggota_bagian ab WHERE ab.bagian_id = b.id) AS jumlah_anggota,
-         (SELECT COUNT(DISTINCT i.id) FROM edm_indikator i 
-          WHERE i.tahun_anggaran_id = b.tahun_anggaran_id AND i.bagian_target = b.nama_bagian
-         ) AS jumlah_indikator,
-         (SELECT COUNT(*) FROM edm_jawaban j
-          INNER JOIN edm_indikator i ON j.indikator_id = i.id
-          WHERE j.bagian_id = b.id AND i.tahun_anggaran_id = b.tahun_anggaran_id AND j.skor IS NOT NULL
-         ) AS jumlah_jawaban,
-         (SELECT ROUND(AVG(j.skor), 2) FROM edm_jawaban j
-          INNER JOIN edm_indikator i ON j.indikator_id = i.id
-          WHERE j.bagian_id = b.id AND i.tahun_anggaran_id = b.tahun_anggaran_id AND j.skor IS NOT NULL
-         ) AS rata_rata_skor
+    const bagianList = await env.DB.prepare(
+      `SELECT b.id AS bagian_id, b.id AS kelompok_id, b.nama_bagian, b.nama_bagian AS nama_kelompok,
+              (SELECT COUNT(*) FROM edm_anggota_bagian ab WHERE ab.bagian_id = b.id) AS jumlah_anggota
        FROM edm_bagian b
        WHERE b.tahun_anggaran_id = ?1
        ORDER BY b.nama_bagian ASC`,
-    )
-      .bind(parseInt(tahunAnggaranId))
-      .all();
+    ).bind(parseInt(tahunAnggaranId)).all();
 
-    // Overall summary
-    const overallSummary = await env.DB.prepare(
-      `SELECT 
-         (SELECT COUNT(*) FROM edm_indikator WHERE tahun_anggaran_id = ?1) AS total_indikator,
-         (SELECT COUNT(DISTINCT j.bagian_id) FROM edm_jawaban j
-          INNER JOIN edm_indikator i ON j.indikator_id = i.id
-          WHERE i.tahun_anggaran_id = ?1 AND j.skor IS NOT NULL
-         ) AS total_bagian_terisi,
-         (SELECT COUNT(DISTINCT j.bagian_id) FROM edm_jawaban j
-          INNER JOIN edm_indikator i ON j.indikator_id = i.id
-          WHERE i.tahun_anggaran_id = ?1 AND j.skor IS NOT NULL
-         ) AS total_kelompok_terisi,
-         (SELECT ROUND(AVG(j.skor), 2) FROM edm_jawaban j
-          INNER JOIN edm_indikator i ON j.indikator_id = i.id
-          WHERE i.tahun_anggaran_id = ?1 AND j.skor IS NOT NULL
-         ) AS rata_rata_skor_keseluruhan`,
-    )
-      .bind(parseInt(tahunAnggaranId))
-      .first();
-
-    // Detail per indikator
-    const perIndikator = await env.DB.prepare(
-      `SELECT 
-         i.id, i.bagian_target, i.bagian_target AS kelompok_target, i.nomor_urut, i.pertanyaan,
-         j.skor AS rata_rata_skor,
-         j.jawaban_text,
-         (SELECT COUNT(*) FROM edm_bukti_file bf WHERE bf.indikator_id = i.id AND bf.bagian_id = j.bagian_id) AS jumlah_bukti_file,
-         g.nama_lengkap AS updated_by_nama
-       FROM edm_indikator i
-       LEFT JOIN edm_jawaban j ON j.indikator_id = i.id
+    const jawabanList = await env.DB.prepare(
+      `SELECT j.*, g.nama_lengkap AS updated_by_nama
+       FROM edm_jawaban j
+       INNER JOIN edm_bagian b ON j.bagian_id = b.id
        LEFT JOIN data_gtk g ON j.gtk_id = g.id
-       WHERE i.tahun_anggaran_id = ?1
-       ORDER BY i.bagian_target ASC, i.nomor_urut ASC`,
-    )
-      .bind(parseInt(tahunAnggaranId))
-      .all();
+       WHERE b.tahun_anggaran_id = ?1`,
+    ).bind(parseInt(tahunAnggaranId)).all();
+
+    const buktiList = await env.DB.prepare(
+      `SELECT bf.*
+       FROM edm_bukti_file bf
+       INNER JOIN edm_bagian b ON bf.bagian_id = b.id
+       WHERE b.tahun_anggaran_id = ?1`,
+    ).bind(parseInt(tahunAnggaranId)).all();
+
+    const jawabanMap = new Map<string, any>();
+    for (const j of jawabanList.results as any[]) {
+      jawabanMap.set(`${j.bagian_id}_${j.kode_soal}`, j);
+      jawabanMap.set(j.kode_soal, j);
+    }
+
+    const buktiMap = new Map<string, number>();
+    for (const bf of buktiList.results as any[]) {
+      const key1 = `${bf.bagian_id}_${bf.kode_soal}`;
+      const key2 = bf.kode_soal;
+      buktiMap.set(key1, (buktiMap.get(key1) || 0) + 1);
+      buktiMap.set(key2, (buktiMap.get(key2) || 0) + 1);
+    }
+
+    const bagianSummary = bagianList.results.map((b: any) => {
+      const kat = getKategoriByKode(b.nama_bagian);
+      const instrumenKat = kat ? kat.instrumen : [];
+      let jumlahJawaban = 0;
+      let earnedWeighted = 0;
+      let totalBobot = kat ? kat.totalBobot : 0;
+
+      for (const inst of instrumenKat) {
+        const j = jawabanMap.get(`${b.bagian_id}_${inst.kode_soal}`) || jawabanMap.get(inst.kode_soal);
+        if (j && j.skor !== null && j.skor !== undefined) {
+          jumlahJawaban++;
+          earnedWeighted += j.skor * inst.bobot;
+        }
+      }
+
+      const rataRataSkor = totalBobot > 0 && jumlahJawaban > 0
+        ? Math.round((earnedWeighted / totalBobot) * 100) / 100
+        : null;
+
+      const persentaseSkor = totalBobot > 0
+        ? Math.round((earnedWeighted / (totalBobot * 4)) * 10000) / 100
+        : 0;
+
+      return {
+        ...b,
+        jumlah_indikator: instrumenKat.length,
+        jumlah_jawaban: jumlahJawaban,
+        total_bobot: totalBobot,
+        earned_weighted: earnedWeighted,
+        rata_rata_skor: rataRataSkor,
+        persentase_skor: persentaseSkor,
+      };
+    });
+
+    let totalEarnedWeighted = 0;
+    let totalMaxWeighted = 0;
+    let totalBagianTerisi = 0;
+
+    for (const bs of bagianSummary) {
+      if (bs.jumlah_jawaban > 0) totalBagianTerisi++;
+      totalEarnedWeighted += bs.earned_weighted;
+      totalMaxWeighted += bs.total_bobot * 4;
+    }
+
+    const totalBobotKeseluruhan = EDM_KATEGORI.reduce((acc, k) => acc + k.totalBobot, 0);
+    const rataRataSkorKeseluruhan = totalBobotKeseluruhan > 0 && totalEarnedWeighted > 0
+      ? Math.round((totalEarnedWeighted / totalBobotKeseluruhan) * 100) / 100
+      : null;
+
+    const overallSummary = {
+      total_indikator: getAllInstrumen().length,
+      total_bagian_terisi: totalBagianTerisi,
+      total_kelompok_terisi: totalBagianTerisi,
+      rata_rata_skor_keseluruhan: rataRataSkorKeseluruhan,
+      persentase_skor_keseluruhan: totalMaxWeighted > 0
+        ? Math.round((totalEarnedWeighted / totalMaxWeighted) * 10000) / 100
+        : 0,
+    };
+
+    const allInst = getAllInstrumen();
+    const bagianMapById = new Map<string, number>();
+    for (const b of bagianList.results as any[]) {
+      bagianMapById.set(b.nama_bagian, b.id);
+    }
+
+    const perIndikator = allInst.map((inst) => {
+      const bId = bagianMapById.get(inst.kategori);
+      const j = (bId ? jawabanMap.get(`${bId}_${inst.kode_soal}`) : null) || jawabanMap.get(inst.kode_soal);
+      const proofCount = (bId ? buktiMap.get(`${bId}_${inst.kode_soal}`) : null) || buktiMap.get(inst.kode_soal) || 0;
+
+      return {
+        id: inst.kode_soal,
+        kode_soal: inst.kode_soal,
+        bagian_target: inst.kategori,
+        kelompok_target: inst.kategori,
+        nomor_urut: inst.kode,
+        urutan: inst.urutan,
+        pertanyaan: inst.pertanyaan,
+        bobot: inst.bobot,
+        bukti_yang_diminta: inst.bukti,
+        rata_rata_skor: j ? j.skor : null,
+        jumlah_bukti_file: proofCount,
+        updated_by_nama: j ? j.updated_by_nama || "" : "",
+      };
+    });
 
     return jsonResponse({
-      bagian: bagianSummary.results,
-      kelompok: bagianSummary.results,
+      bagian: bagianSummary,
+      kelompok: bagianSummary,
       overall: overallSummary,
-      per_indikator: perIndikator.results,
+      per_indikator: perIndikator,
     });
   } catch (err: any) {
     return errorResponse(`Database error: ${err.message}`, 500);
@@ -785,17 +641,16 @@ const ALLOWED_MIME_TYPES = [
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
 const MAX_FILES_PER_INDIKATOR = 10;
 
-// Helper: generate unique key for R2
-function generateR2Key(bagianId: number, indikatorId: number, filename: string): string {
+function generateR2Key(bagianId: number, kodeSoal: string, filename: string): string {
   const timestamp = Date.now();
   const rand = Math.random().toString(36).substring(2, 8);
   const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
-  return `edm/${bagianId}/${indikatorId}/${timestamp}-${rand}-${safeName}`;
+  const safeKode = kodeSoal.replace(/[^a-zA-Z0-9._-]/g, "_");
+  return `edm/${bagianId}/${safeKode}/${timestamp}-${rand}-${safeName}`;
 }
 
 // ---------------------------------------------------------------------------
 // POST /api/edm/bukti/upload — Upload files ke R2
-// FormData: files (multiple), indikator_id, bagian_id, gtk_id
 // ---------------------------------------------------------------------------
 export async function handleUploadEdmBukti(
   request: Request,
@@ -808,15 +663,14 @@ export async function handleUploadEdmBukti(
     }
 
     const formData = await request.formData();
-    const indikatorId = parseInt(formData.get("indikator_id") as string);
+    const kodeSoal = (formData.get("kode_soal") as string) || (formData.get("indikator_id") as string);
     const bagianId = parseInt(formData.get("bagian_id") as string);
     const gtkId = formData.get("gtk_id") ? parseInt(formData.get("gtk_id") as string) : null;
 
-    if (!indikatorId || !bagianId) {
-      return errorResponse("Field 'indikator_id' dan 'bagian_id' wajib diisi", 400);
+    if (!kodeSoal || !bagianId) {
+      return errorResponse("Field 'kode_soal' dan 'bagian_id' wajib diisi", 400);
     }
 
-    // Collect files from form data
     const files: File[] = [];
     for (const [key, value] of formData.entries()) {
       if (key === "files" && typeof value !== "string") {
@@ -824,29 +678,26 @@ export async function handleUploadEdmBukti(
       }
     }
 
-
     if (files.length === 0) {
       return errorResponse("Tidak ada file yang diupload", 400);
     }
 
-    // Check existing file count for this indikator+bagian
     const existingCount = await env.DB.prepare(
-      "SELECT COUNT(*) as cnt FROM edm_bukti_file WHERE indikator_id = ?1 AND bagian_id = ?2"
-    ).bind(indikatorId, bagianId).first<{ cnt: number }>();
+      "SELECT COUNT(*) as cnt FROM edm_bukti_file WHERE kode_soal = ?1 AND bagian_id = ?2"
+    ).bind(kodeSoal, bagianId).first<{ cnt: number }>();
 
     const currentCount = existingCount?.cnt || 0;
     if (currentCount + files.length > MAX_FILES_PER_INDIKATOR) {
       return errorResponse(
-        `Melebihi batas file. Saat ini ${currentCount} file, maks ${MAX_FILES_PER_INDIKATOR} file per soal. Anda hanya bisa upload ${MAX_FILES_PER_INDIKATOR - currentCount} file lagi.`,
+        `Melebihi batas file. Saat ini ${currentCount} file, maks ${MAX_FILES_PER_INDIKATOR} file per soal.`,
         400
       );
     }
 
-    // Validate each file
     for (const file of files) {
       if (!ALLOWED_MIME_TYPES.includes(file.type)) {
         return errorResponse(
-          `Tipe file "${file.name}" tidak diizinkan (${file.type}). Hanya JPG, PNG, WEBP, dan PDF yang diizinkan.`,
+          `Tipe file "${file.name}" tidak diizinkan (${file.type}). Hanya JPG, PNG, WEBP, dan PDF.`,
           400
         );
       }
@@ -859,54 +710,40 @@ export async function handleUploadEdmBukti(
       }
     }
 
-    // Upload each file to R2 and insert metadata to DB
-    const uploaded: any[] = [];
     const dbStatements: D1PreparedStatement[] = [];
 
     for (const file of files) {
-      const r2Key = generateR2Key(bagianId, indikatorId, file.name);
+      const r2Key = generateR2Key(bagianId, kodeSoal, file.name);
       const arrayBuffer = await file.arrayBuffer();
 
-      // Upload to R2
       await env.R2.put(r2Key, arrayBuffer, {
-        httpMetadata: {
-          contentType: file.type,
-        },
+        httpMetadata: { contentType: file.type },
         customMetadata: {
           originalName: file.name,
-          indikatorId: String(indikatorId),
+          kodeSoal: kodeSoal,
           bagianId: String(bagianId),
         },
       });
 
-      // Insert DB record
       dbStatements.push(
         env.DB.prepare(
-          `INSERT INTO edm_bukti_file (indikator_id, bagian_id, r2_key, original_name, mime_type, file_size, uploaded_by)
+          `INSERT INTO edm_bukti_file (kode_soal, bagian_id, r2_key, original_name, mime_type, file_size, uploaded_by)
            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
-        ).bind(indikatorId, bagianId, r2Key, file.name, file.type, file.size, gtkId)
+        ).bind(kodeSoal, bagianId, r2Key, file.name, file.type, file.size, gtkId)
       );
-
-      uploaded.push({
-        r2_key: r2Key,
-        original_name: file.name,
-        mime_type: file.type,
-        file_size: file.size,
-      });
     }
 
     if (dbStatements.length > 0) {
       await env.DB.batch(dbStatements);
     }
 
-    // Fetch the inserted records to get IDs
     const insertedFiles = await env.DB.prepare(
       `SELECT id, r2_key, original_name, mime_type, file_size, uploaded_by, created_at
        FROM edm_bukti_file
-       WHERE indikator_id = ?1 AND bagian_id = ?2
+       WHERE kode_soal = ?1 AND bagian_id = ?2
        ORDER BY created_at DESC
        LIMIT ?3`
-    ).bind(indikatorId, bagianId, files.length).all();
+    ).bind(kodeSoal, bagianId, files.length).all();
 
     return jsonResponse({
       success: true,
@@ -919,18 +756,18 @@ export async function handleUploadEdmBukti(
 }
 
 // ---------------------------------------------------------------------------
-// GET /api/edm/bukti?indikator_id=X&bagian_id=Y — List file bukti
+// GET /api/edm/bukti?kode_soal=X&bagian_id=Y — List file bukti
 // ---------------------------------------------------------------------------
 export async function handleGetEdmBukti(
   request: Request,
   env: Env,
 ): Promise<Response> {
   const url = new URL(request.url);
-  const indikatorId = url.searchParams.get("indikator_id");
+  const kodeSoal = url.searchParams.get("kode_soal") || url.searchParams.get("indikator_id");
   const bagianId = url.searchParams.get("bagian_id");
 
-  if (!indikatorId || !bagianId) {
-    return errorResponse("Parameter 'indikator_id' dan 'bagian_id' diperlukan", 400);
+  if (!kodeSoal || !bagianId) {
+    return errorResponse("Parameter 'kode_soal' dan 'bagian_id' diperlukan", 400);
   }
 
   try {
@@ -938,9 +775,9 @@ export async function handleGetEdmBukti(
       `SELECT bf.*, g.nama_lengkap AS uploader_nama
        FROM edm_bukti_file bf
        LEFT JOIN data_gtk g ON bf.uploaded_by = g.id
-       WHERE bf.indikator_id = ?1 AND bf.bagian_id = ?2
+       WHERE bf.kode_soal = ?1 AND bf.bagian_id = ?2
        ORDER BY bf.created_at ASC`
-    ).bind(parseInt(indikatorId), parseInt(bagianId)).all();
+    ).bind(kodeSoal, parseInt(bagianId)).all();
 
     return jsonResponse(result.results);
   } catch (err: any) {
@@ -957,7 +794,6 @@ export async function handleDeleteEdmBukti(
   id: string,
 ): Promise<Response> {
   try {
-    // Get file record first
     const file = await env.DB.prepare(
       "SELECT * FROM edm_bukti_file WHERE id = ?1"
     ).bind(parseInt(id)).first<{ id: number; r2_key: string; original_name: string }>();
@@ -966,10 +802,8 @@ export async function handleDeleteEdmBukti(
       return errorResponse("File tidak ditemukan", 404);
     }
 
-    // Delete from R2
     await env.R2.delete(file.r2_key);
 
-    // Delete from DB
     await env.DB.prepare("DELETE FROM edm_bukti_file WHERE id = ?1")
       .bind(parseInt(id))
       .run();
@@ -996,16 +830,12 @@ export async function handleDownloadEdmBukti(
     if (cleanKey.includes("%")) {
       try {
         cleanKey = decodeURIComponent(cleanKey);
-      } catch {
-        // ignore fallback
-      }
+      } catch {}
     }
-    // Normalize commas from array joins and URL-encoded slashes %2F
     cleanKey = cleanKey.replace(/%2F/gi, "/").replace(/,/g, "/");
 
     let object = await env.R2.get(cleanKey);
 
-    // Fallback try raw r2Key if cleanKey differed and object was not found
     if (!object && cleanKey !== r2Key) {
       object = await env.R2.get(r2Key);
     }
@@ -1018,7 +848,6 @@ export async function handleDownloadEdmBukti(
     headers.set("Content-Type", object.httpMetadata?.contentType || "application/octet-stream");
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
 
-    // For images and PDFs, display inline; otherwise download
     const contentType = object.httpMetadata?.contentType || "";
     if (contentType.startsWith("image/") || contentType === "application/pdf") {
       headers.set("Content-Disposition", "inline");

@@ -21,34 +21,42 @@
 
     <template v-else-if="rekapData">
       <!-- Overall Stats -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
         <div class="rounded-xl p-5"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Total Indikator</p>
+          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Total Instrumen</p>
           <p class="text-3xl font-bold" style="color: var(--text-heading)">
-            {{ rekapData.overall?.total_indikator || 0 }}
+            {{ rekapData.overall?.total_indikator || 26 }}
           </p>
+          <p class="text-[11px] mt-1" style="color: var(--text-muted)">5 Kategori (A–E)</p>
         </div>
         <div class="rounded-xl p-5"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
           <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Bagian Mulai Mengisi</p>
           <p class="text-3xl font-bold" style="color: var(--text-heading)">
-            {{ rekapData.overall?.total_bagian_terisi || rekapData.overall?.total_kelompok_terisi || 0 }} <span class="text-sm font-normal" style="color: var(--text-muted)">/ 5</span>
+            {{ rekapData.overall?.total_bagian_terisi || 0 }} <span class="text-sm font-normal" style="color: var(--text-muted)">/ 5</span>
           </p>
         </div>
         <div class="rounded-xl p-5"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Rata-rata Skor Keseluruhan</p>
+          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Skor Weighted (Scale 1–4)</p>
           <p class="text-3xl font-bold" :class="getSkorColor(rekapData.overall?.rata_rata_skor_keseluruhan)">
             {{ rekapData.overall?.rata_rata_skor_keseluruhan ?? '-' }}
             <span class="text-sm font-normal" style="color: var(--text-muted)">/ 4</span>
+          </p>
+        </div>
+        <div class="rounded-xl p-5"
+          style="background: var(--bg-card); border: 1px solid var(--border-primary)">
+          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Capaian Mutu (%)</p>
+          <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+            {{ rekapData.overall?.persentase_skor_keseluruhan ?? 0 }}%
           </p>
         </div>
       </div>
 
       <!-- Per Bagian -->
       <h2 class="text-lg font-semibold mb-4" style="color: var(--text-heading)">
-        Rekap Per Bagian
+        Rekap Per Bagian (Weighted Scoring)
       </h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div v-for="b in getBagianSummaryList(rekapData)" :key="getBagianCode(b)"
@@ -63,9 +71,14 @@
                 :class="bagianColor(getBagianCode(b))">
                 Bagian {{ getBagianCode(b) }}
               </span>
-              <span class="text-lg font-bold shrink-0" :class="getSkorColor(b.rata_rata_skor)">
-                {{ b.rata_rata_skor ?? '-' }}
-              </span>
+              <div class="text-right shrink-0">
+                <span class="text-lg font-bold block" :class="getSkorColor(b.rata_rata_skor)">
+                  {{ b.rata_rata_skor ?? '-' }} <span class="text-xs text-zinc-400 font-normal">/ 4</span>
+                </span>
+                <span v-if="b.persentase_skor" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  {{ b.persentase_skor }}%
+                </span>
+              </div>
             </div>
 
             <p class="text-xs font-semibold mb-3 line-clamp-2" style="color: var(--text-heading)">
@@ -78,8 +91,12 @@
                 <span class="font-medium" style="color: var(--text-primary)">{{ b.jumlah_anggota || 0 }} guru</span>
               </div>
               <div class="flex justify-between">
-                <span>Total Indikator</span>
+                <span>Total Instrumen</span>
                 <span class="font-medium" style="color: var(--text-primary)">{{ b.jumlah_indikator || 0 }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Total Bobot</span>
+                <span class="font-medium text-amber-600 dark:text-amber-400">🏋️ {{ b.total_bobot || 0 }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Dijawab</span>
@@ -99,7 +116,7 @@
 
       <!-- Per Indikator Detail Table -->
       <h2 class="text-lg font-semibold mb-4" style="color: var(--text-heading)">
-        Detail Jawaban Per Indikator
+        Detail Jawaban Per Instrumen
         <span v-if="selectedBagianFilter" class="text-sm font-normal" style="color: var(--text-muted)">
           — {{ getBagianFullName(selectedBagianFilter) }}
         </span>
@@ -111,41 +128,41 @@
           <table class="w-full text-sm">
             <thead>
               <tr style="background: var(--bg-secondary)">
-                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Bagian</th>
-                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">No</th>
-                <th class="text-left px-4 py-3 font-medium text-xs min-w-[250px]" style="color: var(--text-muted)">Pertanyaan</th>
+                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Kode Soal</th>
+                <th class="text-left px-4 py-3 font-medium text-xs min-w-[250px]" style="color: var(--text-muted)">Pertanyaan Instrumen</th>
+                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Bobot</th>
                 <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Skor Bagian</th>
-                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Keterangan / Bukti</th>
-                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Pengisi Terakhir</th>
+                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Skor × Bobot</th>
+                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Bukti Fisik</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="ind in filteredIndikator" :key="ind.id"
+              <tr v-for="ind in filteredIndikator" :key="ind.kode_soal || ind.id"
                 class="transition-colors hover:bg-[var(--bg-card-hover)]"
                 style="border-top: 1px solid var(--border-primary)">
-                <td class="px-4 py-3">
-                  <span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-bold text-white"
+                <td class="px-4 py-3 font-mono text-xs font-bold" style="color: var(--text-primary)">
+                  <span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-bold text-white mr-1.5"
                     :class="bagianColor(getBagianCode(ind))">
-                    Bag. {{ getBagianCode(ind) }}
+                    {{ ind.kode_soal || ind.nomor_urut }}
                   </span>
                 </td>
-                <td class="px-4 py-3 font-mono text-xs" style="color: var(--text-muted)">{{ ind.nomor_urut }}</td>
                 <td class="px-4 py-3" style="color: var(--text-primary)">{{ ind.pertanyaan }}</td>
+                <td class="px-4 py-3 text-center font-semibold text-amber-600 dark:text-amber-400">
+                  {{ ind.bobot || 3 }}
+                </td>
                 <td class="px-4 py-3 text-center">
                   <span class="font-bold text-base" :class="getSkorColor(ind.rata_rata_skor)">
                     {{ ind.rata_rata_skor ?? '-' }}
                   </span>
                 </td>
-                <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">
-                  <div v-if="ind.jawaban_text">{{ ind.jawaban_text }}</div>
-                  <span v-if="ind.jumlah_bukti_file" class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    📎 {{ ind.jumlah_bukti_file }} file bukti (R2)
-                  </span>
-                  <span v-if="!ind.jawaban_text && !ind.jumlah_bukti_file" style="color: var(--text-muted)">-</span>
+                <td class="px-4 py-3 text-center font-bold" style="color: var(--text-primary)">
+                  {{ ind.rata_rata_skor ? (ind.rata_rata_skor * (ind.bobot || 3)) : '-' }}
                 </td>
-
-                <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">
-                  {{ ind.updated_by_nama || '-' }}
+                <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">
+                  <span v-if="ind.jumlah_bukti_file" class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    📎 {{ ind.jumlah_bukti_file }} file bukti
+                  </span>
+                  <span v-else style="color: var(--text-muted)">-</span>
                 </td>
               </tr>
             </tbody>

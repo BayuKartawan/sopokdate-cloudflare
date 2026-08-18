@@ -145,7 +145,7 @@ import { UsersRound, BookOpen, PenLine, Eye } from "lucide-vue-next";
 
 const {
   isLoading, listTahun, selectedTahunId, activeTahun,
-  fetchTahunAnggaran, fetchBagian, fetchIndikator, fetchJawaban,
+  fetchTahunAnggaran, fetchBagian, fetchInstrumen, fetchIndikator, fetchJawaban,
 } = useEdm();
 
 const isAdmin = computed(() => {
@@ -205,11 +205,9 @@ onMounted(async () => {
 
   bagianList.value = await fetchBagian(tahunId);
 
-  // Count indikator per bagian
-  const allIndikator = await fetchIndikator(tahunId);
   const counts = {};
-  allIndikator.forEach((item) => {
-    const code = item.bagian_target || item.kelompok_target || "A";
+  fetchInstrumen().forEach((item) => {
+    const code = item.kategori || "A";
     counts[code] = (counts[code] || 0) + 1;
   });
   indikatorCount.value = counts;

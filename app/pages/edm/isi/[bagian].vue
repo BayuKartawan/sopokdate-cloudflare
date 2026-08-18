@@ -96,13 +96,8 @@
         Belum Ada Indikator / Soal
       </h2>
       <p class="text-sm max-w-md mb-5" style="color: var(--text-muted)">
-        Belum ada indikator atau soal yang ditambahkan untuk Bagian {{ bagianCode }} di tahun anggaran ini.
+        Tidak ada instrumen yang ditemukan untuk Bagian {{ bagianCode }}.
       </p>
-      <NuxtLink v-if="isAdmin" to="/edm/indikator"
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-all">
-        <Plus class="w-4 h-4" />
-        Tambah Indikator Bagian {{ bagianCode }}
-      </NuxtLink>
     </div>
 
     <!-- Soal Pagination & Card Container -->
@@ -110,32 +105,46 @@
       <!-- Quick Nav Grid per Soal -->
       <div class="p-4 rounded-xl shadow-xs"
         style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-        <div class="flex items-center justify-between gap-2 mb-3">
-          <span class="text-xs sm:text-sm font-semibold" style="color: var(--text-heading)">
-            Navigasi Soal ({{ answeredCount }}/{{ indikatorList.length }} Terisi)
-          </span>
-          <span class="text-xs font-medium px-2.5 py-0.5 rounded-full"
-            style="background: var(--bg-secondary); color: var(--text-muted)">
-            Soal {{ currentPage }} dari {{ totalPages }}
-          </span>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2 border-b"
+          style="border-color: var(--border-subtle)">
+          <div class="flex items-center gap-2">
+            <span class="text-xs sm:text-sm font-bold" style="color: var(--text-heading)">
+              Navigasi Soal Bagian {{ bagianCode }}
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              {{ answeredCount }}/{{ indikatorList.length }} Terisi
+            </span>
+          </div>
+          <div class="flex items-center gap-3 text-xs" style="color: var(--text-muted)">
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Terisi
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-zinc-300 dark:bg-zinc-700"></span> Belum
+            </span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-md"
+              style="background: var(--bg-secondary); color: var(--text-secondary)">
+              Soal {{ currentPage }} / {{ totalPages }}
+            </span>
+          </div>
         </div>
 
         <!-- Number Badges Grid -->
         <div class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1">
-          <button v-for="(item, idx) in indikatorList" :key="item.id"
+          <button v-for="(item, idx) in indikatorList" :key="item.kode_soal || idx"
             @click="goToPage(idx + 1)"
-            class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg text-xs sm:text-sm font-bold flex items-center justify-center transition-all border cursor-pointer"
+            class="relative px-3 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center transition-all border cursor-pointer min-w-[2.75rem]"
             :class="[
               currentPage === idx + 1
-                ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-500 text-white shadow-sm scale-105'
-                : localAnswers[item.id]?.skor
-                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700'
+                ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-500 text-white shadow-md scale-105 z-10'
+                : localAnswers[item.kode_soal]?.skor
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-700 hover:bg-emerald-200'
                   : 'hover:border-emerald-400'
             ]"
-            :style="currentPage !== idx + 1 && !localAnswers[item.id]?.skor ? 'background: var(--bg-secondary); color: var(--text-muted); border-color: var(--border-primary)' : ''">
-            <span>{{ item.nomor_urut || (idx + 1) }}</span>
-            <span v-if="localAnswers[item.id]?.skor && currentPage !== idx + 1"
-              class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-white dark:border-zinc-900">
+            :style="currentPage !== idx + 1 && !localAnswers[item.kode_soal]?.skor ? 'background: var(--bg-secondary); color: var(--text-muted); border-color: var(--border-primary)' : ''">
+            <span>{{ item.kode_soal || (idx + 1) }}</span>
+            <span v-if="localAnswers[item.kode_soal]?.skor && currentPage !== idx + 1"
+              class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-zinc-900">
             </span>
           </button>
         </div>
@@ -143,29 +152,34 @@
 
       <!-- Single Soal Card (1 Soal 1 Halaman) -->
       <div v-if="currentItem" class="rounded-xl p-4 sm:p-6 transition-all duration-200 shadow-sm"
-        :class="localAnswers[currentItem.id]?.skor ? 'ring-1 ring-emerald-500/40' : ''"
+        :class="localAnswers[currentItem.kode_soal]?.skor ? 'ring-1 ring-emerald-500/40' : ''"
         style="background: var(--bg-card); border: 1px solid var(--border-primary)">
 
-        <!-- Header: Nomor + Pertanyaan + Last Updated Info -->
+        <!-- Header: Nomor + Kode Soal + Bobot + Pertanyaan + Last Updated Info -->
         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4 pb-4 border-b"
           style="border-color: var(--border-subtle)">
           <div class="flex items-start gap-3">
-            <span class="inline-flex items-center justify-center min-w-[2.25rem] h-9 rounded-xl text-sm font-bold flex-shrink-0 px-2 shadow-xs"
-              :class="localAnswers[currentItem.id]?.skor ? 'bg-emerald-500 text-white' : ''"
-              :style="!localAnswers[currentItem.id]?.skor ? 'background: var(--bg-secondary); color: var(--text-muted)' : ''">
-              No. {{ currentItem.nomor_urut || currentPage }}
+            <span class="inline-flex items-center justify-center min-w-[2.25rem] h-9 rounded-xl text-sm font-bold flex-shrink-0 px-2.5 shadow-xs"
+              :class="localAnswers[currentItem.kode_soal]?.skor ? 'bg-emerald-500 text-white' : ''"
+              :style="!localAnswers[currentItem.kode_soal]?.skor ? 'background: var(--bg-secondary); color: var(--text-muted)' : ''">
+              {{ currentItem.kode_soal || `No. ${currentPage}` }}
             </span>
             <div>
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <span v-if="currentItem.bobot" class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  🏋️ Bobot: {{ currentItem.bobot }}
+                </span>
+              </div>
               <h2 class="text-base sm:text-lg font-bold leading-relaxed break-words whitespace-pre-line" style="color: var(--text-heading)">
                 {{ currentItem.pertanyaan }}
               </h2>
             </div>
           </div>
 
-          <span v-if="localAnswers[currentItem.id]?.updated_by_nama"
+          <span v-if="localAnswers[currentItem.kode_soal]?.updated_by_nama"
             class="text-xs px-2.5 py-1 rounded-md self-start shrink-0 whitespace-normal break-words"
             style="background: var(--bg-secondary); color: var(--text-muted)">
-            Diperbarui oleh: <strong>{{ localAnswers[currentItem.id].updated_by_nama }}</strong>
+            Diperbarui oleh: <strong>{{ localAnswers[currentItem.kode_soal].updated_by_nama }}</strong>
           </span>
         </div>
 
@@ -179,42 +193,16 @@
           </div>
         </div>
 
-        <!-- Pilihan Skor -->
+        <!-- Bukti File Upload (R2) — WAJIB sebelum memilih jawaban -->
         <div class="mb-5">
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-2.5" style="color: var(--text-muted)">
-            Pilihan Jawaban / Skor:
-          </label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-            <button v-for="p in parsePilihan(currentItem)" :key="p.skor"
-              @click="setAnswer(currentItem.id, p.skor)"
-              class="flex items-start gap-3 p-3.5 rounded-xl text-sm transition-all border-2 text-left w-full h-full cursor-pointer"
-              :class="localAnswers[currentItem.id]?.skor === p.skor
-                ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500 font-semibold shadow-xs'
-                : 'hover:border-emerald-300 dark:hover:border-emerald-700'"
-              :style="localAnswers[currentItem.id]?.skor !== p.skor ? 'border-color: var(--border-primary); background: var(--bg-secondary); color: var(--text-primary)' : ''">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5 transition-colors"
-                :class="localAnswers[currentItem.id]?.skor === p.skor
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300'">
-                {{ p.skor }}
-              </span>
-              <span class="text-xs sm:text-sm leading-relaxed break-words flex-1 whitespace-normal">
-                {{ p.label }}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Bukti File Upload (R2) -->
-        <div class="mb-6">
           <label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--text-muted)">
-            Upload Bukti Fisik (opsional):
+            Upload Bukti Fisik <span class="text-rose-500">*wajib (min. 1 file)</span>:
           </label>
 
           <!-- File Count & Size Info -->
           <div class="flex items-center gap-3 mb-2.5">
             <span class="text-xs font-medium px-2 py-0.5 rounded-full"
-              :class="currentFileCount >= 10 ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'">
+              :class="currentFileCount >= 10 ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' : currentFileCount >= 1 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'">
               {{ currentFileCount }}/10 file
             </span>
             <span class="text-xs" style="color: var(--text-muted)">
@@ -300,7 +288,7 @@
                   title="Preview / Download">
                   <ExternalLink class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 </a>
-                <button @click="handleDeleteFile(file.id)"
+                <button @click="confirmDeleteFile(file)"
                   class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-rose-500/10 cursor-pointer"
                   title="Hapus file">
                   <Trash2 class="w-4 h-4 text-rose-500" />
@@ -308,8 +296,86 @@
               </div>
             </div>
           </div>
+
+          <!-- Warning: belum upload -->
+          <div v-if="currentFileCount === 0 && !isUploading" class="mt-3 p-3 rounded-xl flex items-center gap-2.5"
+            style="background: var(--bg-secondary); border: 1px solid var(--border-subtle)">
+            <AlertTriangle class="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <span class="text-xs font-medium" style="color: var(--text-muted)">Upload minimal 1 file bukti fisik untuk dapat memilih jawaban.</span>
+          </div>
         </div>
 
+        <!-- Input Text Ringkasan Pembuktian / Deskripsi (upload_text) -->
+        <div class="mb-5">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <label class="block text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted)">
+              Deskripsi / Ringkasan Pembuktian Kondisi Real <span class="text-rose-500">*wajib (min. 30 kata)</span>:
+            </label>
+            <span v-if="currentItem && localAnswers[currentItem.kode_soal]"
+              class="text-xs font-bold px-2.5 py-0.5 rounded-full transition-colors"
+              :class="getWordCount(localAnswers[currentItem.kode_soal]?.upload_text) >= 30
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300'
+                : 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300'">
+              📝 {{ getWordCount(localAnswers[currentItem.kode_soal]?.upload_text) }} / 30 kata
+            </span>
+          </div>
+
+          <textarea
+            v-if="currentItem && localAnswers[currentItem.kode_soal]"
+            v-model="localAnswers[currentItem.kode_soal].upload_text"
+            @input="hasUnsavedChanges = true"
+            rows="4"
+            placeholder="Tuliskan uraian ringkas penjelasan kondisi real madrasah dan bukti pendukung yang tersedia (minimal 30 kata)..."
+            class="w-full p-3.5 rounded-xl text-sm transition-all border outline-none focus:ring-2 focus:ring-emerald-500 leading-relaxed"
+            :class="getWordCount(localAnswers[currentItem.kode_soal]?.upload_text) < 30 ? 'border-amber-400 dark:border-amber-600' : 'border-emerald-500'"
+            style="background: var(--bg-input); color: var(--text-primary)"
+          ></textarea>
+
+          <!-- Warning jika teks kurang dari 30 kata -->
+          <div v-if="currentItem && localAnswers[currentItem.kode_soal] && getWordCount(localAnswers[currentItem.kode_soal]?.upload_text) < 30"
+            class="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5 font-medium">
+            <AlertTriangle class="w-4 h-4 flex-shrink-0" />
+            <span>Penjelasan ringkas minimal 30 kata agar jawaban dapat disimpan (saat ini {{ getWordCount(localAnswers[currentItem.kode_soal]?.upload_text) }} kata).</span>
+          </div>
+        </div>
+
+        <!-- Pilihan Skor -->
+        <div class="mb-5">
+          <label class="block text-xs font-semibold uppercase tracking-wider mb-2.5" style="color: var(--text-muted)">
+            Pilihan Jawaban / Skor:
+          </label>
+          <!-- Lock overlay when no files uploaded -->
+          <div v-if="currentFileCount === 0"
+            class="relative rounded-xl p-6 text-center"
+            style="background: var(--bg-secondary); border: 1px dashed var(--border-input); opacity: 0.6">
+            <p class="text-sm font-medium" style="color: var(--text-muted)">Upload bukti fisik terlebih dahulu untuk membuka pilihan jawaban</p>
+          </div>
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button v-for="p in parsePilihan(currentItem)" :key="p.skor"
+              @click="setAnswer(currentItem.kode_soal, p.skor)"
+              class="flex items-start gap-3 p-4 rounded-xl text-sm transition-all border-2 text-left w-full h-full cursor-pointer"
+              :class="localAnswers[currentItem.kode_soal]?.skor === p.skor
+                ? 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-500 font-semibold shadow-xs'
+                : 'hover:border-emerald-300 dark:hover:border-emerald-700'"
+              :style="localAnswers[currentItem.kode_soal]?.skor !== p.skor ? 'border-color: var(--border-primary); background: var(--bg-secondary); color: var(--text-primary)' : ''">
+              <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5 transition-colors"
+                :class="localAnswers[currentItem.kode_soal]?.skor === p.skor
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300'">
+                {{ p.skor }}
+              </span>
+              <div class="flex-1 min-w-0">
+                <span class="block text-xs font-bold mb-1 text-emerald-700 dark:text-emerald-400">
+                  {{ p.nama || `Tingkat ${p.skor}` }}
+                </span>
+                <span class="text-xs leading-relaxed break-words block whitespace-pre-line"
+                  style="color: var(--text-primary)">
+                  {{ p.label }}
+                </span>
+              </div>
+            </button>
+          </div>
+        </div>
 
         <!-- Pagination Controls Bar -->
         <div class="pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3"
@@ -355,6 +421,41 @@
     </div>
     </div>
   </div>
+
+  <!-- Delete Confirmation Dialog -->
+  <Teleport to="body">
+    <Transition name="fade">
+      <div v-if="deleteDialog.show" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        @click.self="deleteDialog.show = false">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        <div class="relative w-full max-w-sm rounded-2xl p-6 shadow-2xl"
+          style="background: var(--bg-card); border: 1px solid var(--border-primary)">
+          <div class="flex items-start gap-3 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center flex-shrink-0">
+              <Trash2 class="w-5 h-5 text-rose-500" />
+            </div>
+            <div>
+              <h3 class="text-base font-bold" style="color: var(--text-heading)">Hapus File Bukti?</h3>
+              <p class="text-sm mt-1" style="color: var(--text-muted)">
+                File <strong>"{{ deleteDialog.fileName }}"</strong> akan dihapus permanen dan tidak dapat dikembalikan.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 justify-end">
+            <button @click="deleteDialog.show = false"
+              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+              style="background: var(--bg-secondary); color: var(--text-primary)">
+              Batal
+            </button>
+            <button @click="executeDeleteFile"
+              class="px-4 py-2 rounded-lg text-sm font-medium bg-rose-600 hover:bg-rose-700 text-white transition-colors cursor-pointer">
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup>
@@ -365,7 +466,7 @@ import { useNotiflix } from "~/composables/ui/useFeedback";
 import {
   ArrowLeft, Save, FileCheck, UsersRound, ListChecks, Plus,
   ChevronLeft, ChevronRight, CheckCircle2,
-  Upload, FileText, ExternalLink, Trash2
+  Upload, FileText, ExternalLink, Trash2, AlertTriangle
 } from "lucide-vue-next";
 
 const route = useRoute();
@@ -439,31 +540,28 @@ const bagianColor = (name) => {
   return c[name] || "bg-zinc-600";
 };
 
+const getWordCount = (str) => {
+  if (!str || typeof str !== "string") return 0;
+  const trimmed = str.trim();
+  if (!trimmed) return 0;
+  return trimmed.split(/\s+/).filter(Boolean).length;
+};
+
 const parsePilihan = (item) => {
-  if (Array.isArray(item.pilihan)) return item.pilihan;
-  if (typeof item.pilihan === "string") {
-    try {
-      return JSON.parse(item.pilihan);
-    } catch {
-      return [
-        { skor: 1, label: "Kurang" },
-        { skor: 2, label: "Cukup" },
-        { skor: 3, label: "Baik" },
-        { skor: 4, label: "Sangat Baik" },
-      ];
-    }
+  if (!item) return [];
+  if (Array.isArray(item.pilihan)) {
+    return item.pilihan.map((p) => ({
+      skor: parseInt(p.kode || p.skor || 0),
+      nama: p.nama || `Tingkat ${p.kode}`,
+      label: p.keterangan || p.label || '',
+    }));
   }
-  return [
-    { skor: 1, label: "Kurang" },
-    { skor: 2, label: "Cukup" },
-    { skor: 3, label: "Baik" },
-    { skor: 4, label: "Sangat Baik" },
-  ];
+  return [];
 };
 
 const answeredCount = computed(() => {
   return Object.values(localAnswers).filter(
-    (a) => a.skor !== null && a.skor !== undefined
+    (a) => a.skor !== null && a.skor !== undefined && getWordCount(a.upload_text) >= 30
   ).length;
 });
 
@@ -472,42 +570,35 @@ const progressPercent = computed(() => {
   return Math.round((answeredCount.value / indikatorList.value.length) * 100);
 });
 
-const setAnswer = (indikatorId, skor) => {
-  if (!localAnswers[indikatorId]) {
-    localAnswers[indikatorId] = {
-      indikator_id: indikatorId,
+const setAnswer = (kodeSoal, skor) => {
+  if (!localAnswers[kodeSoal]) {
+    localAnswers[kodeSoal] = {
+      kode_soal: kodeSoal,
       skor: null,
-      jawaban_text: "",
+      upload_text: "",
       updated_by_nama: "",
     };
   }
-  if (localAnswers[indikatorId].skor === skor) {
-    localAnswers[indikatorId].skor = null;
-  } else {
-    localAnswers[indikatorId].skor = skor;
-  }
-  hasUnsavedChanges.value = true;
-};
 
-const updateAnswerField = (indikatorId, field, value) => {
-  if (!localAnswers[indikatorId]) {
-    localAnswers[indikatorId] = {
-      indikator_id: indikatorId,
-      skor: null,
-      jawaban_text: "",
-      updated_by_nama: "",
-    };
+  const wordCount = getWordCount(localAnswers[kodeSoal].upload_text);
+  if (skor !== null && wordCount < 30) {
+    Notify?.warning?.(`Penjelasan ringkas pembuktian minimal 30 kata sebelum memilih tingkat skor (saat ini ${wordCount} kata).`);
   }
-  localAnswers[indikatorId][field] = value;
+
+  if (localAnswers[kodeSoal].skor === skor) {
+    localAnswers[kodeSoal].skor = null;
+  } else {
+    localAnswers[kodeSoal].skor = skor;
+  }
   hasUnsavedChanges.value = true;
 };
 
 const resetAnswers = () => {
   indikatorList.value.forEach((item) => {
-    localAnswers[item.id] = {
-      indikator_id: item.id,
+    localAnswers[item.kode_soal] = {
+      kode_soal: item.kode_soal,
       skor: null,
-      jawaban_text: "",
+      upload_text: item.upload_text || "",
       updated_by_nama: "",
     };
   });
@@ -518,10 +609,11 @@ const loadExistingAnswers = async (tahunId, bId) => {
   if (!bId) return;
   const existing = await fetchJawaban(tahunId, bagianCode.value, bId);
   existing.forEach((j) => {
-    if (localAnswers[j.indikator_id]) {
-      localAnswers[j.indikator_id].skor = j.skor;
-      localAnswers[j.indikator_id].jawaban_text = j.jawaban_text || "";
-      localAnswers[j.indikator_id].updated_by_nama = j.updated_by_nama || "";
+    const k = j.kode_soal || j.indikator_id;
+    if (localAnswers[k]) {
+      localAnswers[k].skor = j.skor;
+      localAnswers[k].upload_text = j.upload_text || "";
+      localAnswers[k].updated_by_nama = j.updated_by_nama || "";
     }
   });
   hasUnsavedChanges.value = false;
@@ -533,15 +625,28 @@ const handleSaveAll = async () => {
     return;
   }
 
+  // Validasi 30 kata per instrumen yang sudah dipilih skornya atau memiliki isi teks
+  for (const item of indikatorList.value) {
+    const ans = localAnswers[item.kode_soal] || {};
+    const wordCount = getWordCount(ans.upload_text);
+    if (ans.skor !== null && ans.skor !== undefined) {
+      if (wordCount < 30) {
+        const idx = indikatorList.value.findIndex((i) => i.kode_soal === item.kode_soal);
+        if (idx !== -1) goToPage(idx + 1);
+        Notify?.failure?.(`Jawaban ${item.kode_soal} belum bisa disimpan! Uraian deskripsi ringkas minimal 30 kata (saat ini ${wordCount} kata).`);
+        return;
+      }
+    }
+  }
+
   const jawabanArray = indikatorList.value.map((item) => {
-    const ans = localAnswers[item.id] || {};
+    const ans = localAnswers[item.kode_soal] || {};
     return {
-      indikator_id: item.id,
+      kode_soal: item.kode_soal,
       skor: ans.skor ?? null,
-      jawaban_text: ans.jawaban_text || "",
+      upload_text: ans.upload_text || "",
     };
   });
-
 
   const ok = await saveJawaban({
     bagian_id: myBagianId.value,
@@ -558,7 +663,7 @@ const handleSaveAll = async () => {
 };
 
 // ── Bukti File Upload (R2) ──
-const buktiFilesMap = reactive({}); // { [indikator_id]: BuktiFile[] }
+const buktiFilesMap = reactive({}); // { [kode_soal]: BuktiFile[] }
 const isUploading = ref(false);
 const isDragging = ref(false);
 const fileInputRef = ref(null);
@@ -568,7 +673,7 @@ const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
 
 const currentBuktiFiles = computed(() => {
   if (!currentItem.value) return [];
-  return buktiFilesMap[currentItem.value.id] || [];
+  return buktiFilesMap[currentItem.value.kode_soal] || [];
 });
 
 const currentFileCount = computed(() => currentBuktiFiles.value.length);
@@ -583,7 +688,6 @@ const getBuktiPreviewUrl = (r2Key) => {
   const token = typeof window !== "undefined" ? localStorage.getItem("user-token") : null;
   return `/api/edm/bukti/download/${r2Key}?token=${token}`;
 };
-
 
 const triggerFileInput = () => {
   fileInputRef.value?.click();
@@ -612,7 +716,6 @@ const processUpload = async (fileList) => {
   const files = Array.from(fileList);
   if (files.length === 0) return;
 
-  // Client-side validation
   const errors = validateFiles(files);
   if (errors.length > 0) {
     Notify?.failure?.(errors[0]);
@@ -623,14 +726,13 @@ const processUpload = async (fileList) => {
   try {
     const uploaded = await uploadBuktiFiles(
       files,
-      currentItem.value.id,
+      currentItem.value.kode_soal,
       myBagianId.value,
       myGtkId.value || undefined,
     );
 
     if (uploaded.length > 0) {
-      // Reload file list for current indikator
-      await loadBuktiForIndikator(currentItem.value.id);
+      await loadBuktiForIndikator(currentItem.value.kode_soal);
     }
   } finally {
     isUploading.value = false;
@@ -642,7 +744,6 @@ const handleFileSelect = (event) => {
   if (files && files.length > 0) {
     processUpload(files);
   }
-  // Reset input
   if (fileInputRef.value) {
     fileInputRef.value.value = "";
   }
@@ -656,25 +757,35 @@ const handleFileDrop = (event) => {
   }
 };
 
-const handleDeleteFile = async (fileId) => {
-  if (!currentItem.value) return;
-  const ok = await deleteBuktiFile(fileId);
+const deleteDialog = reactive({ show: false, fileId: null, fileName: '' });
+
+const confirmDeleteFile = (file) => {
+  deleteDialog.fileId = file.id;
+  deleteDialog.fileName = file.original_name;
+  deleteDialog.show = true;
+};
+
+const executeDeleteFile = async () => {
+  if (!currentItem.value || !deleteDialog.fileId) return;
+  deleteDialog.show = false;
+  const ok = await deleteBuktiFile(deleteDialog.fileId);
   if (ok) {
-    await loadBuktiForIndikator(currentItem.value.id);
+    await loadBuktiForIndikator(currentItem.value.kode_soal);
   }
+  deleteDialog.fileId = null;
+  deleteDialog.fileName = '';
 };
 
-const loadBuktiForIndikator = async (indikatorId) => {
+const loadBuktiForIndikator = async (kodeSoal) => {
   if (!myBagianId.value) return;
-  const files = await fetchBuktiFiles(indikatorId, myBagianId.value);
-  buktiFilesMap[indikatorId] = files;
+  const files = await fetchBuktiFiles(kodeSoal, myBagianId.value);
+  buktiFilesMap[kodeSoal] = files;
 };
 
-// Load bukti files when page changes
 watch(currentPage, async () => {
   if (currentItem.value && myBagianId.value) {
-    if (!buktiFilesMap[currentItem.value.id]) {
-      await loadBuktiForIndikator(currentItem.value.id);
+    if (!buktiFilesMap[currentItem.value.kode_soal]) {
+      await loadBuktiForIndikator(currentItem.value.kode_soal);
     }
   }
 });
@@ -685,7 +796,6 @@ onMounted(async () => {
 
   const tahunId = selectedTahunId.value;
 
-  // Find bagian
   const bagianData = await fetchBagian(tahunId);
   const myBag = bagianData.find(
     (b) => (b.nama_bagian || b.nama_kelompok) === bagianCode.value
@@ -696,7 +806,6 @@ onMounted(async () => {
     anggotaBagian.value = myBag.anggota || [];
   }
 
-  // Load indikator for this bagian
   indikatorList.value = await fetchIndikator(tahunId, bagianCode.value);
   resetAnswers();
   currentPage.value = 1;
@@ -704,9 +813,8 @@ onMounted(async () => {
   if (myBagianId.value) {
     await loadExistingAnswers(tahunId, myBagianId.value);
 
-    // Load bukti files for first indikator
     if (indikatorList.value.length > 0) {
-      await loadBuktiForIndikator(indikatorList.value[0].id);
+      await loadBuktiForIndikator(indikatorList.value[0].kode_soal);
     }
   }
 });

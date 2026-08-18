@@ -28,8 +28,8 @@ export default defineNuxtConfig({
     apiWorkerUrl: process.env.NUXT_API_WORKER_URL,
     apiWorkerToken:
       process.env.NUXT_API_WORKER_TOKEN,
-    // Mengaktifkan/menonaktifkan cache server (in-memory cache tidak cocok untuk deploy serverless/multi-isolate)
-    enableServerCache: process.env.NUXT_ENABLE_SERVER_CACHE === "true",
+    // Mengaktifkan/menonaktifkan cache server (in-memory cache)
+    enableServerCache: process.env.NUXT_ENABLE_SERVER_CACHE !== "false",
     public: {
       appName: process.env.NUXT_PUBLIC_APP_NAME || "SopokDate",
       appLink: process.env.NUXT_PUBLIC_APP_LINK || "",

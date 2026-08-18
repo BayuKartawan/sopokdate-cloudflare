@@ -104,6 +104,9 @@ export default defineEventHandler(async (event) => {
     if (query.tahun_pelajaran) {
       searchParams.append("tahun_pelajaran", query.tahun_pelajaran as string);
     }
+    if (query.fields) {
+      searchParams.append("fields", query.fields as string);
+    }
 
     // Jika role guru dan tabel DataGtk / Akun, filter hanya data miliknya
     const jwtPayload = decodeMockJWT(token);

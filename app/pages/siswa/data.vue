@@ -361,9 +361,33 @@ const {
   refreshData,
 } = useTableData();
 const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
+
+const fetchSiswaByClass = async (targetClass) => {
+  if (!targetClass || targetClass === "Semua Kelas") {
+    await loadData("data_siswa");
+  } else {
+    // Cari objek kelas di dataKelas untuk mendapatkan id_kelas atau nama_kelas pencocokan presisi
+    const classObj = Array.isArray(dataKelas.value)
+      ? dataKelas.value.find(
+          (k) =>
+            (k.nama_kelas || "").toLowerCase() === targetClass.toLowerCase() ||
+            (k.id_kelas || "").toLowerCase() === targetClass.toLowerCase() ||
+            (k.tingkat || "").toLowerCase() === targetClass.toLowerCase()
+        )
+      : null;
+
+    const valToFilter = classObj ? (classObj.id_kelas || classObj.nama_kelas || targetClass) : targetClass;
+
+    await loadData("data_siswa", false, {
+      filter_col: "kelas",
+      filter_val: valToFilter,
+    });
+  }
+};
+
 const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
   "data_siswa",
-  () => refreshData("data_siswa"),
+  () => fetchSiswaByClass(selectedClass.value),
 );
 
 // CRUD Modal state
@@ -651,17 +675,14 @@ const kepalaMadrasahNIP = computed(() => {
     : "_________________";
 });
 
-// Filtering logic
+// Filtering logic: Backend menyaring berdasarkan kelas (SQL Worker D1), Frontend menyaring berdasarkan searchQuery input
 const filteredData = computed(() => {
   if (!Array.isArray(dataSiswa.value)) return [];
-  return dataSiswa.value.filter((item) => {
-    const studentClassName = getClassName(item.kelas);
-    const matchClass =
-      selectedClass.value === "Semua Kelas" ||
-      studentClassName === selectedClass.value;
-    const term = searchQuery.value.toLowerCase().trim();
-    if (!term) return matchClass;
 
+  const term = searchQuery.value.toLowerCase().trim();
+  if (!term) return dataSiswa.value;
+
+  return dataSiswa.value.filter((item) => {
     const nameMatch = (item.nama || "").toLowerCase().includes(term);
     const nisnMatch = String(item.nisn || "")
       .toLowerCase()
@@ -670,7 +691,7 @@ const filteredData = computed(() => {
       .toLowerCase()
       .includes(term);
 
-    return matchClass && (nameMatch || nisnMatch || nisLokalMatch);
+    return nameMatch || nisnMatch || nisLokalMatch;
   });
 });
 
@@ -696,8 +717,13 @@ const handlePageChange = (page) => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-// Reset page when filter or search changes
-watch([searchQuery, selectedClass], () => {
+// Fetch data siswa filtered per kelas saat dropdown kelas berubah
+watch(selectedClass, (newClass) => {
+  currentPage.value = 1;
+  fetchSiswaByClass(newClass);
+});
+
+watch(searchQuery, () => {
   currentPage.value = 1;
 });
 
@@ -949,9 +975,14 @@ const exportToExcel = async () => {
 
 let timeInterval = null;
 
-onMounted(() => {
-  loadData("data_siswa");
-  loadDataKelas("data_kelas");
+onMounted(async () => {
+  await loadDataKelas("data_kelas");
+  // Defaultkan pilihan kelas ke kelas pertama (misal "Kelas 1" / "1") agar tidak me-load seluruh siswa
+  if (classOptions.value.length > 0 && selectedClass.value === "Semua Kelas") {
+    selectedClass.value = classOptions.value[0];
+  } else {
+    await fetchSiswaByClass(selectedClass.value);
+  }
   loadKepalaMadrasah();
   updateDateTime();
   timeInterval = setInterval(updateDateTime, 1000);

@@ -1,5 +1,17 @@
 import { ref, computed } from "vue";
 import { useNotiflix } from "~/composables/ui/useFeedback";
+import type {
+  EdmInstrumen,
+  EdmKategori,
+} from "~/utils/edm-instrumen";
+import {
+  EDM_KATEGORI,
+  EDM_BAGIAN_META,
+  getAllInstrumen,
+  getInstrumenByKategori,
+  getInstrumenByKodeSoal,
+  getKategoriByKode,
+} from "~/utils/edm-instrumen";
 
 export interface TahunAnggaran {
   id: number;
@@ -30,46 +42,24 @@ export interface BagianGuru {
 }
 export type KelompokGuru = BagianGuru;
 
-export interface EdmBagianMeta {
-  code: string;
-  name: string;
-  title: string;
-}
+export type { EdmInstrumen, EdmKategori, EdmPilihan } from "~/utils/edm-instrumen";
 
-export const EDM_BAGIAN_LIST: EdmBagianMeta[] = [
-  { code: "A", name: "Bagian A: Aspek Budaya Kedisiplinan bagi Warga Madrasah", title: "Aspek Budaya Kedisiplinan bagi Warga Madrasah" },
-  { code: "B", name: "Bagian B: Aspek Budaya Melakukan Pengembangan Diri bagi Guru dan Tenaga Kependidikan", title: "Aspek Budaya Melakukan Pengembangan Diri bagi Guru dan Tenaga Kependidikan" },
-  { code: "C", name: "Bagian C: Aspek Budaya Guru Melakukan Penyiapan, Pelaksanaan dan Penilaian Atas Proses Pembelajaran", title: "Aspek Budaya Guru Melakukan Penyiapan, Pelaksanaan dan Penilaian Atas Proses Pembelajaran" },
-  { code: "D", name: "Bagian D: Aspek Budaya Madrasah Menyediakan Sarana Belajar untuk Guru dan Siswa", title: "Aspek Budaya Madrasah Menyediakan Sarana Belajar untuk Guru dan Siswa" },
-  { code: "E", name: "Bagian E: Aspek Budaya Madrasah Melakukan Pengelolaan Anggaran yang Transparan dan Berorientasi pada Peningkatan Mutu", title: "Aspek Budaya Madrasah Melakukan Pengelolaan Anggaran yang Transparan dan Berorientasi pada Peningkatan Mutu" },
-];
-
-export interface IndikatorEdm {
-  id?: number;
-  tahun_anggaran_id: number;
-  bagian_target: string; // 'A', 'B', 'C', 'D', 'E'
-  kelompok_target?: string;
-  nomor_urut: number;
-  pertanyaan: string;
-  bukti_yang_diminta: string;
-  pilihan: string | Array<{ skor: number; label: string }>;
-}
+export const EDM_BAGIAN_LIST = EDM_BAGIAN_META;
 
 export interface JawabanEdm {
   id?: number;
-  indikator_id: number;
+  kode_soal: string;
   gtk_id?: number;
   bagian_id?: number;
   kelompok_id?: number;
   skor?: number | null;
-  jawaban_text?: string;
+  upload_text?: string | null;
 }
-
 
 export interface BuktiFile {
   id: number;
   jawaban_id?: number;
-  indikator_id: number;
+  kode_soal: string;
   bagian_id: number;
   r2_key: string;
   original_name: string;
@@ -80,12 +70,11 @@ export interface BuktiFile {
   created_at?: string;
 }
 
-// ── Global Shared State (shared across all pages/components) ──
+// ── Global Shared State ──
 const _listTahun = ref<TahunAnggaran[]>([]);
 const _selectedTahunId = ref<number | null>(null);
 let _tahunFetched = false;
 
-// Restore selectedTahunId from localStorage on init
 if (typeof window !== "undefined") {
   const stored = localStorage.getItem("edm-selected-tahun-id");
   if (stored) _selectedTahunId.value = parseInt(stored);
@@ -117,7 +106,6 @@ export function useEdm() {
    * Fetch daftar Tahun Anggaran
    */
   const fetchTahunAnggaran = async () => {
-    // If already fetched and data exists, skip re-fetch (unless list is empty)
     if (_tahunFetched && listTahun.value.length > 0) {
       return;
     }
@@ -132,9 +120,7 @@ export function useEdm() {
         listTahun.value = data;
         _tahunFetched = true;
 
-        // Restore from localStorage or fallback to active/first
         if (selectedTahunId.value) {
-          // Validate that stored ID still exists in the list
           const exists = data.find((t: TahunAnggaran) => t.id === selectedTahunId.value);
           if (!exists && data.length > 0) {
             const active = data.find((t: TahunAnggaran) => t.is_active === 1);
@@ -145,7 +131,6 @@ export function useEdm() {
           selectedTahunId.value = active ? active.id : data[0].id;
         }
 
-        // Persist to localStorage
         if (selectedTahunId.value && typeof window !== "undefined") {
           localStorage.setItem("edm-selected-tahun-id", String(selectedTahunId.value));
         }
@@ -261,117 +246,30 @@ export function useEdm() {
   const saveKelompok = saveBagian;
 
   /**
-   * Fetch Indikator EDM
+   * Get Instrumen (Hardcoded TS module - instant & 0 D1 reads)
    */
-  const fetchIndikator = async (
-    tahunId: number,
-    bagianTarget?: string,
-  ): Promise<IndikatorEdm[]> => {
-    try {
-      const token = getAuthToken();
-      let url = `/api/edm/indikator?tahun_anggaran_id=${tahunId}`;
-      if (bagianTarget) url += `&bagian_target=${bagianTarget}`;
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const raw: IndikatorEdm[] = await res.json();
-        return raw.map((item) => {
-          let parsedPilihan = item.pilihan;
-          if (typeof item.pilihan === "string" && item.pilihan.trim()) {
-            try {
-              parsedPilihan = JSON.parse(item.pilihan);
-            } catch {
-              parsedPilihan = [];
-            }
-          }
-          return {
-            ...item,
-            bagian_target: item.bagian_target || item.kelompok_target || "A",
-            pilihan: parsedPilihan
-          };
-        });
-      }
-      return [];
-    } catch (err) {
-      console.error("Gagal memuat indikator EDM:", err);
-      return [];
+  const fetchInstrumen = (kategori?: string): EdmInstrumen[] => {
+    if (kategori) {
+      return getInstrumenByKategori(kategori);
     }
+    return getAllInstrumen();
   };
 
-  /**
-   * Save (Single or Batch) Indikator
-   */
-  const saveIndikator = async (payload: any) => {
-    isSaving.value = true;
-    try {
-      const token = getAuthToken();
-      const res = await fetch("/api/edm/indikator", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal menyimpan indikator");
-      Notify?.success?.(data.message || "Indikator berhasil disimpan");
-      return true;
-    } catch (err: any) {
-      Notify?.failure?.(err.message || "Gagal menyimpan indikator");
-      return false;
-    } finally {
-      isSaving.value = false;
-    }
-  };
-
-  /**
-   * Update Single Indikator
-   */
-  const updateIndikator = async (id: number, payload: any) => {
-    isSaving.value = true;
-    try {
-      const token = getAuthToken();
-      const res = await fetch(`/api/edm/indikator?id=${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal mengupdate indikator");
-      Notify?.success?.("Indikator berhasil diperbarui");
-      return true;
-    } catch (err: any) {
-      Notify?.failure?.(err.message || "Gagal mengupdate indikator");
-      return false;
-    } finally {
-      isSaving.value = false;
-    }
-  };
-
-  /**
-   * Delete Single Indikator
-   */
-  const deleteIndikator = async (id: number) => {
-    try {
-      const token = getAuthToken();
-      const res = await fetch(`/api/edm/indikator?id=${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal menghapus");
-      Notify?.success?.("Indikator berhasil dihapus");
-      await fetchTahunAnggaran();
-      return true;
-    } catch (err: any) {
-      Notify?.failure?.(err.message || "Gagal menghapus indikator");
-      return false;
-    }
+  // Backward compatible wrapper
+  const fetchIndikator = async (tahunId?: number, bagianTarget?: string): Promise<any[]> => {
+    const list = fetchInstrumen(bagianTarget);
+    return list.map((item) => ({
+      id: item.kode_soal,
+      kode_soal: item.kode_soal,
+      bagian_target: item.kategori,
+      kelompok_target: item.kategori,
+      nomor_urut: item.kode ? parseInt(item.kode) : 0,
+      urutan: item.urutan,
+      pertanyaan: item.pertanyaan,
+      bukti_yang_diminta: item.bukti,
+      bobot: item.bobot,
+      pilihan: item.pilihan,
+    }));
   };
 
   /**
@@ -408,11 +306,10 @@ export function useEdm() {
     kelompok_id?: number;
     gtk_id: number;
     jawaban: Array<{
-      indikator_id: number;
+      kode_soal?: string;
+      indikator_id?: number | string;
       skor?: number | null;
-      jawaban_text?: string;
-      bukti_url?: string;
-      bukti_filename?: string;
+      upload_text?: string | null;
     }>;
   }) => {
     isSaving.value = true;
@@ -421,6 +318,11 @@ export function useEdm() {
       const bodyPayload = {
         ...payload,
         bagian_id: payload.bagian_id || payload.kelompok_id,
+        jawaban: payload.jawaban.map((j) => ({
+          kode_soal: j.kode_soal || String(j.indikator_id || ""),
+          skor: j.skor,
+          upload_text: j.upload_text,
+        })),
       };
       const res = await fetch("/api/edm/jawaban", {
         method: "POST",
@@ -469,14 +371,14 @@ export function useEdm() {
    */
   const uploadBuktiFiles = async (
     files: File[],
-    indikatorId: number,
+    kodeSoal: string | number,
     bagianId: number,
     gtkId?: number,
   ): Promise<BuktiFile[]> => {
     try {
       const token = getAuthToken();
       const formData = new FormData();
-      formData.append("indikator_id", String(indikatorId));
+      formData.append("kode_soal", String(kodeSoal));
       formData.append("bagian_id", String(bagianId));
       if (gtkId) formData.append("gtk_id", String(gtkId));
       for (const file of files) {
@@ -502,16 +404,16 @@ export function useEdm() {
   };
 
   /**
-   * Fetch daftar bukti file per indikator
+   * Fetch daftar bukti file per instrumen
    */
   const fetchBuktiFiles = async (
-    indikatorId: number,
+    kodeSoal: string | number,
     bagianId: number,
   ): Promise<BuktiFile[]> => {
     try {
       const token = getAuthToken();
       const res = await fetch(
-        `/api/edm/bukti?indikator_id=${indikatorId}&bagian_id=${bagianId}`,
+        `/api/edm/bukti?kode_soal=${encodeURIComponent(String(kodeSoal))}&bagian_id=${bagianId}`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
       if (res.ok) {
@@ -551,7 +453,6 @@ export function useEdm() {
     return `/api/edm/bukti/download/${r2Key}`;
   };
 
-
   /**
    * Set selected tahun and persist to localStorage
    */
@@ -563,7 +464,7 @@ export function useEdm() {
   };
 
   /**
-   * Force re-fetch tahun (e.g. after adding new tahun)
+   * Force re-fetch tahun
    */
   const refetchTahunAnggaran = async () => {
     _tahunFetched = false;
@@ -587,10 +488,8 @@ export function useEdm() {
     fetchKelompok,
     saveBagian,
     saveKelompok,
+    fetchInstrumen,
     fetchIndikator,
-    saveIndikator,
-    updateIndikator,
-    deleteIndikator,
     fetchJawaban,
     saveJawaban,
     fetchRekap,
@@ -602,3 +501,4 @@ export function useEdm() {
     getBuktiDownloadUrl,
   };
 }
+

@@ -512,6 +512,7 @@ import {
   CheckCircle2, ExternalLink, CalendarDays, BookOpen,
 } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
+import { useMasterData } from "~/composables/data/useMasterData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useAuth } from "~/composables/auth/useAuth";
 import { authenticatedFetch, fetchFromApi } from "~/utils/api";
@@ -551,10 +552,9 @@ const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
 );
 const { getUserRole, getUserData, getGtkId } = useAuth();
 
-// Core data loaders
-const { cardData: kelasData, loadData: loadKelas } = useTableData();
+// Core data loaders (useMasterData for global master tables to avoid duplicate fetches)
+const { dataKelas: kelasData, dataGtk: gtkData, kalenderPendidikan, pengaturanTapel, initMasterData } = useMasterData();
 const { cardData: jadwalData, loadData: loadJadwal } = useTableData();
-const { cardData: gtkData, loadData: loadGtk } = useTableData();
 const { cardData: kurikulumData, loadData: loadKurikulum } = useTableData();
 
 const userDisplayName = ref<string>("");
@@ -662,9 +662,19 @@ const formatDateIndo = (dateStr: string): string => {
 
 const openMissingModal = async (): Promise<void> => {
   showMissingModal.value = true;
+  try {
+    await initMasterData();
+    await loadJadwal("jadwal_pelajaran");
+    await checkWaliKelasStatus();
+  } catch (err) {
+    console.error("Gagal memuat data pendukung modal belum kirim absen:", err);
+  }
+
   if (!missingSelectedClass.value) {
     if (accessibleClassesForMissing.value.length > 0) {
+      // Mengubah missingSelectedClass memicu watch(missingSelectedClass) yang memanggil fetchAndCalculateMissingDates
       missingSelectedClass.value = accessibleClassesForMissing.value[0].id_kelas;
+      return;
     }
   }
   await fetchAndCalculateMissingDates();
@@ -701,32 +711,21 @@ const fetchAndCalculateMissingDates = async (): Promise<void> => {
 
   isLoadingMissing.value = true;
   try {
-    // 1. Load kalender pendidikan
-    if (!hariLiburKalender.value.length) {
-      const currentInfo = dapatkanTahunDanSemester(new Date());
-      try {
-        const kalenderData = await fetchFromApi("kalender_pendidikan", false, null, {
-          filter_col: "tahun_pelajaran",
-          filter_val: currentInfo.tahunPelajaran,
-        });
-        if (Array.isArray(kalenderData)) {
-          hariLiburKalender.value = kalenderData.filter((item: any) => item.tipe === "libur");
-        }
-      } catch (e) {
-        console.error("Gagal load kalender:", e);
-      }
+    // 1. Ambil data kalender pendidikan & pengaturan tapel dari master data (tanpa re-fetch HTTP)
+    const currentInfo = dapatkanTahunDanSemester(new Date());
+    
+    if (Array.isArray(kalenderPendidikan.value) && kalenderPendidikan.value.length > 0) {
+      hariLiburKalender.value = kalenderPendidikan.value.filter((item: any) => {
+        const isLibur = item.tipe === "libur";
+        const isSameTapel = !item.tahun_pelajaran || item.tahun_pelajaran === currentInfo.tahunPelajaran;
+        return isLibur && isSameTapel;
+      });
+    }
 
-      try {
-        const configData = await fetchFromApi("pengaturan_tapel", false, null, {
-          filter_col: "tahun_pelajaran",
-          filter_val: currentInfo.tahunPelajaran,
-        });
-        if (Array.isArray(configData) && configData.length > 0) {
-          const match = configData.find((item: any) => item.tahun_pelajaran === currentInfo.tahunPelajaran);
-          if (match) hariLiburMingguanIndex.value = parseInt(match.hari_libur_mingguan);
-        }
-      } catch (e) {
-        console.error("Gagal load pengaturan tapel:", e);
+    if (Array.isArray(pengaturanTapel.value) && pengaturanTapel.value.length > 0) {
+      const match = pengaturanTapel.value.find((item: any) => item.tahun_pelajaran === currentInfo.tahunPelajaran);
+      if (match && match.hari_libur_mingguan !== undefined) {
+        hariLiburMingguanIndex.value = parseInt(match.hari_libur_mingguan);
       }
     }
 
@@ -878,9 +877,16 @@ const getGuruName = (id?: any, sch?: any): string => {
   return guru ? (guru.nama_lengkap || guru.namaLengkap) : (sch?.nama_guru || `Guru ID: ${id}`);
 };
 
-const openTodayScheduleModal = (): void => {
+const openTodayScheduleModal = async (): Promise<void> => {
   scheduleSelectedClass.value = "";
   showScheduleModal.value = true;
+  try {
+    await initMasterData();
+    await loadJadwal("jadwal_pelajaran");
+    await loadKurikulum("kurikulum");
+  } catch (err) {
+    console.error("Gagal memuat data pendukung modal jadwal:", err);
+  }
 };
 
 const goToInputAbsensiToday = (classId: string): void => {
@@ -906,13 +912,8 @@ function cleanName(name?: string): string {
 const checkWaliKelasStatus = async (): Promise<void> => {
   if (userRole.value !== "guru" || !userGtkId.value) return;
   try {
-    const gtkDataFetched = await fetchFromApi("data_gtk", false, null, {
-      filter_col: "id",
-      filter_val: String(userGtkId.value),
-    });
-    if (!Array.isArray(gtkDataFetched)) return;
-
-    const myRecord = gtkDataFetched.find((g: any) =>
+    const gtkList = gtkData.value || [];
+    const myRecord = gtkList.find((g: any) =>
       g.id === userGtkId.value || String(g.id) === String(userGtkId.value)
     );
     if (!myRecord) return;
@@ -1050,17 +1051,6 @@ onMounted(async () => {
   userGtkId.value = gId ? parseInt(gId) : null;
 
   loadData("Pengumuman");
-
-  // Load core data needed for both modals
-  try {
-    await loadKelas("data_kelas");
-    await loadJadwal("jadwal_pelajaran");
-    await loadGtk("data_gtk");
-    await loadKurikulum("kurikulum");
-    await checkWaliKelasStatus();
-  } catch (err) {
-    console.error("Gagal memuat data pendukung beranda:", err);
-  }
 });
 </script>
 

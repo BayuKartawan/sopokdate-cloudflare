@@ -9,6 +9,9 @@ interface CacheEntry {
   timestamp: string;
 }
 
+// Durasi TTL Cache Client: 5 menit (300.000 ms)
+const CLIENT_CACHE_TTL_MS = 5 * 60 * 1000;
+
 // Cache in-memory untuk menyimpan data tabel secara aman tanpa localStorage
 const sessionCache: Record<string, CacheEntry> = {};
 
@@ -40,7 +43,7 @@ export function clearTableSessionCache(tableName: string): void {
  * Menormalkan data GTK dari berbagai kemungkinan nama kolom di database.
  * Ini memastikan kode frontend tetap berjalan tanpa error meskipun kolom diubah.
  */
-function normalizeGtkData(data: any[]): any[] {
+export function normalizeGtkData(data: any[]): any[] {
   if (!Array.isArray(data)) return data;
   return data.map((item) => {
     if (!item || typeof item !== "object") return item;
@@ -146,7 +149,7 @@ function normalizeSiswaData(data: any[]): any[] {
   });
 }
 
-function normalizeKelasData(data: any[]): any[] {
+export function normalizeKelasData(data: any[]): any[] {
   if (!Array.isArray(data)) return data;
   return data.map((item) => {
     if (!item || typeof item !== "object") return item;
@@ -341,7 +344,19 @@ export function useTableData() {
     const cacheKey = `${tableName}${cacheSuffix}`;
 
     try {
-      // Dapatkan data dari session cache
+      // Jika data ada di sessionCache, belum kadaluarsa, dan tidak di-force, gunakan data cache langsung
+      if (!force && sessionCache[cacheKey]) {
+        const cache = sessionCache[cacheKey];
+        const cacheAge = Date.now() - new Date(cache.timestamp).getTime();
+        if (cacheAge < CLIENT_CACHE_TTL_MS) {
+          lastUpdated.value = cache.timestamp || null;
+          cardData.value = cache.data || [];
+          isLoading.value = false;
+          return;
+        }
+      }
+
+      // Pre-fill state jika ada cache sebelumnya (meskipun expired/forced refresh)
       if (sessionCache[cacheKey]) {
         const cache = sessionCache[cacheKey];
         lastUpdated.value = cache.timestamp || null;

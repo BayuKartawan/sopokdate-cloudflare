@@ -91,17 +91,27 @@ export async function handleGetData(
   const conditions: string[] = [];
   let applyJsFilter = false;
 
+  const fieldsParam = url.searchParams.get("fields");
+
   if (d1Table === "data_siswa") {
     let tapel = url.searchParams.get("tahun_pelajaran");
     if (!tapel) {
       tapel = getCurrentAcademicYear();
     }
     query = `
-      SELECT s.*, s.kelas AS kelas_db, COALESCE(r.kelas_id, '') AS kelas 
+      SELECT s.*, s.kelas AS kelas_db, COALESCE(r.kelas_id, s.kelas, '') AS kelas 
       FROM data_siswa s
       LEFT JOIN riwayat_kelas_siswa r ON s.id = r.siswa_id AND r.tahun_pelajaran = ?
+      LEFT JOIN data_kelas k ON (
+        LOWER(s.kelas) = LOWER(k.id_kelas) OR 
+        LOWER(s.kelas) = LOWER(k.nama_kelas) OR 
+        LOWER(r.kelas_id) = LOWER(k.id_kelas) OR 
+        LOWER(r.kelas_id) = LOWER(k.nama_kelas)
+      )
     `;
     params.push(tapel);
+  } else if (d1Table === "data_gtk" && fieldsParam === "light") {
+    query = `SELECT id, nama_lengkap, peg_id, nuptk, nip, wali_kelas, tugas FROM data_gtk`;
   } else {
     query = `SELECT * FROM ${d1Table}`;
   }
@@ -128,11 +138,17 @@ export async function handleGetData(
     // Dengan skema terpadu D1, filterCol langsung dicocokkan sebagai kolom database asli (dikonversi ke snake_case demi backward compatibility)
     const snakeFilterCol = toSnakeCase(filterCol);
     if (d1Table === "data_siswa" && snakeFilterCol === "kelas") {
-      conditions.push("LOWER(COALESCE(r.kelas_id, '')) LIKE ?");
+      const cleanVal = filterVal.trim().toLowerCase();
+
+      conditions.push(
+        "(LOWER(COALESCE(r.kelas_id, '')) = ? OR LOWER(COALESCE(s.kelas, '')) = ? OR LOWER(COALESCE(k.nama_kelas, '')) = ? OR LOWER(COALESCE(k.id_kelas, '')) = ? OR LOWER(COALESCE(k.tingkat, '')) = ?)"
+      );
+
+      params.push(cleanVal, cleanVal, cleanVal, cleanVal, cleanVal);
     } else {
       conditions.push(`LOWER(${snakeFilterCol}) LIKE ?`);
+      params.push(`%${filterVal.toLowerCase()}%`);
     }
-    params.push(`%${filterVal.toLowerCase()}%`);
   }
 
   if (conditions.length > 0) {

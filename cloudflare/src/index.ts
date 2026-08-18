@@ -51,10 +51,7 @@ import {
   handlePostEdmKelompok,
   handleGetEdmBagian,
   handlePostEdmBagian,
-  handleGetEdmIndikator,
-  handlePostEdmIndikator,
-  handlePutEdmIndikator,
-  handleDeleteEdmIndikator,
+  handleGetEdmInstrumen,
   handleGetEdmJawaban,
   handlePostEdmJawaban,
   handleGetEdmRekap,
@@ -295,22 +292,8 @@ app.post("/api/edm/kelompok", async (c) => {
   return await handlePostEdmKelompok(c.req.raw, c.env);
 });
 
-app.get("/api/edm/indikator", async (c) => {
-  return await handleGetEdmIndikator(c.req.raw, c.env);
-});
-
-app.post("/api/edm/indikator", async (c) => {
-  return await handlePostEdmIndikator(c.req.raw, c.env);
-});
-
-app.put("/api/edm/indikator/:id", async (c) => {
-  const id = c.req.param("id");
-  return await handlePutEdmIndikator(c.req.raw, c.env, id);
-});
-
-app.delete("/api/edm/indikator/:id", async (c) => {
-  const id = c.req.param("id");
-  return await handleDeleteEdmIndikator(c.req.raw, c.env, id);
+app.get("/api/edm/instrumen", async (c) => {
+  return await handleGetEdmInstrumen(c.req.raw, c.env);
 });
 
 app.get("/api/edm/jawaban", async (c) => {
