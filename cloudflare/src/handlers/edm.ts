@@ -535,59 +535,65 @@ export async function handleGetEdmRekap(
       const kat = getKategoriByKode(b.nama_bagian);
       const instrumenKat = kat ? kat.instrumen : [];
       let jumlahJawaban = 0;
-      let earnedWeighted = 0;
-      let totalBobot = kat ? kat.totalBobot : 0;
+      let totalPoinDidapat = 0;
+      const totalIndikator = instrumenKat.length;
+      const totalPoinMaksimal = totalIndikator * 4;
 
       for (const inst of instrumenKat) {
         const j = jawabanMap.get(`${b.bagian_id}_${inst.kode_soal}`) || jawabanMap.get(inst.kode_soal);
         if (j && j.skor !== null && j.skor !== undefined) {
           jumlahJawaban++;
-          earnedWeighted += j.skor * inst.bobot;
+          totalPoinDidapat += Number(j.skor);
         }
       }
 
-      const rataRataSkor = totalBobot > 0 && jumlahJawaban > 0
-        ? Math.round((earnedWeighted / totalBobot) * 100) / 100
+      const rataRataSkor = jumlahJawaban > 0
+        ? Math.round((totalPoinDidapat / jumlahJawaban) * 100) / 100
         : null;
 
-      const persentaseSkor = totalBobot > 0
-        ? Math.round((earnedWeighted / (totalBobot * 4)) * 10000) / 100
+      const persentaseSkor = totalPoinMaksimal > 0
+        ? Math.round((totalPoinDidapat * 100 / totalPoinMaksimal) * 100) / 100
         : 0;
 
       return {
         ...b,
-        jumlah_indikator: instrumenKat.length,
+        jumlah_indikator: totalIndikator,
         jumlah_jawaban: jumlahJawaban,
-        total_bobot: totalBobot,
-        earned_weighted: earnedWeighted,
+        total_poin_didapat: totalPoinDidapat,
+        total_poin_maksimal: totalPoinMaksimal,
         rata_rata_skor: rataRataSkor,
         persentase_skor: persentaseSkor,
       };
     });
 
-    let totalEarnedWeighted = 0;
-    let totalMaxWeighted = 0;
+    let totalPoinDidapatKeseluruhan = 0;
+    let totalPoinMaksimalKeseluruhan = 0;
+    let totalJawabanKeseluruhan = 0;
     let totalBagianTerisi = 0;
 
     for (const bs of bagianSummary) {
       if (bs.jumlah_jawaban > 0) totalBagianTerisi++;
-      totalEarnedWeighted += bs.earned_weighted;
-      totalMaxWeighted += bs.total_bobot * 4;
+      totalPoinDidapatKeseluruhan += bs.total_poin_didapat;
+      totalPoinMaksimalKeseluruhan += bs.total_poin_maksimal;
+      totalJawabanKeseluruhan += bs.jumlah_jawaban;
     }
 
-    const totalBobotKeseluruhan = EDM_KATEGORI.reduce((acc, k) => acc + k.totalBobot, 0);
-    const rataRataSkorKeseluruhan = totalBobotKeseluruhan > 0 && totalEarnedWeighted > 0
-      ? Math.round((totalEarnedWeighted / totalBobotKeseluruhan) * 100) / 100
+    const persentaseSkorKeseluruhan = totalPoinMaksimalKeseluruhan > 0
+      ? Math.round((totalPoinDidapatKeseluruhan * 100 / totalPoinMaksimalKeseluruhan) * 100) / 100
+      : 0;
+
+    const rataRataSkorKeseluruhan = totalJawabanKeseluruhan > 0
+      ? Math.round((totalPoinDidapatKeseluruhan / totalJawabanKeseluruhan) * 100) / 100
       : null;
 
     const overallSummary = {
       total_indikator: getAllInstrumen().length,
       total_bagian_terisi: totalBagianTerisi,
       total_kelompok_terisi: totalBagianTerisi,
+      total_poin_didapat: totalPoinDidapatKeseluruhan,
+      total_poin_maksimal: totalPoinMaksimalKeseluruhan,
       rata_rata_skor_keseluruhan: rataRataSkorKeseluruhan,
-      persentase_skor_keseluruhan: totalMaxWeighted > 0
-        ? Math.round((totalEarnedWeighted / totalMaxWeighted) * 10000) / 100
-        : 0,
+      persentase_skor_keseluruhan: persentaseSkorKeseluruhan,
     };
 
     const allInst = getAllInstrumen();
@@ -609,7 +615,6 @@ export async function handleGetEdmRekap(
         nomor_urut: inst.kode,
         urutan: inst.urutan,
         pertanyaan: inst.pertanyaan,
-        bobot: inst.bobot,
         bukti_yang_diminta: inst.bukti,
         rata_rata_skor: j ? j.skor : null,
         jumlah_bukti_file: proofCount,

@@ -1,6 +1,7 @@
 // server/utils/edm-proxy.ts
 // Shared helper for EDM proxy endpoints
 import { Buffer } from "buffer";
+import { sendWebResponse } from "h3";
 
 export function validateMockJWT(token: string): boolean {
   try {
@@ -191,16 +192,7 @@ export async function proxyStream(
       });
     }
 
-    const contentType = response.headers.get("content-type");
-    if (contentType) setHeader(event, "Content-Type", contentType);
-
-    const contentDisposition = response.headers.get("content-disposition");
-    if (contentDisposition) setHeader(event, "Content-Disposition", contentDisposition);
-
-    const cacheControl = response.headers.get("cache-control");
-    if (cacheControl) setHeader(event, "Cache-Control", cacheControl);
-
-    return response.body;
+    return await sendWebResponse(event, response);
   } catch (error: any) {
     console.error(`Gagal proxy stream ke Worker (${targetUrl}):`, error);
     throw createError({

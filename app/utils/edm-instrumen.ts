@@ -60,22 +60,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Selama 2 semester terakhir, 90%-100% siswa mengikuti kegiatan sholat berjamaah, tadarus bersama, infaq mingguan, dan ibadah rutin lainnya. \n- Ada keterangan alasan ketidakikutsertaan"
+            "keterangan": "Selama 2 semester terakhir, 90%-100% siswa mengikuti kegiatan sholat berjamaah, tadarus bersama, infaq mingguan, dan ibadah rutin lainnya.\nAda keterangan alasan ketidakikutsertaan"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "Selama 2 semester terakhir, 90%-100% siswa mengikuti kegiatan sholat berjamaah, tadarus bersama, infaq mingguan, dan ibadah rutin lainnya.\n- Tidak ada keterangan alasan ketidakikutsertaan"
+            "keterangan": "Selama 2 semester terakhir, 90%-100% siswa mengikuti kegiatan sholat berjamaah, tadarus bersama, infaq mingguan, dan ibadah rutin lainnya.\nTidak ada keterangan alasan ketidakikutsertaan"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Selama 2 semester terakhir, 70%-<90% siswa mengikuti kegiatan sholat berjamaah, tadarus bersama, infaq mingguan, dan ibadah rutin lainnya. "
+            "keterangan": "Selama 2 semester terakhir, 70%-<90% siswa mengikuti kegiatan sholat berjamaah, tadarus bersama, infaq mingguan, dan ibadah rutin lainnya."
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Selama 2 semester terakhir, kurang dari 70% siswa mengikuti kegiatan sholat berjamaah, tadarus bersama, infaq mingguan, dan ibadah rutin lainnya."
+            "keterangan": "Selama 2 semester terakhir, kurang dari 70% siswa mengikuti kegiatan sholat berjamaah, tadarus bersama, infaq mingguan, dan ibadah rutin lainnya."
           }
         ]
       },
@@ -87,7 +87,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "A",
         "keterangan": "Budaya kedisiplinan bagi warga madrasah",
         "bobot": 4,
-        "bukti": "1. Rekapitulasi daftar kehadiran guru untuk kegiatan pembelajaran, pembimbingan, dan pelatihan sesuai jadwal dan waktu yang ditetapkan oleh madrasah.\t\n2. Untuk Kegiatan pembelajaran dilengkapi dengan penjelasan pokok materi yang diberikan. Bisa dilengkapi dengan jurnal kelas yang ditandatangani guru dan ketua kelas (Daftar guru dapat diambil dari data EMIS sedangkan persentase guru mengajar dientri oleh TPM)               \t",
+        "bukti": "1. Rekapitulasi daftar kehadiran guru untuk kegiatan pembelajaran, pembimbingan, dan pelatihan sesuai jadwal dan waktu yang ditetapkan oleh madrasah.\n2. Untuk Kegiatan pembelajaran dilengkapi dengan penjelasan pokok materi yang diberikan. Bisa dilengkapi dengan jurnal kelas yang ditandatangani guru dan ketua kelas (Daftar guru dapat diambil dari data EMIS sedangkan persentase guru mengajar dientri oleh TPM)",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "A.2",
@@ -95,22 +95,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Selama 2 semester terakhir, 95%-100% guru hadir di madrasah sesuai kalender akademik untuk melakukan fungsi pembelajaran, pembimbingan, dan pelatihan sesuai jadwal dan waktu yang ditetapkan oleh madrasah\r\n- Jika terdapat guru yang tidak dapat hadir di madrasah dikarenakan alasan yang sangat jelas dengan bukti yang akurat, misalnya karena sakit dibuktikan dengan surat dari dokter, cuti melahirkan, haji, dan sejenisnya\r\n- Ketidakhadiran guru di kelas tidak mengganggu proses pembelajaran karena dapat diganti dengan guru lainnya"
+            "keterangan": "Selama 2 semester terakhir, 95%-100% guru hadir di madrasah sesuai kalender akademik untuk melakukan fungsi pembelajaran, pembimbingan, dan pelatihan sesuai jadwal dan waktu yang ditetapkan oleh madrasah\nJika terdapat guru yang tidak dapat hadir di madrasah dikarenakan alasan yang sangat jelas dengan bukti yang akurat, misalnya karena sakit dibuktikan dengan surat dari dokter, cuti melahirkan, haji, dan sejenisnya\nKetidakhadiran guru di kelas tidak mengganggu proses pembelajaran karena dapat diganti dengan guru lainnya"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Selama 2 semester terakhir, 95-100% guru hadir di madrasah sesuai kalender akademik untuk melakukan fungsi pembelajaran, pembimbingan, dan pelatihan sesuai jadwal dan waktu yang ditetapkan oleh madrasah\t\r\n- Guru yang tidak hadir tidak digantikan oleh guru lain sehingga mengganggu proses pembelajaran"
+            "keterangan": "Selama 2 semester terakhir, 95%-100% guru hadir di madrasah sesuai kalender akademik untuk melakukan fungsi pembelajaran, pembimbingan, dan pelatihan sesuai jadwal dan waktu yang ditetapkan oleh madrasah\nGuru yang tidak hadir tidak digantikan oleh guru lain sehingga mengganggu proses pembelajaran"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Selama 2 semester terakhir, 80%-<95% guru hadir di sekolah untuk melakukan fungsi pembelajaran, pembimbingan, dan pelatihan sesuai jadwal dan waktu yang ditetapkan madrasah"
+            "keterangan": "Selama 2 semester terakhir, 80%-<95% guru hadir di sekolah untuk melakukan fungsi pembelajaran, pembimbingan, dan pelatihan sesuai jadwal dan waktu yang ditetapkan madrasah"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Selama 2 semester terakhir, kurang dari 80% guru hadir di sekolah untuk melakukan fungsi pembelajaran, pembimbingan, dan pelatihan sesuai jadwal dan waktu yang ditetapkan madrasah"
+            "keterangan": "Selama 2 semester terakhir, kurang dari 80% guru hadir di sekolah untuk melakukan fungsi pembelajaran, pembimbingan, dan pelatihan sesuai jadwal dan waktu yang ditetapkan madrasah"
           }
         ]
       },
@@ -118,11 +118,11 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kode": "3",
         "tahun": 2025,
         "urutan": "3",
-        "pertanyaan": "Kepala madrasah atau guru senior yang ditugasi dengan Surat Keputusan (SK) melakukan supervisi  proses pembelajaran terhadap seluruh guru",
+        "pertanyaan": "Kepala madrasah atau guru senior yang ditugasi dengan Surat Keputusan (SK) melakukan supervisi proses pembelajaran terhadap seluruh guru",
         "kategori": "A",
         "keterangan": "Budaya kedisiplinan bagi warga madrasah",
         "bobot": 3,
-        "bukti": "1. Program Supervisi yang dilengkapi dengan\njadwal dan instrumen supervisi \n2. Laporan hasil supervisi kepala madrasah(guru senior yg ditugasi) terhadap guru sesuai format yang berlaku, resume rapat penyampaian hasil supervisi dan hasil tindak lanjut\n3. SK Tim Supervisi\n4. Laporan Hasil Wawancara TPM dengan para guru \t",
+        "bukti": "1. Program Supervisi yang dilengkapi dengan jadwal dan instrumen supervisi\n2. Laporan hasil supervisi kepala madrasah (guru senior yg ditugasi) terhadap guru sesuai format yang berlaku, resume rapat penyampaian hasil supervisi dan hasil tindak lanjut\n3. SK Tim Supervisi\n4. Laporan Hasil Wawancara TPM dengan para guru",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "A.3",
@@ -130,22 +130,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Selama 2 semester terakhir, kepala madrasah atau guru senior yang ditugasi melaksanakan supervisi dan menindaklanjuti hasil supervisi kepada semua guru"
+            "keterangan": "Selama 2 semester terakhir, kepala madrasah atau guru senior yang ditugasi melaksanakan supervisi dan menindaklanjuti hasil supervisi kepada semua guru"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Selama 2 semester terakhir, kepala madrasah atau guru senior yang ditugasi  melaksanakan supervisi dan menindaklanjuti hasil supervisi terhadap 90%-<100% guru"
+            "keterangan": "Selama 2 semester terakhir, kepala madrasah atau guru senior yang ditugasi melaksanakan supervisi dan menindaklanjuti hasil supervisi terhadap 90%-<100% guru"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Selama 2 semester terakhir, kepala madrasah atau guru senior yang ditugasi melaksanakan supervisi dan menindaklanjuti hasil supervisi terhadap 80%-<90% guru"
+            "keterangan": "Selama 2 semester terakhir, kepala madrasah atau guru senior yang ditugasi melaksanakan supervisi dan menindaklanjuti hasil supervisi terhadap 80%-<90% guru"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Selama 2 semester terakhir, kepala madrasah atau guru senior yang ditugasi melaksanakan supervisi dan menindaklanjuti hasil supervisi terhadap kurang dari 80% guru"
+            "keterangan": "Selama 2 semester terakhir, kepala madrasah atau guru senior yang ditugasi melaksanakan supervisi dan menindaklanjuti hasil supervisi terhadap kurang dari 80% guru"
           }
         ]
       },
@@ -153,11 +153,11 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kode": "4",
         "tahun": 2025,
         "urutan": "4",
-        "pertanyaan": "Siswa menunjukkan budaya berkomunikasi efektif baik luring ataupun daring, berpikir kritis dan pemecahan masalah, kreatif dan inovatif, serta dapat berkolaborasi dalam aktifitas sehari-hari. ",
+        "pertanyaan": "Siswa menunjukkan budaya berkomunikasi efektif baik luring ataupun daring, berpikir kritis dan pemecahan masalah, kreatif dan inovatif, serta dapat berkolaborasi dalam aktifitas sehari-hari.",
         "kategori": "A",
         "keterangan": "Budaya kedisiplinan bagi warga madrasah",
         "bobot": 4,
-        "bukti": "1. Laporan prestasi siswa dari guru kelas/wali kelas \n2. Bukti prestasi siswa dalam berbagai lomba tingkat sekolah hingga internasional dalam bentuk piala,piagam,foto dll\n3. Bukti kegiatan ekstrakurikuler dalam bentuk daftar hadir, foto/video kegiatan, undangan kegiatan, sertifikat keikutsertaan\n4. MoU dengan pihak eksternal",
+        "bukti": "1. Laporan prestasi siswa dari guru kelas/wali kelas\n2. Bukti prestasi siswa dalam berbagai lomba tingkat sekolah hingga internasional dalam bentuk piala, piagam, foto dll\n3. Bukti kegiatan ekstrakurikuler dalam bentuk daftar hadir, foto/video kegiatan, undangan kegiatan, sertifikat keikutsertaan\n4. MoU dengan pihak eksternal",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "A.4",
@@ -165,22 +165,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Selama 2 semester terakhir, 90%-100% Siswa menunjukkan budaya berkomunikasi efektif baik luring ataupun daring, berpikir kritis dan pemecahan masalah, kreatif dan inovatif, serta dapat berkolaborasi dalam aktifitas sehari-hari - Terdapat sedikitnya 1 prestasi siswa dalam berbagai lomba akademik dan/non akademik di tingkat internasional dan/atau 3 prestasi siswa di tingkat nasional."
+            "keterangan": "Selama 2 semester terakhir, 90%-100% Siswa menunjukkan budaya berkomunikasi efektif baik luring ataupun daring, berpikir kritis dan pemecahan masalah, kreatif dan inovatif, serta dapat berkolaborasi dalam aktifitas sehari-hari.\nTerdapat sedikitnya 1 prestasi siswa dalam berbagai lomba akademik dan/non akademik di tingkat internasional dan/atau 3 prestasi siswa di tingkat nasional."
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Selama 2 semester terakhir,  80%-<90% Siswa menunjukkan budaya berkomunikasi efektif baik luring ataupun daring, berpikir kritis dan pemecahan masalah, kreatif dan inovatif, serta dapat berkolaborasi dalam aktifitas sehari-hari "
+            "keterangan": "Selama 2 semester terakhir, 80%-<90% Siswa menunjukkan budaya berkomunikasi efektif baik luring ataupun daring, berpikir kritis dan pemecahan masalah, kreatif dan inovatif, serta dapat berkolaborasi dalam aktifitas sehari-hari"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Selama 2 semester terakhir,  70%-<80% Siswa menunjukkan budaya berkomunikasi efektif baik luring ataupun daring, berpikir kritis dan pemecahan masalah, kreatif dan inovatif, serta dapat berkolaborasi dalam aktifitas sehari-hari"
+            "keterangan": "Selama 2 semester terakhir, 70%-<80% Siswa menunjukkan budaya berkomunikasi efektif baik luring ataupun daring, berpikir kritis dan pemecahan masalah, kreatif dan inovatif, serta dapat berkolaborasi dalam aktifitas sehari-hari"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Selama 2 semester terakhir, kurang dari 70% Siswa menunjukkan budaya berkomunikasi efektif baik luring ataupun daring, berpikir kritis dan pemecahan masalah, kreatif dan inovatif, serta dapat berkolaborasi dalam aktifitas sehari-hari "
+            "keterangan": "Selama 2 semester terakhir, kurang dari 70% Siswa menunjukkan budaya berkomunikasi efektif baik luring ataupun daring, berpikir kritis dan pemecahan masalah, kreatif dan inovatif, serta dapat berkolaborasi dalam aktifitas sehari-hari"
           }
         ]
       },
@@ -192,7 +192,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "A",
         "keterangan": "Budaya kedisiplinan bagi warga madrasah",
         "bobot": 3,
-        "bukti": "1. Rekapitulasi daftar kunjungan perpustakaan termasuk\nperpusatakan digital\n2. Rekapitulasi daftar peminjaman buku perpustakaan",
+        "bukti": "1. Rekapitulasi daftar kunjungan perpustakaan termasuk perpustakaan digital\n2. Rekapitulasi daftar peminjaman buku perpustakaan",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "A.5",
@@ -200,22 +200,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Dalam 2 semester terakhir, 90%-100% siswa membaca/meminjam buku yang tersedia di perpustakaan (termasuk perpustakaan digital/ruang baca/pojok baca) "
+            "keterangan": "Dalam 2 semester terakhir, 90%-100% siswa membaca/meminjam buku yang tersedia di perpustakaan (termasuk perpustakaan digital/ruang baca/pojok baca)"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Dalam 2 semester terakhir, 80%-<90% siswa membaca/ meminjam buku yang tersedia di perpustakaan (termasuk perpustakaan digital/ruang baca/pojok baca) "
+            "keterangan": "Dalam 2 semester terakhir, 80%-<90% siswa membaca/meminjam buku yang tersedia di perpustakaan (termasuk perpustakaan digital/ruang baca/pojok baca)"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Dalam 2 semester terakhir, 70%-<80% siswa membaca/ meminjam buku yang tersedia di perpustakaan (termasuk perpustakaan digital/ruang baca/pojok baca) "
+            "keterangan": "Dalam 2 semester terakhir, 70%-<80% siswa membaca/meminjam buku yang tersedia di perpustakaan (termasuk perpustakaan digital/ruang baca/pojok baca)"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Dalam 2 semester terakhir kurang dari 70% siswa membaca/ meminjam buku yang tersedia di perpustakaan (termasuk perpustakaan digital/ruang baca/pojok baca) atau madrasah tidak memiliki perpustakaan"
+            "keterangan": "Dalam 2 semester terakhir kurang dari 70% siswa membaca/meminjam buku yang tersedia di perpustakaan (termasuk perpustakaan digital/ruang baca/pojok baca) atau madrasah tidak memiliki perpustakaan"
           }
         ]
       },
@@ -227,7 +227,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "A",
         "keterangan": "Budaya kedisiplinan bagi warga madrasah",
         "bobot": 3,
-        "bukti": "1. Rekapitulasi daftar penugasan guru dan\ntenaga kependidikan dan latar belakang\npendidikannya\n2. Rekapitulasi daftar beban kerja guru dan\ntenaga kependidikan\n3. Rekapitulasi daftar keaktifan guru dan\ntendik dalam berbagai forum (misalnya\nKKG/MGMP, Seminar/Webinar dll)\n4. Rekapitulasi daftar pencapaian prestasi\nguru (misalnya berupa piagam, sertifikat,\nfoto, tangkapan layar, link jurnal, dll)",
+        "bukti": "1. Rekapitulasi daftar penugasan guru dan tenaga kependidikan dan latar belakang pendidikannya\n2. Rekapitulasi daftar beban kerja guru dan tenaga kependidikan\n3. Rekapitulasi daftar keaktifan guru dan tendik dalam berbagai forum (misalnya KKG/MGMP, Seminar/Webinar dll)\n4. Rekapitulasi daftar pencapaian prestasi guru (misalnya berupa piagam, sertifikat, foto, tangkapan layar, link jurnal, dll)",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "A.6",
@@ -235,22 +235,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Madrasah terbiasa melaksanakan evaluasi terhadap kinerja pendidik dan tenaga kependidikan, meliputi 5 aspek sebagai berikut:\r\n1) kesesuaian penugasan dengan keahlian,\r\n2) keseimbangan beban kerja,\r\n3) keaktifan\r\n4) pencapaian prestasi,\r\n5) keikutsertaan dalam berbagai kompetisi tingkat nasional dan internasional"
+            "keterangan": "Madrasah terbiasa melaksanakan evaluasi terhadap kinerja pendidik dan tenaga kependidikan, meliputi 5 aspek sebagai berikut:\n1) Kesesuaian penugasan dengan keahlian\n2) Keseimbangan beban kerja\n3) Keaktifan\n4) Pencapaian prestasi\n5) Keikutsertaan dalam berbagai kompetisi tingkat nasional dan internasional"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Madrasah terbiasa melaksanakan evaluasi terhadap kinerja pendidik dan tenaga kependidikan,  meliputi 4 dari 5 aspek sebagai berikut: \r\n1) kesesuaian penugasan dengan keahlian,\r\n2) keseimbangan beban kerja,\r\n3) keaktifan\r\n4) pencapaian prestasi,\r\n5) keikutsertaan dalam berbagai kompetisi tingkat nasional dan internasional"
+            "keterangan": "Madrasah terbiasa melaksanakan evaluasi terhadap kinerja pendidik dan tenaga kependidikan, meliputi 4 dari 5 aspek sebagai berikut:\n1) Kesesuaian penugasan dengan keahlian\n2) Keseimbangan beban kerja\n3) Keaktifan\n4) Pencapaian prestasi\n5) Keikutsertaan dalam berbagai kompetisi tingkat nasional dan internasional"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Madrasah terbiasa melaksanakan evaluasi terhadap kinerja pendidik dan tenaga kependidikan, meliputi 3 dari 5 aspek sebagai berikut: \r\n1) kesesuaian penugasan dengan keahlian,\r\n2) keseimbangan beban kerja,\r\n3) keaktifan\r\n4) pencapaian prestasi,\r\n5) keikutsertaan dalam berbagai kompetisi tingkat nasional dan internasional"
+            "keterangan": "Madrasah terbiasa melaksanakan evaluasi terhadap kinerja pendidik dan tenaga kependidikan, meliputi 3 dari 5 aspek sebagai berikut:\n1) Kesesuaian penugasan dengan keahlian\n2) Keseimbangan beban kerja\n3) Keaktifan\n4) Pencapaian prestasi\n5) Keikutsertaan dalam berbagai kompetisi tingkat nasional dan internasional"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Madrasah terbiasa melaksanakan evaluasi terhadap kinerja pendidik dan tenaga kependidikan kurang dari 3 aspek  sebagai berikut: \r\n1) kesesuaian penugasan dengan keahlian,\r\n2) keseimbangan beban kerja,\r\n3) keaktifan\r\n4) pencapaian prestasi,\r\n5) keikutsertaan dalam berbagai kompetisi tingkat nasional dan internasional"
+            "keterangan": "Madrasah terbiasa melaksanakan evaluasi terhadap kinerja pendidik dan tenaga kependidikan kurang dari 3 aspek sebagai berikut:\n1) Kesesuaian penugasan dengan keahlian\n2) Keseimbangan beban kerja\n3) Keaktifan\n4) Pencapaian prestasi\n5) Keikutsertaan dalam berbagai kompetisi tingkat nasional dan internasional"
           }
         ]
       },
@@ -258,7 +258,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kode": "7",
         "tahun": 2025,
         "urutan": "7",
-        "pertanyaan": "Madrasah secara rutin melakukan pertemuan dengan guru dan tenaga kependidikan, komite\nmadrasah/perwakilan orang tua, dan yayasan (khusus madrasah swasta) untuk melakukan evaluasi diri terhadap kinerja madrasah dalam rangka pemenuhan 8 standar Nasional Pendidikan baik secara daring maupun luring",
+        "pertanyaan": "Madrasah secara rutin melakukan pertemuan dengan guru dan tenaga kependidikan, komite madrasah/perwakilan orang tua, dan yayasan (khusus madrasah swasta) untuk melakukan evaluasi diri terhadap kinerja madrasah dalam rangka pemenuhan 8 standar Nasional Pendidikan baik secara daring maupun luring",
         "kategori": "A",
         "keterangan": "Budaya kedisiplinan bagi warga madrasah",
         "bobot": 3,
@@ -270,22 +270,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Dalam 2 semester terakhir, madrasah melakukan pertemuan rutin dengan guru, tenaga kependidikan, dan komite madrasah/perwakilan ortu, dan yayasan (khusus madrasah swasta) 3x atau lebih per tahun"
+            "keterangan": "Dalam 2 semester terakhir, madrasah melakukan pertemuan rutin dengan guru, tenaga kependidikan, dan komite madrasah/perwakilan ortu, dan yayasan (khusus madrasah swasta) 3x atau lebih per tahun"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Dalam 2 semester terakhir, madrasah melakukan pertemuan rutin dengan guru , tenaga kependidikan, dan komite madrasah/ perwakilan ortu, dan yayasan (khusus madrasah swasta) 2x per tahun"
+            "keterangan": "Dalam 2 semester terakhir, madrasah melakukan pertemuan rutin dengan guru, tenaga kependidikan, dan komite madrasah/perwakilan ortu, dan yayasan (khusus madrasah swasta) 2x per tahun"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Dalam 2 semester terakhir, madrasah melakukan pertemuan rutin dengan guru, tenaga kependidikan, dan   komite madrasah/ perwakilan orang tua, dan yayasan (khusus madrasah swasta) 1x per tahun"
+            "keterangan": "Dalam 2 semester terakhir, madrasah melakukan pertemuan rutin dengan guru, tenaga kependidikan, dan komite madrasah/perwakilan orang tua, dan yayasan (khusus madrasah swasta) 1x per tahun"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Dalam 2 semester terakhir, madrasah tidak pernah melakukan pertemuan rutin dengan guru, tenaga kependidikan, dan komite madrasah/ perwakilan ortu dan yayasan (khusus madrasah swasta)"
+            "keterangan": "Dalam 2 semester terakhir, madrasah tidak pernah melakukan pertemuan rutin dengan guru, tenaga kependidikan, dan komite madrasah/perwakilan ortu dan yayasan (khusus madrasah swasta)"
           }
         ]
       }
@@ -311,7 +311,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "B",
         "keterangan": "Budaya melakukan pengembangan diri bagi guru dan tenaga kependidikan",
         "bobot": 3,
-        "bukti": "1. Daftar undangan pelatihan/workshop/\npertemuan\n2. Sertifikat keikutsertaan kegiatan\nlokal/nasional/internasional\n3. Perjanjian Kerjasama/MoU",
+        "bukti": "1. Daftar undangan pelatihan/workshop/pertemuan\n2. Sertifikat keikutsertaan kegiatan lokal/nasional/internasional\n3. Perjanjian Kerjasama/MoU",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "B.1",
@@ -319,22 +319,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Dalam 2 semester terakhir, kepala madrasah mengikuti kegiatan sejenis pelatihan/ workshop/pertemuan (termasuk pada kelompok kerja madrasah) dalam rangka peningkatan kompetensi kepala madrasah minimal 3x per tahun"
+            "keterangan": "Dalam 2 semester terakhir, kepala madrasah mengikuti kegiatan sejenis pelatihan/workshop/pertemuan (termasuk pada kelompok kerja madrasah) dalam rangka peningkatan kompetensi kepala madrasah minimal 3x per tahun"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Dalam 2 semester terakhir, kepala madrasah mengikuti kegiatan sejenis pelatihan/ workshop/pertemuan  (termasuk pada kelompok kerja madrasah) dalam rangka peningkatan kompetensi kepala  madrasah 2x per tahun"
+            "keterangan": "Dalam 2 semester terakhir, kepala madrasah mengikuti kegiatan sejenis pelatihan/workshop/pertemuan (termasuk pada kelompok kerja madrasah) dalam rangka peningkatan kompetensi kepala madrasah 2x per tahun"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Dalam 2 semester terakhir, kepala madrasah mengikuti kegiatan sejenis pelatihan/ workshop/pertemuan (termasuk pada kelompok kerja madrasah) dalam rangka peningkatan kompetensi kepala madrasah 1x per tahun"
+            "keterangan": "Dalam 2 semester terakhir, kepala madrasah mengikuti kegiatan sejenis pelatihan/workshop/pertemuan (termasuk pada kelompok kerja madrasah) dalam rangka peningkatan kompetensi kepala madrasah 1x per tahun"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Dalam 2 semester terakhir, kepala madrasah tidak pernah mengikuti kegiatan sejenis pelatihan/workshop/ pertemuan (termasuk pada kelompok kerja madrasah)  dalam rangka peningkatan kompetensi kepala madrasah"
+            "keterangan": "Dalam 2 semester terakhir, kepala madrasah tidak pernah mengikuti kegiatan sejenis pelatihan/workshop/pertemuan (termasuk pada kelompok kerja madrasah) dalam rangka peningkatan kompetensi kepala madrasah"
           }
         ]
       },
@@ -346,7 +346,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "B",
         "keterangan": "Budaya melakukan pengembangan diri bagi guru dan tenaga kependidikan",
         "bobot": 4,
-        "bukti": "1. Rekapitulasi Daftar absensi kehadiran guru di KKG/ MGMP/Seminar/Workshop\t\n2. Bukti keaktifan guru mengikuti kegiatan pengembangan diri\t\n3. Sertifikat pelatihan/seminar/workshop dan sejenisnya\t",
+        "bukti": "1. Rekapitulasi Daftar absensi kehadiran guru di KKG/MGMP/Seminar/Workshop\n2. Bukti keaktifan guru mengikuti kegiatan pengembangan diri\n3. Sertifikat pelatihan/seminar/workshop dan sejenisnya",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "B.2",
@@ -354,22 +354,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Dalam 2 semester terakhir, 90%- 100% guru secara aktif mengikuti kegiatan KKG/MGMP atau kegiatan sejenis pelatihan/workshop  dalam rangka peningkatan kompetensi"
+            "keterangan": "Dalam 2 semester terakhir, 90%-100% guru secara aktif mengikuti kegiatan KKG/MGMP atau kegiatan sejenis pelatihan/workshop dalam rangka peningkatan kompetensi"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Dalam 2 semester terakhir, 80%-<90%  guru secara aktif mengikuti kegiatan KKG/MGMP atau kegiatan sejenis pelatihan/workshop dalam rangka peningkatan kompetensi"
+            "keterangan": "Dalam 2 semester terakhir, 80%-<90% guru secara aktif mengikuti kegiatan KKG/MGMP atau kegiatan sejenis pelatihan/workshop dalam rangka peningkatan kompetensi"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Dalam 2 semester terakhir, 70%-<80% guru secara aktif mengikuti kegiatan KKG/MGMP atau kegiatan sejenis pelatihan/workshop dalam rangka peningkatan kompetensi"
+            "keterangan": "Dalam 2 semester terakhir, 70%-<80% guru secara aktif mengikuti kegiatan KKG/MGMP atau kegiatan sejenis pelatihan/workshop dalam rangka peningkatan kompetensi"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Dalam 2 semester terakhir, kurang dari 70%  guru secara aktif mengikuti kegiatan KKG/MGMP atau kegiatan sejenis pelatihan/workshop  dalam rangka peningkatan kompetensi"
+            "keterangan": "Dalam 2 semester terakhir, kurang dari 70% guru secara aktif mengikuti kegiatan KKG/MGMP atau kegiatan sejenis pelatihan/workshop dalam rangka peningkatan kompetensi"
           }
         ]
       },
@@ -381,7 +381,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "B",
         "keterangan": "Budaya melakukan pengembangan diri bagi guru dan tenaga kependidikan",
         "bobot": 4,
-        "bukti": "1. Dokumen perencanaan madrasah (RKA K/L atau RKAM)\t\n2. Daftar guru yang akan mengikuti program peningkatan mutu pembelajaran\t",
+        "bukti": "1. Dokumen perencanaan madrasah (RKA K/L atau RKAM)\n2. Daftar guru yang akan mengikuti program peningkatan mutu pembelajaran",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "B.3",
@@ -389,22 +389,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Dalam satu tahun anggaran, 80-100% guru direncanakan mengikuti program peningkatan mutu"
+            "keterangan": "Dalam satu tahun anggaran, 80-100% guru direncanakan mengikuti program peningkatan mutu"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Dalam satu tahun anggaran, 65 s.d. < 80% guru direncanakan mengikuti program peningkatan mutu "
+            "keterangan": "Dalam satu tahun anggaran, 65 s.d. < 80% guru direncanakan mengikuti program peningkatan mutu"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Dalam satu tahun anggaran, 50 s.d. < 65% guru direncanakan mengikuti program peningkatan mutu "
+            "keterangan": "Dalam satu tahun anggaran, 50 s.d. < 65% guru direncanakan mengikuti program peningkatan mutu"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Dalam satu tahun anggaran, kurang dari 50% guru direncanakan mengikuti program peningkatan mutu "
+            "keterangan": "Dalam satu tahun anggaran, kurang dari 50% guru direncanakan mengikuti program peningkatan mutu"
           }
         ]
       },
@@ -412,11 +412,11 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kode": "11",
         "tahun": 2025,
         "urutan": "4",
-        "pertanyaan": "Tenaga kependidikan di madrasah aktif mengikuti kegiatan sejenis pelatihan/workshop/ bimtek dalam rangka peningkatan kompetensi dan keterampilan baik secara daring maupun luring",
+        "pertanyaan": "Tenaga kependidikan di madrasah aktif mengikuti kegiatan sejenis pelatihan/workshop/bimtek dalam rangka peningkatan kompetensi dan keterampilan baik secara daring maupun luring",
         "kategori": "B",
         "keterangan": "Budaya melakukan pengembangan diri bagi guru dan tenaga kependidikan",
         "bobot": 3,
-        "bukti": "1. Daftar undangan atau surat dari penyelenggara kegiatan\t\n2. Bukti keikutsertaan pelatihan/workshop/bintek dalam bentuk sertifikat\t",
+        "bukti": "1. Daftar undangan atau surat dari penyelenggara kegiatan\n2. Bukti keikutsertaan pelatihan/workshop/bintek dalam bentuk sertifikat",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "B.4",
@@ -424,22 +424,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Dalam 2 semester terakhir,  80% s.d. 100% tenaga kependidikan mengikuti kegiatan pelatihan/ workshop/bimtek dalam rangka peningkatan kompetensi dan keterampilan teknis"
+            "keterangan": "Dalam 2 semester terakhir, 80% s.d. 100% tenaga kependidikan mengikuti kegiatan pelatihan/workshop/bimtek dalam rangka peningkatan kompetensi dan keterampilan teknis"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Dalam 2 semester terakhir,  65 % s.d. < 80% tenaga kependidikan mengikuti kegiatan pelatihan/ workshop/bimtek dalam rangka peningkatan kompetensi dan keterampilan teknis"
+            "keterangan": "Dalam 2 semester terakhir, 65% s.d. < 80% tenaga kependidikan mengikuti kegiatan pelatihan/workshop/bimtek dalam rangka peningkatan kompetensi dan keterampilan teknis"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Dalam 2 semester terakhir,  50 % s.d. < 65% tenaga kependidikan mengikuti kegiatan pelatihan/ workshop/bimtek dalam rangka peningkatan kompetensi dan keterampilan teknis"
+            "keterangan": "Dalam 2 semester terakhir, 50% s.d. < 65% tenaga kependidikan mengikuti kegiatan pelatihan/workshop/bimtek dalam rangka peningkatan kompetensi dan keterampilan teknis"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Dalam 2 semester terakhir, kurang dari  50% tenaga kependidikan mengikuti kegiatan pelatihan/ workshop/bimtek dalam rangka peningkatan kompetensi dan keterampilan teknis"
+            "keterangan": "Dalam 2 semester terakhir, kurang dari 50% tenaga kependidikan mengikuti kegiatan pelatihan/workshop/bimtek dalam rangka peningkatan kompetensi dan keterampilan teknis"
           }
         ]
       }
@@ -461,7 +461,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kode": "12",
         "tahun": 2025,
         "urutan": "1",
-        "pertanyaan": "Guru mengembangkan Perangkat Pembelajaran sesuai ketentuan yang berlaku (Prota, Prosem, RPP, Media, dsb.)  ",
+        "pertanyaan": "Guru mengembangkan Perangkat Pembelajaran sesuai ketentuan yang berlaku (Prota, Prosem, RPP, Media, dsb.)",
         "kategori": "C",
         "keterangan": "Budaya guru melakukan penyiapan, pelaksanaan dan penilaian atas proses pembelajaran",
         "bobot": 4,
@@ -473,22 +473,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- 90%-100% guru telah mengembangkan perangkat pembelajaran sesuai ketentuan yang berlaku (Prota, Prosem, RPP, Media, dsb.)"
+            "keterangan": "90%-100% guru telah mengembangkan perangkat pembelajaran sesuai ketentuan yang berlaku (Prota, Prosem, RPP, Media, dsb.)"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 80%-<90% guru telah mengembangkan perangkat pembelajaran sesuai ketentuan yang berlaku (Prota, Prosem, RPP, Media, dsb.)"
+            "keterangan": "80%-<90% guru telah mengembangkan perangkat pembelajaran sesuai ketentuan yang berlaku (Prota, Prosem, RPP, Media, dsb.)"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 70%-<80% guru telah mengembangkan perangkat pembelajaran sesuai ketentuan yang berlaku (Prota, Prosem, RPP, Media, dsb.)"
+            "keterangan": "70%-<80% guru telah mengembangkan perangkat pembelajaran sesuai ketentuan yang berlaku (Prota, Prosem, RPP, Media, dsb.)"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 70% guru telah mengembangkan perangkat pembelajaran sesuai ketentuan yang berlaku (Prota, Prosem, RPP, Media, dsb.)"
+            "keterangan": "Kurang dari 70% guru telah mengembangkan perangkat pembelajaran sesuai ketentuan yang berlaku (Prota, Prosem, RPP, Media, dsb.)"
           }
         ]
       },
@@ -500,7 +500,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "C",
         "keterangan": "Budaya guru melakukan penyiapan, pelaksanaan dan penilaian atas proses pembelajaran",
         "bobot": 4,
-        "bukti": "1. Hasil penilaian kepala madrasah        \n2. Laporan Hasil wawancara TPM dengan siswa        \n3. Rekapitulasi daftar guru yang menggunakan ragam metode pembelajaran yang sesuai karakteristik siswa dan materi pembelajaran        ",
+        "bukti": "1. Hasil penilaian kepala madrasah\n2. Laporan Hasil wawancara TPM dengan siswa\n3. Rekapitulasi daftar guru yang menggunakan ragam metode pembelajaran yang sesuai karakteristik siswa dan materi pembelajaran",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "C.2",
@@ -508,22 +508,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Lebih dari 90% guru telah menggunakan metode pembelajaran yang bervariasi sesuai dengan karakteristik siswa dan materi pembelajaran melalui ceramah, demonstrasi, diskusi, belajar mandiri, simulasi, curah pendapat, studi kasus, seminar, tutorial, deduktif, dan induktif"
+            "keterangan": "Lebih dari 90% guru telah menggunakan metode pembelajaran yang bervariasi sesuai dengan karakteristik siswa dan materi pembelajaran melalui ceramah, demonstrasi, diskusi, belajar mandiri, simulasi, curah pendapat, studi kasus, seminar, tutorial, deduktif, dan induktif"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 80%-90% guru telah menggunakan metode pembelajaran yang bervariasi sesuai dengan karakteristik siswa dan materi pembelajaran melalui ceramah, demonstrasi, diskusi, belajar mandiri, simulasi, curah pendapat, studi kasus, seminar, tutorial, deduktif, dan induktif"
+            "keterangan": "80%-90% guru telah menggunakan metode pembelajaran yang bervariasi sesuai dengan karakteristik siswa dan materi pembelajaran melalui ceramah, demonstrasi, diskusi, belajar mandiri, simulasi, curah pendapat, studi kasus, seminar, tutorial, deduktif, dan induktif"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 70%-<80% guru telah menggunakan metode pembelajaran yang bervariasi sesuai dengan karakteristik siswa dan materi pembelajaran melalui ceramah, demonstrasi, diskusi, belajar mandiri, simulasi, curah pendapat, studi kasus, seminar, tutorial, deduktif, dan induktif"
+            "keterangan": "70%-<80% guru telah menggunakan metode pembelajaran yang bervariasi sesuai dengan karakteristik siswa dan materi pembelajaran melalui ceramah, demonstrasi, diskusi, belajar mandiri, simulasi, curah pendapat, studi kasus, seminar, tutorial, deduktif, dan induktif"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 70% guru telah menggunakan metode pembelajaran sesuai dengan karakteristik siswa dan materi pembelajaran melalui ceramah, demonstrasi, diskusi, belajar mandiri, simulasi, curah pendapat, studi kasus, seminar, tutorial, deduktif, dan induktif"
+            "keterangan": "Kurang dari 70% guru telah menggunakan metode pembelajaran sesuai dengan karakteristik siswa dan materi pembelajaran melalui ceramah, demonstrasi, diskusi, belajar mandiri, simulasi, curah pendapat, studi kasus, seminar, tutorial, deduktif, dan induktif"
           }
         ]
       },
@@ -531,11 +531,11 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kode": "14",
         "tahun": 2025,
         "urutan": "3",
-        "pertanyaan": "Guru menggunakan media pembelajaran (termasuk media berbasis TIK) yang sesuai karakteristik siswa dan materi pembelajaran ",
+        "pertanyaan": "Guru menggunakan media pembelajaran (termasuk media berbasis TIK) yang sesuai karakteristik siswa dan materi pembelajaran",
         "kategori": "C",
         "keterangan": "Budaya guru melakukan penyiapan, pelaksanaan dan penilaian atas proses pembelajaran",
         "bobot": 3,
-        "bukti": "1. Hasil penilaian kepala madrasah\t\n2. Laporan Hasil wawancara TPM dengan guru dan siswa\t\n3. Rekapitulasi daftar guru yang menggunakan media pembelajaran yang sesuai karakteristik siswa dan materi pembelajaran\t",
+        "bukti": "1. Hasil penilaian kepala madrasah\n2. Laporan Hasil wawancara TPM dengan guru dan siswa\n3. Rekapitulasi daftar guru yang menggunakan media pembelajaran yang sesuai karakteristik siswa dan materi pembelajaran",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "C.3",
@@ -543,22 +543,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- 90%-100% guru menggunakan media pembelajaran yang sesuai  dengan karakteristik siswa dan materi pembelajaran"
+            "keterangan": "90%-100% guru menggunakan media pembelajaran yang sesuai dengan karakteristik siswa dan materi pembelajaran"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 80%-<90% guru menggunakan media pembelajaran yang sesuai karakteristik siswa dan materi pembelajaran"
+            "keterangan": "80%-<90% guru menggunakan media pembelajaran yang sesuai karakteristik siswa dan materi pembelajaran"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 70%-<80% guru menggunakan media pembelajaran yang sesuai karakteristik siswa dan materi pembelajaran"
+            "keterangan": "70%-<80% guru menggunakan media pembelajaran yang sesuai karakteristik siswa dan materi pembelajaran"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 70% guru menggunakan media pembelajaran yang sesuai karakteristik siswa dan materi pembelajaran"
+            "keterangan": "Kurang dari 70% guru menggunakan media pembelajaran yang sesuai karakteristik siswa dan materi pembelajaran"
           }
         ]
       },
@@ -578,22 +578,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- 90%-100% guru melakukan penilaian otentik, yaitu menilai kesiapan siswa, proses, dan hasil belajar secara utuh sehingga akan menggambarkan kapasitas, gaya, dan perolehan belajar siswa yang mampu menghasilkan dampak instruksional pada aspek pengetahuan, ketrampilan  dan dampak pengiring pada aspek sikap"
+            "keterangan": "90%-100% guru melakukan penilaian otentik, yaitu menilai kesiapan siswa, proses, dan hasil belajar secara utuh sehingga akan menggambarkan kapasitas, gaya, dan perolehan belajar siswa yang mampu menghasilkan dampak instruksional pada aspek pengetahuan, ketrampilan dan dampak pengiring pada aspek sikap"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 80%-<90% guru melakukan penilaian otentik, yaitu menilai kesiapan siswa, proses, dan hasil belajar secara utuh sehingga akan menggambarkan kapasitas, gaya, dan perolehan belajar siswa yang mampu menghasilkan dampak instruksional pada aspek pengetahuan, ketrampilan dan dampak pengiring pada aspek sikap"
+            "keterangan": "80%-<90% guru melakukan penilaian otentik, yaitu menilai kesiapan siswa, proses, dan hasil belajar secara utuh sehingga akan menggambarkan kapasitas, gaya, dan perolehan belajar siswa yang mampu menghasilkan dampak instruksional pada aspek pengetahuan, ketrampilan dan dampak pengiring pada aspek sikap"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 70%-<80% guru melakukan penilaian otentik, yaitu menilai kesiapan siswa, proses, dan hasil belajar secara utuh sehingga akan menggambarkan kapasitas, gaya, dan perolehan belajar siswa yang mampu menghasilkan dampak instruksional pada aspek pengetahuan, ketrampilan dan dampak pengiring pada aspek sikap"
+            "keterangan": "70%-<80% guru melakukan penilaian otentik, yaitu menilai kesiapan siswa, proses, dan hasil belajar secara utuh sehingga akan menggambarkan kapasitas, gaya, dan perolehan belajar siswa yang mampu menghasilkan dampak instruksional pada aspek pengetahuan, ketrampilan dan dampak pengiring pada aspek sikap"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 70% guru melakukan penilaian otentik, yaitu menilai kesiapan siswa, proses, dan hasil belajar secara utuh sehingga akan menggambarkan kapasitas, gaya, dan perolehan belajar siswa yang mampu menghasilkan dampak instruksional pada aspek pengetahuan, ketrampilan dan dampak pengiring pada aspek sikap"
+            "keterangan": "Kurang dari 70% guru melakukan penilaian otentik, yaitu menilai kesiapan siswa, proses, dan hasil belajar secara utuh sehingga akan menggambarkan kapasitas, gaya, dan perolehan belajar siswa yang mampu menghasilkan dampak instruksional pada aspek pengetahuan, ketrampilan dan dampak pengiring pada aspek sikap"
           }
         ]
       },
@@ -605,7 +605,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "C",
         "keterangan": "Budaya guru melakukan penyiapan, pelaksanaan dan penilaian atas proses pembelajaran",
         "bobot": 4,
-        "bukti": "1. Daftar nilai PH, PTS dan PAS\t\n2. Daftar catatan guru atas penilaian individu siswa\t\n3. Rekapitulasi Hasil penilaian kepala madrasah terhadap guru guru yang melakukan penilaian, pengamatan dan penugasan ke siswa \t",
+        "bukti": "1. Daftar nilai PH, PTS dan PAS\n2. Daftar catatan guru atas penilaian individu siswa\n3. Rekapitulasi Hasil penilaian kepala madrasah terhadap guru guru yang melakukan penilaian, pengamatan dan penugasan ke siswa",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "C.5",
@@ -613,22 +613,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- 90%-100% guru melaksanakan penilaian hasil belajar dalam bentuk: (1) PH, PTS dan PAS, (2) pengamatan, dan (3) penugasan kepada seluruh siswa"
+            "keterangan": "90%-100% guru melaksanakan penilaian hasil belajar dalam bentuk: (1) PH, PTS dan PAS, (2) pengamatan, dan (3) penugasan kepada seluruh siswa"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 80%-<90% guru melaksanakan penilaian hasil belajar dalam bentuk: (1) PH, PTS dan PAS, (2) pengamatan, dan (3) penugasan kepada seluruh siswa"
+            "keterangan": "80%-<90% guru melaksanakan penilaian hasil belajar dalam bentuk: (1) PH, PTS dan PAS, (2) pengamatan, dan (3) penugasan kepada seluruh siswa"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 70%-<80% guru melaksanakan penilaian hasil belajar dalam bentuk: (1) PH, PTS dan PAS, (2) pengamatan, dan (3) penugasan kepada seluruh siswa"
+            "keterangan": "70%-<80% guru melaksanakan penilaian hasil belajar dalam bentuk: (1) PH, PTS dan PAS, (2) pengamatan, dan (3) penugasan kepada seluruh siswa"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 70% guru melaksanakan penilaian hasil belajar dalam bentuk: (1) PH, PTS dan PAS, (2) pengamatan, dan (3) penugasan kepada seluruh siswa"
+            "keterangan": "Kurang dari 70% guru melaksanakan penilaian hasil belajar dalam bentuk: (1) PH, PTS dan PAS, (2) pengamatan, dan (3) penugasan kepada seluruh siswa"
           }
         ]
       },
@@ -640,7 +640,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "C",
         "keterangan": "Budaya guru melakukan penyiapan, pelaksanaan dan penilaian atas proses pembelajaran",
         "bobot": 4,
-        "bukti": "1. Dokumen perencanaan program remedial, pengayaan, pelayanan konseling dan perbaikan proses pembelajar dari setiap guru\n2. Laporan Hasil wawancara TPM dengan guru dan siswa ",
+        "bukti": "1. Dokumen perencanaan program remedial, pengayaan, pelayanan konseling dan perbaikan proses pembelajar dari setiap guru\n2. Laporan Hasil wawancara TPM dengan guru dan siswa",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "C.6",
@@ -648,22 +648,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- 90%-100% guru memanfaatkan hasil penilaian untuk merencanakan program remedial, pengayaan, dan pelayanan konseling. Selain itu, hasil penilaian dimanfaatkan sebagai bahan untuk memperbaiki proses pembelajaran sesuai Standar Penilaian Pendidikan"
+            "keterangan": "90%-100% guru memanfaatkan hasil penilaian untuk merencanakan program remedial, pengayaan, dan pelayanan konseling. Selain itu, hasil penilaian dimanfaatkan sebagai bahan untuk memperbaiki proses pembelajaran sesuai Standar Penilaian Pendidikan"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 80%-<90% guru memanfaatkan hasil penilaian untuk merencanakan program remedial, pengayaan, dan pelayanan konseling. Selain itu, hasil penilaian dimanfaatkan sebagai bahan untuk memperbaiki proses pembelajaran sesuai Standar Penilaian Pendidikan"
+            "keterangan": "80%-<90% guru memanfaatkan hasil penilaian untuk merencanakan program remedial, pengayaan, dan pelayanan konseling. Selain itu, hasil penilaian dimanfaatkan sebagai bahan untuk memperbaiki proses pembelajaran sesuai Standar Penilaian Pendidikan"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 70%-<80% guru memanfaatkan hasil penilaian untuk merencanakan program remedial, pengayaan, dan pelayanan konseling. Selain itu, hasil penilaian dimanfaatkan sebagai bahan untuk memperbaiki proses pembelajaran sesuai Standar Penilaian Pendidikan"
+            "keterangan": "70%-<80% guru memanfaatkan hasil penilaian untuk merencanakan program remedial, pengayaan, dan pelayanan konseling. Selain itu, hasil penilaian dimanfaatkan sebagai bahan untuk memperbaiki proses pembelajaran sesuai Standar Penilaian Pendidikan"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 70% guru memanfaatkan hasil penilaian untuk merencanakan program remedial, pengayaan, dan pelayanan konseling. Selain itu, hasil penilaian dimanfaatkan sebagai bahan untuk memperbaiki proses pembelajaran sesuai Standar Penilaian Pendidikan"
+            "keterangan": "Kurang dari 70% guru memanfaatkan hasil penilaian untuk merencanakan program remedial, pengayaan, dan pelayanan konseling. Selain itu, hasil penilaian dimanfaatkan sebagai bahan untuk memperbaiki proses pembelajaran sesuai Standar Penilaian Pendidikan"
           }
         ]
       },
@@ -675,7 +675,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "C",
         "keterangan": "Budaya guru melakukan penyiapan, pelaksanaan dan penilaian atas proses pembelajaran",
         "bobot": 3,
-        "bukti": "1. Jadwal kegiatan remedial dan/atau pengayaan dalam 2 semester terakhir\n2. Daftar peserta remedial dan kehadirannya\t\n3. Daftar peserta pengayaan dan kehadirannya\t",
+        "bukti": "1. Jadwal kegiatan remedial dan/atau pengayaan dalam 2 semester terakhir\n2. Daftar peserta remedial dan kehadirannya\n3. Daftar peserta pengayaan dan kehadirannya",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "C.7",
@@ -683,22 +683,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Selama 2 semester terakhir, madrasah menyelenggarakan kegiatan remedial dan/atau pengayaan secara rutin sesuai jadwal yang ditetapkan\r\n- 95%-100% siswa mengikuti remedial dan/atau pengayaan sesuai jadwal"
+            "keterangan": "Selama 2 semester terakhir, madrasah menyelenggarakan kegiatan remedial dan/atau pengayaan secara rutin sesuai jadwal yang ditetapkan\n95%-100% siswa mengikuti remedial dan/atau pengayaan sesuai jadwal"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Selama 2 semester terakhir, madrasah menyelenggarakan kegiatan remedial dan/atau pengayaan secara rutin sesuai jadwal yang ditetapkan        \n- 80%-<90% siswa mengikuti remedial dan/atau pengayaan sesuai jadwal        "
+            "keterangan": "Selama 2 semester terakhir, madrasah menyelenggarakan kegiatan remedial dan/atau pengayaan secara rutin sesuai jadwal yang ditetapkan\n80%-<90% siswa mengikuti remedial dan/atau pengayaan sesuai jadwal"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Selama 2 semester terakhir, madrasah menyelenggarakan kegiatan remedial dan/atau pengayaan secara rutin sesuai jadwal yang ditetapkan\r\n- Kurang dari 80% siswa mengikuti remedial dan/atau pengayaan sesuai jadwal"
+            "keterangan": "Selama 2 semester terakhir, madrasah menyelenggarakan kegiatan remedial dan/atau pengayaan secara rutin sesuai jadwal yang ditetapkan\nKurang dari 80% siswa mengikuti remedial dan/atau pengayaan sesuai jadwal"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Selama 2 semester terakhir, madrasah tidak menyelenggarakan kegiatan remedial dan/atau pengayaan sesuai jadwal"
+            "keterangan": "Selama 2 semester terakhir, madrasah tidak menyelenggarakan kegiatan remedial dan/atau pengayaan sesuai jadwal"
           }
         ]
       }
@@ -732,22 +732,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Semua buku teks dan bacaan mata pelajaran dalam bentuk cetakan dan/atau digital tersedia di madrasah"
+            "keterangan": "Semua buku teks dan bacaan mata pelajaran dalam bentuk cetakan dan/atau digital tersedia di madrasah"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 90%-<100% buku teks dan bacaan mata pelajaran dalam bentuk cetakan dan/atau digital tersedia di madrasah"
+            "keterangan": "90%-<100% buku teks dan bacaan mata pelajaran dalam bentuk cetakan dan/atau digital tersedia di madrasah"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 80%-<90% buku teks dan bacaan mata pelajaran dalam bentuk cetakan dan/atau digital tersedia di madrasah"
+            "keterangan": "80%-<90% buku teks dan bacaan mata pelajaran dalam bentuk cetakan dan/atau digital tersedia di madrasah"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 80% buku teks dan bacaan mata pelajaran dalam bentuk cetakan dan/atau digital tersedia di madrasah"
+            "keterangan": "Kurang dari 80% buku teks dan bacaan mata pelajaran dalam bentuk cetakan dan/atau digital tersedia di madrasah"
           }
         ]
       },
@@ -767,22 +767,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- 90%-100% media/alat peraga/alat bantu proses pembelajaran non-digital tersedia di madrasah"
+            "keterangan": "90%-100% media/alat peraga/alat bantu proses pembelajaran non-digital tersedia di madrasah"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 80%-<90% media/alat peraga/alat bantu proses pembelajaran non-digital tersedia di madrasah"
+            "keterangan": "80%-<90% media/alat peraga/alat bantu proses pembelajaran non-digital tersedia di madrasah"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 70%-<80% media/alat peraga/alat bantu proses pembelajaran non-digital tersedia di madrasah"
+            "keterangan": "70%-<80% media/alat peraga/alat bantu proses pembelajaran non-digital tersedia di madrasah"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 70% media/alat peraga/alat bantu proses pembelajaran non-digital tersedia di madrasah"
+            "keterangan": "Kurang dari 70% media/alat peraga/alat bantu proses pembelajaran non-digital tersedia di madrasah"
           }
         ]
       },
@@ -802,22 +802,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- 90%-100% media/alat peraga/alat bantu proses pembelajaran digital tersedia di madrasah "
+            "keterangan": "90%-100% media/alat peraga/alat bantu proses pembelajaran digital tersedia di madrasah"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 80%-<90% media/alat peraga/alat bantu proses pembelajaran digital tersedia di madrasah"
+            "keterangan": "80%-<90% media/alat peraga/alat bantu proses pembelajaran digital tersedia di madrasah"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 70%-<80% media/alat peraga/alat bantu proses pembelajaran digital tersedia di madrasah "
+            "keterangan": "70%-<80% media/alat peraga/alat bantu proses pembelajaran digital tersedia di madrasah"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 70% media/alat peraga/alat bantu proses pembelajaran digital tersedia di madrasah"
+            "keterangan": "Kurang dari 70% media/alat peraga/alat bantu proses pembelajaran digital tersedia di madrasah"
           }
         ]
       },
@@ -829,7 +829,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "D",
         "keterangan": "Budaya madrasah menyediakan sarana belajar untuk guru dan siswa",
         "bobot": 3,
-        "bukti": "1. Daftar buku teks/digital yang digunakan guru\t\n2. Laporan Hasil wawancara TPM dengan guru\t\n3. Rekapitulasi daftar guru yang menggunakan buku teks atau buku digital dalam proses pembelajaran\t",
+        "bukti": "1. Daftar buku teks/digital yang digunakan guru\n2. Laporan Hasil wawancara TPM dengan guru\n3. Rekapitulasi daftar guru yang menggunakan buku teks atau buku digital dalam proses pembelajaran",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "D.4",
@@ -837,22 +837,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- 100% guru menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
+            "keterangan": "100% guru menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 95%-<100% guru menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
+            "keterangan": "95%-<100% guru menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 90%-<95% guru menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
+            "keterangan": "90%-<95% guru menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 90% guru menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
+            "keterangan": "Kurang dari 90% guru menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
           }
         ]
       },
@@ -864,7 +864,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "kategori": "D",
         "keterangan": "Budaya madrasah menyediakan sarana belajar untuk guru dan siswa",
         "bobot": 3,
-        "bukti": "1. Daftar buku teks yang dimiliki siswa\t\n2. Laporan Hasil wawancara TPM dengan guru\t\n3. Laporan Hasil wawancara TPM dengan siswa\t",
+        "bukti": "1. Daftar buku teks yang dimiliki siswa\n2. Laporan Hasil wawancara TPM dengan guru\n3. Laporan Hasil wawancara TPM dengan siswa",
         "bukti_note": "",
         "upload_text": "",
         "kode_soal": "D.5",
@@ -872,22 +872,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- 100% siswa menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
+            "keterangan": "100% siswa menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- 90%-<100% siswa menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
+            "keterangan": "90%-<100% siswa menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- 80%-<90% siswa menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
+            "keterangan": "80%-<90% siswa menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Kurang dari 80% siswa menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
+            "keterangan": "Kurang dari 80% siswa menggunakan buku teks dan/atau buku digital dalam proses pembelajaran"
           }
         ]
       }
@@ -899,7 +899,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
     "tahun": 2025,
     "urutan": 5,
     "nama": "Pembiayaan",
-    "keterangan": "Budaya madrasah melakukan pengelolaan anggaran yang transparan dan berorientasi pada peningkatan mutu\n",
+    "keterangan": "Budaya madrasah melakukan pengelolaan anggaran yang transparan dan berorientasi pada peningkatan mutu",
     "created_by": null,
     "updated_by": null,
     "created_at": "2025-07-08T14:47:46.255Z",
@@ -911,7 +911,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "urutan": "1",
         "pertanyaan": "Madrasah menggunakan aplikasi EDM dan e-RKAM dalam menyusun perencanaan kegiatan dan melakukan pengelolaan keuangan madrasah",
         "kategori": "E",
-        "keterangan": "Budaya madrasah melakukan pengelolaan anggaran yang transparan dan berorientasi pada peningkatan mutu\n",
+        "keterangan": "Budaya madrasah melakukan pengelolaan anggaran yang transparan dan berorientasi pada peningkatan mutu",
         "bobot": 4,
         "bukti": "1. Daftar hadir pertemuan dalam rangka penyusunan EDM dan RKAM\n2. Laporan hasil wawancara TPM dengan guru, tenaga kependidikan, komite madrasah dan yayasan (bagi madrasah swasta)\n3. Tangkapan layar (Capture) hasil pengisian aplikasi EDM dan e-RKAM",
         "bukti_note": "",
@@ -921,22 +921,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Perencanaan dan pengelolaan keuangan telah disusun menggunakan aplikasi EDM dan e-RKAM dan disahkan oleh kepala madrasah, dan dalam penyusunan EDM dan RKAM melibatkan guru, tenaga kependidikan, komite madrasah dan yayasan (bagi madrasah swasta)"
+            "keterangan": "Perencanaan dan pengelolaan keuangan telah disusun menggunakan aplikasi EDM dan e-RKAM dan disahkan oleh kepala madrasah, dan dalam penyusunan EDM dan RKAM melibatkan guru, tenaga kependidikan, komite madrasah dan yayasan (bagi madrasah swasta)"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Perencanaan dan pengelolaan keuangan telah disusun menggunakan aplikasi EDM dan e-RKAM dan disahkan oleh kepala madrasah, dan dalam penyusunan EDM dan RKAM melibatkan guru, tenaga kependidikan, tetapi tidak melibatkan komite madrasah dan yayasan (bagi madrasah swasta)"
+            "keterangan": "Perencanaan dan pengelolaan keuangan telah disusun menggunakan aplikasi EDM dan e-RKAM dan disahkan oleh kepala madrasah, dan dalam penyusunan EDM dan RKAM melibatkan guru, tenaga kependidikan, tetapi tidak melibatkan komite madrasah dan yayasan (bagi madrasah swasta)"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Perencanaan dan pengelolaan keuangan telah disusun menggunakan aplikasi EDM dan e-RKAM dan disahkan oleh kepala madrasah, dan dalam penyusunan EDM, madrasah tidak melibatkan guru, tenaga kependidikan dan komite madrasah dan yayasan (bagi madrasah swasta)"
+            "keterangan": "Perencanaan dan pengelolaan keuangan telah disusun menggunakan aplikasi EDM dan e-RKAM dan disahkan oleh kepala madrasah, dan dalam penyusunan EDM, madrasah tidak melibatkan guru, tenaga kependidikan dan komite madrasah dan yayasan (bagi madrasah swasta)"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Perencanaan dan pengelolaan keuangan belum disusun menggunakan aplikasi EDM dan e-RKAM"
+            "keterangan": "Perencanaan dan pengelolaan keuangan belum disusun menggunakan aplikasi EDM dan e-RKAM"
           }
         ]
       },
@@ -946,7 +946,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "urutan": "2",
         "pertanyaan": "Madrasah menyediakan bantuan biaya bagi guru dan tenaga kependidikan untuk mengikuti kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah",
         "kategori": "E",
-        "keterangan": "Budaya madrasah melakukan pengelolaan anggaran yang transparan dan berorientasi pada peningkatan mutu\n",
+        "keterangan": "Budaya madrasah melakukan pengelolaan anggaran yang transparan dan berorientasi pada peningkatan mutu",
         "bobot": 3,
         "bukti": "1. Laporan penggunaan dana madrasah\n2. Laporan hasil wawancara TPM dengan guru dan tenaga kependidikan\n3. Rekapitulasi daftar guru dan tenaga kependidikan yang memperoleh bantuan untuk kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah\n4. Sertifikat dan laporan guru dan tenaga kependidikan yang mengikuti kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah",
         "bukti_note": "",
@@ -956,22 +956,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Madrasah menyediakan bantuan biaya bagi 90%-100% guru dan tenaga kependidikan yang mengikuti kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah "
+            "keterangan": "Madrasah menyediakan bantuan biaya bagi 90%-100% guru dan tenaga kependidikan yang mengikuti kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Madrasah menyediakan bantuan biaya kepada 80%-<90% guru dan tenaga kependidikan yang mengikuti kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah"
+            "keterangan": "Madrasah menyediakan bantuan biaya kepada 80%-<90% guru dan tenaga kependidikan yang mengikuti kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Madrasah menyediakan bantuan biaya kepada 70%-<80% guru dan tenaga kependidikan yang mengikuti kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah"
+            "keterangan": "Madrasah menyediakan bantuan biaya kepada 70%-<80% guru dan tenaga kependidikan yang mengikuti kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Madrasah menyediakan bantuan biaya kepada kurang dari 70% guru dan tenaga kependidikan yang mengikuti kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah"
+            "keterangan": "Madrasah menyediakan bantuan biaya kepada kurang dari 70% guru dan tenaga kependidikan yang mengikuti kegiatan penguatan kapasitas yang dilaksanakan di luar madrasah"
           }
         ]
       },
@@ -981,7 +981,7 @@ export const EDM_KATEGORI: EdmKategori[] = [
         "urutan": "3",
         "pertanyaan": "Madrasah telah membuat laporan keuangan dan dilaporkan kepada orang tua siswa/masyarakat",
         "kategori": "E",
-        "keterangan": "Budaya madrasah melakukan pengelolaan anggaran yang transparan dan berorientasi pada peningkatan mutu\n",
+        "keterangan": "Budaya madrasah melakukan pengelolaan anggaran yang transparan dan berorientasi pada peningkatan mutu",
         "bobot": 3,
         "bukti": "1. Tangkapan layar (Capture) bukti penyampaian laporan keuangan jika disampaikan dalam bentuk elektronik\n2. Dokumentasi (foto/tanda terima/tanda kirim) penyerahan dokumen fisik",
         "bukti_note": "",
@@ -991,22 +991,22 @@ export const EDM_KATEGORI: EdmKategori[] = [
           {
             "kode": "4",
             "nama": "Tingkat 4",
-            "keterangan": "- Selama 1 tahun terakhir, madrasah telah membuat laporan keuangan\r\n- Madrasah menyampaikan laporan keuangan kepada orang tua siswa melalui komite madrasah dan masyarakat  dalam bentuk elektronik maupun dokumen fisik secara rutin"
+            "keterangan": "Selama 1 tahun terakhir, madrasah telah membuat laporan keuangan\nMadrasah menyampaikan laporan keuangan kepada orang tua siswa melalui komite madrasah dan masyarakat dalam bentuk elektronik maupun dokumen fisik secara rutin"
           },
           {
             "kode": "3",
             "nama": "Tingkat 3",
-            "keterangan": "- Selama 1 tahun terakhir madrasah telah membuat laporan keuangan        \n- Madrasah menyampaikan laporan keuangan kepada orang tua siswa melalui komite madrasah         "
+            "keterangan": "Selama 1 tahun terakhir madrasah telah membuat laporan keuangan\nMadrasah menyampaikan laporan keuangan kepada orang tua siswa melalui komite madrasah"
           },
           {
             "kode": "2",
             "nama": "Tingkat 2",
-            "keterangan": "- Selama 1 tahun terakhir madrasah telah membuat laporan keuangan\r\n- Madrasah tidak menyampaikan laporan keuangan kepada orang tua siswa melalui komite madrasah "
+            "keterangan": "Selama 1 tahun terakhir madrasah telah membuat laporan keuangan\nMadrasah tidak menyampaikan laporan keuangan kepada orang tua siswa melalui komite madrasah"
           },
           {
             "kode": "1",
             "nama": "Tingkat 1",
-            "keterangan": "- Selama 1 tahun terakhir madrasah belum membuat laporan keuangan "
+            "keterangan": "Selama 1 tahun terakhir madrasah belum membuat laporan keuangan"
           }
         ]
       }

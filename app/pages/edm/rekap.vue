@@ -39,78 +39,76 @@
         </div>
         <div class="rounded-xl p-5"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Skor Weighted (Scale 1–4)</p>
-          <p class="text-3xl font-bold" :class="getSkorColor(rekapData.overall?.rata_rata_skor_keseluruhan)">
-            {{ rekapData.overall?.rata_rata_skor_keseluruhan ?? '-' }}
-            <span class="text-sm font-normal" style="color: var(--text-muted)">/ 4</span>
+          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Total Poin Didapat</p>
+          <p class="text-3xl font-bold text-amber-600 dark:text-amber-400">
+            {{ rekapData.overall?.total_poin_didapat || 0 }}
+            <span class="text-sm font-normal" style="color: var(--text-muted)">/ {{ rekapData.overall?.total_poin_maksimal || 104 }}</span>
           </p>
+          <p class="text-[11px] mt-1" style="color: var(--text-muted)">Poin Maksimal 4 / soal</p>
         </div>
         <div class="rounded-xl p-5"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Capaian Mutu (%)</p>
+          <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Nilai EDM (%)</p>
           <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
             {{ rekapData.overall?.persentase_skor_keseluruhan ?? 0 }}%
           </p>
+          <p class="text-[11px] mt-1" style="color: var(--text-muted)">(Total Poin × 100) / Total Poin Maks</p>
         </div>
       </div>
 
-      <!-- Per Bagian -->
-      <h2 class="text-lg font-semibold mb-4" style="color: var(--text-heading)">
-        Rekap Per Bagian (Weighted Scoring)
-      </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <div v-for="b in getBagianSummaryList(rekapData)" :key="getBagianCode(b)"
-          @click="selectedBagianFilter = selectedBagianFilter === getBagianCode(b) ? '' : getBagianCode(b)"
-          class="rounded-xl p-4 transition-all duration-200 hover:shadow-md cursor-pointer flex flex-col justify-between"
-          :class="selectedBagianFilter === getBagianCode(b) ? 'ring-2 ring-emerald-500/50 shadow-md' : ''"
-          style="background: var(--bg-card); border: 1px solid var(--border-primary)">
+      <!-- Ringkasan Poin Per Bagian -->
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold" style="color: var(--text-heading)">
+          Ringkasan Poin Per Bagian
+        </h2>
+        <span v-if="selectedBagianFilter"
+          @click="selectedBagianFilter = ''"
+          class="text-xs font-medium cursor-pointer text-emerald-600 dark:text-emerald-400 hover:underline">
+          Tampilkan Semua Bagian
+        </span>
+      </div>
 
-          <div>
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg text-xs font-bold text-white shrink-0"
-                :class="bagianColor(getBagianCode(b))">
-                Bagian {{ getBagianCode(b) }}
-              </span>
-              <div class="text-right shrink-0">
-                <span class="text-lg font-bold block" :class="getSkorColor(b.rata_rata_skor)">
-                  {{ b.rata_rata_skor ?? '-' }} <span class="text-xs text-zinc-400 font-normal">/ 4</span>
-                </span>
-                <span v-if="b.persentase_skor" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                  {{ b.persentase_skor }}%
-                </span>
-              </div>
-            </div>
-
-            <p class="text-xs font-semibold mb-3 line-clamp-2" style="color: var(--text-heading)">
-              {{ getBagianFullName(getBagianCode(b)) }}
-            </p>
-
-            <div class="space-y-1 text-xs" style="color: var(--text-muted)">
-              <div class="flex justify-between">
-                <span>Anggota</span>
-                <span class="font-medium" style="color: var(--text-primary)">{{ b.jumlah_anggota || 0 }} guru</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Total Instrumen</span>
-                <span class="font-medium" style="color: var(--text-primary)">{{ b.jumlah_indikator || 0 }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Total Bobot</span>
-                <span class="font-medium text-amber-600 dark:text-amber-400">🏋️ {{ b.total_bobot || 0 }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Dijawab</span>
-                <span class="font-medium" style="color: var(--text-primary)">{{ b.jumlah_jawaban || 0 }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Progress bar -->
-          <div class="w-full h-1.5 rounded-full mt-3" style="background: var(--bg-tertiary)">
-            <div class="h-1.5 rounded-full transition-all duration-500"
-              :class="bagianColor(getBagianCode(b))"
-              :style="{ width: getBagProgress(b) + '%' }"></div>
-          </div>
+      <div class="rounded-xl overflow-hidden mb-8"
+        style="background: var(--bg-card); border: 1px solid var(--border-primary)">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr style="background: var(--bg-secondary)">
+                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Kode & Nama Bagian</th>
+                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Indikator Terisi</th>
+                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Poin Didapat</th>
+                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Total Poin Maksimal</th>
+                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Nilai Bagian (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="b in getBagianSummaryList(rekapData)" :key="b.id || b.nama_bagian"
+                class="transition-colors hover:bg-[var(--bg-card-hover)] cursor-pointer"
+                :class="selectedBagianFilter === getBagianCode(b) ? 'bg-emerald-500/10' : ''"
+                style="border-top: 1px solid var(--border-primary)"
+                @click="selectedBagianFilter = selectedBagianFilter === getBagianCode(b) ? '' : getBagianCode(b)">
+                <td class="px-4 py-3 font-medium" style="color: var(--text-primary)">
+                  <span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-bold text-white mr-2"
+                    :class="bagianColor(getBagianCode(b))">
+                    Bagian {{ getBagianCode(b) }}
+                  </span>
+                  <span>{{ getBagianFullName(getBagianCode(b)) }}</span>
+                </td>
+                <td class="px-4 py-3 text-center" style="color: var(--text-secondary)">
+                  {{ b.jumlah_jawaban || 0 }} / {{ b.jumlah_indikator || 0 }}
+                </td>
+                <td class="px-4 py-3 text-center font-semibold text-amber-600 dark:text-amber-400">
+                  {{ b.total_poin_didapat || 0 }} Poin
+                </td>
+                <td class="px-4 py-3 text-center" style="color: var(--text-muted)">
+                  {{ b.total_poin_maksimal || (b.jumlah_indikator * 4) }} Poin
+                </td>
+                <td class="px-4 py-3 text-center font-bold text-emerald-600 dark:text-emerald-400 text-base">
+                  {{ b.persentase_skor ?? 0 }}%
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -130,10 +128,7 @@
               <tr style="background: var(--bg-secondary)">
                 <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Kode Soal</th>
                 <th class="text-left px-4 py-3 font-medium text-xs min-w-[250px]" style="color: var(--text-muted)">Pertanyaan Instrumen</th>
-                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Bobot</th>
-                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Skor Bagian</th>
-                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Skor × Bobot</th>
-                <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Bukti Fisik</th>
+                <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Poin Jawaban (1–4)</th>
               </tr>
             </thead>
             <tbody>
@@ -147,20 +142,9 @@
                   </span>
                 </td>
                 <td class="px-4 py-3" style="color: var(--text-primary)">{{ ind.pertanyaan }}</td>
-                <td class="px-4 py-3 text-center font-semibold text-amber-600 dark:text-amber-400">
-                  {{ ind.bobot || 3 }}
-                </td>
                 <td class="px-4 py-3 text-center">
-                  <span class="font-bold text-base" :class="getSkorColor(ind.rata_rata_skor)">
-                    {{ ind.rata_rata_skor ?? '-' }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-center font-bold" style="color: var(--text-primary)">
-                  {{ ind.rata_rata_skor ? (ind.rata_rata_skor * (ind.bobot || 3)) : '-' }}
-                </td>
-                <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">
-                  <span v-if="ind.jumlah_bukti_file" class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    📎 {{ ind.jumlah_bukti_file }} file bukti
+                  <span v-if="ind.rata_rata_skor" class="font-bold text-base px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    {{ ind.rata_rata_skor }}
                   </span>
                   <span v-else style="color: var(--text-muted)">-</span>
                 </td>

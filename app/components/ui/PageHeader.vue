@@ -20,15 +20,18 @@
 
     <!-- Header Bar -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3">
-      <h1 class="text-xl font-semibold text-center sm:text-left theme-text-heading truncate shrink-0">
+      <h1 class="text-xl font-semibold text-center sm:text-left theme-text-heading truncate">
         {{ title }}
       </h1>
 
       <div
-        v-if="$slots.actions"
+        v-if="$slots.actions || $slots.leading"
         class="flex items-center justify-center sm:justify-end gap-2 flex-wrap [&>*]:flex-1 [&>*]:sm:flex-none"
       >
         <slot name="actions" />
+        <div v-if="$slots.leading" class="flex-shrink-0">
+          <slot name="leading" />
+        </div>
       </div>
     </div>
 

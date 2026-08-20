@@ -25,11 +25,13 @@
           class="w-64"
         />
       </div>
-      <button v-if="isAdmin" @click="showTahunModal = true"
-        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] transition-all shadow-sm">
-        <Plus class="w-4 h-4" />
-        Tahun Anggaran Baru
-      </button>
+      <UiBaseButton
+        v-if="isAdmin"
+        text="Tahun Anggaran Baru"
+        @click="showTahunModal = true"
+      >
+        <template #icon><Plus class="w-4 h-4" /></template>
+      </UiBaseButton>
     </div>
 
     <!-- Loading -->
@@ -164,11 +166,12 @@
               </p>
             </div>
           </div>
-          <NuxtLink to="/edm/isi"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] transition-all shadow-sm">
-            <PenLine class="w-4 h-4" />
-            Mulai Pengisian EDM
-          </NuxtLink>
+          <UiBaseButton
+            to="/edm/isi"
+            text="Mulai Pengisian EDM"
+          >
+            <template #icon><PenLine class="w-4 h-4" /></template>
+          </UiBaseButton>
         </div>
       </template>
 
@@ -185,11 +188,14 @@
             style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input)"
             placeholder="Tulis petunjuk teknis pengisian EDM di sini..."></textarea>
           <div class="flex justify-end mt-3">
-            <button @click="saveJuknis" :disabled="isSaving"
-              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all">
-              <Save class="w-4 h-4" />
-              {{ isSaving ? 'Menyimpan...' : 'Simpan Juknis' }}
-            </button>
+            <UiBaseButton
+              :text="isSaving ? 'Menyimpan...' : 'Simpan Juknis'"
+              :loading="isSaving"
+              :disabled="isSaving"
+              @click="saveJuknis"
+            >
+              <template #icon><Save class="w-4 h-4" /></template>
+            </UiBaseButton>
           </div>
         </div>
       </template>
@@ -205,11 +211,13 @@
       <p class="text-sm mb-5" style="color: var(--text-muted)">
         Buat tahun anggaran EDM terlebih dahulu untuk memulai evaluasi diri madrasah.
       </p>
-      <button v-if="isAdmin" @click="showTahunModal = true"
-        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-all">
-        <Plus class="w-4 h-4" />
-        Buat Tahun Anggaran
-      </button>
+      <UiBaseButton
+        v-if="isAdmin"
+        text="Buat Tahun Anggaran"
+        @click="showTahunModal = true"
+      >
+        <template #icon><Plus class="w-4 h-4" /></template>
+      </UiBaseButton>
     </div>
 
     <!-- Modal: Tambah/Edit Tahun Anggaran -->
@@ -243,11 +251,10 @@
           </div>
 
           <div class="flex justify-end gap-2 mt-6">
-            <button @click="showTahunModal = false"
-              class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              style="color: var(--text-secondary); background: var(--bg-secondary)">
-              Batal
-            </button>
+            <UiBaseButton
+              text="Batal"
+              @click="showTahunModal = false"
+            />
             <button @click="handleSaveTahun" :disabled="isSaving"
               class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition-all">
               {{ isSaving ? 'Menyimpan...' : 'Simpan' }}

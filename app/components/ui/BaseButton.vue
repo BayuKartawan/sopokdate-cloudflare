@@ -1,6 +1,20 @@
 <template>
+  <a
+    v-if="href || isApiTo"
+    :href="href || (typeof to === 'string' ? to : '')"
+    :target="target || '_blank'"
+    rel="noopener noreferrer"
+    :class="classes"
+    :title="title"
+    :style="styleVars"
+  >
+    <component :is="loadingIcon" v-if="loading" class="animate-spin flex-shrink-0" :class="iconSize" />
+    <slot v-else name="icon" />
+    <span v-if="!iconOnly" class="leading-none">{{ text }}</span>
+  </a>
+
   <NuxtLink
-    v-if="to"
+    v-else-if="to"
     :to="to"
     :class="classes"
     :title="title"
@@ -40,6 +54,14 @@ const props = defineProps({
     type: [String, Object] as PropType<RouteLocationRaw | null>,
     default: null,
   },
+  href: {
+    type: String,
+    default: null,
+  },
+  target: {
+    type: String,
+    default: undefined,
+  },
   title: {
     type: String,
     default: undefined,
@@ -75,6 +97,13 @@ const props = defineProps({
     type: String as PropType<"default">,
     default: "default",
   },
+});
+
+const isApiTo = computed(() => {
+  if (typeof props.to === "string") {
+    return props.to.startsWith("/api/") || props.to.startsWith("http");
+  }
+  return false;
 });
 
 const loadingIcon = Loader2;

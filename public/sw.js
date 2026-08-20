@@ -11,11 +11,17 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  // Do not intercept API requests or non-GET requests
+  if (event.request.url.includes("/api/") || event.request.method !== "GET") {
+    return;
+  }
+
   // Pass-through request handler to satisfy browser PWA installability requirements
   event.respondWith(
-    fetch(event.request).catch(() => {
-      // Offline fallback can be added here if needed
-      return caches.match(event.request);
+    fetch(event.request).catch(async () => {
+      const cached = await caches.match(event.request);
+      if (cached) return cached;
+      return new Response("Offline", { status: 503, statusText: "Service Unavailable" });
     }),
   );
 });
