@@ -126,7 +126,7 @@ const allDropdownsOpen = computed(() => {
 // --- Helper Functions ---
 const isActiveRoute = (toPath?: string): boolean => {
   if (!toPath) return false;
-  if (toPath === "/" || toPath === "/edm") {
+  if (toPath === "/") {
     return route.path === toPath;
   }
   return route.path === toPath || route.path.startsWith(toPath + "/");

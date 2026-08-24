@@ -143,8 +143,7 @@ export const useMenuConfig = () => {
       icon: markRaw(ClipboardCheck),
       roles: ["admin", "guru", "kepala_madrasah"],
       children: [
-        { to: "/edm", label: "Dashboard EDM", roles: ["admin", "guru", "kepala_madrasah"] },
-        { to: "/edm/bagian", label: "Bagian / Tim EDM", roles: ["admin"] },
+        { to: "/edm/pengaturan", label: "Pengaturan", roles: ["admin"] },
         { to: "/edm/isi", label: "Pengisian EDM", roles: ["admin", "guru", "kepala_madrasah"] },
         { to: "/edm/rekap", label: "Rekap Pengisian", roles: ["admin", "guru", "kepala_madrasah"] },
       ],

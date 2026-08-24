@@ -4,7 +4,7 @@
     <!-- Top Nav -->
     <UiPageHeader
       :title="`Pengisian EDM — Bagian ${bagianCode}`"
-      :breadcrumbs="[{ label: 'EDM', to: '/edm' }, { label: 'Isi EDM', to: '/edm/isi' }, { label: `Bagian ${bagianCode}` }]"
+      :breadcrumbs="[{ label: 'EDM' }, { label: 'Isi EDM', to: '/edm/isi' }, { label: `Bagian ${bagianCode}` }]"
     >
       <template #leading>
         <UiBaseButton
