@@ -9,8 +9,9 @@
       <template #leading>
         <UiBaseButton
           :to="'/edm/isi'"
+          text="Kembali"
           title="Kembali ke Isi EDM"
-          :icon-only="true"
+          class="w-full sm:w-auto"
         >
           <template #icon><ArrowLeft class="w-4 h-4" /></template>
         </UiBaseButton>
@@ -20,38 +21,13 @@
         <UiBaseButton
           text="Info Tim"
           title="Lihat info tim bagian ini"
+          class="w-full sm:w-auto"
           @click="teamInfoDialog.show = true"
         >
           <template #icon><UsersRound class="w-3.5 h-3.5" /></template>
         </UiBaseButton>
-        <!-- Status Simpan -->
-        <div v-if="isCurrentItemChanged"
-          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-          Belum Disimpan
-        </div>
-        <div v-else
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-          <CheckCircle2 class="w-3.5 h-3.5" />
-          Tersimpan
-        </div>
       </template>
     </UiPageHeader>
-
-    <!-- Progress Bar -->
-    <div v-if="indikatorList.length > 0" class="mb-6 rounded-xl p-4"
-      style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-sm font-medium" style="color: var(--text-secondary)">Progres Pengisian Bagian</span>
-        <span class="text-sm font-bold" style="color: var(--text-heading)">
-          {{ answeredCount }} / {{ indikatorList.length }} ({{ progressPercent }}%)
-        </span>
-      </div>
-      <div class="w-full h-3 rounded-full" style="background: var(--bg-tertiary)">
-        <div class="h-3 rounded-full bg-emerald-500 transition-all duration-500"
-          :style="{ width: progressPercent + '%' }"></div>
-      </div>
-    </div>
 
     <!-- Loading -->
     <div v-if="isLoading" class="flex items-center justify-center py-20">
@@ -73,49 +49,44 @@
 
     <!-- Soal Pagination & Card Container -->
     <div v-else class="space-y-4">
-      <!-- Quick Nav Grid per Soal -->
-      <div class="p-4 rounded-xl shadow-xs"
+      <!-- Minimalist & Mobile-Responsive Navigasi Soal -->
+      <div class="rounded-xl p-3 sm:p-4"
         style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2 border-b"
-          style="border-color: var(--border-subtle)">
+        
+        <!-- Header minimalis -->
+        <div class="flex items-center justify-between gap-2 mb-2.5">
           <div class="flex items-center gap-2">
-            <span class="text-xs sm:text-sm font-bold" style="color: var(--text-heading)">
-              Navigasi Soal Bagian {{ bagianCode }}
+            <span class="text-xs font-bold" style="color: var(--text-heading)">
+              Navigasi Soal
             </span>
-            <span class="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <span class="text-[11px] px-2 py-0.5 rounded-md font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               {{ answeredCount }}/{{ indikatorList.length }} Terisi
             </span>
           </div>
-          <div class="flex items-center gap-3 text-xs" style="color: var(--text-muted)">
-            <span class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Terisi
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-zinc-300 dark:bg-zinc-700"></span> Belum
-            </span>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-md"
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md"
               style="background: var(--bg-secondary); color: var(--text-secondary)">
               Soal {{ currentPage }} / {{ totalPages }}
             </span>
           </div>
         </div>
 
-        <!-- Number Badges Grid -->
-        <div class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1">
+        <!-- Scrollable Button Pills (Horizontal on mobile, Grid Wrap on desktop) -->
+        <div class="flex items-center gap-1.5 overflow-x-auto sm:flex-wrap pb-1 pt-0.5 scrollbar-none sm:max-h-32 sm:overflow-y-auto">
           <button v-for="(item, idx) in indikatorList" :key="item.kode_soal || idx"
             @click="goToPage(idx + 1)"
-            class="relative px-3 py-1.5 rounded-lg text-xs font-bold flex items-center justify-center transition-all border cursor-pointer min-w-[2.75rem]"
+            class="shrink-0 h-8 min-w-[2.5rem] px-2.5 rounded-lg text-xs font-bold inline-flex items-center justify-center transition-all cursor-pointer select-none border"
             :class="[
               currentPage === idx + 1
-                ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-500 text-white shadow-md scale-105 z-10'
+                ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs font-extrabold ring-2 ring-emerald-500/30'
                 : savedAnswers[item.kode_soal]?.skor
-                  ? 'bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-700 hover:bg-emerald-200'
-                  : 'hover:border-emerald-400'
+                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 font-bold hover:bg-emerald-500/25'
+                  : 'hover:border-emerald-500/40 text-zinc-600 dark:text-zinc-400'
             ]"
-            :style="currentPage !== idx + 1 && !savedAnswers[item.kode_soal]?.skor ? 'background: var(--bg-secondary); color: var(--text-muted); border-color: var(--border-primary)' : ''">
+            :style="currentPage !== idx + 1 && !savedAnswers[item.kode_soal]?.skor ? 'background: var(--bg-secondary); border-color: var(--border-primary)' : ''">
             <span>{{ item.kode_soal || (idx + 1) }}</span>
             <span v-if="savedAnswers[item.kode_soal]?.skor && currentPage !== idx + 1"
-              class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-zinc-900">
+              class="w-1.5 h-1.5 rounded-full bg-emerald-500 ml-1 shrink-0">
             </span>
           </button>
         </div>
@@ -142,30 +113,34 @@
           </span>
         </div>
 
-        <!-- Bukti yang diminta -->
-        <div v-if="currentItem.bukti_yang_diminta" class="mb-5 p-3.5 rounded-xl flex items-start gap-2.5 text-xs sm:text-sm"
-          style="background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-subtle)">
-          <div class="flex-1 min-w-0 overflow-hidden">
-            <strong class="font-semibold block text-emerald-700 dark:text-emerald-400 mb-1">Detail berkas-berkas yg harus diunggah:</strong>
-            <div v-if="getLines(currentItem.bukti_yang_diminta).length > 0" class="space-y-2 leading-relaxed mt-1">
-              <div v-for="(line, lIdx) in getLines(currentItem.bukti_yang_diminta)" :key="lIdx" class="flex items-start gap-2 break-words">
-                <span v-if="parseLineItem(line).number" class="font-bold shrink-0 text-emerald-600 dark:text-emerald-400 select-none min-w-[1.25rem] text-left">
-                  {{ parseLineItem(line).number }}
-                </span>
-                <span v-else class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0"></span>
-                <span class="flex-1 text-xs sm:text-sm leading-relaxed" style="color: var(--text-primary)">
-                  {{ parseLineItem(line).text }}
-                </span>
+        <!-- ─── Step 1: Bukti yang diminta ─── -->
+        <div v-if="currentItem.bukti_yang_diminta" class="mb-0">
+          <div class="p-3.5 rounded-xl flex items-start gap-2.5 text-xs sm:text-sm"
+            style="background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-subtle)">
+            <div class="flex-1 min-w-0 overflow-hidden">
+              <strong class="font-semibold block text-emerald-700 dark:text-emerald-400 mb-2">Detail berkas-berkas yg harus diunggah:</strong>
+              <div v-if="getLines(currentItem.bukti_yang_diminta).length > 0" class=" leading-relaxed mt-1">
+                <div v-for="(line, lIdx) in getLines(currentItem.bukti_yang_diminta)" :key="lIdx" class="flex items-start break-words">
+                  <span v-if="parseLineItem(line).number" class="font-bold shrink-0 text-emerald-600 dark:text-emerald-400 select-none min-w-[1.25rem] text-left">
+                    {{ parseLineItem(line).number }}
+                  </span>
+                  <span v-else class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0"></span>
+                  <span class="flex-1 text-xs sm:text-sm leading-relaxed" style="color: var(--text-primary)">
+                    {{ parseLineItem(line).text }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Bukti File Upload (R2) — WAJIB sebelum memilih jawaban -->
-        <div class="mb-5">
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--text-muted)">
-            Unggah Berkas <span class="text-rose-500 font-semibold normal-case text-xs ml-1">*wajib (min. 1 file)</span>
-          </label>
+        <!-- ─── Step 1: Unggah Berkas ─── -->
+        <div class="pt-5 mt-5 border-t" style="border-color: var(--border-subtle)">
+          <div class="flex items-center gap-2.5 mb-3">
+            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold inline-flex items-center justify-center shrink-0">1</span>
+            <span class="text-sm font-semibold" style="color: var(--text-heading)">Unggah Berkas</span>
+            <span class="text-xs font-medium text-rose-500">(min. 1 file)</span>
+          </div>
 
           <!-- Drop Zone -->
           <div
@@ -269,12 +244,13 @@
           </div>
         </div>
 
-        <!-- Input Text Ringkasan Pembuktian / Deskripsi (upload_text) -->
-        <div class="mb-5">
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <label class="block text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted)">
-              Jawaban <span class="text-rose-500 font-semibold normal-case text-xs ml-1">*wajib (min. 30 kata)</span>
-            </label>
+        <!-- ─── Step 2: Jawaban ─── -->
+        <div class="pt-5 mt-5 border-t" style="border-color: var(--border-subtle)">
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold inline-flex items-center justify-center shrink-0">2</span>
+              <span class="text-sm font-semibold" style="color: var(--text-heading)">Jawaban</span>
+            </div>
             <span v-if="currentItem && localAnswers[currentItem.kode_soal]"
               class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-0.5 rounded-full transition-colors"
               :class="getWordCount(localAnswers[currentItem.kode_soal]?.upload_text) >= 30
@@ -305,11 +281,13 @@
           </div>
         </div>
 
-        <!-- Pilihan Skor -->
-        <div class="mb-5">
-          <label class="block text-xs font-semibold uppercase tracking-wider mb-2.5" style="color: var(--text-muted)">
-            Pilih Tingkat <span class="text-rose-500 font-semibold normal-case text-xs ml-1">*wajib</span>
-          </label>
+        <!-- ─── Step 3: Pilih Tingkat ─── -->
+        <div class="pt-5 mt-5 border-t" style="border-color: var(--border-subtle)">
+          <div class="flex items-center gap-2.5 mb-3">
+            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold inline-flex items-center justify-center shrink-0">3</span>
+            <span class="text-sm font-semibold" style="color: var(--text-heading)">Pilih Tingkat</span>
+          </div>
+
           <!-- Lock overlay when no files uploaded -->
           <div v-if="currentFileCount === 0"
             class="relative rounded-xl p-6 text-center"
@@ -350,41 +328,88 @@
         </div>
 
         <!-- Pagination Controls Bar -->
-        <div class="pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3"
-          style="border-color: var(--border-subtle)">
-          <UiBaseButton
-            text="Sebelumnya"
-            title="Soal sebelumnya"
-            :disabled="currentPage === 1"
-            @click="prevPage"
-          >
-            <template #icon><ChevronLeft class="w-4 h-4" /></template>
-          </UiBaseButton>
+        <div class="pt-4 border-t" style="border-color: var(--border-subtle)">
+          
+          <!-- Mobile layout (< sm) -->
+          <div class="flex flex-col gap-3 sm:hidden">
+            <!-- Simpan Button (Full Width) -->
+            <div class="w-full text-center">
+              <UiBaseButton
+                :text="isSaving ? 'Menyimpan...' : 'Simpan Soal Ini'"
+                title="Simpan jawaban untuk soal ini"
+                :loading="isSaving"
+                :disabled="!canSaveCurrentItem || isSaving"
+                class="w-full justify-center"
+                :class="canSaveCurrentItem ? 'ring-2 ring-emerald-500 ring-offset-2' : ''"
+                @click="handleSaveCurrent"
+              >
+                <template #icon><Save class="w-4 h-4" /></template>
+              </UiBaseButton>
+              <p v-if="isCurrentItemChanged && !canSaveCurrentItem" class="text-[11px] text-amber-600 dark:text-amber-400 font-medium mt-1.5 leading-tight">
+                Lengkapi min. 1 bukti, min. 30 kata, & pilih skor untuk menyimpan
+              </p>
+            </div>
 
-          <div class="flex flex-col items-center gap-1">
-            <UiBaseButton
-              :text="isSaving ? 'Menyimpan...' : 'Simpan Soal Ini'"
-              title="Simpan jawaban untuk soal ini"
-              :loading="isSaving"
-              :disabled="!canSaveCurrentItem || isSaving"
-              :class="canSaveCurrentItem ? 'ring-2 ring-emerald-500 ring-offset-2' : ''"
-              @click="handleSaveCurrent"
-            >
-              <template #icon><Save class="w-4 h-4" /></template>
-            </UiBaseButton>
-            <span v-if="isCurrentItemChanged && !canSaveCurrentItem" class="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
-              Lengkapi min. 1 bukti, min. 30 kata, & pilih skor untuk menyimpan
-            </span>
+            <!-- Nav prev/next buttons (Grid 2 Kolom Sejajar) -->
+            <div class="grid grid-cols-2 gap-2">
+              <UiBaseButton
+                text="Sebelumnya"
+                title="Soal sebelumnya"
+                :disabled="currentPage === 1"
+                class="w-full justify-center"
+                @click="prevPage"
+              >
+                <template #icon><ChevronLeft class="w-4 h-4" /></template>
+              </UiBaseButton>
+              <UiBaseButton
+                text="Selanjutnya"
+                title="Soal berikutnya"
+                :disabled="currentPage === totalPages"
+                class="w-full justify-center"
+                @click="nextPage"
+              >
+                <template #icon><ChevronRight class="w-4 h-4" /></template>
+              </UiBaseButton>
+            </div>
           </div>
 
-          <UiBaseButton
-            text="Selanjutnya"
-            title="Soal berikutnya"
-            :disabled="currentPage === totalPages"
-            @click="nextPage"
-          >
-            <template #icon><ChevronRight class="w-4 h-4" /></template>
-          </UiBaseButton>
+          <!-- Desktop / Tablet layout (>= sm) -->
+          <div class="hidden sm:flex items-center justify-between gap-3">
+            <UiBaseButton
+              text="Sebelumnya"
+              title="Soal sebelumnya"
+              :disabled="currentPage === 1"
+              @click="prevPage"
+            >
+              <template #icon><ChevronLeft class="w-4 h-4" /></template>
+            </UiBaseButton>
+
+            <div class="flex flex-col items-center gap-1">
+              <UiBaseButton
+                :text="isSaving ? 'Menyimpan...' : 'Simpan Soal Ini'"
+                title="Simpan jawaban untuk soal ini"
+                :loading="isSaving"
+                :disabled="!canSaveCurrentItem || isSaving"
+                :class="canSaveCurrentItem ? 'ring-2 ring-emerald-500 ring-offset-2' : ''"
+                @click="handleSaveCurrent"
+              >
+                <template #icon><Save class="w-4 h-4" /></template>
+              </UiBaseButton>
+              <span v-if="isCurrentItemChanged && !canSaveCurrentItem" class="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                Lengkapi min. 1 bukti, min. 30 kata, & pilih skor untuk menyimpan
+              </span>
+            </div>
+
+            <UiBaseButton
+              text="Selanjutnya"
+              title="Soal berikutnya"
+              :disabled="currentPage === totalPages"
+              @click="nextPage"
+            >
+              <template #icon><ChevronRight class="w-4 h-4" /></template>
+            </UiBaseButton>
+          </div>
+
         </div>
       </div>
     </div>
@@ -474,7 +499,7 @@
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
 
           <!-- Modal Header -->
-          <div class="flex items-center justify-between px-5 py-4 border-b"
+          <div class="flex items-center px-5 py-4 border-b"
             style="border-color: var(--border-primary)">
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-white"
@@ -488,19 +513,11 @@
                 <p class="text-xs" style="color: var(--text-muted)">{{ bagianFullName }}</p>
               </div>
             </div>
-            <UiBaseButton
-              title="Tutup"
-              :icon-only="true"
-              @click="teamInfoDialog.show = false"
-            >
-              <template #icon><X class="w-4 h-4" /></template>
-            </UiBaseButton>
           </div>
 
           <!-- Info Sinkronisasi -->
           <div class="px-5 py-3.5 border-b flex items-start gap-2.5"
             style="border-color: var(--border-subtle); background: var(--bg-secondary)">
-            <CheckCircle2 class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
             <p class="text-xs leading-relaxed" style="color: var(--text-secondary)">
               Jawaban yang diisi di halaman ini <strong>otomatis tersinkronisasi</strong> untuk seluruh anggota tim bagian ini.
             </p>
@@ -776,11 +793,6 @@ const answeredCount = computed(() => {
   return Object.values(savedAnswers).filter(
     (a) => a.skor !== null && a.skor !== undefined && getWordCount(a.upload_text) >= 30
   ).length;
-});
-
-const progressPercent = computed(() => {
-  if (indikatorList.value.length === 0) return 0;
-  return Math.round((answeredCount.value / indikatorList.value.length) * 100);
 });
 
 const setAnswer = (kodeSoal, skor) => {

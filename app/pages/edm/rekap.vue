@@ -15,7 +15,7 @@
 
       <template v-else-if="rekapData">
         <!-- Overall Stats -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div class="rounded-xl p-5"
             style="background: var(--bg-card); border: 1px solid var(--border-primary)">
             <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Total Instrumen</p>
@@ -31,15 +31,6 @@
               {{ activeTahunVal }}
             </p>
             <p class="text-[11px] mt-1" style="color: var(--text-muted)">Evaluasi Diri Madrasah</p>
-          </div>
-          <div class="rounded-xl p-5"
-            style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-            <p class="text-xs font-medium mb-1" style="color: var(--text-muted)">Total Poin Didapat</p>
-            <p class="text-3xl font-bold text-amber-600 dark:text-amber-400">
-              {{ rekapData.overall?.total_poin_didapat || 0 }}
-              <span class="text-sm font-normal" style="color: var(--text-muted)">/ {{ rekapData.overall?.total_poin_maksimal || 104 }}</span>
-            </p>
-            <p class="text-[11px] mt-1" style="color: var(--text-muted)">Poin Maksimal 4 / soal</p>
           </div>
           <div class="rounded-xl p-5"
             style="background: var(--bg-card); border: 1px solid var(--border-primary)">
@@ -65,15 +56,67 @@
 
         <div class="rounded-xl overflow-hidden mb-8"
           style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+          <!-- Mobile Card View (< sm) -->
+          <div class="block sm:hidden divide-y" style="border-color: var(--border-primary)">
+            <div v-for="b in getBagianSummaryList(rekapData)" :key="'mob-' + (b.id || b.nama_bagian)"
+              class="p-4 transition-colors cursor-pointer"
+              :class="selectedBagianFilter === getBagianCode(b) ? 'bg-emerald-500/10' : 'hover:bg-[var(--bg-card-hover)]'"
+              @click="selectedBagianFilter = selectedBagianFilter === getBagianCode(b) ? '' : getBagianCode(b)">
+              
+              <!-- Section Top Bar: Badge & Nilai (%) -->
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-md text-xs font-bold text-white shrink-0"
+                  :class="bagianColor(getBagianCode(b))">
+                  Bagian {{ getBagianCode(b) }}
+                </span>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span class="text-xs font-medium" style="color: var(--text-muted)">Nilai Bagian:</span>
+                  <span class="text-base font-bold text-emerald-600 dark:text-emerald-400">
+                    {{ b.persentase_skor ?? 0 }}%
+                  </span>
+                </div>
+              </div>
+
+              <!-- Section Title (Full Width) -->
+              <p class="font-semibold text-sm leading-relaxed mb-3" style="color: var(--text-heading)">
+                {{ getBagianFullName(getBagianCode(b)) }}
+              </p>
+
+              <!-- Stats Breakdown Grid -->
+              <div class="grid grid-cols-3 gap-2 text-center text-xs rounded-lg p-2.5"
+                style="background: var(--bg-secondary)">
+                <div>
+                  <p class="text-[10px] font-medium" style="color: var(--text-muted)">Terisi</p>
+                  <p class="font-semibold mt-0.5" style="color: var(--text-secondary)">
+                    {{ b.jumlah_jawaban || 0 }}/{{ b.jumlah_indikator || 0 }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-medium" style="color: var(--text-muted)">Poin Didapat</p>
+                  <p class="font-semibold text-amber-600 dark:text-amber-400 mt-0.5">
+                    {{ b.total_poin_didapat || 0 }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-medium" style="color: var(--text-muted)">Poin Maks</p>
+                  <p class="font-semibold mt-0.5" style="color: var(--text-muted)">
+                    {{ b.total_poin_maksimal || (b.jumlah_indikator * 4) }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop / Tablet Table View (>= sm) -->
+          <div class="hidden sm:block overflow-x-auto">
+            <table class="w-full text-sm min-w-[650px]">
               <thead>
                 <tr style="background: var(--bg-secondary)">
                   <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Kode & Nama Bagian</th>
-                  <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Indikator Terisi</th>
-                  <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Poin Didapat</th>
-                  <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Total Poin Maksimal</th>
-                  <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Nilai Bagian (%)</th>
+                  <th class="text-center px-4 py-3 font-medium text-xs whitespace-nowrap" style="color: var(--text-muted)">Indikator Terisi</th>
+                  <th class="text-center px-4 py-3 font-medium text-xs whitespace-nowrap" style="color: var(--text-muted)">Poin Didapat</th>
+                  <th class="text-center px-4 py-3 font-medium text-xs whitespace-nowrap" style="color: var(--text-muted)">Total Poin Maksimal</th>
+                  <th class="text-center px-4 py-3 font-medium text-xs whitespace-nowrap" style="color: var(--text-muted)">Nilai Bagian (%)</th>
                 </tr>
               </thead>
               <tbody>
@@ -83,22 +126,24 @@
                   style="border-top: 1px solid var(--border-primary)"
                   @click="selectedBagianFilter = selectedBagianFilter === getBagianCode(b) ? '' : getBagianCode(b)">
                   <td class="px-4 py-3 font-medium" style="color: var(--text-primary)">
-                    <span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-bold text-white mr-2"
-                      :class="bagianColor(getBagianCode(b))">
-                      Bagian {{ getBagianCode(b) }}
-                    </span>
-                    <span>{{ getBagianFullName(getBagianCode(b)) }}</span>
+                    <div class="flex items-start gap-2.5">
+                      <span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-bold text-white shrink-0 mt-0.5"
+                        :class="bagianColor(getBagianCode(b))">
+                        Bagian {{ getBagianCode(b) }}
+                      </span>
+                      <span class="leading-snug">{{ getBagianFullName(getBagianCode(b)) }}</span>
+                    </div>
                   </td>
-                  <td class="px-4 py-3 text-center" style="color: var(--text-secondary)">
+                  <td class="px-4 py-3 text-center whitespace-nowrap" style="color: var(--text-secondary)">
                     {{ b.jumlah_jawaban || 0 }} / {{ b.jumlah_indikator || 0 }}
                   </td>
-                  <td class="px-4 py-3 text-center font-semibold text-amber-600 dark:text-amber-400">
+                  <td class="px-4 py-3 text-center font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap">
                     {{ b.total_poin_didapat || 0 }} Poin
                   </td>
-                  <td class="px-4 py-3 text-center" style="color: var(--text-muted)">
+                  <td class="px-4 py-3 text-center whitespace-nowrap" style="color: var(--text-muted)">
                     {{ b.total_poin_maksimal || (b.jumlah_indikator * 4) }} Poin
                   </td>
-                  <td class="px-4 py-3 text-center font-bold text-emerald-600 dark:text-emerald-400 text-base">
+                  <td class="px-4 py-3 text-center font-bold text-emerald-600 dark:text-emerald-400 text-base whitespace-nowrap">
                     {{ b.persentase_skor ?? 0 }}%
                   </td>
                 </tr>
@@ -111,7 +156,7 @@
         <h2 class="text-lg font-semibold mb-4" style="color: var(--text-heading)">
           Detail Jawaban Per Instrumen
           <span v-if="selectedBagianFilter" class="text-sm font-normal" style="color: var(--text-muted)">
-            — {{ getBagianFullName(selectedBagianFilter) }}
+            — Bagian {{ selectedBagianFilter }}: {{ getBagianFullName(selectedBagianFilter) }}
           </span>
         </h2>
 
@@ -190,24 +235,11 @@ const getBagianCode = (b) => {
 
 const getBagianFullName = (code) => {
   const meta = EDM_BAGIAN_LIST.find((m) => m.code === code);
-  return meta ? meta.name : `Bagian ${code}`;
+  return meta ? (meta.title || meta.name.replace(/^Bagian\s+[A-Z]:\s*/i, "")) : "";
 };
 
 const getBagianSummaryList = (data) => {
   return data?.bagian || data?.kelompok || [];
-};
-
-const getSkorColor = (skor) => {
-  if (skor === null || skor === undefined) return "";
-  if (skor >= 3.5) return "text-emerald-600 dark:text-emerald-400";
-  if (skor >= 2.5) return "text-blue-600 dark:text-blue-400";
-  if (skor >= 1.5) return "text-amber-600 dark:text-amber-400";
-  return "text-red-600 dark:text-red-400";
-};
-
-const getBagProgress = (b) => {
-  if (!b.jumlah_indikator) return 0;
-  return Math.min(100, Math.round((b.jumlah_jawaban / b.jumlah_indikator) * 100));
 };
 
 const filteredIndikator = computed(() => {

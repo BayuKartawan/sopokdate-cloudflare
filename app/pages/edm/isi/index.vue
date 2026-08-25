@@ -100,8 +100,7 @@
           <div v-if="isAdmin" class="rounded-xl p-6"
             style="background: var(--bg-card); border: 1px solid var(--border-primary)">
             <h2 class="font-semibold mb-4" style="color: var(--text-heading)">
-              <Eye class="w-5 h-5 inline-block mr-2 text-emerald-500 -mt-0.5" />
-              Pengisian & Preview Per Bagian (Admin)
+              Pengisian (Admin)
             </h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <NuxtLink v-for="b in EDM_BAGIAN_LIST" :key="b.code" :to="`/edm/isi/${b.code}`"
@@ -174,7 +173,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useEdm, EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
-import { UsersRound, BookOpen, PenLine, Eye, X } from "lucide-vue-next";
+import { UsersRound, BookOpen, PenLine, X } from "lucide-vue-next";
 
 const {
   isLoading, listTahun, selectedTahunId, activeTahun,
