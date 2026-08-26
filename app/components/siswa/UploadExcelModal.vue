@@ -218,6 +218,8 @@ const fieldMapping: Record<string, string> = {
   nama_ibu_kandung: "nama_ibu_kandung",
   "nama wali": "nama_wali",
   nama_wali: "nama_wali",
+  "nik wali": "nik_wali",
+  nik_wali: "nik_wali",
   status: "status",
   "tahun lulus": "thn_lulus",
   thn_lulus: "thn_lulus",
@@ -410,6 +412,7 @@ const downloadTemplate = () => {
       "Nama Ayah Kandung",
       "Nama Ibu Kandung",
       "Nama Wali",
+      "NIK Wali",
     ];
 
     const sampleData: Record<string, any>[] = [
@@ -431,6 +434,7 @@ const downloadTemplate = () => {
         "Nama Ayah Kandung": "Ahmad Santoso",
         "Nama Ibu Kandung": "Siti Aminah",
         "Nama Wali": "",
+        "NIK Wali": "",
       },
     ];
 
@@ -465,6 +469,7 @@ const downloadTemplate = () => {
       "Nama Ayah Kandung",
       "Nama Ibu Kandung",
       "Nama Wali",
+      "NIK Wali",
     ];
 
     const sampleData: Record<string, any>[] = [
@@ -489,6 +494,7 @@ const downloadTemplate = () => {
         "Nama Ayah Kandung": "Ahmad Santoso",
         "Nama Ibu Kandung": "Siti Aminah",
         "Nama Wali": "",
+        "NIK Wali": "",
       },
     ];
 
@@ -517,6 +523,7 @@ const downloadTemplate = () => {
     "Nama Ayah Kandung",
     "Nama Ibu Kandung",
     "Nama Wali",
+    "NIK Wali",
   ];
 
   const sampleData: Record<string, any>[] = [
@@ -536,6 +543,7 @@ const downloadTemplate = () => {
       "Nama Ayah Kandung": "Ahmad Santoso",
       "Nama Ibu Kandung": "Siti Aminah",
       "Nama Wali": "",
+      "NIK Wali": "",
     },
   ];
 

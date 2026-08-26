@@ -102,6 +102,7 @@ const siswaFields = [
   { key: "nama_ayah_kandung", label: "Nama Ayah Kandung" },
   { key: "nama_ibu_kandung", label: "Nama Ibu Kandung" },
   { key: "nama_wali", label: "Nama Wali" },
+  { key: "nik_wali", label: "NIK Wali" },
 ];
 
 const openEditModal = (item) => {
@@ -123,6 +124,7 @@ const openEditModal = (item) => {
     nama_ayah_kandung: item["nama ayah kandung"] || item.nama_ayah_kandung || "",
     nama_ibu_kandung: item["nama ibu kandung"] || item.nama_ibu_kandung || "",
     nama_wali: item["nama wali"] || item.nama_wali || "",
+    nik_wali: item["nik wali"] || item.nik_wali || "",
   };
   showModal.value = true;
 };
@@ -132,6 +134,9 @@ const handleFormSubmit = async (formData) => {
   const success = await updateItem(id, formData);
   if (success) {
     showModal.value = false;
+    clearTableSessionCache("data_siswa");
+    clearTableSessionCache("DataSiswa");
+    await loadSiswaDetail(true);
   }
 };
 
@@ -185,6 +190,7 @@ const handleMutasiKeluar = (item) => {
           nama_ayah_kandung: item["nama ayah kandung"] || item.nama_ayah_kandung || "",
           nama_ibu_kandung: item["nama ibu kandung"] || item.nama_ibu_kandung || "",
           nama_wali: item["nama wali"] || item.nama_wali || "",
+          nik_wali: item["nik wali"] || item.nik_wali || "",
           jenis_mutasi: "Pindah Keluar",
           tanggal_mutasi: tanggalMutasi,
           keterangan: "",
@@ -258,6 +264,7 @@ const biodataFields = [
   { label: "Nama Ayah Kandung", key: "nama ayah kandung" },
   { label: "Nama Ibu Kandung", key: "nama ibu kandung" },
   { label: "Nama Wali", key: "nama wali" },
+  { label: "NIK Wali", key: "nik wali" },
 ];
 
 const formattedBiodataFields = computed(() => {
@@ -371,14 +378,14 @@ const formatIndonesianDate = (dateStr) => {
 };
 
 // Load student details based on route param (nis lokal)
-async function loadSiswaDetail() {
+async function loadSiswaDetail(force = false) {
   loading.value = true;
   error.value = null;
 
   try {
     // Force load student and class databases
-    await loadData("DataSiswa");
-    await loadDataKelas("DataKelas");
+    await loadData("DataSiswa", force);
+    await loadDataKelas("DataKelas", force);
 
     const nisLokal = route.params.id;
 
@@ -426,6 +433,7 @@ async function loadSiswaDetail() {
           "nama ayah kandung": mutasiItem.nama_ayah_kandung || mutasiItem["nama ayah kandung"] || "",
           "nama ibu kandung": mutasiItem.nama_ibu_kandung || mutasiItem["nama ibu kandung"] || "",
           "nama wali": mutasiItem.nama_wali || mutasiItem["nama wali"] || "",
+          "nik wali": mutasiItem.nik_wali || mutasiItem["nik wali"] || "",
           _isMutasi: true,
         };
       } else {

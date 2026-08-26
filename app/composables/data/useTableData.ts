@@ -33,10 +33,19 @@ export function clearSessionCache(): void {
  * @param {string} tableName
  */
 export function clearTableSessionCache(tableName: string): void {
-  if (tableName) {
-    delete sessionCache[tableName];
-    sessionFetched.delete(tableName);
+  if (!tableName) return;
+  const cleanTarget = tableName.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  for (const key of Object.keys(sessionCache)) {
+    const cleanKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (cleanKey.includes(cleanTarget) || cleanTarget.includes(cleanKey.split("_")[0])) {
+      delete sessionCache[key];
+      sessionFetched.delete(key);
+    }
   }
+
+  delete sessionCache[tableName];
+  sessionFetched.delete(tableName);
 }
 
 /**
@@ -144,6 +153,10 @@ function normalizeSiswaData(data: any[]): any[] {
       getField(item, "nama_ibu_kandung") || getField(item, "namaibukandung");
     normalized["nama wali"] =
       getField(item, "nama_wali") || getField(item, "namawali");
+    normalized["nik wali"] =
+      getField(item, "nik_wali") || getField(item, "nikwali");
+    normalized.nik_wali =
+      getField(item, "nik_wali") || getField(item, "nikwali");
 
     return normalized;
   });
@@ -280,6 +293,7 @@ function normalizeAlumniData(data: any[]): any[] {
       "namaibukandung",
     ]);
     normalized.nama_wali = getField(item, ["nama_wali", "namawali"]);
+    normalized.nik_wali = getField(item, ["nik_wali", "nikwali"]);
 
     return normalized;
   });

@@ -362,9 +362,9 @@ const {
 } = useTableData();
 const { cardData: dataKelas, loadData: loadDataKelas } = useTableData();
 
-const fetchSiswaByClass = async (targetClass) => {
+const fetchSiswaByClass = async (targetClass, force = false) => {
   if (!targetClass || targetClass === "Semua Kelas") {
-    await loadData("data_siswa");
+    await loadData("data_siswa", force);
   } else {
     // Cari objek kelas di dataKelas untuk mendapatkan id_kelas atau nama_kelas pencocokan presisi
     const classObj = Array.isArray(dataKelas.value)
@@ -378,7 +378,7 @@ const fetchSiswaByClass = async (targetClass) => {
 
     const valToFilter = classObj ? (classObj.id_kelas || classObj.nama_kelas || targetClass) : targetClass;
 
-    await loadData("data_siswa", false, {
+    await loadData("data_siswa", force, {
       filter_col: "kelas",
       filter_val: valToFilter,
     });
@@ -387,7 +387,7 @@ const fetchSiswaByClass = async (targetClass) => {
 
 const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
   "data_siswa",
-  () => fetchSiswaByClass(selectedClass.value),
+  () => fetchSiswaByClass(selectedClass.value, true),
 );
 
 // CRUD Modal state
@@ -418,6 +418,7 @@ const siswaFields = [
   { key: "nama_ayah_kandung", label: "Nama Ayah Kandung" },
   { key: "nama_ibu_kandung", label: "Nama Ibu Kandung" },
   { key: "nama_wali", label: "Nama Wali" },
+  { key: "nik_wali", label: "NIK Wali" },
 ];
 
 const openCreateModal = () => {
@@ -445,6 +446,7 @@ const openEditModal = (item) => {
     nama_ayah_kandung: item.nama_ayah_kandung || "",
     nama_ibu_kandung: item.nama_ibu_kandung || "",
     nama_wali: item.nama_wali || "",
+    nik_wali: item.nik_wali || item["nik wali"] || "",
   };
   showModal.value = true;
 };
@@ -897,6 +899,7 @@ const exportToExcel = async () => {
       "Nama Ayah Kandung": item.nama_ayah_kandung || "",
       "Nama Ibu Kandung": item.nama_ibu_kandung || "",
       "Nama Wali": item.nama_wali || "",
+      "NIK Wali": item.nik_wali || item["nik wali"] || "",
     }));
 
     const wb = XLSX.utils.book_new();
@@ -921,6 +924,7 @@ const exportToExcel = async () => {
       { wch: 20 }, // Nama Ayah Kandung
       { wch: 20 }, // Nama Ibu Kandung
       { wch: 20 }, // Nama Wali
+      { wch: 20 }, // NIK Wali
     ];
     ws["!cols"] = colWidths;
 
@@ -943,6 +947,7 @@ const exportToExcel = async () => {
       "O1",
       "P1",
       "Q1",
+      "R1",
     ];
     headerRange.forEach((cell) => {
       if (ws[cell]) {

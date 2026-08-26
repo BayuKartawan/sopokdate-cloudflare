@@ -6,7 +6,7 @@
         <div class="absolute inset-0 bg-black/60" />
 
         <!-- Modal -->
-        <div class="relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden"
+        <div class="relative w-full max-w-lg sm:max-w-2xl md:max-w-3xl max-h-[85vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden"
           :style="{
             borderColor: 'var(--border-subtle)',
             backgroundColor: 'var(--bg-primary)',
@@ -28,16 +28,18 @@
                 {{ title || (mode === "create" ? "Tambah Data" : "Edit Data") }}
               </h3>
             </div>
-            <button @click="$emit('close')" class="p-1.5 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
-              :style="{ color: 'var(--text-secondary)' }">
-              <X class="w-5 h-5" />
-            </button>
+            <BaseButton iconOnly title="Tutup" @click="$emit('close')">
+              <template #icon>
+                <X class="w-4 h-4" />
+              </template>
+            </BaseButton>
           </div>
 
           <!-- Body -->
           <div class="flex-1 overflow-y-auto px-6 py-5">
-            <form @submit.prevent="handleSubmit" class="space-y-4" id="crud-form">
-              <div v-for="field in fields" :key="field.key">
+            <form @submit.prevent="handleSubmit" class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="crud-form">
+              <div v-for="field in fields" :key="field.key"
+                :class="field.type === 'textarea' || field.fullWidth || field.colSpan === 2 ? 'sm:col-span-2' : 'col-span-1'">
                 <label :for="'field-' + field.key" class="block text-sm font-medium mb-1.5"
                   :style="{ color: 'var(--text-primary)' }">
                   {{ field.label }}
@@ -91,28 +93,19 @@
             borderColor: 'var(--border-subtle)',
             backgroundColor: 'var(--bg-secondary)',
           }">
-            <button type="button" @click="$emit('close')"
-              class="px-4 py-2.5 rounded-lg text-sm font-medium transition-colors" :style="{
-                backgroundColor: 'var(--bg-tertiary)',
-                color: 'var(--text-primary)',
-              }">
-              Batal
-            </button>
-            <button type="submit" form="crud-form" :disabled="isSaving"
-              class="px-5 py-2.5 rounded-lg text-sm font-medium text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              :class="mode === 'create'
-                  ? 'bg-emerald-600 hover:bg-emerald-500'
-                  : 'bg-amber-600 hover:bg-amber-500'
-                ">
-              <Loader2 v-if="isSaving" class="w-4 h-4 animate-spin" />
-              {{
-                isSaving
-                  ? "Menyimpan..."
-                  : mode === "create"
-                    ? "Tambah"
-                    : "Simpan"
-              }}
-            </button>
+            <BaseButton text="Batal" type="button" @click="$emit('close')" />
+            <BaseButton
+              :text="isSaving ? 'Menyimpan...' : (mode === 'create' ? 'Tambah' : 'Simpan')"
+              :loading="isSaving"
+              :disabled="isSaving"
+              type="submit"
+              form="crud-form"
+            >
+              <template #icon>
+                <Plus v-if="mode === 'create' && !isSaving" class="w-4 h-4" />
+                <Pencil v-else-if="!isSaving" class="w-4 h-4" />
+              </template>
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -123,7 +116,8 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { PropType } from "vue";
-import { Plus, Pencil, X, Loader2 } from "lucide-vue-next";
+import { Plus, Pencil, X } from "lucide-vue-next";
+import BaseButton from "~/components/ui/BaseButton.vue";
 
 interface SelectOption {
   value: string | number;
@@ -137,6 +131,8 @@ interface CrudField {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  fullWidth?: boolean;
+  colSpan?: number;
   options?: (string | SelectOption)[];
 }
 

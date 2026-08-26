@@ -31,24 +31,29 @@ export function invalidateCache(tableName?: string) {
     return;
   }
 
+  const cleanTarget = tableName.toLowerCase().replace(/[^a-z0-9]/g, "");
   let deletedCount = 0;
+
   for (const key of apiCache.keys()) {
     try {
       const url = new URL(key);
       const tableParam = url.searchParams.get("table");
-      if (tableParam === tableName) {
-        apiCache.delete(key);
-        deletedCount++;
+      if (tableParam) {
+        const cleanParam = tableParam.toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (cleanParam === cleanTarget || cleanParam.includes(cleanTarget) || cleanTarget.includes(cleanParam)) {
+          apiCache.delete(key);
+          deletedCount++;
+          continue;
+        }
       }
     } catch (e) {
-      // Fallback jika key bukan URL valid
-      if (
-        key.includes(`table=${tableName}`) ||
-        key.includes(`table=${encodeURIComponent(tableName)}`)
-      ) {
-        apiCache.delete(key);
-        deletedCount++;
-      }
+      // Fallback
+    }
+
+    const cleanKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (cleanKey.includes(cleanTarget)) {
+      apiCache.delete(key);
+      deletedCount++;
     }
   }
   console.log(

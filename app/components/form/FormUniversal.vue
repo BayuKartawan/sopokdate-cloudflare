@@ -714,6 +714,8 @@ const handleStudentSelect = (selectedName: string): void => {
       formData[field.key] = String(student.nama_ibu_kandung || student["nama ibu kandung"] || "");
     } else if (key.includes("alamat")) {
       formData[field.key] = String(student.alamat || "");
+    } else if (key.includes("nik_wali") || key.includes("nikwali") || key === "nik_wali" || key === "nik_ortu") {
+      formData[field.key] = String(student.nik_wali || student["nik wali"] || "");
     } else if (key.includes("wali")) {
       formData[field.key] = String(student.nama_wali || student["nama wali"] || "");
     }

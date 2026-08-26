@@ -9,6 +9,8 @@
     "db:create": "npx wrangler d1 create sopokdate-db",
     "db:schema": "npx wrangler d1 execute sopokdate-db --file=db/schema.sql --remote",
     "db:schema:local": "npx wrangler d1 execute sopokdate-db --file=db/schema.sql --local",
+    "db:migrate:local": "npx wrangler d1 execute sopokdate-db --file=db/migration_add_nik_wali.sql --local",
+    "db:migrate": "npx wrangler d1 execute sopokdate-db --file=db/migration_add_nik_wali.sql --remote",
     "db:seed": "npx wrangler d1 execute sopokdate-db --file=db/seed.sql --remote",
     "db:seed:local": "npx wrangler d1 execute sopokdate-db --file=db/seed.sql --local"
   },
