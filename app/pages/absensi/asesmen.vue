@@ -2,24 +2,21 @@
   <div class="min-h-screen">
     <div class="page-layout">
       <!-- Section Header -->
-      <div class="flex flex-col gap-4 mb-6">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold flex items-center gap-2 flex-wrap"
-            :style="{ color: 'var(--text-heading)' }">
-            <CalendarCheck class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
-            <span>Asesmen Siswa</span>
-            <!-- Unsaved warning badge -->
-            <span v-if="hasUnsavedChanges"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20">
-              <span class="w-2 h-2 rounded-full bg-amber-600 dark:bg-amber-400"></span>
-              Ada Perubahan (Belum Simpan)
-            </span>
-          </h2>
-          <p class="text-sm theme-text-muted mt-1">
-            Input dan kelola nilai asesmen mata pelajaran siswa berdasarkan semester berjalan.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Asesmen Siswa"
+        :breadcrumbs="[
+          { label: 'Absensi', to: '/absensi' },
+          { label: 'Asesmen Siswa' },
+        ]"
+      >
+        <template #actions>
+          <span v-if="hasUnsavedChanges"
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20">
+            <span class="w-2 h-2 rounded-full bg-amber-600 dark:bg-amber-400"></span>
+            Ada Perubahan (Belum Simpan)
+          </span>
+        </template>
+      </PageHeader>
 
       <!-- Warning Banner if Edit Lock is Active -->
       <div v-if="isLocked && currentStep > 1"
@@ -400,7 +397,6 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import {
-  CalendarCheck,
   CalendarDays,
   Loader2,
   GraduationCap,
@@ -412,6 +408,7 @@ import {
   Save,
   AlertTriangle,
 } from "lucide-vue-next";
+import PageHeader from "~/components/ui/PageHeader.vue";
 import { useAcademicYear } from "~/composables/utils/useAcademicYear";
 import { useAuth } from "~/composables/auth/useAuth";
 import { useNotiflix } from "~/composables/ui/useFeedback";

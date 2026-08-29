@@ -2,24 +2,13 @@
   <div class="min-h-screen">
     <div class="page-layout pb-24">
       <!-- Header -->
-      <div class="flex flex-col gap-4 sm:gap-6 mb-6">
-        <div class="flex flex-wrap items-center gap-4">
-          <div>
-            <h2
-              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
-              :style="{ color: 'var(--text-heading)' }"
-            >
-              <Calendar class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
-              Susun Jadwal Pelajaran (Mode Draft)
-            </h2>
-            <p class="text-sm text-zinc-400 mt-1">
-              Atur seluruh jadwal secara lokal terlebih dahulu untuk menghindari
-              pemborosan kuota API. Tekan Simpan di bagian bawah jika sudah
-              selesai.
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Susun Jadwal Pelajaran"
+        :breadcrumbs="[
+          { label: 'Jadwal', to: '/jadwal' },
+          { label: 'Susun Jadwal' },
+        ]"
+      />
 
       <!-- Controls -->
       <div
@@ -426,6 +415,7 @@ import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { postToApi, deleteFromApi } from "~/utils/api";
+import PageHeader from "~/components/ui/PageHeader.vue";
 
 const { Notify, Confirm } = useNotiflix();
 

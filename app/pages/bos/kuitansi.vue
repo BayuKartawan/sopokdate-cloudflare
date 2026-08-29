@@ -1,11 +1,12 @@
 <template>
   <div class="page-layout">
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-zinc-100">Kwitansi</h1>
-      <p class="text-sm mt-1 text-zinc-400">
-        Cetak kwitansi pembayaran honor, barang, dan lainnya
-      </p>
-    </div>
+    <PageHeader
+      title="Kwitansi"
+      :breadcrumbs="[
+        { label: 'BOS', to: '/bos' },
+        { label: 'Kwitansi' },
+      ]"
+    />
 
     <div class="rounded-xl border overflow-hidden mb-8 bg-zinc-900 border-zinc-700">
       <div class="px-6 py-3 border-b font-semibold text-sm bg-zinc-800 border-zinc-700 text-zinc-200">
@@ -158,6 +159,7 @@ import { ref, computed } from "vue";
 import { Printer as PrinterIcon } from "lucide-vue-next";
 import KopSurat from "~/components/document/KopSurat.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import PageHeader from "~/components/ui/PageHeader.vue";
 
 interface KwitansiForm {
   jenisPembayaran: string;

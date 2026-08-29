@@ -2,19 +2,14 @@
   <div class="min-h-screen">
     <div class="page-layout">
       <!-- Header (Hidden on print) -->
-      <div class="flex flex-col gap-4 sm:gap-6 mb-6 print:hidden">
-        <div>
-          <h2
-            class="text-xl sm:text-2xl font-bold flex items-center gap-2"
-            :style="{ color: 'var(--text-heading)' }"
-          >
-            <Printer class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
-            Cetak Jadwal Pelajaran
-          </h2>
-          <p class="text-sm text-zinc-400 mt-1">
-            Ekspor dan cetak jadwal pelajaran berdasarkan kelas, guru pengajar, atau rekapitulasi JP
-          </p>
-        </div>
+      <div class="print:hidden">
+        <PageHeader
+          title="Cetak Jadwal Pelajaran"
+          :breadcrumbs="[
+            { label: 'Jadwal', to: '/jadwal' },
+            { label: 'Cetak Jadwal' },
+          ]"
+        />
       </div>
 
       <!-- Tab Switcher (Hidden on print) -->
@@ -458,6 +453,7 @@ import { ref, computed, onMounted } from "vue";
 import { Printer } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
 import { useAcademicYear } from "~/composables/utils/useAcademicYear";
+import PageHeader from "~/components/ui/PageHeader.vue";
 
 const activeTab = ref("kelas");
 const selectedKelas = ref("");

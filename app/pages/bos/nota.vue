@@ -1,11 +1,12 @@
 <template>
   <div class="page-layout">
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-zinc-100">Nota Belanja</h1>
-      <p class="text-sm mt-1 text-zinc-400">
-        Cetak nota pembelian barang dan jasa dengan preview tanda tangan
-      </p>
-    </div>
+    <PageHeader
+      title="Nota Belanja"
+      :breadcrumbs="[
+        { label: 'BOS', to: '/bos' },
+        { label: 'Nota Belanja' },
+      ]"
+    />
 
     <!-- Form Pengisian -->
     <div class="rounded-xl border overflow-hidden mb-8 bg-zinc-900 border-zinc-700">
@@ -268,6 +269,7 @@
 import { ref, computed } from "vue";
 import { Plus, Trash2, Printer } from "lucide-vue-next";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import PageHeader from "~/components/ui/PageHeader.vue";
 
 interface NotaItem {
   banyak: string;

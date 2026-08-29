@@ -2,23 +2,13 @@
   <div class="min-h-screen">
     <div class="page-layout pb-24">
       <!-- Header -->
-      <div class="flex flex-col gap-4 sm:gap-6 mb-6">
-        <div class="flex flex-wrap items-center gap-4">
-          <div>
-            <h2
-              class="text-xl sm:text-2xl font-bold flex items-center gap-2"
-              :style="{ color: 'var(--text-heading)' }"
-            >
-              <CalendarCheck class="w-7 h-7 text-emerald-650 dark:text-emerald-400" />
-              Alokasi Jam Mengajar
-            </h2>
-            <p class="text-sm text-zinc-400 mt-1">
-              Atur penugasan guru pengajar untuk mata pelajaran di kelas
-              tertentu sesuai kurikulum matriks
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Alokasi Jam Mengajar"
+        :breadcrumbs="[
+          { label: 'Jadwal', to: '/jadwal' },
+          { label: 'Alokasi Jam Mengajar' },
+        ]"
+      />
 
       <!-- Main Content -->
       <div class="pt-2">
@@ -202,7 +192,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import {
-  CalendarCheck,
   Database,
   Loader2,
   Save,
@@ -213,6 +202,7 @@ import { useCrud } from "~/composables/data/useCrud";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { postToApi, putToApi, deleteFromApi } from "~/utils/api";
 import SearchableSelect from "~/components/ui/SearchableSelect.vue";
+import PageHeader from "~/components/ui/PageHeader.vue";
 
 const { Notify } = useNotiflix();
 

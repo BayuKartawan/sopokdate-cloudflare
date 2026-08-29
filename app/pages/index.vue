@@ -145,12 +145,17 @@
               </h2>
             </div>
             <div class="flex items-center gap-2">
+              <button v-if="announcements && announcements.length > 0" @click="openAnnouncementModal(0)"
+                class="flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] sm:text-xs font-semibold transition-all cursor-pointer">
+                <Bell class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span>Baca Pengumuman</span>
+              </button>
               <button v-if="isAdmin" @click="openCreateModal"
-                class="flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] sm:text-xs font-semibold transition-all shadow-sm animate-fade-in">
+                class="flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] sm:text-xs font-semibold transition-all shadow-sm animate-fade-in cursor-pointer">
                 <Plus class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Tambah</span>
               </button>
-              <span v-else class="text-[10px] sm:text-xs" :style="{ color: 'var(--text-muted)' }">Portal Digital</span>
+              <span v-else-if="!announcements || announcements.length === 0" class="text-[10px] sm:text-xs" :style="{ color: 'var(--text-muted)' }">Portal Digital</span>
             </div>
           </div>
 
@@ -184,8 +189,8 @@
 
           <div v-else
             class="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none scrollbar-none gap-3 sm:gap-4 pb-2 md:pb-0">
-            <div v-for="item in announcements" :key="item.id"
-              class="w-[85vw] md:w-auto shrink-0 md:shrink-1 snap-center p-3.5 sm:p-4 border rounded-lg overflow-hidden transition-all duration-300 hover:border-emerald-500/40 flex flex-col justify-between"
+            <div v-for="(item, index) in announcements" :key="item.id" @click="openAnnouncementModal(index)"
+              class="w-[85vw] md:w-auto shrink-0 md:shrink-1 snap-center p-3.5 sm:p-4 border rounded-lg overflow-hidden transition-all duration-300 hover:border-emerald-500/40 flex flex-col justify-between cursor-pointer"
               :style="{
                 backgroundColor: 'var(--bg-primary)',
                 borderColor: 'var(--border-subtle)',
@@ -500,6 +505,87 @@
         </Transition>
       </Teleport>
 
+      <!-- Modal Popup Pengumuman Otomatis (Saat Pertama Buka) -->
+      <Teleport to="body">
+        <Transition name="modal-fade">
+          <div v-if="showAnnouncementModal && currentAnnouncement"
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+            <!-- Backdrop (tanpa click close agar user wajib klik Lanjut/Mengerti) -->
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+            <!-- Modal Card -->
+            <div
+              class="relative z-10 w-full max-w-lg theme-bg theme-border border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              <!-- Modal Header -->
+              <div
+                class="flex items-center justify-between p-4 sm:p-5 theme-bg-secondary border-b theme-border shrink-0">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20 shadow-sm">
+                    <Bell class="w-5 h-5 animate-bounce" />
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold theme-text">
+                      Pengumuman
+                    </h3>
+                    <p class="text-xs theme-text-muted">
+                      Informasi penting madrasah
+                    </p>
+                  </div>
+                </div>
+                <!-- Step Counter Badge -->
+                <div v-if="announcements && announcements.length > 1"
+                  class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                  {{ currentAnnouncementIndex + 1 }} dari {{ announcements.length }}
+                </div>
+              </div>
+
+              <!-- Modal Body -->
+              <div class="p-5 sm:p-6 overflow-y-auto flex-1 flex flex-col gap-4">
+                <div class="flex items-center justify-between gap-2">
+                  <span :class="[
+                    'px-2.5 py-1 rounded-md text-xs font-semibold border',
+                    currentAnnouncement.tagColor,
+                  ]">
+                    {{ currentAnnouncement.tag }}
+                  </span>
+                  <span class="text-xs theme-text-muted font-medium">
+                    {{ currentAnnouncement.date }}
+                  </span>
+                </div>
+
+                <div>
+                  <h2 class="text-lg sm:text-xl font-bold theme-text mb-2 leading-snug">
+                    {{ currentAnnouncement.title }}
+                  </h2>
+                  <p class="text-xs sm:text-sm theme-text-secondary leading-relaxed whitespace-pre-line">
+                    {{ currentAnnouncement.content }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Modal Footer -->
+              <div
+                class="p-4 sm:p-5 theme-bg-secondary border-t theme-border flex items-center justify-between gap-3 shrink-0">
+                <button v-if="currentAnnouncementIndex > 0" type="button" @click="handlePrevAnnouncement"
+                  class="px-4 py-2 rounded-xl theme-border border theme-bg theme-text text-xs font-semibold hover:theme-bg-tertiary transition-colors flex items-center gap-1 cursor-pointer">
+                  <ChevronLeft class="w-4 h-4" />
+                  <span>Sebelumnya</span>
+                </button>
+                <div v-else></div>
+
+                <button type="button" @click="handleNextAnnouncement"
+                  class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 shadow-md hover:shadow-emerald-500/20 cursor-pointer active:scale-95">
+                  <span>{{ isLastAnnouncement ? 'Mengerti' : 'Lanjut' }}</span>
+                  <ChevronRight v-if="!isLastAnnouncement" class="w-4 h-4" />
+                  <CheckCircle2 v-else class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
+
     </div>
   </div>
 </template>
@@ -508,7 +594,7 @@
 import { ref, onMounted, computed, watch } from "vue";
 import {
   Bell, Plus, Pencil, Trash2, User,
-  CalendarX, Clock, ChevronRight, X, Loader2,
+  CalendarX, Clock, ChevronRight, ChevronLeft, X, Loader2,
   CheckCircle2, ExternalLink, CalendarDays, BookOpen,
 } from "lucide-vue-next";
 import { useTableData } from "~/composables/data/useTableData";
@@ -551,6 +637,70 @@ const { isAdmin, isSaving, createItem, updateItem, deleteItem } = useCrud(
   () => refreshData("Pengumuman"),
 );
 const { getUserRole, getUserData, getGtkId } = useAuth();
+
+// =============================================
+// MODAL PENGUMUMAN POPUP (First Open & Stepper)
+// =============================================
+const showAnnouncementModal = ref<boolean>(false);
+const currentAnnouncementIndex = ref<number>(0);
+const hasAutoOpenedAnnouncement = ref<boolean>(false);
+
+const currentAnnouncement = computed(() => {
+  if (!announcements.value || announcements.value.length === 0) return null;
+  const idx = currentAnnouncementIndex.value;
+  if (idx < 0 || idx >= announcements.value.length) return announcements.value[0];
+  return announcements.value[idx];
+});
+
+const isLastAnnouncement = computed(() => {
+  if (!announcements.value || announcements.value.length === 0) return true;
+  return currentAnnouncementIndex.value >= announcements.value.length - 1;
+});
+
+const openAnnouncementModal = (index = 0) => {
+  if (!announcements.value || announcements.value.length === 0) return;
+  currentAnnouncementIndex.value = Math.max(0, Math.min(index, announcements.value.length - 1));
+  showAnnouncementModal.value = true;
+};
+
+const handleNextAnnouncement = () => {
+  if (!announcements.value) {
+    showAnnouncementModal.value = false;
+    return;
+  }
+  if (currentAnnouncementIndex.value < announcements.value.length - 1) {
+    currentAnnouncementIndex.value++;
+  } else {
+    showAnnouncementModal.value = false;
+    try {
+      localStorage.setItem("sopokdate_announcement_seen", "true");
+    } catch (e) {
+      console.error("Gagal menyimpan status pengumuman di localStorage:", e);
+    }
+  }
+};
+
+const handlePrevAnnouncement = () => {
+  if (currentAnnouncementIndex.value > 0) {
+    currentAnnouncementIndex.value--;
+  }
+};
+
+watch([isLoading, announcements], ([loading, list]) => {
+  if (!loading && list && list.length > 0 && !hasAutoOpenedAnnouncement.value) {
+    hasAutoOpenedAnnouncement.value = true;
+    try {
+      const isSeen = localStorage.getItem("sopokdate_announcement_seen");
+      if (!isSeen) {
+        currentAnnouncementIndex.value = 0;
+        showAnnouncementModal.value = true;
+      }
+    } catch (e) {
+      currentAnnouncementIndex.value = 0;
+      showAnnouncementModal.value = true;
+    }
+  }
+}, { immediate: true });
 
 // Core data loaders (useMasterData for global master tables to avoid duplicate fetches)
 const { dataKelas: kelasData, dataGtk: gtkData, kalenderPendidikan, pengaturanTapel, initMasterData } = useMasterData();

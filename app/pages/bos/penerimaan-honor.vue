@@ -1,11 +1,12 @@
 <template>
   <div class="page-layout">
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-zinc-100">Penerimaan Honor</h1>
-      <p class="text-sm mt-1 text-zinc-400">
-        Cetak bukti penerimaan honor dengan format tabel
-      </p>
-    </div>
+    <PageHeader
+      title="Penerimaan Honor"
+      :breadcrumbs="[
+        { label: 'BOS', to: '/bos' },
+        { label: 'Penerimaan Honor' },
+      ]"
+    />
 
     <div class="rounded-xl border overflow-hidden mb-8 bg-zinc-900 border-zinc-700">
       <div class="px-6 py-3 border-b font-semibold text-sm bg-zinc-800 border-zinc-700 text-zinc-200">
@@ -328,6 +329,7 @@ import { useTableData } from "~/composables/data/useTableData";
 import { useBosHonor } from "~/composables/utils/useBosHonor";
 import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import PageHeader from "~/components/ui/PageHeader.vue";
 
 interface Penerima {
   nama: string;

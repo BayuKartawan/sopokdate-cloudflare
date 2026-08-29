@@ -42,7 +42,7 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: "id" },
       charset: "utf-8",
       viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
-      title: "SopokDate",
+      title: "SopokDate by Bayu",
       meta: [
         { name: "apple-mobile-web-app-capable", content: "yes" },
         {
