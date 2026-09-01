@@ -206,8 +206,11 @@ import Pagination from "~/components/ui/Pagination.vue";
 import QrcodeVue from "qrcode.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
+import { useNotiflix } from "~/composables/ui/useFeedback";
 import { fetchFromApi } from "~/utils/api";
 import * as XLSX from "xlsx";
+
+const { Notify } = useNotiflix();
 
 const router = useRouter();
 const {
@@ -308,6 +311,28 @@ const openEditModal = (item) => {
 };
 
 const handleFormSubmit = async (formData) => {
+  const inputNis = String(formData.nis_lokal || "").trim();
+  if (inputNis && Array.isArray(dataSiswa.value)) {
+    const existing = dataSiswa.value.find((item) => {
+      const itemNis = String(item.nis_lokal || item["nis lokal"] || "").trim();
+      if (!itemNis) return false;
+      if (itemNis !== inputNis) return false;
+      if (modalMode.value === "edit") {
+        const editingId = String(editingItem.value._id || editingItem.value.id || "");
+        const itemId = String(item.id || item._id || "");
+        if (editingId && itemId && editingId === itemId) return false;
+      }
+      return true;
+    });
+
+    if (existing) {
+      Notify?.failure?.(
+        `NIS Lokal '${inputNis}' sudah terdaftar atas nama '${existing.nama}'. Harap gunakan NIS Lokal yang lain.`,
+      );
+      return;
+    }
+  }
+
   let success = false;
   if (modalMode.value === "create") {
     success = await createItem(formData);

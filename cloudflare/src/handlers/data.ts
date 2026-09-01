@@ -182,6 +182,72 @@ export async function handleGetData(
   }
 }
 
+async function checkDuplicateNisLokal(
+  env: Env,
+  nisLokal: string,
+  excludeTable?: string,
+  excludeId?: string | number,
+): Promise<{ isDuplicate: boolean; message?: string }> {
+  const cleanNis = String(nisLokal || "").trim();
+  if (!cleanNis) return { isDuplicate: false };
+
+  // 1. Cek di data_siswa
+  let querySiswa = "SELECT id, nama FROM data_siswa WHERE TRIM(nis_lokal) = ?";
+  const paramsSiswa: any[] = [cleanNis];
+  if (excludeTable === "data_siswa" && excludeId) {
+    querySiswa += " AND id != ?";
+    paramsSiswa.push(typeof excludeId === "string" ? parseInt(excludeId) : excludeId);
+  }
+  const existingSiswa = await env.DB.prepare(querySiswa)
+    .bind(...paramsSiswa)
+    .first<{ id: number; nama: string }>();
+
+  if (existingSiswa) {
+    return {
+      isDuplicate: true,
+      message: `NIS Lokal '${cleanNis}' sudah terdaftar pada siswa aktif: ${existingSiswa.nama}`,
+    };
+  }
+
+  // 2. Cek di alumni
+  let queryAlumni = "SELECT id, nama FROM alumni WHERE TRIM(nis_lokal) = ?";
+  const paramsAlumni: any[] = [cleanNis];
+  if (excludeTable === "alumni" && excludeId) {
+    queryAlumni += " AND id != ?";
+    paramsAlumni.push(typeof excludeId === "string" ? parseInt(excludeId) : excludeId);
+  }
+  const existingAlumni = await env.DB.prepare(queryAlumni)
+    .bind(...paramsAlumni)
+    .first<{ id: number; nama: string }>();
+
+  if (existingAlumni) {
+    return {
+      isDuplicate: true,
+      message: `NIS Lokal '${cleanNis}' sudah terdaftar pada alumni: ${existingAlumni.nama}`,
+    };
+  }
+
+  // 3. Cek di mutasi_siswa
+  let queryMutasi = "SELECT id, nama FROM mutasi_siswa WHERE TRIM(nis_lokal) = ?";
+  const paramsMutasi: any[] = [cleanNis];
+  if (excludeTable === "mutasi_siswa" && excludeId) {
+    queryMutasi += " AND id != ?";
+    paramsMutasi.push(typeof excludeId === "string" ? parseInt(excludeId) : excludeId);
+  }
+  const existingMutasi = await env.DB.prepare(queryMutasi)
+    .bind(...paramsMutasi)
+    .first<{ id: number; nama: string }>();
+
+  if (existingMutasi) {
+    return {
+      isDuplicate: true,
+      message: `NIS Lokal '${cleanNis}' sudah terdaftar pada data mutasi: ${existingMutasi.nama}`,
+    };
+  }
+
+  return { isDuplicate: false };
+}
+
 // ---------------------------------------------------------------------------
 // Handler: POST /api/data — Insert data baru
 // ---------------------------------------------------------------------------
@@ -218,6 +284,16 @@ export async function handlePostData(
     const cleanedData: Record<string, any> = {};
     for (const [key, value] of Object.entries(data)) {
       cleanedData[toSnakeCase(key)] = value;
+    }
+
+    if (["data_siswa", "alumni", "mutasi_siswa"].includes(d1Table)) {
+      const nisLokal = cleanedData["nis_lokal"] || cleanedData["nis lokal"] || cleanedData["nis"];
+      if (nisLokal) {
+        const dupCheck = await checkDuplicateNisLokal(env, String(nisLokal));
+        if (dupCheck.isDuplicate) {
+          return errorResponse(dupCheck.message || "NIS Lokal sudah terdaftar", 400);
+        }
+      }
     }
 
     const insertCols = Object.keys(cleanedData);
@@ -312,11 +388,23 @@ export async function handlePutData(
   try {
     const setClauses: string[] = [];
     const params: any[] = [];
+    const updates: Record<string, any> = {};
 
     for (const [key, value] of Object.entries(data)) {
       const snakeKey = toSnakeCase(key);
       setClauses.push(`${snakeKey} = ?`);
       params.push(value !== undefined && value !== null ? String(value) : "");
+      updates[snakeKey] = value;
+    }
+
+    if (["data_siswa", "alumni", "mutasi_siswa"].includes(d1Table)) {
+      const nisLokal = updates["nis_lokal"] || updates["nis lokal"] || updates["nis"];
+      if (nisLokal) {
+        const dupCheck = await checkDuplicateNisLokal(env, String(nisLokal), d1Table, id);
+        if (dupCheck.isDuplicate) {
+          return errorResponse(dupCheck.message || "NIS Lokal sudah terdaftar", 400);
+        }
+      }
     }
 
     if (setClauses.length === 0) {
