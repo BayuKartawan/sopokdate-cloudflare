@@ -72,6 +72,11 @@ export const useMenuConfig = () => {
         { to: "/akademik/gtk", label: "Guru Tendik", roles: ["admin", "kepala_madrasah"] },
         { to: "/akademik/siswa", label: "Siswa", roles: ["admin", "guru", "kepala_madrasah"] },
         {
+          to: "/akademik/buku-induk",
+          label: "Buku Induk",
+          roles: ["admin", "guru", "kepala_madrasah"],
+        },
+        {
           to: "/akademik/rombel",
           label: "Rombel",
           roles: ["admin", "guru", "kepala_madrasah"],

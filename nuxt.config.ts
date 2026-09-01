@@ -95,6 +95,12 @@ export default defineNuxtConfig({
           }
 
           // Remap routes for Akademik category
+          if (newPath.startsWith("/siswa/buku-induk")) {
+            newPath = newPath.replace(
+              "/siswa/buku-induk",
+              "/akademik/buku-induk",
+            );
+          }
           if (newPath.startsWith("/siswa/data")) {
             newPath = newPath.replace("/siswa/data", "/akademik/siswa");
           }

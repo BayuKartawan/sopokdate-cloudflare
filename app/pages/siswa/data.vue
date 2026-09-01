@@ -121,36 +121,8 @@
         </UiPageHeader>
 
 
-        <!-- Tab switcher (Admin Only) -->
-        <div v-if="isAdmin" class="flex border-b mb-2" style="border-color: var(--border-primary)">
-          <button
-            @click="activeTab = 'aktif'"
-            :class="[
-              'px-4 py-2.5 text-sm font-semibold border-b-2 transition-all relative top-[1px]',
-              activeTab === 'aktif'
-                ? 'border-emerald-500 text-emerald-400 bg-emerald-500/5'
-                : 'border-transparent'
-            ]"
-            :style="activeTab !== 'aktif' ? { color: 'var(--text-muted)' } : {}"
-          >
-            Siswa Aktif
-          </button>
-          <button
-            @click="activeTab = 'buku_induk'"
-            :class="[
-              'px-4 py-2.5 text-sm font-semibold border-b-2 transition-all relative top-[1px]',
-              activeTab === 'buku_induk'
-                ? 'border-emerald-500 text-emerald-400 bg-emerald-500/5'
-                : 'border-transparent'
-            ]"
-            :style="activeTab !== 'buku_induk' ? { color: 'var(--text-muted)' } : {}"
-          >
-            Buku Induk
-          </button>
-        </div>
-
         <!-- Filter and Search Row -->
-        <div v-if="activeTab === 'aktif'" class="flex flex-col md:flex-row gap-4 items-center w-full">
+        <div class="flex flex-col md:flex-row gap-4 items-center w-full">
           <!-- Search Input -->
           <div class="w-full md:flex-1">
             <Search @searchUpdated="handleSearch"
@@ -171,152 +143,36 @@
 
       <!-- Main Content Area -->
       <div class="pt-2">
-        <template v-if="activeTab === 'aktif'">
-          <p v-if="isLoading" class="text-center text-lg font-semibold py-12" style="color: var(--text-muted)">
-            Memuat data siswa secara realtime...
+        <p v-if="isLoading" class="text-center text-lg font-semibold py-12" style="color: var(--text-muted)">
+          Memuat data siswa secara realtime...
+        </p>
+
+        <div v-else-if="sortedData.length === 0"
+          class="text-center py-16 rounded-xl border"
+          style="background: var(--bg-secondary); border-color: var(--border-primary)">
+          <Database class="w-16 h-16 mx-auto mb-4" style="color: var(--text-faint)" stroke-width="1.5" />
+          <p class="text-lg font-medium" style="color: var(--text-secondary)">
+            Tidak ada data siswa ditemukan
           </p>
-
-          <div v-else-if="sortedData.length === 0"
-            class="text-center py-16 rounded-xl border"
-            style="background: var(--bg-secondary); border-color: var(--border-primary)">
-            <Database class="w-16 h-16 mx-auto mb-4" style="color: var(--text-faint)" stroke-width="1.5" />
-            <p class="text-lg font-medium" style="color: var(--text-secondary)">
-              Tidak ada data siswa ditemukan
-            </p>
-            <p class="text-sm mt-1" style="color: var(--text-muted)">
-              Coba sesuaikan kata kunci pencarian atau filter kelas Anda.
-            </p>
-          </div>
-
-          <!-- Student Grid List -->
-          <div v-else>
-            <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              <PersonCard v-for="(item, index) in visibleData" :key="item.id || index" :item="item" :title="item.nama"
-                :subtitle="item.nisn ? 'NISN: ' + item.nisn : '-'" @click="navigateToDetail" />
-            </ul>
-
-            <!-- Pagination -->
-            <Pagination
-              :currentPage="currentPage"
-              :totalPages="totalPages"
-              @pageChanged="handlePageChange"
-            />
-          </div>
-        </template>
-
-        <template v-else-if="activeTab === 'buku_induk' && isAdmin">
-          <!-- Top controls for Buku Induk -->
-          <div class="flex flex-col md:flex-row gap-4 items-center mb-6">
-            <div class="w-full md:flex-1">
-              <Search @searchUpdated="(q) => searchQueryBukuInduk = q"
-                placeholder="Cari nama, NISN, atau NIS lokal di Buku Induk..." />
-            </div>
-            <div class="w-full md:w-64 flex gap-2">
-              <select
-                v-model="sortByNisLokal"
-                class="w-full h-10 sm:h-11 px-3 rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
-                style="background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input)"
-              >
-                <option value="desc">NIS Lokal: Tertinggi ke Terendah</option>
-                <option value="asc">NIS Lokal: Terendah ke Tertinggi</option>
-              </select>
-            </div>
-          </div>
-
-          <p v-if="isLoading || isLoadingBukuInduk" class="text-center text-lg font-semibold py-12" style="color: var(--text-muted)">
-            Memuat data Buku Induk...
+          <p class="text-sm mt-1" style="color: var(--text-muted)">
+            Coba sesuaikan kata kunci pencarian atau filter kelas Anda.
           </p>
+        </div>
 
-          <div v-else-if="filteredBukuIndukData.length === 0"
-            class="text-center py-16 rounded-xl border"
-            style="background: var(--bg-secondary); border-color: var(--border-primary)">
-            <Database class="w-16 h-16 mx-auto mb-4" style="color: var(--text-faint)" stroke-width="1.5" />
-            <p class="text-lg font-medium" style="color: var(--text-secondary)">
-              Tidak ada data Buku Induk ditemukan
-            </p>
-            <p class="text-sm mt-1" style="color: var(--text-muted)">
-              Coba sesuaikan kata kunci pencarian Anda.
-            </p>
-          </div>
+        <!-- Student Grid List -->
+        <div v-else>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <PersonCard v-for="(item, index) in visibleData" :key="item.id || index" :item="item" :title="item.nama"
+              :subtitle="item.nisn ? 'NISN: ' + item.nisn : '-'" @click="navigateToDetail" />
+          </ul>
 
-          <div v-else>
-            <div class="overflow-x-auto rounded-xl border" style="border-color: var(--border-primary); background: var(--bg-card)">
-              <table class="w-full text-sm text-left">
-                <thead class="border-b" style="background: var(--bg-secondary); border-color: var(--border-primary)">
-                  <tr>
-                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider w-10" style="color: var(--text-muted)">No</th>
-                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted)">Nama</th>
-                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted)">NIS Lokal</th>
-                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted)">NISN</th>
-                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-center" style="color: var(--text-muted)">L/P</th>
-                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider" style="color: var(--text-muted)">Rombel / Keterangan</th>
-                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-center" style="color: var(--text-muted)">Status</th>
-                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-center" style="color: var(--text-muted)">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="(item, index) in visibleBukuIndukData"
-                    :key="item.id || index"
-                    class="transition-colors border-b"
-                    style="border-color: var(--border-subtle)"
-                    :style="{ borderColor: 'var(--border-subtle)' }"
-                    @mouseenter="$event.currentTarget.style.background = 'var(--bg-secondary)'"
-                    @mouseleave="$event.currentTarget.style.background = ''"
-                  >
-                    <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">
-                      {{ (currentPageBukuInduk - 1) * ITEMS_PER_PAGE_BUKU_INDUK + index + 1 }}
-                    </td>
-                    <td class="px-4 py-3 font-semibold text-sm" style="color: var(--text-heading)">
-                      {{ toTitleCase(item.nama) }}
-                    </td>
-                    <td class="px-4 py-3 font-mono text-xs" style="color: var(--text-secondary)">
-                      {{ item.nis_lokal || '-' }}
-                    </td>
-                    <td class="px-4 py-3 font-mono text-xs" style="color: var(--text-secondary)">
-                      {{ item.nisn || '-' }}
-                    </td>
-                    <td class="px-4 py-3 text-xs text-center" style="color: var(--text-secondary)">
-                      {{ item.gender || '-' }}
-                    </td>
-                    <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">
-                      {{ item.kelas || '-' }}
-                    </td>
-                    <td class="px-4 py-3 text-center">
-                      <span
-                        :class="[
-                          'px-2 py-0.5 rounded text-xs font-semibold border',
-                          item.status === 'Aktif'
-                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                            : item.status === 'Alumni'
-                            ? 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-                            : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
-                        ]"
-                      >
-                        {{ item.status }}
-                      </span>
-                    </td>
-                    <td class="px-4 py-3 text-center">
-                      <button
-                        @click="navigateToBukuIndukDetail(item)"
-                        class="px-2.5 py-1 rounded text-xs text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/10 transition-all font-medium"
-                      >
-                        Detail
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Pagination -->
-            <Pagination
-              :currentPage="currentPageBukuInduk"
-              :totalPages="totalPagesBukuInduk"
-              @pageChanged="handlePageChangeBukuInduk"
-            />
-          </div>
-        </template>
+          <!-- Pagination -->
+          <Pagination
+            :currentPage="currentPage"
+            :totalPages="totalPages"
+            @pageChanged="handlePageChange"
+          />
+        </div>
       </div>
 
       <!-- CRUD Modal -->
@@ -326,7 +182,7 @@
 
       <!-- Upload Excel Modal -->
       <UploadExcelModal :show="showUploadModal" :dataSiswa="dataSiswa" :dataKelas="dataKelas"
-        @close="showUploadModal = false" @success="refreshData('data_siswa')" />
+        @close="showUploadModal = false" @success="fetchSiswaByClass(selectedClass, true)" />
     </div>
   </div>
 </template>
@@ -494,13 +350,6 @@ const searchQuery = ref("");
 const currentPage = ref(1);
 const ITEMS_PER_PAGE = 12;
 const isExporting = ref(false);
-
-// Tab states & Buku Induk states
-const activeTab = ref("aktif");
-const sortByNisLokal = ref("desc");
-const searchQueryBukuInduk = ref("");
-const currentPageBukuInduk = ref(1);
-const ITEMS_PER_PAGE_BUKU_INDUK = 15;
 
 // State for Print format & options
 const printFormat = ref("umum");
@@ -736,136 +585,6 @@ const handleSearch = (query) => {
 const navigateToDetail = (item) => {
   const nisLokal = item.nis_lokal;
   if (nisLokal) {
-    router.push(`/akademik/siswa/detail/${nisLokal}`);
-  }
-};
-
-// Buku Induk Lazy Load and calculations
-const { cardData: dataAlumni, loadData: loadDataAlumni } = useTableData();
-const { cardData: dataMutasi, loadData: loadDataMutasi } = useTableData();
-const isLoadingBukuInduk = ref(false);
-
-const loadBukuIndukData = async () => {
-  isLoadingBukuInduk.value = true;
-  try {
-    await Promise.all([
-      loadDataAlumni("alumni"),
-      loadDataMutasi("mutasi_siswa"),
-    ]);
-  } catch (err) {
-    console.error("Gagal memuat data Buku Induk:", err);
-  } finally {
-    isLoadingBukuInduk.value = false;
-  }
-};
-
-watch(activeTab, (newTab) => {
-  if (newTab === "buku_induk" && dataAlumni.value.length === 0 && dataMutasi.value.length === 0) {
-    loadBukuIndukData();
-  }
-});
-
-const bukuIndukData = computed(() => {
-  const list = [];
-  
-  if (Array.isArray(dataSiswa.value)) {
-    dataSiswa.value.forEach(item => {
-      list.push({
-        id: item.id || item._id,
-        nama: item.nama || "",
-        nisn: item.nisn || "",
-        nis_lokal: item.nis_lokal || item["nis lokal"] || "",
-        kelas: getClassName(item.kelas),
-        status: "Aktif",
-        gender: getJenisKelaminAbbr(item.jenis_kelamin),
-        originalItem: item
-      });
-    });
-  }
-  
-  if (Array.isArray(dataAlumni.value)) {
-    dataAlumni.value.forEach(item => {
-      list.push({
-        id: item.id || item._id,
-        nama: item.nama || "",
-        nisn: item.nisn || "",
-        nis_lokal: item.nis_lokal || item["nis lokal"] || "",
-        kelas: "Alumni (Lulus " + (item.thn_lulus || "") + ")",
-        status: "Alumni",
-        gender: getJenisKelaminAbbr(item.jenis_kelamin),
-        originalItem: item
-      });
-    });
-  }
-  
-  if (Array.isArray(dataMutasi.value)) {
-    dataMutasi.value.forEach(item => {
-      list.push({
-        id: item.id || item._id,
-        nama: item.nama || "",
-        nisn: item.nisn || "",
-        nis_lokal: item.nis_lokal || item["nis lokal"] || "",
-        kelas: "Mutasi (" + (item.kelas || "") + ")",
-        status: "Mutasi",
-        gender: getJenisKelaminAbbr(item.jenis_kelamin),
-        originalItem: item
-      });
-    });
-  }
-  
-  return list;
-});
-
-const filteredBukuIndukData = computed(() => {
-  let list = bukuIndukData.value;
-  
-  const query = searchQueryBukuInduk.value.toLowerCase().trim();
-  if (query) {
-    list = list.filter(item => 
-      (item.nama || "").toLowerCase().includes(query) ||
-      (item.nisn || "").toLowerCase().includes(query) ||
-      (item.nis_lokal || "").toLowerCase().includes(query)
-    );
-  }
-  
-  return list.sort((a, b) => {
-    const nisA = String(a.nis_lokal).trim();
-    const nisB = String(b.nis_lokal).trim();
-    
-    if (sortByNisLokal.value === "asc") {
-      return nisA.localeCompare(nisB, undefined, { numeric: true });
-    } else {
-      return nisB.localeCompare(nisA, undefined, { numeric: true });
-    }
-  });
-});
-
-const totalPagesBukuInduk = computed(() => {
-  return Math.ceil(filteredBukuIndukData.value.length / ITEMS_PER_PAGE_BUKU_INDUK);
-});
-
-const visibleBukuIndukData = computed(() => {
-  const start = (currentPageBukuInduk.value - 1) * ITEMS_PER_PAGE_BUKU_INDUK;
-  const end = start + ITEMS_PER_PAGE_BUKU_INDUK;
-  return filteredBukuIndukData.value.slice(start, end);
-});
-
-const handlePageChangeBukuInduk = (page) => {
-  currentPageBukuInduk.value = page;
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
-
-watch([searchQueryBukuInduk, sortByNisLokal], () => {
-  currentPageBukuInduk.value = 1;
-});
-
-const navigateToBukuIndukDetail = (item) => {
-  const nisLokal = item.nis_lokal;
-  if (!nisLokal) return;
-  
-  if (item.status === "Alumni") {
-    router.push(`/akademik/alumni/detail/${nisLokal}`);
-  } else {
     router.push(`/akademik/siswa/detail/${nisLokal}`);
   }
 };
