@@ -611,16 +611,41 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
+import type { NavigationGuardNext } from "vue-router";
 import QrcodeVue from "qrcode.vue";
 import { useEdm, EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
+import type { TahunAnggaran } from "~/composables/edm/useEdm";
 import { fetchFromApi } from "~/utils/api";
 import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import { Save, X, FileText, Plus, CalendarDays, Users, AlertCircle, CheckCircle2 } from "lucide-vue-next";
 import KopSurat from "~/components/document/KopSurat.vue";
 import PrintButton from "~/components/ui/PrintButton.vue";
+
+interface LocalBagian {
+  nama_bagian: string;
+  gtk_ids: number[];
+}
+
+interface GuruData {
+  id: number;
+  nama_lengkap: string;
+  [key: string]: any;
+}
+
+interface SelectOption {
+  [key: string]: unknown;
+  label?: string;
+  value?: string | number;
+}
+
+interface TpmRow {
+  no: number;
+  nama: string;
+  bagian: string;
+}
 
 const {
   isLoading, isSaving, selectedTahunId, listTahun, selectedTahunLabel,
@@ -629,14 +654,14 @@ const {
 } = useEdm();
 
 // --- Modals State ---
-const showTahunSettingModal = ref(false);
-const showAddTahunForm = ref(false);
-const showJuknisModal = ref(false);
+const showTahunSettingModal = ref<boolean>(false);
+const showAddTahunForm = ref<boolean>(false);
+const showJuknisModal = ref<boolean>(false);
 
 // --- Unsaved Changes Tracking ---
-const initialStateJson = ref("");
+const initialStateJson = ref<string>("");
 
-const snapshotState = () => {
+const snapshotState = (): void => {
   initialStateJson.value = JSON.stringify(
     localBagian.value.map((b) => ({
       nama_bagian: b.nama_bagian,
@@ -645,7 +670,7 @@ const snapshotState = () => {
   );
 };
 
-const isDirty = computed(() => {
+const isDirty = computed<boolean>(() => {
   if (!initialStateJson.value || localBagian.value.length === 0) return false;
   const currentJson = JSON.stringify(
     localBagian.value.map((b) => ({
@@ -657,7 +682,7 @@ const isDirty = computed(() => {
 });
 
 // Guard when leaving route via Nuxt Router
-onBeforeRouteLeave((to, from, next) => {
+onBeforeRouteLeave((_to, _from, next: NavigationGuardNext) => {
   if (isDirty.value) {
     const confirmLeave = window.confirm(
       "Ada perubahan pembagian tim EDM yang belum disimpan. Apakah Anda yakin ingin meninggalkan halaman ini?"
@@ -673,7 +698,7 @@ onBeforeRouteLeave((to, from, next) => {
 });
 
 // Guard when closing tab or reloading browser
-const handleBeforeUnload = (e) => {
+const handleBeforeUnload = (e: BeforeUnloadEvent): string | void => {
   if (isDirty.value) {
     e.preventDefault();
     e.returnValue = "Ada perubahan pembagian tim yang belum disimpan.";
@@ -682,22 +707,22 @@ const handleBeforeUnload = (e) => {
 };
 
 // --- Tahun Anggaran ---
-const currentTahun = computed(() => {
+const currentTahun = computed<TahunAnggaran | null>(() => {
   return listTahun.value.find((t) => t.id === selectedTahunId.value) || null;
 });
 
-const tahunOptions = computed(() => {
+const tahunOptions = computed<SelectOption[]>(() => {
   return listTahun.value.map((t) => ({
     label: `Tahun Anggaran ${t.tahun}${t.is_active === 1 ? ' (Aktif)' : ''}`,
     value: t.id,
   }));
 });
 
-const editingTahun = ref(null);
-const formTahun = ref({ tahun: new Date().getFullYear(), is_active: 1 });
+const editingTahun = ref<TahunAnggaran | null>(null);
+const formTahun = ref<{ tahun: number; is_active: number; id?: number }>({ tahun: new Date().getFullYear(), is_active: 1 });
 
-const handleSaveTahun = async () => {
-  const payload = { ...formTahun.value };
+const handleSaveTahun = async (): Promise<void> => {
+  const payload: { tahun: number; is_active: number; id?: number } = { ...formTahun.value };
   if (editingTahun.value) {
     payload.id = editingTahun.value.id;
   }
@@ -711,7 +736,7 @@ const handleSaveTahun = async () => {
   }
 };
 
-const onTahunChange = () => {
+const onTahunChange = (): void => {
   if (isDirty.value) {
     const confirmChange = window.confirm(
       "Ada perubahan pembagian tim pada tahun ini yang belum disimpan. Ganti tahun anggaran?"
@@ -725,10 +750,10 @@ const onTahunChange = () => {
 };
 
 // --- Juknis ---
-const juknisText = ref("");
-const isSavingJuknis = ref(false);
+const juknisText = ref<string>("");
+const isSavingJuknis = ref<boolean>(false);
 
-const saveJuknis = async () => {
+const saveJuknis = async (): Promise<void> => {
   if (!currentTahun.value) return;
   isSavingJuknis.value = true;
   await saveTahunAnggaran({
@@ -740,22 +765,22 @@ const saveJuknis = async () => {
   isSavingJuknis.value = false;
 };
 
-const handleSaveJuknisModal = async () => {
+const handleSaveJuknisModal = async (): Promise<void> => {
   await saveJuknis();
   showJuknisModal.value = false;
 };
 
 watch(
   () => currentTahun.value,
-  (t) => {
+  (t: TahunAnggaran | null) => {
     if (t) juknisText.value = t.juknis || "";
   },
 );
 
 // --- Bagian / Tim ---
-const allGuru = ref([]);
-const localBagian = ref([]);
-const selectedGuruMap = ref({
+const allGuru = ref<GuruData[]>([]);
+const localBagian = ref<LocalBagian[]>([]);
+const selectedGuruMap = ref<Record<string, number | null>>({
   A: null,
   B: null,
   C: null,
@@ -764,11 +789,11 @@ const selectedGuruMap = ref({
 });
 
 // SK Metadata Editable State
-const nomorSk = ref("001/MI-B/087/I/2026");
-const tanggalSk = ref("1 Januari 2026");
-const namaKepala = ref("ABDUL HALIM, S.Pd.I");
+const nomorSk = ref<string>("001/MI-B/087/I/2026");
+const tanggalSk = ref<string>("1 Januari 2026");
+const namaKepala = ref<string>("ABDUL HALIM, S.Pd.I");
 
-const qrCodeText = computed(() => {
+const qrCodeText = computed<string>(() => {
   return [
     `No: ${nomorSk.value}`,
     `Tentang: Pembentukan Tim Penjamin Mutu MI NW Penyenggir`,
@@ -777,9 +802,9 @@ const qrCodeText = computed(() => {
   ].join("\n");
 });
 
-const BAGIAN_NAMES = ["A", "B", "C", "D", "E"];
+const BAGIAN_NAMES: string[] = ["A", "B", "C", "D", "E"];
 
-const BAGIAN_TITLE_MAP = {
+const BAGIAN_TITLE_MAP: Record<string, string> = {
   A: "Kedisiplinan",
   B: "Pengembangan Diri",
   C: "Proses Pembelajaran",
@@ -787,25 +812,25 @@ const BAGIAN_TITLE_MAP = {
   E: "Pembiayaan",
 };
 
-const bagianColor = (name) => {
-  const colors = { A: "bg-blue-600", B: "bg-emerald-600", C: "bg-amber-600", D: "bg-violet-600", E: "bg-rose-600" };
+const bagianColor = (name: string): string => {
+  const colors: Record<string, string> = { A: "bg-blue-600", B: "bg-emerald-600", C: "bg-amber-600", D: "bg-violet-600", E: "bg-rose-600" };
   return colors[name] || "bg-zinc-600";
 };
 
-const getBagianTitle = (code) => {
+const getBagianTitle = (code: string): string => {
   const meta = EDM_BAGIAN_LIST.find((m) => m.code === code);
   if (meta) return meta.title || meta.name.replace(/^Bagian\s+[A-E]:\s*/i, "");
   return BAGIAN_TITLE_MAP[code] || `Bagian ${code}`;
 };
 
-const tahunAnggaranVal = computed(() => {
+const tahunAnggaranVal = computed<number>(() => {
   const t = listTahun.value.find((t) => t.id === selectedTahunId.value);
   return t ? t.tahun : new Date().getFullYear();
 });
 
 watch(
   tahunAnggaranVal,
-  (val) => {
+  (val: number) => {
     if (val) {
       nomorSk.value = `001/MI-B/087/I/${val}`;
       tanggalSk.value = `1 Januari ${val}`;
@@ -814,20 +839,20 @@ watch(
   { immediate: true }
 );
 
-const getGuruName = (gtkId) => {
+const getGuruName = (gtkId: number): string => {
   const guru = allGuru.value.find((g) => g.id === gtkId);
   return guru?.nama_lengkap || `ID: ${gtkId}`;
 };
 
 // Set GTK IDs yang sudah masuk ke bagian apapun
-const assignedGtkIds = computed(() => {
-  const ids = new Set();
+const assignedGtkIds = computed<Set<number>>(() => {
+  const ids = new Set<number>();
   localBagian.value.forEach((b) => b.gtk_ids.forEach((id) => ids.add(id)));
   return ids;
 });
 
 // Dropdown hanya memunculkan GTK yang belum memiliki bagian
-const getAvailableGuruOptions = (b) => {
+const getAvailableGuruOptions = (_b: LocalBagian): SelectOption[] => {
   return allGuru.value
     .filter((g) => !assignedGtkIds.value.has(g.id))
     .map((g) => ({
@@ -836,10 +861,12 @@ const getAvailableGuruOptions = (b) => {
     }));
 };
 
-const addGuruToBagian = (b, opt) => {
+const addGuruToBagian = (b: LocalBagian, opt: any): void => {
   if (!opt) return;
-  const gtkId = typeof opt === "object" ? opt.value : opt;
-  if (!gtkId) return;
+  const rawId = typeof opt === "object" ? opt.value : opt;
+  if (!rawId) return;
+  const gtkId = typeof rawId === "number" ? rawId : parseInt(String(rawId), 10);
+  if (!gtkId || isNaN(gtkId)) return;
 
   // Add to target bagian
   if (!b.gtk_ids.includes(gtkId)) {
@@ -850,19 +877,19 @@ const addGuruToBagian = (b, opt) => {
   selectedGuruMap.value[b.nama_bagian] = null;
 };
 
-const removeFromBagian = (b, gtkId) => {
+const removeFromBagian = (b: LocalBagian, gtkId: number): void => {
   b.gtk_ids = b.gtk_ids.filter((id) => id !== gtkId);
 };
 
 // Bagian Anggota Helper for SK Lampiran I (semua anggota tanpa koordinator)
-const getBagianSemuaAnggota = (code) => {
+const getBagianSemuaAnggota = (code: string): string[] => {
   const b = localBagian.value.find((item) => item.nama_bagian === code);
   if (!b || !b.gtk_ids || b.gtk_ids.length === 0) return [];
   return b.gtk_ids.map((id) => getGuruName(id));
 };
 
-const tpmTableData = computed(() => {
-  const list = [];
+const tpmTableData = computed<TpmRow[]>(() => {
+  const list: TpmRow[] = [];
   let no = 1;
   BAGIAN_NAMES.forEach((code) => {
     const anggotaList = getBagianSemuaAnggota(code);
@@ -880,7 +907,7 @@ const tpmTableData = computed(() => {
   return list;
 });
 
-const handleSave = async () => {
+const handleSave = async (): Promise<void> => {
   if (!selectedTahunId.value) return;
   const payload = localBagian.value.map((b) => ({
     nama_bagian: b.nama_bagian,
@@ -892,7 +919,7 @@ const handleSave = async () => {
   }
 };
 
-const loadData = async () => {
+const loadData = async (): Promise<void> => {
   if (!selectedTahunId.value) return;
   try {
     const gtkData = await fetchFromApi("DataGtk");

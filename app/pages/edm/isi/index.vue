@@ -37,63 +37,72 @@
 
         <template v-else>
           <!-- Bagian Anda -->
-          <div v-if="myBagian" class="rounded-xl p-6 mb-6"
+          <div v-if="myBagian" class="rounded-2xl p-4 sm:p-6 mb-6 transition-all shadow-xs"
             style="background: var(--bg-card); border: 1px solid var(--border-primary)">
-            <div class="flex items-start gap-4 mb-4">
-              <span class="inline-flex items-center justify-center px-3.5 py-2 rounded-xl text-lg font-bold text-white shrink-0 mt-0.5"
+            
+            <!-- Header: Badge Kode & Judul Bagian -->
+            <div class="flex items-start gap-3 sm:gap-4 mb-5">
+              <span class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl text-base sm:text-lg font-extrabold text-white flex items-center justify-center shrink-0 shadow-xs"
                 :class="bagianColor(getBagianCode(myBagian))">
-                Bagian {{ getBagianCode(myBagian) }}
+                {{ getBagianCode(myBagian) }}
               </span>
-              <div>
+              <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap mb-1">
-                  <h2 class="font-semibold text-base sm:text-lg" style="color: var(--text-heading)">
+                  <h2 class="font-bold text-base sm:text-lg leading-tight" style="color: var(--text-heading)">
                     {{ getBagianFullName(getBagianCode(myBagian)) }}
                   </h2>
-                  <span class="text-xs font-medium px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 shrink-0">
-                    Jawaban Sync Bagian
-                  </span>
                 </div>
-                <p class="text-sm" style="color: var(--text-muted)">
+                <p class="text-xs sm:text-sm font-medium" style="color: var(--text-muted)">
                   {{ myBagian.anggota?.length || 0 }} anggota · {{ myIndikatorCount }} pertanyaan
                 </p>
               </div>
             </div>
 
             <!-- Anggota List -->
-            <div class="mb-5">
-              <p class="text-xs font-medium mb-2" style="color: var(--text-muted)">Anggota Bagian:</p>
-              <div class="flex flex-wrap gap-2">
+            <div class="mb-5 p-3.5 sm:p-4 rounded-xl" style="background: var(--bg-secondary); border: 1px solid var(--border-subtle)">
+              <p class="text-xs font-semibold mb-2 uppercase tracking-wider" style="color: var(--text-muted)">
+                Anggota Tim Bagian
+              </p>
+              <div class="flex flex-wrap gap-1.5 sm:gap-2">
                 <span v-for="a in myBagian.anggota" :key="a.gtk_id"
-                  class="text-xs px-2.5 py-1 rounded-lg"
-                  :class="a.gtk_id === myGtkId ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 font-medium' : ''"
-                  :style="a.gtk_id !== myGtkId ? 'background: var(--bg-secondary); color: var(--text-secondary)' : ''">
-                  {{ a.nama_lengkap }} {{ a.gtk_id === myGtkId ? '(Anda)' : '' }}
+                  class="text-xs px-2.5 py-1 rounded-lg inline-flex items-center gap-1 font-medium transition-colors"
+                  :class="a.gtk_id === myGtkId
+                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-semibold'
+                    : 'theme-text-secondary border border-transparent'"
+                  :style="a.gtk_id !== myGtkId ? 'background: var(--bg-card); border-color: var(--border-primary)' : ''">
+                  <span>{{ a.nama_lengkap }}</span>
+                  <span v-if="a.gtk_id === myGtkId" class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-600 text-white font-bold ml-0.5">Anda</span>
                 </span>
               </div>
             </div>
 
-            <!-- Progress -->
+            <!-- Progress Bar -->
             <div class="mb-5">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-medium" style="color: var(--text-secondary)">Progres Pengisian Bagian</span>
-                <span class="text-xs font-bold" style="color: var(--text-heading)">
+              <div class="flex items-center justify-between mb-1.5 text-xs">
+                <span class="font-medium" style="color: var(--text-secondary)">Progres Pengisian Bagian</span>
+                <span class="font-extrabold text-emerald-600 dark:text-emerald-400">
                   {{ myProgress }}%
                 </span>
               </div>
-              <div class="w-full h-2.5 rounded-full" style="background: var(--bg-tertiary)">
-                <div class="h-2.5 rounded-full bg-emerald-500 transition-all duration-500"
+              <div class="w-full h-2 rounded-full overflow-hidden" style="background: var(--bg-tertiary)">
+                <div class="h-2 rounded-full bg-emerald-500 transition-all duration-500"
                   :style="{ width: myProgress + '%' }"></div>
               </div>
-              <p class="text-xs mt-1.5" style="color: var(--text-muted)">
-                {{ myAnsweredCount }} dari {{ myIndikatorCount }} pertanyaan dijawab oleh bagian
+              <p class="text-xs mt-1.5 font-medium" style="color: var(--text-muted)">
+                {{ myAnsweredCount }} dari {{ myIndikatorCount }} pertanyaan dijawab oleh tim bagian
               </p>
             </div>
 
-            <NuxtLink :to="`/edm/isi/${getBagianCode(myBagian)}`"
-              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] transition-all shadow-sm">
-              <PenLine class="w-4 h-4" />
-              {{ myAnsweredCount > 0 ? 'Lanjutkan Pengisian Bagian' : 'Mulai Pengisian Bagian' }}
-            </NuxtLink>
+            <!-- Action Button -->
+            <UiBaseButton
+              :to="`/edm/isi/${getBagianCode(myBagian)}`"
+              :text="myAnsweredCount > 0 ? 'Lanjutkan Pengisian Bagian' : 'Mulai Pengisian Bagian'"
+              class="w-full sm:w-auto"
+            >
+              <template #icon>
+                <PenLine class="w-4 h-4" />
+              </template>
+            </UiBaseButton>
           </div>
 
           <!-- Admin: Pilih bagian untuk diisi/preview -->
@@ -125,7 +134,7 @@
       <!-- Modal Juknis EDM -->
       <Teleport to="body">
         <div v-if="showJuknisModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 ">
           <div class="w-full max-w-2xl rounded-2xl p-5 sm:p-6 shadow-xl space-y-4 max-h-[85vh] flex flex-col"
             style="background: var(--bg-card); border: 1px solid var(--border-primary)">
 
@@ -170,9 +179,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useEdm, EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
+import type { BagianGuru, EdmInstrumen } from "~/composables/edm/useEdm";
 import { UsersRound, BookOpen, PenLine, X } from "lucide-vue-next";
 
 const {
@@ -180,52 +190,52 @@ const {
   fetchTahunAnggaran, fetchBagian, fetchInstrumen, fetchIndikator, fetchJawaban,
 } = useEdm();
 
-const showJuknisModal = ref(false);
+const showJuknisModal = ref<boolean>(false);
 
-const isAdmin = computed(() => {
+const isAdmin = computed<boolean>(() => {
   if (typeof window === "undefined") return false;
   return localStorage.getItem("user-role") === "admin";
 });
 
-const myGtkId = computed(() => {
+const myGtkId = computed<number | null>(() => {
   if (typeof window === "undefined") return null;
   const id = localStorage.getItem("user-gtk-id");
   return id ? parseInt(id) : null;
 });
 
-const bagianList = ref([]);
-const indikatorCount = ref({});
-const myAnsweredCount = ref(0);
-const juknisText = ref("");
+const bagianList = ref<BagianGuru[]>([]);
+const indikatorCount = ref<Record<string, number>>({});
+const myAnsweredCount = ref<number>(0);
+const juknisText = ref<string>("");
 
-const getBagianCode = (b) => {
+const getBagianCode = (b: BagianGuru): string => {
   return b?.nama_bagian || b?.nama_kelompok || "A";
 };
 
-const getBagianFullName = (code) => {
+const getBagianFullName = (code: string): string => {
   const meta = EDM_BAGIAN_LIST.find((m) => m.code === code);
   return meta ? meta.name : `Bagian ${code}`;
 };
 
-const myBagian = computed(() => {
+const myBagian = computed<BagianGuru | null>(() => {
   if (!myGtkId.value) return null;
   return bagianList.value.find((b) =>
     b.anggota?.some((a) => a.gtk_id === myGtkId.value)
   ) || null;
 });
 
-const myIndikatorCount = computed(() => {
+const myIndikatorCount = computed<number>(() => {
   if (!myBagian.value) return 0;
   return indikatorCount.value[getBagianCode(myBagian.value)] || 0;
 });
 
-const myProgress = computed(() => {
+const myProgress = computed<number>(() => {
   if (myIndikatorCount.value === 0) return 0;
   return Math.round((myAnsweredCount.value / myIndikatorCount.value) * 100);
 });
 
-const bagianColor = (name) => {
-  const c = { A: "bg-blue-600", B: "bg-emerald-600", C: "bg-amber-600", D: "bg-violet-600", E: "bg-rose-600" };
+const bagianColor = (name: string): string => {
+  const c: Record<string, string> = { A: "bg-blue-600", B: "bg-emerald-600", C: "bg-amber-600", D: "bg-violet-600", E: "bg-rose-600" };
   return c[name] || "bg-zinc-600";
 };
 
@@ -239,8 +249,8 @@ onMounted(async () => {
 
   bagianList.value = await fetchBagian(tahunId);
 
-  const counts = {};
-  fetchInstrumen().forEach((item) => {
+  const counts: Record<string, number> = {};
+  fetchInstrumen().forEach((item: EdmInstrumen) => {
     const code = item.kategori || "A";
     counts[code] = (counts[code] || 0) + 1;
   });
@@ -251,7 +261,7 @@ onMounted(async () => {
     const code = getBagianCode(myBagian.value);
     const bagianId = myBagian.value.id;
     const jawaban = await fetchJawaban(tahunId, code, bagianId);
-    myAnsweredCount.value = jawaban.filter((j) => j.skor !== null && j.skor !== undefined).length;
+    myAnsweredCount.value = jawaban.filter((j: { skor?: number | null }) => j.skor !== null && j.skor !== undefined).length;
   }
 });
 </script>

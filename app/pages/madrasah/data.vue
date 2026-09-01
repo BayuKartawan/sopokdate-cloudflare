@@ -4,22 +4,14 @@
     <div class="page-layout">
       <!-- dataMadrasah Section with New Layout -->
       <section>
-        <div
-          class="rounded-lg shadow-sm border overflow-hidden transition-all duration-300 theme-bg theme-border"
-        >
+        <div class="rounded-lg shadow-sm border overflow-hidden transition-all duration-300 theme-bg theme-border">
           <!-- Section Header -->
-          <div
-            class="px-6 md:px-8 py-6 transition-all duration-300 theme-bg-secondary"
-          >
-            <div
-              class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
-            >
+          <div class="px-6 md:px-8 py-6 transition-all duration-300 theme-bg-secondary">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div class="flex items-center gap-3">
                 <div>
                   <h2 class="text-2xl md:text-3xl theme-text-heading">Data Madrasah</h2>
-                  <p
-                    class="text-sm mt-1 transition-colors duration-300 theme-text-secondary"
-                  >
+                  <p class="text-sm mt-1 transition-colors duration-300 theme-text-secondary">
                     Kumpulan data madrasah dan informasi akreditasi
                   </p>
                 </div>
@@ -27,11 +19,7 @@
 
               <!-- Admin Actions -->
               <div v-if="isAdmin" class="flex items-center gap-2">
-                <BaseButton
-                  text="Edit Data"
-                  title="Edit data madrasah"
-                  @click="openEditModal"
-                >
+                <BaseButton text="Edit Data" title="Edit data madrasah" @click="openEditModal">
                   <template #icon>
                     <Pencil class="w-4 h-4" />
                   </template>
@@ -43,10 +31,8 @@
           <!-- dataMadrasah Content - New Layout Format -->
           <div class="p-6">
             <div v-if="dataMadrasah.length === 0" class="text-center py-12">
-              <Database
-                class="w-16 h-16 mx-auto mb-4 transition-colors duration-300 theme-text-muted"
-                stroke-width="1.5"
-              />
+              <Database class="w-16 h-16 mx-auto mb-4 transition-colors duration-300 theme-text-muted"
+                stroke-width="1.5" />
               <p class="transition-colors duration-300 theme-text-muted">
                 Tidak ada data madrasah yang ditemukan
               </p>
@@ -54,29 +40,19 @@
 
             <!-- New Layout using the template style -->
             <div v-else class="space-y-6">
-              <div
-                v-for="(item, index) in visibleDataMadrasahItems"
-                :key="index"
-                class="overflow-hidden transition-all duration-300"
-              >
+              <div v-for="(item, index) in visibleDataMadrasahItems" :key="index"
+                class="overflow-hidden transition-all duration-300">
                 <div class="flow-root">
-                  <dl class="text-sm transition-colors duration-300">                    <!-- Dynamic Fields -->
-                    <div
-                      v-for="(field, fieldIndex) in tableFields"
-                      :key="field.key"
+                  <dl class="text-sm transition-colors duration-300"> <!-- Dynamic Fields -->
+                    <div v-for="(field, fieldIndex) in tableFields" :key="field.key"
                       class="grid grid-cols-1 gap-1 p-3 sm:grid-cols-3 sm:gap-4 transition-colors duration-300"
-                      :class="fieldIndex % 2 === 0 ? 'theme-bg' : 'theme-bg-secondary'"
-                    >
-                      <dt
-                        class="font-medium transition-colors duration-300 theme-text"
-                      >
+                      :class="fieldIndex % 2 === 0 ? 'theme-bg' : 'theme-bg-secondary'">
+                      <dt class="font-medium transition-colors duration-300 theme-text">
                         {{ field.label }}
                       </dt>
                       <dd
                         class="sm:col-span-2 transition-colors duration-300 theme-text-secondary cursor-pointer hover:text-emerald-500 select-all"
-                        @click="copyToClipboard(item[field.key] || '-')"
-                        title="Klik untuk menyalin"
-                      >
+                        @click="copyToClipboard(item[field.key] || '-')" title="Klik untuk menyalin">
                         {{ item[field.key] || "-" }}
                       </dd>
                     </div>
@@ -89,16 +65,8 @@
       </section>
 
       <!-- CRUD Modal -->
-      <CrudModal
-        :show="showModal"
-        mode="edit"
-        title="Edit Data Madrasah"
-        :fields="madrasahFields"
-        :initialData="editingItem"
-        :isSaving="isSaving"
-        @submit="handleFormSubmit"
-        @close="showModal = false"
-      />
+      <CrudModal :show="showModal" mode="edit" title="Edit Data Madrasah" :fields="madrasahFields"
+        :initialData="editingItem" :isSaving="isSaving" @submit="handleFormSubmit" @close="showModal = false" />
     </div>
   </div>
 </template>

@@ -304,7 +304,7 @@ export function useEdm() {
   const saveJawaban = async (payload: {
     bagian_id?: number;
     kelompok_id?: number;
-    gtk_id: number;
+    gtk_id?: number;
     jawaban: Array<{
       kode_soal?: string;
       indikator_id?: number | string;

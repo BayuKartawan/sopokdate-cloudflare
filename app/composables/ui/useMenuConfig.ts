@@ -188,11 +188,6 @@ export const useMenuConfig = () => {
         },
         { to: "/dokumen/sampul", label: "Sampul", roles: ["admin", "guru", "kepala_madrasah"] },
         {
-          to: "/dokumen/daftar-siswa",
-          label: "Daftar Siswa",
-          roles: ["admin", "guru", "kepala_madrasah"],
-        },
-        {
           to: "/dokumen/pas-foto",
           label: "Cetak Pas Foto",
           roles: ["admin", "guru", "kepala_madrasah"],

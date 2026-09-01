@@ -239,7 +239,6 @@ const childIconMap: Record<string, IconMeta> = {
   "Surat": { icon: markRaw(FileText), activeColor: "text-indigo-600 dark:text-indigo-400", activeBg: "bg-indigo-500/15 dark:bg-indigo-500/20" },
   "Sertifikat": { icon: markRaw(Medal), activeColor: "text-indigo-600 dark:text-indigo-400", activeBg: "bg-indigo-500/15 dark:bg-indigo-500/20" },
   "Sampul": { icon: markRaw(BookCopy), activeColor: "text-indigo-600 dark:text-indigo-400", activeBg: "bg-indigo-500/15 dark:bg-indigo-500/20" },
-  "Daftar Siswa": { icon: markRaw(ListOrdered), activeColor: "text-indigo-600 dark:text-indigo-400", activeBg: "bg-indigo-500/15 dark:bg-indigo-500/20" },
   "Cetak Pas Foto": { icon: markRaw(Camera), activeColor: "text-indigo-600 dark:text-indigo-400", activeBg: "bg-indigo-500/15 dark:bg-indigo-500/20" },
   // Keuangan BOS
   "Penerimaan Honor": { icon: markRaw(Banknote), activeColor: "text-emerald-600 dark:text-emerald-400", activeBg: "bg-emerald-500/15 dark:bg-emerald-500/20" },

@@ -100,7 +100,7 @@
                 <div>
                   <p class="text-[10px] font-medium" style="color: var(--text-muted)">Poin Maks</p>
                   <p class="font-semibold mt-0.5" style="color: var(--text-muted)">
-                    {{ b.total_poin_maksimal || (b.jumlah_indikator * 4) }}
+                    {{ b.total_poin_maksimal || ((b.jumlah_indikator || 0) * 4) }}
                   </p>
                 </div>
               </div>
@@ -141,7 +141,7 @@
                     {{ b.total_poin_didapat || 0 }} Poin
                   </td>
                   <td class="px-4 py-3 text-center whitespace-nowrap" style="color: var(--text-muted)">
-                    {{ b.total_poin_maksimal || (b.jumlah_indikator * 4) }} Poin
+                    {{ b.total_poin_maksimal || ((b.jumlah_indikator || 0) * 4) }} Poin
                   </td>
                   <td class="px-4 py-3 text-center font-bold text-emerald-600 dark:text-emerald-400 text-base whitespace-nowrap">
                     {{ b.persentase_skor ?? 0 }}%
@@ -206,43 +206,78 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useEdm, EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
 import { BarChart3 } from "lucide-vue-next";
+
+interface RekapBagian {
+  id?: number;
+  nama_bagian?: string;
+  nama_kelompok?: string;
+  bagian_target?: string;
+  kelompok_target?: string;
+  jumlah_indikator?: number;
+  jumlah_jawaban?: number;
+  total_poin_didapat?: number;
+  total_poin_maksimal?: number;
+  persentase_skor?: number;
+}
+
+interface RekapIndikator {
+  id?: number;
+  kode_soal?: string;
+  nomor_urut?: number;
+  pertanyaan: string;
+  nama_bagian?: string;
+  nama_kelompok?: string;
+  bagian_target?: string;
+  kelompok_target?: string;
+  rata_rata_skor?: number | null;
+}
+
+interface RekapData {
+  overall?: {
+    total_indikator?: number;
+    persentase_skor_keseluruhan?: number;
+  };
+  bagian?: RekapBagian[];
+  kelompok?: RekapBagian[];
+  per_indikator?: RekapIndikator[];
+}
 
 const {
   isLoading, listTahun, selectedTahunId, selectedTahunLabel, activeTahun,
   fetchTahunAnggaran, fetchRekap,
 } = useEdm();
 
-const rekapData = ref(null);
-const selectedBagianFilter = ref("");
+const rekapData = ref<RekapData | null>(null);
+const selectedBagianFilter = ref<string>("");
 
-const activeTahunVal = computed(() => {
+const activeTahunVal = computed<number>(() => {
   const t = listTahun.value.find((item) => item.id === selectedTahunId.value);
   return t ? t.tahun : (activeTahun.value?.tahun || new Date().getFullYear());
 });
 
-const bagianColor = (name) => {
-  const c = { A: "bg-blue-600", B: "bg-emerald-600", C: "bg-amber-600", D: "bg-violet-600", E: "bg-rose-600" };
+const bagianColor = (name: string): string => {
+  const c: Record<string, string> = { A: "bg-blue-600", B: "bg-emerald-600", C: "bg-amber-600", D: "bg-violet-600", E: "bg-rose-600" };
   return c[name] || "bg-zinc-600";
 };
 
-const getBagianCode = (b) => {
-  return b?.nama_bagian || b?.nama_kelompok || b?.bagian_target || b?.kelompok_target || "A";
+const getBagianCode = (b: RekapBagian | RekapIndikator): string => {
+  return b?.nama_bagian || b?.nama_kelompok || (b as RekapIndikator)?.bagian_target || (b as RekapIndikator)?.kelompok_target || "A";
 };
 
-const getBagianFullName = (code) => {
+const getBagianFullName = (code: string): string => {
   const meta = EDM_BAGIAN_LIST.find((m) => m.code === code);
   return meta ? (meta.title || meta.name.replace(/^Bagian\s+[A-Z]:\s*/i, "")) : "";
 };
 
-const getBagianSummaryList = (data) => {
+const getBagianSummaryList = (data: RekapData): RekapBagian[] => {
   return data?.bagian || data?.kelompok || [];
 };
 
-const filteredIndikator = computed(() => {
+const filteredIndikator = computed<RekapIndikator[]>(() => {
   if (!rekapData.value?.per_indikator) return [];
   if (!selectedBagianFilter.value) return rekapData.value.per_indikator;
   return rekapData.value.per_indikator.filter(
@@ -250,7 +285,7 @@ const filteredIndikator = computed(() => {
   );
 });
 
-const loadData = async () => {
+const loadData = async (): Promise<void> => {
   if (!selectedTahunId.value) return;
   rekapData.value = await fetchRekap(selectedTahunId.value);
 };

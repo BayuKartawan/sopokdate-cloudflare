@@ -35,7 +35,6 @@ const ALL_MENU_KEYS: string[] = [
   "/dokumen/surat",
   "/dokumen/sertifikat",
   "/dokumen/sampul",
-  "/dokumen/daftar-siswa",
   "/dokumen/pas-foto",
   "/bos/penerimaan-honor",
   "/bos/kuitansi",

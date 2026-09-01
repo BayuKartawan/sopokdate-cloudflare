@@ -29,9 +29,90 @@
       </template>
     </UiPageHeader>
 
-    <!-- Loading -->
-    <div v-if="isLoading" class="flex items-center justify-center py-20">
-      <div class="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+    <!-- Skeleton Loader (Matching Layout) -->
+    <div v-if="isPageLoading || isLoading" class="space-y-4 animate-pulse">
+      <!-- Navigasi Soal Skeleton -->
+      <div class="rounded-xl p-3 sm:p-4"
+        style="background: var(--bg-card); border: 1px solid var(--border-primary)">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <div class="h-4 w-24 rounded-md" style="background: var(--bg-tertiary)"></div>
+            <div class="h-4 w-16 rounded-md bg-emerald-500/20"></div>
+          </div>
+          <div class="h-4 w-20 rounded-md" style="background: var(--bg-tertiary)"></div>
+        </div>
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <div v-for="i in 8" :key="'skel-btn-' + i"
+            class="shrink-0 h-8 w-10 rounded-lg"
+            style="background: var(--bg-tertiary)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Soal Card Skeleton -->
+      <div class="rounded-xl p-4 sm:p-6 space-y-6"
+        style="background: var(--bg-card); border: 1px solid var(--border-primary)">
+        
+        <!-- Header Question Skeleton -->
+        <div class="pb-4 border-b space-y-2.5" style="border-color: var(--border-subtle)">
+          <div class="h-5 w-5/6 rounded-lg" style="background: var(--bg-tertiary)"></div>
+          <div class="h-5 w-3/5 rounded-lg" style="background: var(--bg-tertiary)"></div>
+        </div>
+
+        <!-- Detail Bukti Physical Spec Skeleton -->
+        <div class="p-3.5 rounded-xl space-y-2" style="background: var(--bg-secondary); border: 1px solid var(--border-subtle)">
+          <div class="h-4 w-44 rounded-md bg-emerald-500/20"></div>
+          <div class="h-3 w-4/5 rounded-md" style="background: var(--bg-tertiary)"></div>
+          <div class="h-3 w-2/3 rounded-md" style="background: var(--bg-tertiary)"></div>
+        </div>
+
+        <!-- Step 1: Upload Skeleton -->
+        <div class="pt-2 space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-emerald-600/30"></div>
+            <div class="h-4 w-32 rounded-md" style="background: var(--bg-tertiary)"></div>
+          </div>
+          <div class="h-28 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2"
+            style="border-color: var(--border-input); background: var(--bg-input)">
+            <div class="w-10 h-10 rounded-xl" style="background: var(--bg-tertiary)"></div>
+            <div class="h-3.5 w-48 rounded-md" style="background: var(--bg-tertiary)"></div>
+          </div>
+        </div>
+
+        <!-- Step 2: Jawaban Textarea Skeleton -->
+        <div class="pt-2 space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-emerald-600/30"></div>
+            <div class="h-4 w-28 rounded-md" style="background: var(--bg-tertiary)"></div>
+          </div>
+          <div class="h-16 w-full rounded-xl" style="background: var(--bg-input); border: 1px solid var(--border-input)"></div>
+        </div>
+
+        <!-- Step 3: Option Cards Skeleton -->
+        <div class="pt-2 space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-emerald-600/30"></div>
+            <div class="h-4 w-32 rounded-md" style="background: var(--bg-tertiary)"></div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div v-for="i in 4" :key="'skel-opt-' + i"
+              class="p-4 rounded-xl space-y-2 border"
+              style="background: var(--bg-secondary); border-color: var(--border-primary)">
+              <div class="h-5 w-20 rounded-md bg-emerald-500/20"></div>
+              <div class="h-3 w-full rounded-md" style="background: var(--bg-tertiary)"></div>
+              <div class="h-3 w-4/5 rounded-md" style="background: var(--bg-tertiary)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Navigation Controls Skeleton -->
+        <div class="pt-4 border-t flex items-center justify-between gap-3" style="border-color: var(--border-subtle)">
+          <div class="h-9 w-28 rounded-lg" style="background: var(--bg-tertiary)"></div>
+          <div class="h-9 w-36 rounded-lg bg-emerald-600/30"></div>
+          <div class="h-9 w-28 rounded-lg" style="background: var(--bg-tertiary)"></div>
+        </div>
+
+      </div>
     </div>
 
     <!-- Empty State: No Indicators -->
@@ -569,16 +650,56 @@
   </Teleport>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch, nextTick } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
+import type { NavigationGuardNext } from "vue-router";
 import { useEdm, EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
+import type { AnggotaBagian, BuktiFile } from "~/composables/edm/useEdm";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import {
   ArrowLeft, Save, UsersRound, ListChecks, Plus,
   ChevronLeft, ChevronRight, CheckCircle2, X, PencilLine,
   Upload, FileText, ExternalLink, Trash2, AlertTriangle
 } from "lucide-vue-next";
+
+interface LocalAnswer {
+  kode_soal: string;
+  skor: number | null;
+  upload_text: string;
+  updated_by_nama: string;
+}
+
+interface IndikatorItem {
+  id: string;
+  kode_soal: string;
+  bagian_target: string;
+  kelompok_target: string;
+  nomor_urut: number;
+  urutan: number;
+  pertanyaan: string;
+  bukti_yang_diminta?: string;
+  bobot: number;
+  pilihan: Array<{
+    kode?: string;
+    skor?: number;
+    nama?: string;
+    keterangan?: string;
+    label?: string;
+  }>;
+  upload_text?: string;
+}
+
+interface ParsedPilihan {
+  skor: number;
+  nama: string;
+  label: string;
+}
+
+interface ParsedLineItem {
+  number: string;
+  text: string;
+}
 
 const route = useRoute();
 const { Notify } = useNotiflix();
@@ -588,38 +709,40 @@ const {
   uploadBuktiFiles, fetchBuktiFiles, deleteBuktiFile, getBuktiDownloadUrl,
 } = useEdm();
 
-const bagianCode = computed(() => {
+const isPageLoading = ref<boolean>(true);
+
+const bagianCode = computed<string>(() => {
   return (route.params.bagian || route.params.kelompok || "A").toString().toUpperCase();
 });
 
-const bagianFullName = computed(() => {
+const bagianFullName = computed<string>(() => {
   const meta = EDM_BAGIAN_LIST.find((m) => m.code === bagianCode.value);
   return meta ? meta.name : `Bagian ${bagianCode.value}`;
 });
 
-const isAdmin = computed(() => {
+const isAdmin = computed<boolean>(() => {
   if (typeof window === "undefined") return false;
   return localStorage.getItem("user-role") === "admin";
 });
 
-const myGtkId = computed(() => {
+const myGtkId = computed<number | null>(() => {
   if (typeof window === "undefined") return null;
   const id = localStorage.getItem("user-gtk-id");
   return id ? parseInt(id) : null;
 });
 
-const indikatorList = ref([]);
-const localAnswers = reactive({});
-const savedAnswers = reactive({});
-const myBagianId = ref(null);
-const anggotaBagian = ref([]);
+const indikatorList = ref<IndikatorItem[]>([]);
+const localAnswers = reactive<Record<string, LocalAnswer>>({});
+const savedAnswers = reactive<Record<string, { skor: number | null; upload_text: string }>>({});
+const myBagianId = ref<number | null>(null);
+const anggotaBagian = ref<AnggotaBagian[]>([]);
 
 // Pagination State
-const currentPage = ref(1);
+const currentPage = ref<number>(1);
 
-const totalPages = computed(() => indikatorList.value.length);
+const totalPages = computed<number>(() => indikatorList.value.length);
 
-const currentItem = computed(() => {
+const currentItem = computed<IndikatorItem | null>(() => {
   if (indikatorList.value.length === 0) return null;
   const idx = currentPage.value - 1;
   if (idx < 0 || idx >= indikatorList.value.length) return indikatorList.value[0];
@@ -627,21 +750,24 @@ const currentItem = computed(() => {
 });
 
 // Navigation Unsaved Dialog State
-const navDialog = reactive({
+const navDialog = reactive<{
+  show: boolean;
+  targetPage: number | null;
+}>({
   show: false,
   targetPage: null,
 });
 
-const isCurrentItemChanged = computed(() => {
+const isCurrentItemChanged = computed<boolean>(() => {
   if (!currentItem.value) return false;
   const k = currentItem.value.kode_soal;
-  const local = localAnswers[k] || {};
-  const saved = savedAnswers[k] || {};
+  const local = localAnswers[k] || {} as LocalAnswer;
+  const saved = savedAnswers[k] || {} as { skor: number | null; upload_text: string };
   return (local.skor ?? null) !== (saved.skor ?? null) ||
          (local.upload_text || "") !== (saved.upload_text || "");
 });
 
-const canSaveCurrentItem = computed(() => {
+const canSaveCurrentItem = computed<boolean>(() => {
   if (!currentItem.value) return false;
   const k = currentItem.value.kode_soal;
   const ans = localAnswers[k];
@@ -655,7 +781,7 @@ const canSaveCurrentItem = computed(() => {
   return hasChanges && hasScore && hasProof && hasMinWords;
 });
 
-const attemptNavigation = (targetPage) => {
+const attemptNavigation = (targetPage: number): void => {
   if (targetPage < 1 || targetPage > totalPages.value || targetPage === currentPage.value) return;
   if (isCurrentItemChanged.value) {
     navDialog.targetPage = targetPage;
@@ -665,27 +791,27 @@ const attemptNavigation = (targetPage) => {
   }
 };
 
-const goToPage = (page) => {
+const goToPage = (page: number): void => {
   attemptNavigation(page);
 };
 
-const prevPage = () => {
+const prevPage = (): void => {
   attemptNavigation(currentPage.value - 1);
 };
 
-const nextPage = () => {
+const nextPage = (): void => {
   attemptNavigation(currentPage.value + 1);
 };
 
-const handleDialogCancel = () => {
+const handleDialogCancel = (): void => {
   navDialog.show = false;
   navDialog.targetPage = null;
 };
 
-const handleDialogDiscardAndProceed = () => {
+const handleDialogDiscardAndProceed = (): void => {
   if (currentItem.value) {
     const k = currentItem.value.kode_soal;
-    const saved = savedAnswers[k] || {};
+    const saved = savedAnswers[k] || {} as { skor: number | null; upload_text: string };
     localAnswers[k].skor = saved.skor ?? null;
     localAnswers[k].upload_text = saved.upload_text || "";
   }
@@ -697,7 +823,7 @@ const handleDialogDiscardAndProceed = () => {
   }
 };
 
-const handleDialogSaveAndProceed = async () => {
+const handleDialogSaveAndProceed = async (): Promise<void> => {
   if (!canSaveCurrentItem.value) {
     Notify?.failure?.("Persyaratan simpan belum lengkap (upload bukti, min. 30 kata, & pilih skor).");
     return;
@@ -713,7 +839,7 @@ const handleDialogSaveAndProceed = async () => {
   }
 };
 
-onBeforeRouteLeave((to, from, next) => {
+onBeforeRouteLeave((_to, _from, next: NavigationGuardNext) => {
   if (isCurrentItemChanged.value) {
     const answer = window.confirm(
       `Ada perubahan jawaban pada soal ${currentItem.value?.kode_soal} yang belum disimpan. Apakah Anda yakin ingin meninggalkan halaman ini?`
@@ -728,13 +854,13 @@ onBeforeRouteLeave((to, from, next) => {
   }
 });
 
-const bagianColor = (name) => {
-  const c = { A: "bg-blue-600", B: "bg-emerald-600", C: "bg-amber-600", D: "bg-violet-600", E: "bg-rose-600" };
+const bagianColor = (name: string): string => {
+  const c: Record<string, string> = { A: "bg-blue-600", B: "bg-emerald-600", C: "bg-amber-600", D: "bg-violet-600", E: "bg-rose-600" };
   return c[name] || "bg-zinc-600";
 };
 
 // Normalisasi teks dari data instrumen: hapus \r, trim tab trailing & bullet prefix per baris
-const normalizeText = (str) => {
+const normalizeText = (str: string | null | undefined): string => {
   if (!str || typeof str !== "string") return "";
   return str
     .replace(/\r\n/g, "\n")   // Windows line ending → Unix
@@ -746,7 +872,7 @@ const normalizeText = (str) => {
 };
 
 // Ambil array baris teks untuk rendering list rapi
-const getLines = (str) => {
+const getLines = (str: string | null | undefined): string[] => {
   if (!str || typeof str !== "string") return [];
   return str
     .replace(/\r\n/g, "\n")
@@ -756,32 +882,32 @@ const getLines = (str) => {
     .filter(Boolean);
 };
 
-const parseLineItem = (line) => {
+const parseLineItem = (line: string | null | undefined): ParsedLineItem => {
   if (!line || typeof line !== "string") return { number: "", text: "" };
-  const match = line.match(/^(\d+[\.\)])\s*(.*)/);
+  const match = line.match(/^(\d+[\.)])\s*(.*)/);
   if (match) {
     return { number: match[1], text: match[2] };
   }
   return { number: "", text: line };
 };
 
-const isNumbered = (str) => {
+const isNumbered = (str: string | null | undefined): boolean => {
   if (!str || typeof str !== "string") return false;
   return /^\d+[\.\)]/.test(str);
 };
 
-const getWordCount = (str) => {
+const getWordCount = (str: string | null | undefined): number => {
   if (!str || typeof str !== "string") return 0;
   const trimmed = str.trim();
   if (!trimmed) return 0;
   return trimmed.split(/\s+/).filter(Boolean).length;
 };
 
-const parsePilihan = (item) => {
+const parsePilihan = (item: IndikatorItem | null): ParsedPilihan[] => {
   if (!item) return [];
   if (Array.isArray(item.pilihan)) {
     return item.pilihan.map((p) => ({
-      skor: parseInt(p.kode || p.skor || 0),
+      skor: parseInt(String(p.kode || p.skor || 0)),
       nama: p.nama || `Tingkat ${p.kode}`,
       label: p.keterangan || p.label || '',
     }));
@@ -789,13 +915,13 @@ const parsePilihan = (item) => {
   return [];
 };
 
-const answeredCount = computed(() => {
+const answeredCount = computed<number>(() => {
   return Object.values(savedAnswers).filter(
     (a) => a.skor !== null && a.skor !== undefined && getWordCount(a.upload_text) >= 30
   ).length;
 });
 
-const setAnswer = (kodeSoal, skor) => {
+const setAnswer = (kodeSoal: string, skor: number): void => {
   if (!localAnswers[kodeSoal]) {
     localAnswers[kodeSoal] = {
       kode_soal: kodeSoal,
@@ -817,7 +943,7 @@ const setAnswer = (kodeSoal, skor) => {
   }
 };
 
-const resetAnswers = () => {
+const resetAnswers = (): void => {
   indikatorList.value.forEach((item) => {
     localAnswers[item.kode_soal] = {
       kode_soal: item.kode_soal,
@@ -832,31 +958,31 @@ const resetAnswers = () => {
   });
 };
 
-const loadExistingAnswers = async (tahunId, bId) => {
+const loadExistingAnswers = async (tahunId: number, bId: number): Promise<void> => {
   if (!bId) return;
   const existing = await fetchJawaban(tahunId, bagianCode.value, bId);
-  existing.forEach((j) => {
-    const k = j.kode_soal || j.indikator_id;
+  existing.forEach((j: { kode_soal?: string; indikator_id?: string | number; skor?: number | null; upload_text?: string | null; updated_by_nama?: string }) => {
+    const k = j.kode_soal || String(j.indikator_id || "");
     if (localAnswers[k]) {
-      localAnswers[k].skor = j.skor;
+      localAnswers[k].skor = j.skor ?? null;
       localAnswers[k].upload_text = j.upload_text || "";
       localAnswers[k].updated_by_nama = j.updated_by_nama || "";
       savedAnswers[k] = {
-        skor: j.skor,
+        skor: j.skor ?? null,
         upload_text: j.upload_text || "",
       };
     }
   });
 };
 
-const handleSaveCurrent = async () => {
+const handleSaveCurrent = async (): Promise<boolean> => {
   if (!currentItem.value || !myBagianId.value) {
     Notify?.failure?.("Data bagian tidak ditemukan");
     return false;
   }
 
   const k = currentItem.value.kode_soal;
-  const ans = localAnswers[k] || {};
+  const ans = localAnswers[k] || {} as LocalAnswer;
   const wordCount = getWordCount(ans.upload_text);
 
   if (ans.skor === null || ans.skor === undefined) {
@@ -875,8 +1001,8 @@ const handleSaveCurrent = async () => {
   }
 
   const ok = await saveJawaban({
-    bagian_id: myBagianId.value,
-    gtk_id: myGtkId.value || undefined,
+    bagian_id: myBagianId.value ?? undefined,
+    gtk_id: myGtkId.value ?? undefined,
     jawaban: [
       {
         kode_soal: k,
@@ -898,38 +1024,38 @@ const handleSaveCurrent = async () => {
 };
 
 // ── Bukti File Upload (R2) ──
-const buktiFilesMap = reactive({}); // { [kode_soal]: BuktiFile[] }
-const isUploading = ref(false);
-const isDragging = ref(false);
-const fileInputRef = ref(null);
+const buktiFilesMap = reactive<Record<string, BuktiFile[]>>({}); // { [kode_soal]: BuktiFile[] }
+const isUploading = ref<boolean>(false);
+const isDragging = ref<boolean>(false);
+const fileInputRef = ref<HTMLInputElement | null>(null);
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+const ALLOWED_TYPES: string[] = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+const MAX_SIZE: number = 2 * 1024 * 1024; // 2 MB
 
-const currentBuktiFiles = computed(() => {
+const currentBuktiFiles = computed<BuktiFile[]>(() => {
   if (!currentItem.value) return [];
   return buktiFilesMap[currentItem.value.kode_soal] || [];
 });
 
-const currentFileCount = computed(() => currentBuktiFiles.value.length);
+const currentFileCount = computed<number>(() => currentBuktiFiles.value.length);
 
-const formatFileSize = (bytes) => {
+const formatFileSize = (bytes: number): string => {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-const getBuktiPreviewUrl = (r2Key) => {
+const getBuktiPreviewUrl = (r2Key: string): string => {
   const token = typeof window !== "undefined" ? localStorage.getItem("user-token") : null;
   return `/api/edm/bukti/download/${r2Key}?token=${token}`;
 };
 
-const triggerFileInput = () => {
+const triggerFileInput = (): void => {
   fileInputRef.value?.click();
 };
 
-const validateFiles = (files) => {
-  const errors = [];
+const validateFiles = (files: File[]): string[] => {
+  const errors: string[] = [];
   for (const file of files) {
     if (!ALLOWED_TYPES.includes(file.type)) {
       errors.push(`"${file.name}" — tipe tidak diizinkan (${file.type})`);
@@ -945,7 +1071,7 @@ const validateFiles = (files) => {
   return errors;
 };
 
-const processUpload = async (fileList) => {
+const processUpload = async (fileList: FileList): Promise<void> => {
   if (!currentItem.value || !myBagianId.value) return;
 
   const files = Array.from(fileList);
@@ -963,7 +1089,7 @@ const processUpload = async (fileList) => {
       files,
       currentItem.value.kode_soal,
       myBagianId.value,
-      myGtkId.value || undefined,
+      myGtkId.value ?? undefined,
     );
 
     if (uploaded.length > 0) {
@@ -974,8 +1100,9 @@ const processUpload = async (fileList) => {
   }
 };
 
-const handleFileSelect = (event) => {
-  const files = event.target.files;
+const handleFileSelect = (event: Event): void => {
+  const target = event.target as HTMLInputElement;
+  const files = target.files;
   if (files && files.length > 0) {
     processUpload(files);
   }
@@ -984,7 +1111,7 @@ const handleFileSelect = (event) => {
   }
 };
 
-const handleFileDrop = (event) => {
+const handleFileDrop = (event: DragEvent): void => {
   isDragging.value = false;
   const files = event.dataTransfer?.files;
   if (files && files.length > 0) {
@@ -992,7 +1119,7 @@ const handleFileDrop = (event) => {
   }
 };
 
-const getTingkatBadgeClass = (skor) => {
+const getTingkatBadgeClass = (skor: number | string): string => {
   switch (Number(skor)) {
     case 1:
       return "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-400/50 dark:border-rose-700/60";
@@ -1007,18 +1134,18 @@ const getTingkatBadgeClass = (skor) => {
   }
 };
 
-const deleteDialog = reactive({ show: false, fileId: null, fileName: '' });
-const teamInfoDialog = reactive({ show: false });
-const textareaRef = ref(null);
+const deleteDialog = reactive<{ show: boolean; fileId: number | null; fileName: string }>({ show: false, fileId: null, fileName: '' });
+const teamInfoDialog = reactive<{ show: boolean }>({ show: false });
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
-const autoResize = (e) => {
-  const el = e?.target || textareaRef.value;
+const autoResize = (e?: Event): void => {
+  const el = (e?.target as HTMLTextAreaElement | undefined) || textareaRef.value;
   if (!el) return;
   el.style.height = "auto";
   el.style.height = el.scrollHeight + "px";
 };
 
-const adjustTextareaHeight = async () => {
+const adjustTextareaHeight = async (): Promise<void> => {
   await nextTick();
   if (textareaRef.value) {
     textareaRef.value.style.height = "auto";
@@ -1038,13 +1165,13 @@ watch(
   { immediate: true, flush: 'post' }
 );
 
-const confirmDeleteFile = (file) => {
+const confirmDeleteFile = (file: BuktiFile): void => {
   deleteDialog.fileId = file.id;
   deleteDialog.fileName = file.original_name;
   deleteDialog.show = true;
 };
 
-const executeDeleteFile = async () => {
+const executeDeleteFile = async (): Promise<void> => {
   if (!currentItem.value || !deleteDialog.fileId) return;
   deleteDialog.show = false;
   const ok = await deleteBuktiFile(deleteDialog.fileId);
@@ -1055,7 +1182,7 @@ const executeDeleteFile = async () => {
   deleteDialog.fileName = '';
 };
 
-const loadBuktiForIndikator = async (kodeSoal) => {
+const loadBuktiForIndikator = async (kodeSoal: string): Promise<void> => {
   if (!myBagianId.value) return;
   const files = await fetchBuktiFiles(kodeSoal, myBagianId.value);
   buktiFilesMap[kodeSoal] = files;
@@ -1070,31 +1197,36 @@ watch(currentPage, async () => {
 });
 
 onMounted(async () => {
-  await fetchTahunAnggaran();
-  if (!selectedTahunId.value) return;
+  isPageLoading.value = true;
+  try {
+    await fetchTahunAnggaran();
+    if (!selectedTahunId.value) return;
 
-  const tahunId = selectedTahunId.value;
+    const tahunId = selectedTahunId.value;
 
-  const bagianData = await fetchBagian(tahunId);
-  const myBag = bagianData.find(
-    (b) => (b.nama_bagian || b.nama_kelompok) === bagianCode.value
-  );
+    const bagianData = await fetchBagian(tahunId);
+    const myBag = bagianData.find(
+      (b) => (b.nama_bagian || b.nama_kelompok) === bagianCode.value
+    );
 
-  if (myBag) {
-    myBagianId.value = myBag.id;
-    anggotaBagian.value = myBag.anggota || [];
-  }
-
-  indikatorList.value = await fetchIndikator(tahunId, bagianCode.value);
-  resetAnswers();
-  currentPage.value = 1;
-
-  if (myBagianId.value) {
-    await loadExistingAnswers(tahunId, myBagianId.value);
-
-    if (indikatorList.value.length > 0) {
-      await loadBuktiForIndikator(indikatorList.value[0].kode_soal);
+    if (myBag) {
+      myBagianId.value = myBag.id;
+      anggotaBagian.value = myBag.anggota || [];
     }
+
+    indikatorList.value = await fetchIndikator(tahunId, bagianCode.value);
+    resetAnswers();
+    currentPage.value = 1;
+
+    if (myBagianId.value) {
+      await loadExistingAnswers(tahunId, myBagianId.value);
+
+      if (indikatorList.value.length > 0) {
+        await loadBuktiForIndikator(indikatorList.value[0].kode_soal);
+      }
+    }
+  } finally {
+    isPageLoading.value = false;
   }
 });
 </script>
