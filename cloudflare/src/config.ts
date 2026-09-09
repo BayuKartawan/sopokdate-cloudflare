@@ -48,4 +48,6 @@ export const VALID_TABLES: string[] = [
   "edm_anggota_kelompok",
   "edm_indikator",
   "edm_jawaban",
+  "literasi_siswa",
+  "target_literasi_siswa",
 ];

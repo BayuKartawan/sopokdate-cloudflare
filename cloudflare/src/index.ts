@@ -60,6 +60,14 @@ import {
   handleDeleteEdmBukti,
   handleDownloadEdmBukti,
 } from "./handlers/edm";
+import {
+  handleGetLiterasiKelasGuru,
+  handleGetDataLiterasi,
+  handlePostDataLiterasi,
+  handleGetTargetLiterasi,
+  handlePostTargetLiterasi,
+  handleGetRekapLiterasi,
+} from "./handlers/literasi";
 
 import type { Env } from "./types";
 
@@ -325,6 +333,31 @@ app.get("/api/edm/bukti", async (c) => {
 app.delete("/api/edm/bukti/:id", async (c) => {
   const id = c.req.param("id");
   return await handleDeleteEdmBukti(c.req.raw, c.env, id);
+});
+
+// --- Literasi Siswa Routes ---
+app.get("/api/literasi/kelas-guru", async (c) => {
+  return await handleGetLiterasiKelasGuru(c.req.raw, c.env);
+});
+
+app.get("/api/literasi/data", async (c) => {
+  return await handleGetDataLiterasi(c.req.raw, c.env);
+});
+
+app.post("/api/literasi/data", async (c) => {
+  return await handlePostDataLiterasi(c.req.raw, c.env);
+});
+
+app.get("/api/literasi/target", async (c) => {
+  return await handleGetTargetLiterasi(c.req.raw, c.env);
+});
+
+app.post("/api/literasi/target", async (c) => {
+  return await handlePostTargetLiterasi(c.req.raw, c.env);
+});
+
+app.get("/api/literasi/rekap", async (c) => {
+  return await handleGetRekapLiterasi(c.req.raw, c.env);
 });
 
 export default app;

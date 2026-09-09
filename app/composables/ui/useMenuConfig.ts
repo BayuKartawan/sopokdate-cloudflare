@@ -9,6 +9,7 @@ import {
   CalendarCheck,
   Calendar,
   ClipboardCheck,
+  BookOpenText,
 } from "lucide-vue-next";
 
 export interface MenuItemChild {
@@ -139,6 +140,28 @@ export const useMenuConfig = () => {
         {
           to: "/absensi/asesmen",
           label: "Asesmen",
+          roles: ["admin", "guru", "kepala_madrasah"],
+        },
+      ],
+    },
+    {
+      label: "Literasi Siswa",
+      icon: markRaw(BookOpenText),
+      roles: ["admin", "guru", "kepala_madrasah"],
+      children: [
+        {
+          to: "/literasi/data",
+          label: "Data Literasi",
+          roles: ["admin", "guru", "kepala_madrasah"],
+        },
+        {
+          to: "/literasi/target",
+          label: "Target Literasi",
+          roles: ["admin", "guru", "kepala_madrasah"],
+        },
+        {
+          to: "/literasi/rekap",
+          label: "Rekap Literasi",
           roles: ["admin", "guru", "kepala_madrasah"],
         },
       ],
