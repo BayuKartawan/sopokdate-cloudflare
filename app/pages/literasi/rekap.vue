@@ -18,16 +18,160 @@
 
         <template #actions>
           <div class="flex items-center gap-2">
-            <BaseButton
-              text="Cetak Rekap"
-              title="Cetak rekapitulasi literasi"
-              class="print:hidden"
-              @click="printRekap"
+            <PrintButton
+              :documentTitle="printDocumentTitle"
             >
-              <template #icon>
-                <Printer class="w-4 h-4" />
-              </template>
-            </BaseButton>
+              <div class="w-full print:p-0 print:pt-0 p-4 sm:p-8 pt-0 sm:pt-0 mx-auto bg-white text-black font-sans">
+                <!-- Kop Surat -->
+                <KopSurat class="mb-4" />
+
+                <!-- Judul Dokumen -->
+                <div class="text-center mb-6">
+                  <h1 class="font-bold uppercase text-base sm:text-lg tracking-wide text-black">
+                    REKAPITULASI CAPAIAN & TARGET LITERASI SISWA
+                  </h1>
+                  <p class="text-xs sm:text-sm font-semibold mt-1 text-black">
+                    Kelas: {{ currentKelasName }} | Tahun Pelajaran: {{ tapel }} | Semester: {{ semester }}
+                  </p>
+                </div>
+
+                <!-- I. Ringkasan Capaian & Target Literasi -->
+                <div class="mb-6">
+                  <h2 class="text-xs font-bold uppercase tracking-wider mb-2 text-black">
+                    I. Ringkasan Capaian dan Target Literasi
+                  </h2>
+                  <table class="w-full table-auto border border-gray-800 text-xs text-left text-black">
+                    <thead class="bg-gray-100">
+                      <tr>
+                        <th class="border border-gray-800 px-3 py-1.5 w-10 text-center">No</th>
+                        <th class="border border-gray-800 px-3 py-1.5">Tingkat / Level Kemampuan</th>
+                        <th class="border border-gray-800 px-3 py-1.5 text-center w-28">Jumlah Capaian</th>
+                        <th class="border border-gray-800 px-3 py-1.5 text-center w-20">Persentase</th>
+                        <th class="border border-gray-800 px-3 py-1.5 text-center w-28">Jumlah Target</th>
+                        <th class="border border-gray-800 px-3 py-1.5 text-center w-20">Persentase Target</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-medium">1</td>
+                        <td class="border border-gray-800 px-3 py-1 font-semibold">Intervensi Khusus</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-bold">{{ stats.data?.intervensi_khusus || 0 }}</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center">{{ getPercent(stats.data?.intervensi_khusus, stats.data?.total) }}%</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-bold">{{ stats.target?.intervensi_khusus || 0 }}</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center">{{ getPercent(stats.target?.intervensi_khusus, stats.data?.total) }}%</td>
+                      </tr>
+                      <tr class="text-[11px] bg-gray-50">
+                        <td class="border border-gray-800"></td>
+                        <td class="border border-gray-800 px-4 py-0.5 italic text-gray-700" colspan="5">
+                          Rincian: Pemula ({{ stats.data?.intervensi_khusus_pemula || 0 }}), 
+                          Huruf ({{ stats.data?.intervensi_khusus_huruf || 0 }}), 
+                          Kata ({{ stats.data?.intervensi_khusus_kata || 0 }}), 
+                          Paragraf ({{ stats.data?.intervensi_khusus_paragraf || 0 }}), 
+                          Cerita ({{ stats.data?.intervensi_khusus_cerita || 0 }})
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-medium">2</td>
+                        <td class="border border-gray-800 px-3 py-1 font-semibold">Dasar</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-bold">{{ stats.data?.dasar || 0 }}</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center">{{ getPercent(stats.data?.dasar, stats.data?.total) }}%</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-bold">{{ stats.target?.dasar || 0 }}</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center">{{ getPercent(stats.target?.dasar, stats.data?.total) }}%</td>
+                      </tr>
+                      <tr>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-medium">3</td>
+                        <td class="border border-gray-800 px-3 py-1 font-semibold">Cakap</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-bold">{{ stats.data?.cakap || 0 }}</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center">{{ getPercent(stats.data?.cakap, stats.data?.total) }}%</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-bold">{{ stats.target?.cakap || 0 }}</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center">{{ getPercent(stats.target?.cakap, stats.data?.total) }}%</td>
+                      </tr>
+                      <tr>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-medium">4</td>
+                        <td class="border border-gray-800 px-3 py-1 font-semibold">Mahir</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-bold">{{ stats.data?.mahir || 0 }}</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center">{{ getPercent(stats.data?.mahir, stats.data?.total) }}%</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center font-bold">{{ stats.target?.mahir || 0 }}</td>
+                        <td class="border border-gray-800 px-3 py-1 text-center">{{ getPercent(stats.target?.mahir, stats.data?.total) }}%</td>
+                      </tr>
+                      <tr class="bg-gray-100 font-bold">
+                        <td colspan="2" class="border border-gray-800 px-3 py-1.5 text-center">TOTAL SISWA</td>
+                        <td class="border border-gray-800 px-3 py-1.5 text-center">{{ stats.data?.total || 0 }}</td>
+                        <td class="border border-gray-800 px-3 py-1.5 text-center">100%</td>
+                        <td class="border border-gray-800 px-3 py-1.5 text-center">{{ stats.data?.total || 0 }}</td>
+                        <td class="border border-gray-800 px-3 py-1.5 text-center">100%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- II. Daftar Siswa -->
+                <div class="mb-6">
+                  <h2 class="text-xs font-bold uppercase tracking-wider mb-2 text-black">
+                    II. Daftar Capaian dan Target Siswa
+                  </h2>
+                  <table class="w-full table-auto border border-gray-800 text-xs text-left text-black">
+                    <thead class="bg-gray-100">
+                      <tr>
+                        <th class="border border-gray-800 px-2 py-1.5 w-8 text-center">No</th>
+                        <th class="border border-gray-800 px-2 py-1.5">Nama Siswa</th>
+                        <th class="border border-gray-800 px-2 py-1.5 w-24 text-center">NISN</th>
+                        <th class="border border-gray-800 px-2 py-1.5 w-12 text-center">L/P</th>
+                        <th class="border border-gray-800 px-2 py-1.5">Level Saat Ini</th>
+                        <th class="border border-gray-800 px-2 py-1.5">Target Literasi</th>
+                        <th class="border border-gray-800 px-2 py-1.5 w-20 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-if="!students || students.length === 0">
+                        <td colspan="7" class="border border-gray-800 px-2 py-4 text-center text-gray-500">
+                          Tidak ada data siswa
+                        </td>
+                      </tr>
+                      <tr v-else v-for="(student, idx) in students" :key="student.siswa_id || idx">
+                        <td class="border border-gray-800 px-2 py-1 text-center">{{ idx + 1 }}</td>
+                        <td class="border border-gray-800 px-2 py-1 font-semibold">{{ student.nama }}</td>
+                        <td class="border border-gray-800 px-2 py-1 text-center font-mono">{{ student.nisn || student.nis_lokal || '-' }}</td>
+                        <td class="border border-gray-800 px-2 py-1 text-center">{{ student.jenis_kelamin || '-' }}</td>
+                        <td class="border border-gray-800 px-2 py-1">
+                          {{ student.current_level || 'Belum Dinilai' }}
+                          <span v-if="student.current_level === 'Intervensi Khusus' && student.current_sub_level">
+                            ({{ student.current_sub_level }})
+                          </span>
+                        </td>
+                        <td class="border border-gray-800 px-2 py-1">
+                          {{ student.target_level || getAutoTarget(student.current_level, student.current_sub_level).targetLevel }}
+                          <span v-if="(student.target_level || getAutoTarget(student.current_level, student.current_sub_level).targetLevel) === 'Intervensi Khusus'">
+                            ({{ student.target_sub_level || getAutoTarget(student.current_level, student.current_sub_level).targetSubLevel }})
+                          </span>
+                        </td>
+                        <td class="border border-gray-800 px-2 py-1 text-center">
+                          {{ student.is_custom ? 'Custom' : 'Otomatis' }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Tanda Tangan Pengesahan -->
+                <div class="mt-8 pt-4 flex justify-between text-xs break-inside-avoid text-black">
+                  <div class="text-center w-52">
+                    <p>Mengetahui,</p>
+                    <p class="font-semibold">Kepala Madrasah</p>
+                    <div class="h-16"></div>
+                    <p class="font-bold underline">{{ kepalaMadrasahName }}</p>
+                    <p class="text-[11px]">NUPTK: {{ kepalaMadrasahNIP }}</p>
+                  </div>
+                  <div class="text-center w-52">
+                    <p>Penyenggir, {{ currentDateFormatted }}</p>
+                    <p class="font-semibold">Guru Kelas / Pembimbing</p>
+                    <div class="h-16"></div>
+                    <p class="font-bold underline">{{ currentUserName }}</p>
+                    <p class="text-[11px]">NIP. -</p>
+                  </div>
+                </div>
+              </div>
+            </PrintButton>
             <BaseButton
               text="Perbarui Data"
               title="Perbarui data rekapitulasi"
@@ -71,14 +215,6 @@
         </div>
       </div>
 
-      <!-- KOP CETAK (Khusus Print) -->
-      <div class="hidden print:block mb-6 text-center border-b-2 border-slate-900 pb-4">
-        <h1 class="text-xl font-bold uppercase tracking-wide">REKAPITULASI CAPAIAN & TARGET LITERASI SISWA</h1>
-        <p class="text-sm font-semibold">
-          Kelas: {{ currentKelasName }} | Tahun Pelajaran: {{ tapel }} | Semester: {{ semester }}
-        </p>
-      </div>
-
       <!-- LOADING STATE -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-20">
         <Loader2 class="w-10 h-10 animate-spin text-emerald-600 dark:text-emerald-400 mb-3" />
@@ -99,7 +235,7 @@
         <!-- 1. SUMMARY STAT CARDS -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           <!-- Total Siswa -->
-          <div class="border theme-border rounded-2xl p-4 theme-bg flex items-center gap-3.5 shadow-sm">
+          <div class="border theme-border rounded-2xl p-4 theme-bg flex items-center gap-3.5">
             <div class="w-10 h-10 rounded-xl bg-slate-500/10 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold">
               <Users class="w-5 h-5" />
             </div>
@@ -112,7 +248,7 @@
           </div>
 
           <!-- Intervensi Khusus -->
-          <div class="border theme-border rounded-2xl p-4 theme-bg flex items-center gap-3.5 shadow-sm border-l-4 border-l-rose-500">
+          <div class="border theme-border rounded-2xl p-4 theme-bg flex items-center gap-3.5 border-l-4 border-l-rose-500">
             <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold">
               <AlertCircle class="w-5 h-5" />
             </div>
@@ -130,7 +266,7 @@
           </div>
 
           <!-- Dasar -->
-          <div class="border theme-border rounded-2xl p-4 theme-bg flex items-center gap-3.5 shadow-sm border-l-4 border-l-amber-500">
+          <div class="border theme-border rounded-2xl p-4 theme-bg flex items-center gap-3.5 border-l-4 border-l-amber-500">
             <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
               <BookOpen class="w-5 h-5" />
             </div>
@@ -148,7 +284,7 @@
           </div>
 
           <!-- Cakap -->
-          <div class="border theme-border rounded-2xl p-4 theme-bg flex items-center gap-3.5 shadow-sm border-l-4 border-l-sky-500">
+          <div class="border theme-border rounded-2xl p-4 theme-bg flex items-center gap-3.5 border-l-4 border-l-sky-500">
             <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center font-bold">
               <CheckCircle2 class="w-5 h-5" />
             </div>
@@ -166,7 +302,7 @@
           </div>
 
           <!-- Mahir -->
-          <div class="border theme-border rounded-2xl p-4 theme-bg flex items-center gap-3.5 shadow-sm border-l-4 border-l-emerald-500 col-span-2 sm:col-span-1">
+          <div class="border theme-border rounded-2xl p-4 theme-bg flex items-center gap-3.5 border-l-4 border-l-emerald-500 col-span-2 sm:col-span-1">
             <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
               <Award class="w-5 h-5" />
             </div>
@@ -187,7 +323,7 @@
         <!-- 2. GRAFIK VISUALISASI SVG -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 print:break-inside-avoid">
           <!-- KOMPARASI BAR CHART SVG (2 Kolom) -->
-          <div class="lg:col-span-2 border theme-border rounded-2xl p-5 theme-bg shadow-sm flex flex-col justify-between">
+          <div class="lg:col-span-2 border theme-border rounded-2xl p-5 theme-bg flex flex-col justify-between">
             <div>
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                 <div>
@@ -438,7 +574,7 @@
           </div>
 
           <!-- DONUT CHART SVG (1 Kolom) -->
-          <div class="border theme-border rounded-2xl p-5 theme-bg shadow-sm flex flex-col justify-between">
+          <div class="border theme-border rounded-2xl p-5 theme-bg flex flex-col justify-between">
             <div>
               <h3 class="font-bold text-base mb-1" :style="{ color: 'var(--text-heading)' }">
                 Proporsi Level Saat Ini
@@ -528,7 +664,7 @@
         </div>
 
         <!-- 3. TABEL DETAIL REKAP LITERASI SISWA -->
-        <div class="border theme-border rounded-2xl theme-bg shadow-sm overflow-hidden">
+        <div class="border theme-border rounded-2xl theme-bg overflow-hidden">
           <div class="p-5 border-b theme-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 class="font-bold text-base" :style="{ color: 'var(--text-heading)' }">
@@ -556,11 +692,11 @@
                   <th class="py-3 px-4 w-36 print:hidden">Update Terakhir</th>
                 </tr>
               </thead>
-              <tbody class="divide-y theme-border">
+              <tbody>
                 <tr
                   v-for="(student, idx) in filteredStudents"
                   :key="student.siswa_id"
-                  class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
+                  class="border-b theme-border last:border-b-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
                 >
                   <td class="py-3 px-4 text-center font-medium text-xs theme-text-muted">
                     {{ idx + 1 }}
@@ -650,6 +786,8 @@ import {
 } from "lucide-vue-next";
 import PageHeader from "~/components/ui/PageHeader.vue";
 import BaseButton from "~/components/ui/BaseButton.vue";
+import PrintButton from "~/components/ui/PrintButton.vue";
+import KopSurat from "~/components/document/KopSurat.vue";
 import { useAcademicYear } from "~/composables/utils/useAcademicYear";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import { authenticatedFetch } from "~/utils/api";
@@ -667,6 +805,64 @@ const stats = ref<any>({ data: {}, target: {} });
 
 const searchQuery = ref("");
 const isLoading = ref(false);
+const kepalaMadrasah = ref<any>(null);
+
+// Kepala Madrasah & Cetak Helper
+const loadKepalaMadrasah = async () => {
+  try {
+    const storedGtk = localStorage.getItem("data_gtk");
+    if (storedGtk) {
+      const parsed = JSON.parse(storedGtk);
+      if (Array.isArray(parsed)) {
+        const kamad = parsed.find(
+          (guru: any) =>
+            guru.tugas && guru.tugas.toLowerCase().includes("kepala madrasah")
+        );
+        if (kamad) {
+          kepalaMadrasah.value = kamad;
+          return;
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Gagal memuat data Kepala Madrasah:", err);
+  }
+};
+
+const kepalaMadrasahName = computed(() => {
+  return kepalaMadrasah.value?.nama_lengkap || "ABDUL HALIM, S.Pd.I";
+});
+
+const kepalaMadrasahNIP = computed(() => {
+  return kepalaMadrasah.value?.nip || kepalaMadrasah.value?.nuptk || "-";
+});
+
+const currentUserName = computed(() => {
+  try {
+    const name = localStorage.getItem("user-displayName");
+    return name || "...............................";
+  } catch {
+    return "...............................";
+  }
+});
+
+const currentDateFormatted = computed(() => {
+  try {
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(new Date());
+  } catch {
+    return "";
+  }
+});
+
+const printDocumentTitle = computed(() => {
+  const k = (currentKelasName.value || "Kelas").replace(/[^a-zA-Z0-9]/g, "_");
+  const tp = tapel.value.replace(/[^a-zA-Z0-9]/g, "_");
+  return `Rekap_Literasi_${k}_TP_${tp}_Semester_${semester.value}`;
+});
 
 // Current Kelas Name
 const currentKelasName = computed(() => {
@@ -845,5 +1041,6 @@ watch([selectedKelasId, tapel, semester], () => {
 // Mounted
 onMounted(() => {
   fetchKelas();
+  loadKepalaMadrasah();
 });
 </script>
