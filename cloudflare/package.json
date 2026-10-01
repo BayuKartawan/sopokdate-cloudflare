@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npx wrangler dev",
-    "deploy": "npx wrangler deploy",
+    "deploy": "npx wrangler deploy --env production",
     "db:create": "npx wrangler d1 create sopokdate-db",
     "db:schema": "npx wrangler d1 execute sopokdate-db --file=db/schema.sql --remote",
     "db:schema:local": "npx wrangler d1 execute sopokdate-db --file=db/schema.sql --local",
@@ -20,6 +20,7 @@
     "wrangler": "^3.100.0"
   },
   "dependencies": {
+    "@cloudflare/puppeteer": "^1.4.0",
     "hono": "^4.12.25"
   }
 }

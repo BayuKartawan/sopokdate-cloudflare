@@ -34,6 +34,8 @@ import {
   handlePostAbsensi,
   handleGetAbsensiRekap,
   handleGetAbsensiRekapStatus,
+  handleGetAbsensiPeringkat,
+  handleGetAbsensiSubmittedDates,
 } from "./handlers/absensi";
 import {
   handleGetMapelGuru,
@@ -68,6 +70,7 @@ import {
   handlePostTargetLiterasi,
   handleGetRekapLiterasi,
 } from "./handlers/literasi";
+import { handleScreenshotHtml } from "./handlers/render";
 
 import type { Env } from "./types";
 
@@ -159,6 +162,14 @@ app.get("/api/absensi/rekap-status", async (c) => {
   return await handleGetAbsensiRekapStatus(c.req.raw, c.env);
 });
 
+app.get("/api/absensi/peringkat", async (c) => {
+  return await handleGetAbsensiPeringkat(c.req.raw, c.env);
+});
+
+app.get("/api/absensi/submitted-dates", async (c) => {
+  return await handleGetAbsensiSubmittedDates(c.req.raw, c.env);
+});
+
 app.get("/api/surat", async (c) => {
   return await handleGetSurat(c.env);
 });
@@ -192,6 +203,8 @@ app.post("/api/data", async (c) => {
 app.post("/api/absensi", async (c) => {
   return await handlePostAbsensi(c.req.raw, c.env);
 });
+
+app.post("/api/render/screenshot", handleScreenshotHtml);
 
 app.post("/api/auth/seed-guru", async (c) => {
   return await handleSeedGuru(c.env);
