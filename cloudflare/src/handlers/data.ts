@@ -17,11 +17,9 @@ const TABLE_MAPPING: Record<string, string> = {
   datakelas: "data_kelas",
   sertifikat: "sertifikat",
   datamadrasah: "data_madrasah",
-  akunemis: "akun_emis",
-  akunemail: "akun_email",
-  akunsimpatika: "akun_simpatika",
-  akunemisgtk: "akun_emis_gtk",
-  akunrdm: "akun_rdm",
+  akungtk: "akun_gtk",
+  "akun-gtk": "akun_gtk",
+  dataakungtk: "akun_gtk",
   operator: "operator",
   berkas: "berkas",
   aplikasi: "aplikasi",
@@ -115,6 +113,8 @@ export async function handleGetData(
     params.push(tapel);
   } else if (d1Table === "data_gtk" && fieldsParam === "light") {
     query = `SELECT id, nama_lengkap, peg_id, nuptk, nip, wali_kelas, tugas FROM data_gtk`;
+  } else if (d1Table === "akun_gtk") {
+    query = `SELECT ag.*, g.nama_lengkap as nama, a.title as nama_aplikasi, a.link as link_aplikasi FROM akun_gtk ag LEFT JOIN aplikasi a ON ag.aplikasi_id = a.id LEFT JOIN data_gtk g ON ag.gtk_id = g.id`;
   } else {
     query = `SELECT * FROM ${d1Table}`;
   }
@@ -124,16 +124,9 @@ export async function handleGetData(
     if (d1Table === "data_gtk") {
       conditions.push("id = ?");
       params.push(parseInt(gtkId));
-    } else if (
-      [
-        "akun_emis",
-        "akun_email",
-        "akun_simpatika",
-        "akun_emis_gtk",
-        "akun_rdm",
-      ].includes(d1Table)
-    ) {
-      applyJsFilter = true;
+    } else if (d1Table === "akun_gtk") {
+      conditions.push("ag.gtk_id = ?");
+      params.push(parseInt(gtkId));
     }
   }
 

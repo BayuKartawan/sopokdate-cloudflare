@@ -19,7 +19,7 @@
       {
         'lg:pl-64': isSidebarOpen && !isMobileView && isLoggedIn,
       },
-    ]" class="flex-grow transition-all duration-300 min-h-screen">
+    ]" class="grow transition-all duration-300 min-h-screen">
       <slot />
     </main>
 

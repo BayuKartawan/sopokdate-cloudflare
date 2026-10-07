@@ -296,9 +296,9 @@ header {
 
 /* Main content: fullscreen PWA tanpa ruang kosong di bawah */
 .safe-area-main {
-  /* Mobile: navbar bawah ~4rem + safe area bawah */
+  /* Mobile: floating navbar bawah + margin + safe area bawah */
   padding-top: env(safe-area-inset-top, 0px) !important;
-  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px)) !important;
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)) !important;
   /* Menggunakan lvh/vh stabil sebagai basis agar tidak melompat ketika address bar browser sembunyi/muncul */
   min-height: 100vh;
   min-height: 100lvh;

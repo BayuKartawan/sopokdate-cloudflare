@@ -50,15 +50,15 @@
     <!-- Search and Dropdown -->
     <div class="w-full flex flex-col sm:flex-row gap-3 sm:gap-4 mb-2">
       <!-- Dropdown Select (Inlined) -->
-      <div v-if="dropdownOptions" class="w-full sm:w-1/2">
-        <select v-model="selectedTable" @change="handleDropdownUpdated(selectedTable)"
+      <div v-if="activeDropdownOptions && activeDropdownOptions.length > 0" class="w-full sm:w-1/2">
+        <select v-model="selectedFilterValue" @change="handleDropdownUpdated(selectedFilterValue)"
           class="w-full rounded-lg border py-2 px-4 text-sm leading-5 h-[38px] transition-all duration-300 ease-in-out cursor-pointer focus:outline-none focus:ring-1 focus:ring-opacity-50 focus:border-emerald-500/50 focus:ring-emerald-500/20"
           :style="{
             backgroundColor: 'var(--bg-input-alpha)',
             color: 'var(--text-primary)',
             borderColor: 'var(--border-primary)',
           }">
-          <option v-for="option in dropdownOptions" :key="option.value" :value="option.value" :style="{
+          <option v-for="option in activeDropdownOptions" :key="option.value" :value="option.value" :style="{
             backgroundColor: 'var(--bg-secondary)',
             color: 'var(--text-primary)',
           }">
@@ -68,7 +68,7 @@
       </div>
 
       <!-- Search Component -->
-      <div :class="dropdownOptions ? 'w-full sm:w-1/2' : 'w-full'">
+      <div :class="(activeDropdownOptions && activeDropdownOptions.length > 0) ? 'w-full sm:w-1/2' : 'w-full'">
         <Search @searchUpdated="handleSearch" class="w-full" />
       </div>
     </div>
@@ -84,7 +84,7 @@
           }">
             <!-- Header -->
             <div class="flex items-center gap-3 mb-4">
-              <div class="flex-shrink-0">
+              <div class="shrink-0">
                 <div class="w-8 h-8 rounded-lg" :style="{ backgroundColor: 'var(--bg-skeleton)' }"></div>
               </div>
               <div class="h-4 rounded w-2/3" :style="{ backgroundColor: 'var(--bg-skeleton)' }"></div>
@@ -93,12 +93,12 @@
             <!-- Account Info -->
             <div class="space-y-3 mb-5">
               <div class="flex items-center gap-2">
-                <div class="h-3 rounded w-8 flex-shrink-0" :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }">
+                <div class="h-3 rounded w-8 shrink-0" :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }">
                 </div>
                 <div class="h-4 rounded flex-1" :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }"></div>
               </div>
               <div class="flex items-center gap-2">
-                <div class="h-3 rounded w-8 flex-shrink-0" :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }">
+                <div class="h-3 rounded w-8 shrink-0" :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }">
                 </div>
                 <div class="h-4 rounded flex-1" :style="{ backgroundColor: 'var(--bg-skeleton-soft)' }"></div>
               </div>
@@ -124,30 +124,38 @@
         </div>
         <div v-else id="accountCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- Account Card (Inlined) -->
-          <div v-for="(akun, index) in visibleData" :key="index" class="rounded-lg border transition-colors" :style="{
+          <div v-for="(akun, index) in visibleData" :key="index" class="rounded-lg border transition-colors flex flex-col justify-between" :style="{
             backgroundColor: 'var(--bg-secondary)',
             borderColor: 'var(--border-primary)',
           }">
             <div class="p-4">
               <!-- Header -->
-              <div class="flex items-center gap-3 mb-4">
-                <div class="flex-shrink-0">
+              <div class="flex items-start gap-3 mb-3">
+                <div class="shrink-0 mt-0.5">
                   <UserCircle aria-hidden="true" class="w-8 h-8 p-1.5 rounded-lg text-emerald-500 dark:text-emerald-400"
                     :style="{ backgroundColor: 'var(--bg-tertiary)' }" />
                 </div>
-                <h3 class="font-semibold text-base truncate flex-1" :style="{ color: 'var(--text-primary)' }">
-                  {{ akun.nama }}
-                </h3>
+                <div class="min-w-0 flex-1">
+                  <h3 class="font-semibold text-base truncate" :style="{ color: 'var(--text-primary)' }" :title="akun.nama">
+                    {{ akun.nama }}
+                  </h3>
+                  <!-- Badge Aplikasi jika ada -->
+                  <div v-if="getAccountAppTitle(akun)" class="mt-1">
+                    <span class="inline-block px-2 py-0.5 text-[11px] font-semibold rounded-md bg-emerald-500/12 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 truncate max-w-full">
+                      {{ getAccountAppTitle(akun) }}
+                    </span>
+                  </div>
+                </div>
 
                 <!-- Admin Edit/Delete Buttons -->
                 <div v-if="isAdmin" class="flex items-center gap-1 shrink-0">
                   <button @click.stop="openEditModal(akun)"
-                    class="p-1.5 rounded-md hover:text-amber-400 hover:bg-[var(--bg-card-hover)] transition-all"
+                    class="p-1.5 rounded-md hover:text-amber-400 hover:bg-(--bg-card-hover) transition-all"
                     :style="{ color: 'var(--text-secondary)' }" title="Edit">
                     <PencilIcon class="w-3.5 h-3.5" />
                   </button>
                   <button @click.stop="handleDelete(akun)"
-                    class="p-1.5 rounded-md hover:text-red-400 hover:bg-[var(--bg-card-hover)] transition-all"
+                    class="p-1.5 rounded-md hover:text-red-400 hover:bg-(--bg-card-hover) transition-all"
                     :style="{ color: 'var(--text-secondary)' }" title="Hapus">
                     <Trash2 class="w-3.5 h-3.5" />
                   </button>
@@ -157,7 +165,7 @@
               <!-- Account Info -->
               <div class="space-y-2 mb-4">
                 <div class="flex items-center gap-2">
-                  <span class="text-xs w-8 flex-shrink-0" :style="{ color: 'var(--text-secondary)' }">User</span>
+                  <span class="text-xs w-8 shrink-0" :style="{ color: 'var(--text-secondary)' }">User</span>
                   <p class="text-sm font-mono truncate flex-1 select-all cursor-pointer"
                     :style="{ color: 'var(--text-primary)' }" @click="copyToClipboard(akun.username)"
                     title="Klik untuk menyalin username">
@@ -165,7 +173,7 @@
                   </p>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="text-xs w-8 flex-shrink-0" :style="{ color: 'var(--text-secondary)' }">Pass</span>
+                  <span class="text-xs w-8 shrink-0" :style="{ color: 'var(--text-secondary)' }">Pass</span>
                   <p class="text-sm font-mono truncate flex-1 select-all cursor-pointer"
                     :style="{ color: 'var(--text-primary)' }" @click="copyToClipboard(akun.password)"
                     title="Klik untuk menyalin password">
@@ -175,22 +183,22 @@
               </div>
 
               <!-- Action Buttons -->
-              <div class="flex gap-1">
+              <div class="flex gap-1.5 pt-2 border-t" :style="{ borderColor: 'var(--border-subtle)' }">
                 <button
-                  class="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded text-xs font-medium transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   :style="{
                     backgroundColor: 'var(--bg-tertiary)',
                     color: 'var(--text-primary)',
                   }" :class="{ 'opacity-50': sharingCardId === index }" @click="handleShareAccount(akun, index)"
                   :disabled="sharingCardId === index" title="Share Account" type="button">
-                  <Send class="w-4 h-4 flex-shrink-0" />
+                  <Send class="w-4 h-4 shrink-0" />
                   <span class="hidden sm:inline">Share</span>
                 </button>
 
-                <a :href="akun.link || defaultLink || '#'" target="_blank" rel="noopener noreferrer"
-                  class="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded text-xs font-medium no-underline bg-emerald-600 text-white hover:bg-emerald-500"
+                <a :href="getAccountLink(akun) || '#'" target="_blank" rel="noopener noreferrer"
+                  class="flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded text-xs font-medium no-underline bg-emerald-600 text-white hover:bg-emerald-500 transition-all active:scale-95"
                   title="Login" @click="handleLinkClick($event, akun)">
-                  <LogIn class="w-4 h-4 flex-shrink-0" />
+                  <LogIn class="w-4 h-4 shrink-0" />
                   <span class="hidden sm:inline">Login</span>
                 </a>
               </div>
@@ -242,32 +250,46 @@ interface Breadcrumb {
 }
 
 interface AkunItem {
-  id?: string;
-  _id?: string;
-  nama: string;
+  id?: string | number;
+  _id?: string | number;
+  gtk_id?: string | number;
+  nama?: string;
+  aplikasi_id?: string | number;
+  nama_aplikasi?: string;
+  link_aplikasi?: string;
   username: string;
   password: string;
-  link?: string;
 }
 
 interface AplikasiItem {
+  id?: string | number;
+  _id?: string | number;
   title?: string;
   link?: string;
+}
+
+interface GtkItem {
+  id?: string | number;
+  nama_lengkap?: string;
+  title?: string;
 }
 
 interface FormField {
   key: string;
   label: string;
+  type?: string;
+  options?: any[];
   required?: boolean;
   placeholder?: string;
+  colSpan?: number;
 }
 
 interface ExportRow {
   no: number;
   nama: string;
+  aplikasi?: string;
   username: string;
   password: string;
-  link?: string;
 }
 
 const props = defineProps<{
@@ -279,23 +301,25 @@ const props = defineProps<{
   breadcrumbs?: Breadcrumb[];
 }>();
 
-const { pageSize = 12, dropdownOptions = null, showEmptyStateDetails = false } = props;
+const { pageSize = 12, showEmptyStateDetails = false } = props;
 
 const { cardData: accountsData, isLoading, loadData, refreshData } = useTableData();
 const { cardData: aplikasiData, loadData: loadAplikasiData } = useTableData();
+const { cardData: gtkData, loadData: loadGtkData } = useTableData();
 const { exportToCSV } = useExportExcel();
 const { Notify } = useNotiflix();
 
+const isAkunGtkMode = computed(() => props.initialTable.toLowerCase() === "akungtk");
+
 const selectedTable = ref<string>(props.initialTable);
+const selectedAppFilter = ref<string>("all");
+const selectedFilterValue = ref<string>(isAkunGtkMode.value ? "all" : props.initialTable);
 
 // Dynamic CRUD composable based on selected table
 const {
   isAdmin,
   isSaving: crudSaving,
 } = useCrud(selectedTable.value, () => refreshData(selectedTable.value));
-
-// We need to re-bind the table name for CRUD when dropdown changes
-const currentCrudTable = ref<string>(selectedTable.value);
 
 const searchQuery = ref<string>("");
 const currentPage = ref<number>(1);
@@ -306,71 +330,105 @@ const showCrudModal = ref<boolean>(false);
 const modalMode = ref<"create" | "edit">("create");
 const editingItem = ref<Partial<AkunItem>>({});
 
-// Helper to get fallback link from Aplikasi database table dynamically
-const getAppFallbackLink = (tableKey: string): string => {
-  const data = aplikasiData.value as AplikasiItem[] | null;
-  if (!data || !Array.isArray(data)) return "";
-
-  const key = tableKey.toLowerCase();
-  let app: AplikasiItem | undefined;
-
-  if (key === "akunemis") {
-    app = data.find((a) => {
-      const t = (a.title || "").toLowerCase();
-      return t.includes("emis") && !t.includes("gtk");
-    });
-  } else if (key === "akunemisgtk") {
-    app = data.find((a) => {
-      const t = (a.title || "").toLowerCase();
-      return t.includes("emis gtk") || t.includes("emis-gtk") || (t.includes("emis") && t.includes("gtk"));
-    });
-  } else if (key === "akunsimpatika") {
-    app = data.find((a) => (a.title || "").toLowerCase().includes("simpatika"));
-  } else if (key === "akunrdm") {
-    app = data.find((a) => (a.title || "").toLowerCase().includes("rdm") || (a.title || "").toLowerCase().includes("raport digital"));
-  } else if (key === "akunemail") {
-    app = data.find((a) => (a.title || "").toLowerCase().includes("email") || (a.title || "").toLowerCase().includes("gmail"));
+// Dynamic dropdown options (for table selector or application filter)
+const activeDropdownOptions = computed<DropdownOption[]>(() => {
+  if (props.dropdownOptions) {
+    return props.dropdownOptions;
   }
-
-  if (!app) {
-    app = data.find((a) => {
-      const t = (a.title || "").toLowerCase();
-      const label = props.title.toLowerCase();
-      return t.includes(label) || label.includes(t);
-    });
+  if (isAkunGtkMode.value) {
+    const apps = (aplikasiData.value as AplikasiItem[] | null) || [];
+    const options: DropdownOption[] = [
+      { label: "Semua Aplikasi", value: "all" },
+      ...apps
+        .filter((a) => a.title)
+        .map((a) => ({
+          label: a.title as string,
+          value: String(a.id || a._id || a.title),
+        })),
+    ];
+    return options;
   }
+  return [];
+});
 
-  return app?.link || "";
+// Helper to get app title for an account
+const getAccountAppTitle = (akun: AkunItem): string => {
+  if (akun.nama_aplikasi) return akun.nama_aplikasi;
+  if (!akun.aplikasi_id) return "";
+  const apps = (aplikasiData.value as AplikasiItem[] | null) || [];
+  const found = apps.find(
+    (a) => String(a.id || a._id) === String(akun.aplikasi_id) || a.title === String(akun.aplikasi_id)
+  );
+  return found?.title || "";
 };
 
-const defaultLink = computed<string>(() => getAppFallbackLink(selectedTable.value));
+// Helper to get application link
+const getAccountLink = (akun: AkunItem): string => {
+  if (akun.link_aplikasi) return akun.link_aplikasi;
+  if (akun.aplikasi_id) {
+    const apps = (aplikasiData.value as AplikasiItem[] | null) || [];
+    const found = apps.find(
+      (a) => String(a.id || a._id) === String(akun.aplikasi_id)
+    );
+    if (found?.link) return found.link;
+  }
+  return "";
+};
+
+const defaultLink = computed<string>(() => "");
+
+// GTK Options for Select
+const gtkOptions = computed(() => {
+  const gtks = (gtkData.value as GtkItem[] | null) || [];
+  return gtks
+    .filter((g) => g.nama_lengkap || g.title)
+    .map((g) => ({
+      label: (g.nama_lengkap || g.title) as string,
+      value: g.id as string | number,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+});
+
+// App Options for Select in Modal
+const appSelectOptions = computed(() => {
+  const apps = (aplikasiData.value as AplikasiItem[] | null) || [];
+  return apps
+    .filter((a) => a.title)
+    .map((a) => ({
+      label: a.title as string,
+      value: a.id || a._id || a.title,
+    }));
+});
 
 const accountFields = computed<FormField[]>(() => {
-  const table = selectedTable.value;
-  // AkunEmail has no link field
-  if (table === "AkunEmail") {
-    return [
-      { key: "nama", label: "Nama", required: true },
-      { key: "username", label: "Username", required: true },
-      { key: "password", label: "Password", required: true },
-    ];
-  }
-
   return [
-    { key: "nama", label: "Nama", required: true },
+    {
+      key: "gtk_id",
+      label: "Nama GTK",
+      type: gtkOptions.value.length > 0 ? "select" : "text",
+      options: gtkOptions.value,
+      required: true,
+    },
+    {
+      key: "aplikasi_id",
+      label: "Aplikasi",
+      type: "select",
+      options: appSelectOptions.value,
+      required: true,
+    },
     { key: "username", label: "Username", required: true },
     { key: "password", label: "Password", required: true },
-    {
-      key: "link",
-      label: "Link Login (Kosongkan untuk default)",
-      placeholder: defaultLink.value ? `Default: ${defaultLink.value}` : "Link login khusus jika berbeda",
-    },
   ];
 });
 
 const openCreateModal = (): void => {
   modalMode.value = "create";
-  editingItem.value = {};
+  const defaultApp = selectedAppFilter.value !== "all"
+    ? selectedAppFilter.value
+    : (appSelectOptions.value[0]?.value || "");
+  editingItem.value = {
+    aplikasi_id: defaultApp,
+  };
   showCrudModal.value = true;
 };
 
@@ -378,10 +436,10 @@ const openEditModal = (akun: AkunItem): void => {
   modalMode.value = "edit";
   editingItem.value = {
     _id: akun.id || akun._id,
-    nama: akun.nama || "",
+    gtk_id: akun.gtk_id || "",
+    aplikasi_id: akun.aplikasi_id || "",
     username: akun.username || "",
     password: akun.password || "",
-    link: akun.link || "",
   };
   showCrudModal.value = true;
 };
@@ -390,7 +448,6 @@ const handleFormSubmit = async (formData: Record<string, unknown>): Promise<void
   const tableName = selectedTable.value;
   let success = false;
 
-  // Import API functions directly for dynamic table name
   const { postToApi, putToApi } = await import("~/utils/api");
 
   if (modalMode.value === "create") {
@@ -438,7 +495,7 @@ const handleDelete = async (akun: AkunItem): Promise<void> => {
 
   Confirm?.show(
     "Hapus Akun",
-    `Apakah Anda yakin ingin menghapus akun ${akun.nama}? Tindakan ini tidak dapat dibatalkan.`,
+    `Apakah Anda yakin ingin menghapus akun ${akun.nama || akun.username}? Tindakan ini tidak dapat dibatalkan.`,
     "Ya, Hapus",
     "Batal",
     async () => {
@@ -464,13 +521,31 @@ const sortedData = computed<AkunItem[]>(() => {
     return [];
   }
 
+  const query = searchQuery.value.toLowerCase();
+  const appFilter = selectedAppFilter.value;
+
   return data
     .filter((item) => {
-      return (
-        item &&
-        item.nama &&
-        item.nama.toLowerCase().includes(searchQuery.value.toLowerCase())
-      );
+      if (!item) return false;
+
+      // Filter by Application in AkunGTK mode
+      if (isAkunGtkMode.value && appFilter !== "all") {
+        const itemAppId = String(item.aplikasi_id || "");
+        const itemAppName = (item.nama_aplikasi || "").toLowerCase();
+        const appTitle = getAccountAppTitle(item).toLowerCase();
+        const matchesApp =
+          itemAppId === appFilter ||
+          itemAppName === appFilter.toLowerCase() ||
+          appTitle === appFilter.toLowerCase();
+        if (!matchesApp) return false;
+      }
+
+      // Filter by Search Query (Nama, Username, Nama Aplikasi)
+      if (!query) return true;
+      const matchesName = item.nama && item.nama.toLowerCase().includes(query);
+      const matchesUsername = item.username && item.username.toLowerCase().includes(query);
+      const matchesApp = item.nama_aplikasi && item.nama_aplikasi.toLowerCase().includes(query);
+      return matchesName || matchesUsername || matchesApp;
     })
     .sort((a, b) => {
       if (!a.nama || !b.nama) return 0;
@@ -494,9 +569,14 @@ const hasLocalData = computed<boolean>(() => {
 });
 
 const handleDropdownUpdated = (newValue: string): void => {
-  selectedTable.value = newValue;
-  currentCrudTable.value = newValue;
-  loadData(newValue);
+  if (isAkunGtkMode.value) {
+    selectedAppFilter.value = newValue;
+    selectedFilterValue.value = newValue;
+  } else {
+    selectedTable.value = newValue;
+    selectedFilterValue.value = newValue;
+    loadData(newValue);
+  }
 };
 
 const handleSearch = (query: string): void => {
@@ -510,13 +590,13 @@ const handlePageChange = (page: number): void => {
 
 // Function to Export to Excel (CSV) using composable
 const exportToExcel = (): void => {
-  const headers = ["No", "Nama", "Username", "Password", "Link Login"];
+  const headers = ["No", "Nama", "Aplikasi", "Username", "Password"];
   const data: ExportRow[] = sortedData.value.map((item, index) => ({
     no: index + 1,
-    nama: item.nama,
+    nama: item.nama || "",
+    aplikasi: getAccountAppTitle(item) || "-",
     username: item.username,
     password: item.password,
-    link: item.link,
   }));
 
   exportToCSV(data, headers, `${props.title}_${selectedTable.value}`);
@@ -557,9 +637,9 @@ const handleShareAccount = async (akun: AkunItem, index: number): Promise<void> 
 
   sharingCardId.value = index;
 
-  const tableName = selectedTable.value || "Tidak Diketahui";
-  const targetLink = akun.link || defaultLink.value || "";
-  const message = `====DOKUMEN.MADRASAH====\n\nJenis Akun: ${tableName}\nNama: ${akun.nama}\n\nUser: ${akun.username}\nPass: ${akun.password}\n\nLink masuk ${tableName}:\n${targetLink}\nLogin SopokDate:\nhttps://sopokdate.netlify.app/\n\n=====SANGAT.RAHASIA=====`;
+  const appName = getAccountAppTitle(akun) || selectedTable.value || "Akun";
+  const targetLink = getAccountLink(akun) || "";
+  const message = `====DOKUMEN.MADRASAH====\n\nJenis Akun: ${appName}\nNama: ${akun.nama}\n\nUser: ${akun.username}\nPass: ${akun.password}\n\nLink masuk ${appName}:\n${targetLink}\nLogin SopokDate:\nhttps://sopokdate.netlify.app/\n\n=====SANGAT.RAHASIA=====`;
 
   try {
     if (
@@ -592,19 +672,21 @@ const handleShareAccount = async (akun: AkunItem, index: number): Promise<void> 
 };
 
 const handleLinkClick = (event: MouseEvent, akun: AkunItem): void => {
-  if (!akun.link && !defaultLink.value) {
+  const link = getAccountLink(akun);
+  if (!link) {
     event.preventDefault();
     Notify.failure("Link tidak tersedia!");
   }
 };
 
 // Reset page when search, table or data changes
-watch([searchQuery, selectedTable, sortedData], () => {
+watch([searchQuery, selectedTable, selectedAppFilter, sortedData], () => {
   currentPage.value = 1;
 });
 
 onMounted(() => {
   loadData(selectedTable.value);
   loadAplikasiData("Aplikasi");
+  loadGtkData("DataGtk");
 });
 </script>

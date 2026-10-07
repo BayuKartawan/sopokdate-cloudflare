@@ -10,11 +10,7 @@ import type { Env } from "../types";
 const ALL_MENU_KEYS: string[] = [
   "/",
   "/akun/gtk/kelola",
-  "/akun/gtk/emis",
-  "/akun/gtk/email",
-  "/akun/gtk/rdm",
-  "/akun/gtk/emis-gtk",
-  "/akun/gtk/simpatika",
+  "/akun/gtk",
   "/akun/madrasah",
   "/akun/gtk/pengelola-akses",
   "/akademik/gtk",

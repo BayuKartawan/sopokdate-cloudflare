@@ -1,84 +1,197 @@
 <template>
+  <!-- Main Header / Navbar Container -->
   <header
-    class="fixed w-full z-30 bottom-0 lg:top-0 lg:bottom-auto border-t lg:border-t-0 lg:border-b transition-transform duration-300 ease-in-out"
-    :style="{ borderColor: 'var(--border-primary)' }" :class="isNavbarVisible ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'
-      ">
-    <div class="max-w-7xl mx-auto flex justify-between items-center h-16 px-4" :style="{
+    class="fixed z-40 transition-all duration-300 ease-in-out bottom-3 inset-x-3 max-w-sm sm:max-w-md mx-auto rounded-2xl border shadow-xl backdrop-blur-lg lg:bottom-auto lg:top-0 lg:inset-x-0 lg:max-w-none lg:mx-0 lg:rounded-none lg:border-x-0 lg:border-t-0 lg:border-b lg:shadow-none"
+    :style="{
       backgroundColor: 'var(--bg-primary)',
-      color: 'var(--text-primary)',
-    }">
-      <!-- Bagian 1: Toggle Hamburger + Toggle Tema -->
-      <div class="flex items-center space-x-4 flex-shrink-0 order-3 lg:order-1">
-        <!-- Sidebar Toggle Component (Inlined) -->
-        <button @click="toggleSidebar"
-          class="flex flex-col items-center justify-center p-1 sm:p-2 rounded-lg transition-all duration-300 hover:bg-[var(--bg-tertiary)] min-w-[3.5rem] lg:min-w-0"
-          :style="{ color: 'var(--text-primary)' }" :aria-label="isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'">
-          <Menu v-if="!isSidebarOpen"
-            class="w-5 h-5 lg:w-6 lg:h-6 transform transition-all duration-300 hover:translate-x-0.5" />
-          <X v-if="isSidebarOpen" class="w-5 h-5 lg:w-6 lg:h-6 transform transition-all duration-300 hover:rotate-90" />
-          <span class="text-[10px] leading-none mt-1 font-semibold lg:hidden">
-            {{ isSidebarOpen ? 'Tutup' : 'Menu' }}
-          </span>
+      borderColor: 'var(--border-primary)',
+    }"
+    :class="isNavbarVisible ? 'translate-y-0' : 'translate-y-28 lg:translate-y-0'"
+  >
+    <!-- ============================================================ -->
+    <!-- 1. MOBILE VIEW (Floating Dock with Beranda, Akun, Menu)      -->
+    <!-- ============================================================ -->
+    <div class="flex lg:hidden items-center justify-around p-1.5 h-15">
+      <!-- 1. Beranda -->
+      <NuxtLink
+        to="/"
+        class="flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 active:scale-95 select-none"
+        :class="isHomeActive
+          ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/12 dark:bg-emerald-500/15 font-semibold'
+          : 'text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-tertiary)'"
+        aria-label="Beranda"
+      >
+        <Home class="w-5 h-5 transition-transform duration-200" :class="{ 'scale-110': isHomeActive }" />
+        <span class="text-[10px] sm:text-[11px] leading-tight mt-0.5 font-medium">Beranda</span>
+      </NuxtLink>
+
+      <!-- 2. Akun (with dropdown) -->
+      <div class="flex-1 relative flex justify-center" ref="mobileUserDropdownRef">
+        <button
+          @click="toggleUserDropdown"
+          class="w-full flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 active:scale-95 select-none"
+          :class="isUserDropdownOpen
+            ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/12 dark:bg-emerald-500/15 font-semibold'
+            : 'text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-tertiary)'"
+          aria-label="Menu Akun"
+        >
+          <UserCircle class="w-5 h-5 transition-transform duration-200" :class="{ 'scale-110': isUserDropdownOpen }" />
+          <span class="text-[10px] sm:text-[11px] leading-tight mt-0.5 font-medium">Akun</span>
         </button>
 
-        <!-- Theme Toggle -->
+        <!-- Mobile User Dropdown Popover -->
+        <Transition name="dropdown-slide-up">
+          <div
+            v-if="isUserDropdownOpen"
+            class="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-48 sm:w-52 rounded-2xl shadow-2xl border z-50 p-1.5 backdrop-blur-xl"
+            :style="{
+              backgroundColor: 'var(--bg-secondary)',
+              borderColor: 'var(--border-primary)',
+            }"
+          >
+            <div class="flex flex-col gap-1">
+              <!-- Profil Button (Hanya guru) -->
+              <NuxtLink
+                v-if="userRole === 'guru' && gtkId"
+                :to="`/akademik/gtk/detail/${gtkId}`"
+                @click="isUserDropdownOpen = false"
+                class="flex w-full items-center gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all duration-200 hover:bg-(--bg-tertiary) active:scale-95"
+                :style="{ color: 'var(--text-primary)' }"
+                aria-label="Profil"
+              >
+                <UserCircle class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <span class="text-xs font-medium">Profil</span>
+              </NuxtLink>
+
+              <!-- Divider -->
+              <div
+                v-if="userRole === 'guru' && gtkId"
+                class="border-t my-0.5 mx-1"
+                :style="{ borderColor: 'var(--border-subtle)' }"
+              ></div>
+
+              <!-- Logout Button -->
+              <button
+                @click="handleLogout"
+                class="flex w-full items-center gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all duration-200 hover:bg-red-500/10 active:scale-95 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300"
+                aria-label="Logout"
+                :disabled="isLoggingOut"
+              >
+                <Loader2 v-if="isLoggingOut" class="w-5 h-5 animate-spin mx-auto" />
+                <template v-else>
+                  <SignOut class="w-5 h-5 transition-transform duration-200" />
+                  <span class="text-xs font-medium">Keluar</span>
+                </template>
+              </button>
+            </div>
+          </div>
+        </Transition>
       </div>
 
-      <!-- Bagian 2: Logo/Teks di Tengah Sesuai Menu -->
-      <div class="flex-1 flex justify-center px-2 min-w-0 order-2">
+      <!-- 3. Menu (Sidebar / Modal Toggle) -->
+      <button
+        @click="toggleSidebar"
+        class="flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 active:scale-95 select-none"
+        :class="isSidebarOpen
+          ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/12 dark:bg-emerald-500/15 font-semibold'
+          : 'text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-tertiary)'"
+        :aria-label="isSidebarOpen ? 'Tutup Menu' : 'Buka Menu'"
+      >
+        <Menu v-if="!isSidebarOpen" class="w-5 h-5 transition-transform duration-200 hover:scale-105" />
+        <X v-else class="w-5 h-5 transition-transform duration-200 rotate-90 scale-105" />
+        <span class="text-[10px] sm:text-[11px] leading-tight mt-0.5 font-medium">
+          {{ isSidebarOpen ? 'Tutup' : 'Menu' }}
+        </span>
+      </button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 2. DESKTOP VIEW (Top Bar with Sidebar Toggle, Center Label, Account) -->
+    <!-- ============================================================ -->
+    <div
+      class="hidden lg:flex max-w-7xl mx-auto justify-between items-center h-16 px-4"
+      :style="{
+        backgroundColor: 'var(--bg-primary)',
+        color: 'var(--text-primary)',
+      }"
+    >
+      <!-- Bagian 1: Sidebar Toggle -->
+      <div class="flex items-center space-x-4 shrink-0">
+        <button
+          @click="toggleSidebar"
+          class="flex items-center justify-center p-2 rounded-lg transition-all duration-300 hover:bg-(--bg-tertiary)"
+          :style="{ color: 'var(--text-primary)' }"
+          :aria-label="isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'"
+        >
+          <Menu v-if="!isSidebarOpen" class="w-6 h-6 transform transition-all duration-300 hover:translate-x-0.5" />
+          <X v-if="isSidebarOpen" class="w-6 h-6 transform transition-all duration-300 hover:rotate-90" />
+        </button>
+      </div>
+
+      <!-- Bagian 2: Logo/Teks Info Halaman di Tengah -->
+      <div class="flex-1 flex justify-center px-2 min-w-0">
         <div class="text-center truncate max-w-full">
           <span
             class="inline-block text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-mono tracking-tight sm:tracking-wider px-3 py-1 rounded-md truncate max-w-full"
             :style="{
               backgroundColor: 'var(--bg-surface)',
               border: '1px solid var(--border-primary)',
-            }">
+            }"
+          >
             {{ activeMenuLabel }}
           </span>
         </div>
       </div>
 
-      <!-- Bagian 3: Fullscreen + User Dropdown -->
-      <div class="flex items-center space-x-4 flex-shrink-0 order-1 lg:order-3">
-        <!-- User Dropdown -->
-        <div class="relative" ref="userDropdownRef">
-          <!-- User Avatar/Icon Button -->
-          <button @click="toggleUserDropdown"
-            class="flex flex-col items-center justify-center p-1 sm:p-2 rounded-lg transition-all duration-300 hover:bg-[var(--bg-tertiary)] min-w-[3.5rem] lg:min-w-0"
-            :class="{ 'bg-[var(--bg-tertiary)]': isUserDropdownOpen }" :style="{ color: 'var(--text-primary)' }"
-            aria-label="User Menu">
-            <!-- User Icon -->
-            <UserCircle class="w-5 h-5 lg:w-6 lg:h-6" />
-            <span class="text-[10px] leading-none mt-1 font-semibold lg:hidden">Akun</span>
+      <!-- Bagian 3: User Dropdown (Desktop) -->
+      <div class="flex items-center space-x-4 shrink-0">
+        <div class="relative" ref="desktopUserDropdownRef">
+          <button
+            @click="toggleUserDropdown"
+            class="flex items-center justify-center p-2 rounded-lg transition-all duration-300 hover:bg-(--bg-tertiary)"
+            :class="{ 'bg-(--bg-tertiary)': isUserDropdownOpen }"
+            :style="{ color: 'var(--text-primary)' }"
+            aria-label="User Menu"
+          >
+            <UserCircle class="w-6 h-6" />
           </button>
 
-          <!-- Dropdown Menu -->
-          <div v-if="isUserDropdownOpen"
-            class="absolute w-44 rounded-lg shadow-lg border z-50 p-1 bottom-full mb-2 left-0 lg:bottom-auto lg:mb-0 lg:top-full lg:mt-2 lg:right-0 lg:left-auto"
+          <!-- Dropdown Menu Desktop -->
+          <div
+            v-if="isUserDropdownOpen"
+            class="absolute w-44 rounded-lg shadow-lg border z-50 p-1 top-full mt-2 right-0"
             :style="{
               backgroundColor: 'var(--bg-secondary)',
               borderColor: 'var(--border-primary)',
-            }">
+            }"
+          >
             <div class="flex flex-col gap-0.5">
-              <!-- Profil Button (Hanya guru) -->
-              <NuxtLink v-if="userRole === 'guru' && gtkId" :to="`/akademik/gtk/detail/${gtkId}`"
+              <NuxtLink
+                v-if="userRole === 'guru' && gtkId"
+                :to="`/akademik/gtk/detail/${gtkId}`"
                 @click="isUserDropdownOpen = false"
-                class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-[var(--bg-tertiary)]"
-                :style="{ color: 'var(--text-primary)' }" aria-label="Profil">
+                class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-(--bg-tertiary)"
+                :style="{ color: 'var(--text-primary)' }"
+                aria-label="Profil"
+              >
                 <div class="flex items-center space-x-2">
                   <UserCircle class="w-5 h-5 transition-transform duration-300" />
                   <span class="font-medium">Profil</span>
                 </div>
               </NuxtLink>
 
-              <!-- Divider -->
-              <div v-if="userRole === 'guru' && gtkId" class="border-t my-0.5 mx-1"
-                :style="{ borderColor: 'var(--border-subtle)' }"></div>
+              <div
+                v-if="userRole === 'guru' && gtkId"
+                class="border-t my-0.5 mx-1"
+                :style="{ borderColor: 'var(--border-subtle)' }"
+              ></div>
 
-              <!-- Logout Button (Inlined) -->
-              <button @click="handleLogout"
-                class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-[var(--bg-tertiary)] text-red-500 dark:text-red-400 hover:text-red-400 dark:hover:text-red-300"
-                aria-label="Logout" :disabled="isLoggingOut">
+              <button
+                @click="handleLogout"
+                class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 hover:bg-(--bg-tertiary) text-red-500 dark:text-red-400 hover:text-red-400 dark:hover:text-red-300"
+                aria-label="Logout"
+                :disabled="isLoggingOut"
+              >
                 <Loader2 v-if="isLoggingOut" class="w-5 h-5 animate-spin mx-auto" />
                 <div v-else class="flex items-center space-x-2">
                   <SignOut class="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
@@ -95,13 +208,14 @@
 
 <script setup lang="ts">
 import {
+  Home,
   UserCircle,
   Menu,
   X,
   LogOut as SignOut,
   Loader2,
 } from "lucide-vue-next";
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useMenuConfig } from "~/composables/ui/useMenuConfig.js";
 
 import { useAuth } from "~/composables/auth/useAuth";
@@ -113,6 +227,7 @@ interface FlatMenuItem {
 }
 
 const router = useRouter();
+const route = useRoute();
 const { Notify, Loading, Confirm } = useNotiflix();
 const { logout, isLoading: authLoading, getUserRole, getGtkId } = useAuth();
 
@@ -151,9 +266,13 @@ const toggleSidebar = () => {
   emit("toggleSidebar");
 };
 
-// User Dropdown State
+// Active state for Home
+const isHomeActive = computed(() => route.path === "/");
+
+// User Dropdown State & Refs
 const isUserDropdownOpen = ref(false);
-const userDropdownRef = ref<HTMLDivElement | null>(null);
+const mobileUserDropdownRef = ref<HTMLDivElement | null>(null);
+const desktopUserDropdownRef = ref<HTMLDivElement | null>(null);
 
 // Toggle user dropdown
 const toggleUserDropdown = () => {
@@ -162,12 +281,22 @@ const toggleUserDropdown = () => {
 
 // Close dropdown when clicking outside
 const handleClickOutside = (event: MouseEvent) => {
-  if (userDropdownRef.value && !userDropdownRef.value.contains(event.target as Node)) {
+  const target = event.target as Node;
+  const isInsideMobile = mobileUserDropdownRef.value?.contains(target);
+  const isInsideDesktop = desktopUserDropdownRef.value?.contains(target);
+  if (!isInsideMobile && !isInsideDesktop) {
     isUserDropdownOpen.value = false;
   }
 };
 
-const route = useRoute();
+// Close dropdown on route change
+watch(
+  () => route.path,
+  () => {
+    isUserDropdownOpen.value = false;
+  }
+);
+
 const { menuItems } = useMenuConfig();
 
 const activeMenuLabel = computed(() => {
@@ -261,3 +390,17 @@ onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
 });
 </script>
+
+<style scoped>
+/* Dropdown popover animation for mobile */
+.dropdown-slide-up-enter-active,
+.dropdown-slide-up-leave-active {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dropdown-slide-up-enter-from,
+.dropdown-slide-up-leave-to {
+  opacity: 0;
+  transform: translate(-50%, 8px) scale(0.96);
+}
+</style>

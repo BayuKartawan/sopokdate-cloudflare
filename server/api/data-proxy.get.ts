@@ -119,6 +119,7 @@ export default defineEventHandler(async (event) => {
           "AkunSimpatika",
           "AkunEmisGTK",
           "AkunRdm",
+          "AkunGtk",
         ].includes(table)
       ) {
         searchParams.append("gtk_id", String(jwtPayload.gtk_id));

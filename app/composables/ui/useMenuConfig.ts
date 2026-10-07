@@ -44,23 +44,7 @@ export const useMenuConfig = () => {
       roles: ["admin", "guru", "kepala_madrasah"],
       children: [
         { to: "/akun/gtk/kelola", label: "Akun Sopokdate", roles: ["admin"] },
-        { to: "/akun/gtk/emis", label: "EMIS 4.0", roles: ["admin", "guru", "kepala_madrasah"] },
-        {
-          to: "/akun/gtk/email",
-          label: "Email Madrasah",
-          roles: ["admin", "guru", "kepala_madrasah"],
-        },
-        { to: "/akun/gtk/rdm", label: "RDM", roles: ["admin", "guru", "kepala_madrasah"] },
-        {
-          to: "/akun/gtk/emis-gtk",
-          label: "EMIS GTK",
-          roles: ["admin", "guru", "kepala_madrasah"],
-        },
-        {
-          to: "/akun/gtk/simpatika",
-          label: "SIMPATIKA",
-          roles: ["admin", "guru", "kepala_madrasah"],
-        },
+        { to: "/akun/gtk", label: "Akun GTK", roles: ["admin", "guru", "kepala_madrasah"] },
         { to: "/akun/madrasah", label: "Akun Madrasah", roles: ["admin"] },
         { to: "/akun/gtk/pengelola-akses", label: "Pengelola Akses", roles: ["admin"] },
       ],
