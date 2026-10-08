@@ -114,7 +114,22 @@ export async function handleGetData(
   } else if (d1Table === "data_gtk" && fieldsParam === "light") {
     query = `SELECT id, nama_lengkap, peg_id, nuptk, nip, wali_kelas, tugas FROM data_gtk`;
   } else if (d1Table === "akun_gtk") {
-    query = `SELECT ag.*, g.nama_lengkap as nama, a.title as nama_aplikasi, a.link as link_aplikasi FROM akun_gtk ag LEFT JOIN aplikasi a ON ag.aplikasi_id = a.id LEFT JOIN data_gtk g ON ag.gtk_id = g.id`;
+    query = `
+      SELECT 
+        ag.id,
+        ag.gtk_id,
+        COALESCE(g.nama_lengkap, '') AS nama,
+        ag.aplikasi_id,
+        COALESCE(a.title, '') AS nama_aplikasi,
+        COALESCE(a.link, '') AS link_aplikasi,
+        ag.username,
+        ag.password,
+        ag.created_at,
+        ag.updated_at
+      FROM akun_gtk ag 
+      LEFT JOIN aplikasi a ON (ag.aplikasi_id = a.id OR ag.aplikasi_id = a.title) 
+      LEFT JOIN data_gtk g ON ag.gtk_id = g.id
+    `;
   } else {
     query = `SELECT * FROM ${d1Table}`;
   }
@@ -282,6 +297,19 @@ export async function handlePostData(
       cleanedData[toSnakeCase(key)] = value;
     }
 
+    if (d1Table === "akun_gtk" && cleanedData["gtk_id"] && !cleanedData["nama"]) {
+      const gtkRow = await env.DB.prepare("SELECT nama_lengkap FROM data_gtk WHERE id = ?")
+        .bind(parseInt(cleanedData["gtk_id"]))
+        .first<{ nama_lengkap: string }>();
+      if (gtkRow?.nama_lengkap) {
+        cleanedData["nama"] = gtkRow.nama_lengkap;
+      }
+    }
+
+    if (d1Table === "akun_gtk") {
+      delete cleanedData["nama"];
+    }
+
     if (["data_siswa", "alumni", "mutasi_siswa"].includes(d1Table)) {
       const nisLokal = cleanedData["nis_lokal"] || cleanedData["nis lokal"] || cleanedData["nis"];
       if (nisLokal) {
@@ -388,6 +416,9 @@ export async function handlePutData(
 
     for (const [key, value] of Object.entries(data)) {
       const snakeKey = toSnakeCase(key);
+      if (d1Table === "akun_gtk" && snakeKey === "nama") {
+        continue;
+      }
       setClauses.push(`${snakeKey} = ?`);
       params.push(value !== undefined && value !== null ? String(value) : "");
       updates[snakeKey] = value;

@@ -30,7 +30,7 @@
               <tbody>
                 <tr v-for="(item, index) in sortedData" :key="index">
                   <td class="border border-stone-300 p-2">{{ index + 1 }}</td>
-                  <td class="border border-stone-300 p-2">{{ item.nama }}</td>
+                  <td class="border border-stone-300 p-2">{{ getAccountGtkName(item) }}</td>
                   <td class="border border-stone-300 p-2 font-mono">{{ item.username }}</td>
                   <td class="border border-stone-300 p-2 font-mono">{{ item.password }}</td>
                 </tr>
@@ -136,8 +136,8 @@
                     :style="{ backgroundColor: 'var(--bg-tertiary)' }" />
                 </div>
                 <div class="min-w-0 flex-1">
-                  <h3 class="font-semibold text-base truncate" :style="{ color: 'var(--text-primary)' }" :title="akun.nama">
-                    {{ akun.nama }}
+                  <h3 class="font-semibold text-base truncate" :style="{ color: 'var(--text-primary)' }" :title="getAccountGtkName(akun)">
+                    {{ getAccountGtkName(akun) }}
                   </h3>
                   <!-- Badge Aplikasi jika ada -->
                   <div v-if="getAccountAppTitle(akun)" class="mt-1">
@@ -351,6 +351,19 @@ const activeDropdownOptions = computed<DropdownOption[]>(() => {
   return [];
 });
 
+// Helper to get GTK name for an account
+const getAccountGtkName = (akun: AkunItem): string => {
+  if (akun.nama) return akun.nama;
+  if (akun.gtk_id) {
+    const gtks = (gtkData.value as GtkItem[] | null) || [];
+    const found = gtks.find(
+      (g) => String(g.id) === String(akun.gtk_id)
+    );
+    if (found) return (found.nama_lengkap || found.title || "") as string;
+  }
+  return "";
+};
+
 // Helper to get app title for an account
 const getAccountAppTitle = (akun: AkunItem): string => {
   if (akun.nama_aplikasi) return akun.nama_aplikasi;
@@ -437,6 +450,7 @@ const openEditModal = (akun: AkunItem): void => {
   editingItem.value = {
     _id: akun.id || akun._id,
     gtk_id: akun.gtk_id || "",
+    nama: akun.nama || "",
     aplikasi_id: akun.aplikasi_id || "",
     username: akun.username || "",
     password: akun.password || "",
@@ -450,10 +464,19 @@ const handleFormSubmit = async (formData: Record<string, unknown>): Promise<void
 
   const { postToApi, putToApi } = await import("~/utils/api");
 
+  // Pastikan nama GTK terisi dari options jika gtk_id dipilih
+  const payload = { ...formData };
+  if (payload.gtk_id && !payload.nama) {
+    const selectedGtk = gtkOptions.value.find((g) => String(g.value) === String(payload.gtk_id));
+    if (selectedGtk) {
+      payload.nama = selectedGtk.label;
+    }
+  }
+
   if (modalMode.value === "create") {
     try {
       crudSaving.value = true;
-      await postToApi(tableName, formData);
+      await postToApi(tableName, payload);
       Notify?.success?.("Data berhasil ditambahkan");
       refreshData(tableName);
       success = true;
@@ -468,7 +491,7 @@ const handleFormSubmit = async (formData: Record<string, unknown>): Promise<void
     if (!id) return;
     try {
       crudSaving.value = true;
-      await putToApi(tableName, id, formData);
+      await putToApi(tableName, id, payload);
       Notify?.success?.("Data berhasil diperbarui");
       refreshData(tableName);
       success = true;
@@ -492,10 +515,11 @@ const handleDelete = async (akun: AkunItem): Promise<void> => {
   const id = akun.id || akun._id;
   if (!id) return;
   const tableName = selectedTable.value;
+  const accountName = getAccountGtkName(akun) || akun.username;
 
   Confirm?.show(
     "Hapus Akun",
-    `Apakah Anda yakin ingin menghapus akun ${akun.nama || akun.username}? Tindakan ini tidak dapat dibatalkan.`,
+    `Apakah Anda yakin ingin menghapus akun ${accountName}? Tindakan ini tidak dapat dibatalkan.`,
     "Ya, Hapus",
     "Batal",
     async () => {
@@ -542,14 +566,17 @@ const sortedData = computed<AkunItem[]>(() => {
 
       // Filter by Search Query (Nama, Username, Nama Aplikasi)
       if (!query) return true;
-      const matchesName = item.nama && item.nama.toLowerCase().includes(query);
+      const accountName = getAccountGtkName(item);
+      const matchesName = accountName && accountName.toLowerCase().includes(query);
       const matchesUsername = item.username && item.username.toLowerCase().includes(query);
       const matchesApp = item.nama_aplikasi && item.nama_aplikasi.toLowerCase().includes(query);
       return matchesName || matchesUsername || matchesApp;
     })
     .sort((a, b) => {
-      if (!a.nama || !b.nama) return 0;
-      return a.nama.localeCompare(b.nama);
+      const nameA = getAccountGtkName(a);
+      const nameB = getAccountGtkName(b);
+      if (!nameA || !nameB) return 0;
+      return nameA.localeCompare(nameB);
     });
 });
 
@@ -593,7 +620,7 @@ const exportToExcel = (): void => {
   const headers = ["No", "Nama", "Aplikasi", "Username", "Password"];
   const data: ExportRow[] = sortedData.value.map((item, index) => ({
     no: index + 1,
-    nama: item.nama || "",
+    nama: getAccountGtkName(item) || "",
     aplikasi: getAccountAppTitle(item) || "-",
     username: item.username,
     password: item.password,
@@ -639,7 +666,8 @@ const handleShareAccount = async (akun: AkunItem, index: number): Promise<void> 
 
   const appName = getAccountAppTitle(akun) || selectedTable.value || "Akun";
   const targetLink = getAccountLink(akun) || "";
-  const message = `====DOKUMEN.MADRASAH====\n\nJenis Akun: ${appName}\nNama: ${akun.nama}\n\nUser: ${akun.username}\nPass: ${akun.password}\n\nLink masuk ${appName}:\n${targetLink}\nLogin SopokDate:\nhttps://sopokdate.netlify.app/\n\n=====SANGAT.RAHASIA=====`;
+  const targetName = getAccountGtkName(akun) || "-";
+  const message = `====DOKUMEN.MADRASAH====\n\nJenis Akun: ${appName}\nNama: ${targetName}\n\nUser: ${akun.username}\nPass: ${akun.password}\n\nLink masuk ${appName}:\n${targetLink}\nLogin SopokDate:\nhttps://sopokdate.netlify.app/\n\n=====SANGAT.RAHASIA=====`;
 
   try {
     if (

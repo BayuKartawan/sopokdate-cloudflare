@@ -52,6 +52,26 @@ export async function handleAuthLogin(
       return errorResponse("Username atau password salah", 401);
     }
 
+    let resolvedGtkId = user.gtk_id;
+    if (!resolvedGtkId && (user.role === "guru" || user.role === "kepala_madrasah")) {
+      const gtkMatch = await env.DB.prepare(
+        "SELECT id, nama_lengkap FROM data_gtk WHERE peg_id = ? OR LOWER(TRIM(nama_lengkap)) = LOWER(TRIM(?)) LIMIT 1"
+      )
+        .bind(user.username, user.display_name || user.username)
+        .first<{ id: number; nama_lengkap: string }>();
+
+      if (gtkMatch) {
+        resolvedGtkId = gtkMatch.id;
+        try {
+          await env.DB.prepare("UPDATE users SET gtk_id = ? WHERE id = ?")
+            .bind(resolvedGtkId, user.id)
+            .run();
+        } catch {
+          // Ignore error on background update
+        }
+      }
+    }
+
     return jsonResponse({
       success: true,
       user: {
@@ -59,7 +79,7 @@ export async function handleAuthLogin(
         username: user.username,
         role: user.role,
         display_name: user.display_name,
-        gtk_id: user.gtk_id,
+        gtk_id: resolvedGtkId,
       },
     });
   } catch (err: any) {

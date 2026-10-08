@@ -111,16 +111,13 @@ export default defineEventHandler(async (event) => {
     // Jika role guru dan tabel DataGtk / Akun, filter hanya data miliknya
     const jwtPayload = decodeMockJWT(token);
     if (jwtPayload && jwtPayload.role === "guru" && jwtPayload.gtk_id) {
+      const lowerTable = (table || "").toLowerCase();
       if (
-        table === "DataGtk" ||
-        [
-          "AkunEmis",
-          "AkunEmail",
-          "AkunSimpatika",
-          "AkunEmisGTK",
-          "AkunRdm",
-          "AkunGtk",
-        ].includes(table)
+        lowerTable === "datagtk" ||
+        lowerTable === "data_gtk" ||
+        lowerTable.startsWith("akun") ||
+        lowerTable.includes("akungtk") ||
+        lowerTable.includes("akun_gtk")
       ) {
         searchParams.append("gtk_id", String(jwtPayload.gtk_id));
       }
