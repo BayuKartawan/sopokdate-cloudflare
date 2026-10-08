@@ -291,7 +291,8 @@ const desktopUserDropdownRef = ref<HTMLDivElement | null>(null);
 
 // Toggle user dropdown
 const toggleUserDropdown = () => {
-  if (props.isSidebarOpen) {
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
+  if (isMobile && props.isSidebarOpen) {
     emit("closeSidebar");
   }
   isUserDropdownOpen.value = !isUserDropdownOpen.value;

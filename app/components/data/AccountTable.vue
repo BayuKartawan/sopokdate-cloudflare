@@ -49,22 +49,18 @@
 
     <!-- Search and Dropdown -->
     <div class="w-full flex flex-col sm:flex-row gap-3 sm:gap-4 mb-2">
-      <!-- Dropdown Select (Inlined) -->
+      <!-- Dropdown Select (SearchableSelect) -->
       <div v-if="activeDropdownOptions && activeDropdownOptions.length > 0" class="w-full sm:w-1/2">
-        <select v-model="selectedFilterValue" @change="handleDropdownUpdated(selectedFilterValue)"
-          class="w-full rounded-lg border py-2 px-4 text-sm leading-5 h-[38px] transition-all duration-300 ease-in-out cursor-pointer focus:outline-none focus:ring-1 focus:ring-opacity-50 focus:border-emerald-500/50 focus:ring-emerald-500/20"
-          :style="{
-            backgroundColor: 'var(--bg-input-alpha)',
-            color: 'var(--text-primary)',
-            borderColor: 'var(--border-primary)',
-          }">
-          <option v-for="option in activeDropdownOptions" :key="option.value" :value="option.value" :style="{
-            backgroundColor: 'var(--bg-secondary)',
-            color: 'var(--text-primary)',
-          }">
-            {{ option.label }}
-          </option>
-        </select>
+        <SearchableSelect
+          v-model="selectedFilterValue"
+          :options="activeDropdownOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Pilih Aplikasi..."
+          search-placeholder="Cari aplikasi..."
+          class="w-full"
+          @change="handleDropdownUpdated"
+        />
       </div>
 
       <!-- Search Component -->
@@ -230,6 +226,7 @@ import {
 } from "lucide-vue-next";
 import { ref, computed, onMounted, provide, watch } from "vue";
 import Search from "~/components/ui/Search.vue";
+import SearchableSelect from "~/components/ui/SearchableSelect.vue";
 import Pagination from "~/components/ui/Pagination.vue";
 import { useTableData } from "~/composables/data/useTableData";
 import { useCrud } from "~/composables/data/useCrud";
@@ -595,14 +592,18 @@ const hasLocalData = computed<boolean>(() => {
   return !!(data && data.length > 0);
 });
 
-const handleDropdownUpdated = (newValue: string): void => {
+const handleDropdownUpdated = (newValue: string | DropdownOption | any): void => {
+  const val = typeof newValue === "object" && newValue !== null && "value" in newValue
+    ? String(newValue.value)
+    : String(newValue ?? "");
+
   if (isAkunGtkMode.value) {
-    selectedAppFilter.value = newValue;
-    selectedFilterValue.value = newValue;
+    selectedAppFilter.value = val;
+    selectedFilterValue.value = val;
   } else {
-    selectedTable.value = newValue;
-    selectedFilterValue.value = newValue;
-    loadData(newValue);
+    selectedTable.value = val;
+    selectedFilterValue.value = val;
+    loadData(val);
   }
 };
 
