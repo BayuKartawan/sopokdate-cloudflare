@@ -15,6 +15,7 @@
       <!-- 1. Beranda -->
       <NuxtLink
         to="/"
+        @click="handleHomeClick"
         class="flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 active:scale-95 select-none"
         :class="isHomeActive
           ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/12 dark:bg-emerald-500/15 font-semibold'
@@ -251,7 +252,7 @@ const handleLogout = () => {
 };
 
 // Props dan Emits untuk sidebar
-defineProps({
+const props = defineProps({
   isSidebarOpen: {
     type: Boolean,
     required: true,
@@ -260,10 +261,24 @@ defineProps({
 
 const emit = defineEmits<{
   (e: "toggleSidebar"): void;
+  (e: "closeSidebar"): void;
 }>();
 
 const toggleSidebar = () => {
+  if (isUserDropdownOpen.value) {
+    isUserDropdownOpen.value = false;
+  }
   emit("toggleSidebar");
+};
+
+// Handle Home link click in mobile dock
+const handleHomeClick = () => {
+  if (isUserDropdownOpen.value) {
+    isUserDropdownOpen.value = false;
+  }
+  if (props.isSidebarOpen) {
+    emit("closeSidebar");
+  }
 };
 
 // Active state for Home
@@ -276,6 +291,9 @@ const desktopUserDropdownRef = ref<HTMLDivElement | null>(null);
 
 // Toggle user dropdown
 const toggleUserDropdown = () => {
+  if (props.isSidebarOpen) {
+    emit("closeSidebar");
+  }
   isUserDropdownOpen.value = !isUserDropdownOpen.value;
 };
 
@@ -323,7 +341,7 @@ const activeMenuLabel = computed(() => {
   if (exactMatch) return exactMatch.label;
 
   const prefixMatch = flatItems
-    .filter((item) => item.to !== "/" && path.startsWith(item.to))
+    .filter((item) => item.to !== "/" && path.startsWith(item.to + "/"))
     .sort((a, b) => b.to.length - a.to.length)[0];
   if (prefixMatch) return prefixMatch.label;
 

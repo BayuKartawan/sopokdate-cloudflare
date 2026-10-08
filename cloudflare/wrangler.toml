@@ -8,11 +8,23 @@ binding = "DB"
 database_name = "sopokdate-db"
 database_id = "69393a59-4a24-4035-aff3-3cea05d5f9f9"
 
-
 [[r2_buckets]]
+binding = "R2"
+bucket_name = "sopokdate-r2"
+
+[env.production]
+name = "sopokdate-api"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "sopokdate-db"
+database_id = "69393a59-4a24-4035-aff3-3cea05d5f9f9"
+
+[[env.production.r2_buckets]]
 binding = "R2"
 bucket_name = "sopokdate-r2"
 
 [env.production.browser]
 binding = "MYBROWSER"
+
 

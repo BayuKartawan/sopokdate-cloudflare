@@ -124,12 +124,33 @@ const allDropdownsOpen = computed(() => {
 });
 
 // --- Helper Functions ---
+const activeChildPath = computed(() => {
+  const currentPath = route.path;
+  if (currentPath === "/") return "/";
+
+  const allPaths: string[] = [];
+  menuItems.value?.forEach((item: any) => {
+    if (item.to) allPaths.push(item.to);
+    if (item.children) {
+      item.children.forEach((c: any) => {
+        if (c.to) allPaths.push(c.to);
+      });
+    }
+  });
+
+  const exactMatch = allPaths.find((p) => p !== "/" && p === currentPath);
+  if (exactMatch) return exactMatch;
+
+  const prefixMatches = allPaths
+    .filter((p) => p !== "/" && currentPath.startsWith(p + "/"))
+    .sort((a, b) => b.length - a.length);
+
+  return prefixMatches[0] || null;
+});
+
 const isActiveRoute = (toPath?: string): boolean => {
   if (!toPath) return false;
-  if (toPath === "/") {
-    return route.path === toPath;
-  }
-  return route.path === toPath || route.path.startsWith(toPath + "/");
+  return activeChildPath.value === toPath;
 };
 
 const isParentActive = (menuItem: any): boolean => {

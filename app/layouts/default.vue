@@ -3,7 +3,7 @@
     <!-- Navigation components (conditional based on login status) -->
     <template v-if="isLoggedIn">
       <!-- Navbar -->
-      <Navbar :isSidebarOpen="isSidebarOpen" @toggleSidebar="toggleSidebar"
+      <Navbar :isSidebarOpen="isSidebarOpen" @toggleSidebar="toggleSidebar" @closeSidebar="closeSidebar"
         :class="{ 'lg:pl-64': isSidebarOpen && !isMobileView }" class="transition-all duration-300" />
 
       <!-- Sidebar (Desktop) -->
@@ -185,6 +185,9 @@ onMounted(() => {
   const stopWatchRoute = router.afterEach(() => {
     checkUserAuth();
     refreshMenuAccess();
+    if (isMobileView.value && isSidebarOpen.value) {
+      closeSidebar();
+    }
   });
 
   // 6. Listen to storage events (untuk multi-tab logout sync)
