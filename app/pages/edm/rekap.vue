@@ -60,7 +60,7 @@
           <div class="block sm:hidden divide-y" style="border-color: var(--border-primary)">
             <div v-for="b in getBagianSummaryList(rekapData)" :key="'mob-' + (b.id || b.nama_bagian)"
               class="p-4 transition-colors cursor-pointer"
-              :class="selectedBagianFilter === getBagianCode(b) ? 'bg-emerald-500/10' : 'hover:bg-[var(--bg-card-hover)]'"
+              :class="selectedBagianFilter === getBagianCode(b) ? 'bg-emerald-500/10' : 'hover:bg-(--bg-card-hover)'"
               @click="selectedBagianFilter = selectedBagianFilter === getBagianCode(b) ? '' : getBagianCode(b)">
               
               <!-- Section Top Bar: Badge & Nilai (%) -->
@@ -109,7 +109,7 @@
 
           <!-- Desktop / Tablet Table View (>= sm) -->
           <div class="hidden sm:block overflow-x-auto">
-            <table class="w-full text-sm min-w-[650px]">
+            <table class="w-full text-sm min-w-162.5">
               <thead>
                 <tr style="background: var(--bg-secondary)">
                   <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Kode & Nama Bagian</th>
@@ -121,7 +121,7 @@
               </thead>
               <tbody>
                 <tr v-for="b in getBagianSummaryList(rekapData)" :key="b.id || b.nama_bagian"
-                  class="transition-colors hover:bg-[var(--bg-card-hover)] cursor-pointer"
+                  class="transition-colors hover:bg-(--bg-card-hover) cursor-pointer"
                   :class="selectedBagianFilter === getBagianCode(b) ? 'bg-emerald-500/10' : ''"
                   style="border-top: 1px solid var(--border-primary)"
                   @click="selectedBagianFilter = selectedBagianFilter === getBagianCode(b) ? '' : getBagianCode(b)">
@@ -167,13 +167,13 @@
               <thead>
                 <tr style="background: var(--bg-secondary)">
                   <th class="text-left px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Kode Soal</th>
-                  <th class="text-left px-4 py-3 font-medium text-xs min-w-[250px]" style="color: var(--text-muted)">Pertanyaan Instrumen</th>
+                  <th class="text-left px-4 py-3 font-medium text-xs min-w-62.5" style="color: var(--text-muted)">Pertanyaan Instrumen</th>
                   <th class="text-center px-4 py-3 font-medium text-xs" style="color: var(--text-muted)">Poin Jawaban (1–4)</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="ind in filteredIndikator" :key="ind.kode_soal || ind.id"
-                  class="transition-colors hover:bg-[var(--bg-card-hover)]"
+                  class="transition-colors hover:bg-(--bg-card-hover)"
                   style="border-top: 1px solid var(--border-primary)">
                   <td class="px-4 py-3 font-mono text-xs font-bold" style="color: var(--text-primary)">
                     <span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-xs font-bold text-white mr-1.5"
