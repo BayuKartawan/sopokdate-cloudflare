@@ -368,7 +368,7 @@
           <div v-if="currentFileCount === 0 && !isUploading" class="mt-3 p-3 rounded-xl flex items-center gap-2.5"
             style="background: var(--bg-secondary); border: 1px solid var(--border-subtle)">
             <AlertTriangle class="w-4 h-4 text-amber-500 shrink-0" />
-            <span class="text-xs font-medium" style="color: var(--text-muted)">Upload minimal 1 file bukti fisik untuk dapat memilih jawaban.</span>
+            <span class="text-xs font-medium" style="color: var(--text-muted)">Upload minimal 1 file bukti fisik.</span>
           </div>
         </div>
 

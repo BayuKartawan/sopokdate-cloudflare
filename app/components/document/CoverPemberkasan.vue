@@ -1,6 +1,6 @@
 <template>
   <div
-    class="cover-pemberkasan-root w-full max-w-[210mm] print:max-w-none mx-auto bg-white p-4 sm:p-8 md:p-16 shadow-lg border border-zinc-200 print:shadow-none print:border-none">
+    class="cover-pemberkasan-root w-full max-w-[210mm] print:max-w-none mx-auto bg-white text-black p-4 sm:p-8 md:p-16 shadow-lg border border-neutral-300 print:shadow-none print:border-none">
     <!-- Header with logos -->
     <div
       class="flex justify-center items-center mb-6 sm:mb-10 space-x-4 sm:space-x-8 border-b-2 border-emerald-600 pb-2">
@@ -12,7 +12,7 @@
 
     <!-- Title section -->
     <div class="text-center mb-10 sm:mb-20">
-      <h1 class="text-lg sm:text-xl md:text-2xl mb-2 font-bold leading-snug">
+      <h1 class="text-lg sm:text-xl md:text-2xl mb-2 font-bold leading-snug text-black">
         <span>BERKAS PENCAIRAN</span><br />
         <span>TUNJANGAN PROFESI GURU NON PNS</span><br />
         <span>BULAN {{ bulan }} {{ getCurrentYear() }}</span>
@@ -21,59 +21,59 @@
 
     <!-- Main content -->
     <div
-      class="max-w-lg mx-auto mb-10 sm:mb-20 text-sm sm:text-base md:text-lg border-2 border-emerald-600 rounded-2xl p-4 sm:p-5">
-      <div v-if="!dataMadrasah" class="text-center text-red-500 font-bold">
+      class="max-w-lg mx-auto mb-10 sm:mb-20 text-sm sm:text-base md:text-lg border-2 border-emerald-600 rounded-2xl p-4 sm:p-5 text-black">
+      <div v-if="!dataMadrasah" class="text-center text-red-600 font-bold">
         Data tidak ditemukan - MOHON REFRESH HALAMAN ATAU HUBUNGI ADMIN -
       </div>
 
-      <table class="w-full" v-else>
+      <table class="w-full text-black" v-else>
         <tbody>
           <tr>
-            <td class="w-1/3 py-1 align-top text-left">Madrasah</td>
-            <td class="w-4 text-center py-1 align-top">:</td>
-            <td class="py-1 align-top text-left">
+            <td class="w-1/3 py-1 align-top text-left font-medium text-black">Madrasah</td>
+            <td class="w-4 text-center py-1 align-top text-black">:</td>
+            <td class="py-1 align-top text-left font-semibold text-black">
               {{ dataMadrasah?.madrasah || "N/A" }}
             </td>
           </tr>
           <tr>
-            <td class="w-1/3 py-1 align-top text-left">NSM</td>
-            <td class="w-4 text-center py-1 align-top">:</td>
-            <td class="py-1 align-top text-left">
+            <td class="w-1/3 py-1 align-top text-left font-medium text-black">NSM</td>
+            <td class="w-4 text-center py-1 align-top text-black">:</td>
+            <td class="py-1 align-top text-left font-semibold text-black">
               {{ dataMadrasah?.nsm || "N/A" }}
             </td>
           </tr>
           <tr>
-            <td class="w-1/3 py-1 align-top text-left">Siap Id Lembaga</td>
-            <td class="w-4 text-center py-1 align-top">:</td>
-            <td class="py-1 align-top text-left">
+            <td class="w-1/3 py-1 align-top text-left font-medium text-black">Siap Id Lembaga</td>
+            <td class="w-4 text-center py-1 align-top text-black">:</td>
+            <td class="py-1 align-top text-left font-semibold text-black">
               {{ dataMadrasah?.siap_id || "N/A" }}
             </td>
           </tr>
           <tr>
-            <td class="w-1/3 py-1 align-top text-left">NPSN</td>
-            <td class="w-4 text-center py-1 align-top">:</td>
-            <td class="py-1 align-top text-left">
+            <td class="w-1/3 py-1 align-top text-left font-medium text-black">NPSN</td>
+            <td class="w-4 text-center py-1 align-top text-black">:</td>
+            <td class="py-1 align-top text-left font-semibold text-black">
               {{ dataMadrasah?.npsn || "N/A" }}
             </td>
           </tr>
           <tr>
-            <td class="w-1/3 py-1 align-top text-left">Akreditasi</td>
-            <td class="w-4 text-center py-1 align-top">:</td>
-            <td class="py-1 align-top text-left">
+            <td class="w-1/3 py-1 align-top text-left font-medium text-black">Akreditasi</td>
+            <td class="w-4 text-center py-1 align-top text-black">:</td>
+            <td class="py-1 align-top text-left font-semibold text-black">
               {{ dataMadrasah?.akreditasi || "N/A" }}
             </td>
           </tr>
           <tr>
-            <td class="w-1/3 py-1 align-top text-left">No HP Kamad</td>
-            <td class="w-4 text-center py-1 align-top">:</td>
-            <td class="py-1 align-top text-left">
+            <td class="w-1/3 py-1 align-top text-left font-medium text-black">No HP Kamad</td>
+            <td class="w-4 text-center py-1 align-top text-black">:</td>
+            <td class="py-1 align-top text-left font-semibold text-black">
               {{ dataMadrasah?.no_hp_kamad || "N/A" }}
             </td>
           </tr>
           <tr>
-            <td class="w-1/3 py-1 align-top text-left">Website</td>
-            <td class="w-4 text-center py-1 align-top">:</td>
-            <td class="py-1 align-top text-left">{{ linkApp }}</td>
+            <td class="w-1/3 py-1 align-top text-left font-medium text-black">Website</td>
+            <td class="w-4 text-center py-1 align-top text-black">:</td>
+            <td class="py-1 align-top text-left font-semibold text-black">{{ linkApp }}</td>
           </tr>
         </tbody>
       </table>
@@ -81,7 +81,7 @@
 
     <!-- Footer -->
     <div class="text-center mb-6 sm:mb-10">
-      <h2 class="text-sm sm:text-base md:text-xl font-bold leading-snug">
+      <h2 class="text-sm sm:text-base md:text-xl font-bold leading-snug text-black">
         <span>KEMENTRIAN AGAMA KABUPATEN LOMBOK TIMUR</span><br />
         <span>SEKSI PENDIDIKAN MADRASAH</span><br />
         <span>TAHUN ANGGARAN {{ getCurrentYear() }}</span>
@@ -148,6 +148,20 @@ defineProps<{
 </script>
 
 <style>
+.cover-pemberkasan-root {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.cover-pemberkasan-root h1,
+.cover-pemberkasan-root h2,
+.cover-pemberkasan-root table,
+.cover-pemberkasan-root td,
+.cover-pemberkasan-root p,
+.cover-pemberkasan-root span:not(.text-red-600):not(.text-red-500) {
+  color: #000000 !important;
+}
+
 @media screen {
   #print-area {
     width: 100% !important;
@@ -193,7 +207,8 @@ defineProps<{
     margin: 0 !important;
     padding: 10mm !important;
     box-sizing: border-box !important;
-    background: white !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
   }
 }
 </style>
