@@ -442,12 +442,11 @@ export async function handlePostEdmJawaban(
   try {
     const statements: D1PreparedStatement[] = [];
     const upsertQuery = `
-      INSERT INTO edm_jawaban (kode_soal, bagian_id, gtk_id, skor, upload_text, updated_at)
-      VALUES (?1, ?2, ?3, ?4, ?5, datetime('now'))
+      INSERT INTO edm_jawaban (kode_soal, bagian_id, gtk_id, skor, updated_at)
+      VALUES (?1, ?2, ?3, ?4, datetime('now'))
       ON CONFLICT(kode_soal, bagian_id) DO UPDATE SET
         gtk_id = excluded.gtk_id,
         skor = excluded.skor,
-        upload_text = excluded.upload_text,
         updated_at = datetime('now')
     `;
 
@@ -461,7 +460,6 @@ export async function handlePostEdmJawaban(
           targetBagianId,
           gtk_id || null,
           j.skor ?? null,
-          j.upload_text ?? null,
         ),
       );
     }

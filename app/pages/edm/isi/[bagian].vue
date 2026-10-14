@@ -127,7 +127,7 @@
       </div>
 
       <!-- Single Soal Card (1 Soal 1 Halaman) -->
-      <div v-if="currentItem" class="rounded-xl p-4 sm:p-6 transition-all duration-200 shadow-sm"
+      <div v-if="currentItem" id="soal-card" class="rounded-xl p-4 sm:p-6 transition-all duration-200 shadow-sm"
         :class="localAnswers[currentItem.kode_soal]?.skor ? 'ring-1 ring-emerald-500/40' : ''"
         style="background: var(--bg-card); border: 1px solid var(--border-primary)">
 
@@ -372,47 +372,12 @@
           </div>
         </div>
 
-        <!-- ─── Step 2: Jawaban ─── -->
-        <div class="pt-5 mt-5 border-t" style="border-color: var(--border-subtle)">
-          <div class="flex items-center justify-between gap-2 mb-3">
-            <div class="flex items-center gap-2.5">
-              <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold inline-flex items-center justify-center shrink-0">2</span>
-              <span class="text-sm font-semibold" style="color: var(--text-heading)">Jawaban</span>
-            </div>
-            <span v-if="currentItem && localAnswers[currentItem.kode_soal]"
-              class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-0.5 rounded-full transition-colors"
-              :class="getWordCount(localAnswers[currentItem.kode_soal]?.upload_text) >= 30
-                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300'
-                : 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300'">
-              <PencilLine class="w-3 h-3 shrink-0" />
-              {{ getWordCount(localAnswers[currentItem.kode_soal]?.upload_text) }} / 30 kata
-            </span>
-          </div>
 
-          <textarea
-            v-if="currentItem && localAnswers[currentItem.kode_soal]"
-            v-model="localAnswers[currentItem.kode_soal].upload_text"
-            rows="3"
-            placeholder="Berikan jawaban sesuai dengan kondisi madrasah saat ini, benar jujur dan transparan agar sistem memberikan jenis kegiatan yang sesuai untuk meningkatkan kualitas madrasah anda"
-            class="w-full px-3.5 py-2.5 rounded-xl text-sm transition-[border-color,box-shadow] border outline-none focus:ring-2 focus:ring-emerald-500 leading-relaxed resize-none overflow-hidden"
-            :class="getWordCount(localAnswers[currentItem.kode_soal]?.upload_text) < 30 ? 'border-amber-400 dark:border-amber-600' : 'border-emerald-500'"
-            style="background: var(--bg-input); color: var(--text-primary); min-height: 5.5rem;"
-            ref="textareaRef"
-            @input="autoResize"
-          ></textarea>
 
-          <!-- Warning jika teks kurang dari 30 kata -->
-          <div v-if="currentItem && localAnswers[currentItem.kode_soal] && getWordCount(localAnswers[currentItem.kode_soal]?.upload_text) < 30"
-            class="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5 font-medium">
-            <AlertTriangle class="w-4 h-4 shrink-0" />
-            <span>Penjelasan ringkas minimal 30 kata agar jawaban dapat disimpan.</span>
-          </div>
-        </div>
-
-        <!-- ─── Step 3: Pilih Tingkat ─── -->
+        <!-- ─── Step 2: Pilih Tingkat ─── -->
         <div class="pt-5 mt-5 border-t" style="border-color: var(--border-subtle)">
           <div class="flex items-center gap-2.5 mb-3">
-            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold inline-flex items-center justify-center shrink-0">3</span>
+            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold inline-flex items-center justify-center shrink-0">2</span>
             <span class="text-sm font-semibold" style="color: var(--text-heading)">Pilih Tingkat</span>
           </div>
 
@@ -466,10 +431,10 @@
               Progres Pengisian
             </span>
             <span class="text-xs font-bold font-mono px-2 py-0.5 rounded-md"
-              :class="completedRequirementsCount === 3
+              :class="completedRequirementsCount === 2
                 ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
                 : 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30'">
-              {{ completedRequirementsCount }}/3
+              {{ completedRequirementsCount }}/2
             </span>
           </div>
 
@@ -477,10 +442,10 @@
           <div class="h-2 w-full rounded-full overflow-hidden p-0.5"
             style="background: var(--bg-secondary); border: 1px solid var(--border-subtle)">
             <div class="h-full rounded-full transition-all duration-300 ease-out"
-              :class="completedRequirementsCount === 3
+              :class="completedRequirementsCount === 2
                 ? (isCurrentItemChanged ? 'bg-linear-to-r from-emerald-500 to-teal-400' : 'bg-emerald-500')
                 : 'bg-linear-to-r from-amber-500 to-emerald-400'"
-              :style="{ width: `${(completedRequirementsCount / 3) * 100}%` }">
+              :style="{ width: `${(completedRequirementsCount / 2) * 100}%` }">
             </div>
           </div>
         </div>
@@ -491,12 +456,12 @@
           <div class="flex flex-col gap-2.5 sm:hidden">
             <!-- Simpan Button (Full Width) -->
             <UiBaseButton
-              :text="isSaving ? 'Menyimpan...' : 'Simpan Jawaban Ini'"
+              :text="isSavingCurrent || isSaving || isUploading ? 'Menyimpan...' : 'Simpan Jawaban Ini'"
               title="Simpan jawaban untuk soal ini"
-              :loading="isSaving"
-              :disabled="!canSaveCurrentItem || isSaving"
+              :loading="isSavingCurrent || isSaving || isUploading"
+              :disabled="!canSaveCurrentItem || isSavingCurrent || isSaving || isUploading"
               class="w-full justify-center"
-              :class="canSaveCurrentItem ? 'ring-2 ring-emerald-500 ring-offset-2' : ''"
+              :class="canSaveCurrentItem && !isSavingCurrent && !isSaving && !isUploading ? 'ring-2 ring-emerald-500 ring-offset-2' : ''"
               @click="handleSaveCurrent"
             >
               <template #icon><Save class="w-4 h-4" /></template>
@@ -537,11 +502,11 @@
             </UiBaseButton>
 
             <UiBaseButton
-              :text="isSaving ? 'Menyimpan...' : 'Simpan Jawaban'"
+              :text="isSavingCurrent || isSaving || isUploading ? 'Menyimpan...' : 'Simpan Jawaban'"
               title="Simpan jawaban untuk indikator ini"
-              :loading="isSaving"
-              :disabled="!canSaveCurrentItem || isSaving"
-              :class="canSaveCurrentItem ? 'ring-2 ring-emerald-500 ring-offset-2' : ''"
+              :loading="isSavingCurrent || isSaving || isUploading"
+              :disabled="!canSaveCurrentItem || isSavingCurrent || isSaving || isUploading"
+              :class="canSaveCurrentItem && !isSavingCurrent && !isSaving && !isUploading ? 'ring-2 ring-emerald-500 ring-offset-2' : ''"
               @click="handleSaveCurrent"
             >
               <template #icon><Save class="w-4 h-4" /></template>
@@ -717,7 +682,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { ref, reactive, computed, onMounted, watch, nextTick } from "vue";
 import { useRoute, onBeforeRouteLeave } from "vue-router";
 import type { NavigationGuardNext } from "vue-router";
 import { useEdm, EDM_BAGIAN_LIST } from "~/composables/edm/useEdm";
@@ -725,14 +690,13 @@ import type { AnggotaBagian, BuktiFile } from "~/composables/edm/useEdm";
 import { useNotiflix } from "~/composables/ui/useFeedback";
 import {
   ArrowLeft, Save, UsersRound, ListChecks, Plus,
-  ChevronLeft, ChevronRight, CheckCircle2, X, PencilLine,
+  ChevronLeft, ChevronRight, CheckCircle2, X,
   Upload, FileText, ExternalLink, Trash2, AlertTriangle, Undo2
 } from "lucide-vue-next";
 
 interface LocalAnswer {
   kode_soal: string;
   skor: number | null;
-  upload_text: string;
   updated_by_nama: string;
 }
 
@@ -753,7 +717,6 @@ interface IndikatorItem {
     keterangan?: string;
     label?: string;
   }>;
-  upload_text?: string;
 }
 
 interface ParsedPilihan {
@@ -799,7 +762,7 @@ const myGtkId = computed<number | null>(() => {
 
 const indikatorList = ref<IndikatorItem[]>([]);
 const localAnswers = reactive<Record<string, LocalAnswer>>({});
-const savedAnswers = reactive<Record<string, { skor: number | null; upload_text: string }>>({});
+const savedAnswers = reactive<Record<string, { skor: number | null }>>({});
 const myBagianId = ref<number | null>(null);
 const anggotaBagian = ref<AnggotaBagian[]>([]);
 
@@ -828,14 +791,28 @@ const isCurrentItemChanged = computed<boolean>(() => {
   if (!currentItem.value) return false;
   const k = currentItem.value.kode_soal;
   const local = localAnswers[k] || {} as LocalAnswer;
-  const saved = savedAnswers[k] || {} as { skor: number | null; upload_text: string };
-  const answerChanged = (local.skor ?? null) !== (saved.skor ?? null) ||
-         (local.upload_text || "") !== (saved.upload_text || "");
+  const saved = savedAnswers[k] || {} as { skor: number | null };
+  const answerChanged = (local.skor ?? null) !== (saved.skor ?? null);
   const fileChanged = hasDraftFileChanges(k);
   return answerChanged || fileChanged;
 });
 
 
+
+const scrollToSoal = (): void => {
+  nextTick(() => {
+    if (typeof window !== "undefined") {
+      const el = document.getElementById("soal-card");
+      if (el) {
+        const yOffset = -20;
+        const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+  });
+};
 
 const attemptNavigation = (targetPage: number): void => {
   if (targetPage < 1 || targetPage > totalPages.value || targetPage === currentPage.value) return;
@@ -844,6 +821,7 @@ const attemptNavigation = (targetPage: number): void => {
     navDialog.show = true;
   } else {
     currentPage.value = targetPage;
+    scrollToSoal();
   }
 };
 
@@ -867,9 +845,8 @@ const handleDialogCancel = (): void => {
 const handleDialogDiscardAndProceed = (): void => {
   if (currentItem.value) {
     const k = currentItem.value.kode_soal;
-    const saved = savedAnswers[k] || {} as { skor: number | null; upload_text: string };
+    const saved = savedAnswers[k] || {} as { skor: number | null };
     localAnswers[k].skor = saved.skor ?? null;
-    localAnswers[k].upload_text = saved.upload_text || "";
     // Discard draft file changes
     discardDraftFileChanges(k);
   }
@@ -878,12 +855,13 @@ const handleDialogDiscardAndProceed = (): void => {
   navDialog.targetPage = null;
   if (target) {
     currentPage.value = target;
+    scrollToSoal();
   }
 };
 
 const handleDialogSaveAndProceed = async (): Promise<void> => {
   if (!canSaveCurrentItem.value) {
-    Notify?.failure?.("Persyaratan simpan belum lengkap (upload bukti, min. 30 kata, & pilih skor).");
+    Notify?.failure?.("Upload bukti fisik & pilih tingkat terlebih dahulu.");
     return;
   }
   const ok = await handleSaveCurrent();
@@ -893,6 +871,7 @@ const handleDialogSaveAndProceed = async (): Promise<void> => {
     navDialog.targetPage = null;
     if (target) {
       currentPage.value = target;
+      scrollToSoal();
     }
   }
 };
@@ -975,7 +954,7 @@ const parsePilihan = (item: IndikatorItem | null): ParsedPilihan[] => {
 
 const answeredCount = computed<number>(() => {
   return Object.values(savedAnswers).filter(
-    (a) => a.skor !== null && a.skor !== undefined && getWordCount(a.upload_text) >= 30
+    (a) => a.skor !== null && a.skor !== undefined
   ).length;
 });
 
@@ -984,14 +963,8 @@ const setAnswer = (kodeSoal: string, skor: number): void => {
     localAnswers[kodeSoal] = {
       kode_soal: kodeSoal,
       skor: null,
-      upload_text: "",
       updated_by_nama: "",
     };
-  }
-
-  const wordCount = getWordCount(localAnswers[kodeSoal].upload_text);
-  if (skor !== null && wordCount < 30) {
-    Notify?.warning?.(`Penjelasan ringkas pembuktian minimal 30 kata sebelum memilih tingkat skor (saat ini ${wordCount} kata).`);
   }
 
   if (localAnswers[kodeSoal].skor === skor) {
@@ -1006,12 +979,10 @@ const resetAnswers = (): void => {
     localAnswers[item.kode_soal] = {
       kode_soal: item.kode_soal,
       skor: null,
-      upload_text: item.upload_text || "",
       updated_by_nama: "",
     };
     savedAnswers[item.kode_soal] = {
       skor: null,
-      upload_text: item.upload_text || "",
     };
   });
 };
@@ -1023,17 +994,18 @@ const loadExistingAnswers = async (tahunId: number, bId: number): Promise<void> 
     const k = j.kode_soal || String(j.indikator_id || "");
     if (localAnswers[k]) {
       localAnswers[k].skor = j.skor ?? null;
-      localAnswers[k].upload_text = j.upload_text || "";
       localAnswers[k].updated_by_nama = j.updated_by_nama || "";
       savedAnswers[k] = {
         skor: j.skor ?? null,
-        upload_text: j.upload_text || "",
       };
     }
   });
 };
 
+const isSavingCurrent = ref<boolean>(false);
+
 const handleSaveCurrent = async (): Promise<boolean> => {
+  if (isSavingCurrent.value || isUploading.value || isSaving.value) return false;
   if (!currentItem.value || !myBagianId.value) {
     Notify?.failure?.("Data bagian tidak ditemukan");
     return false;
@@ -1041,23 +1013,18 @@ const handleSaveCurrent = async (): Promise<boolean> => {
 
   const k = currentItem.value.kode_soal;
   const ans = localAnswers[k] || {} as LocalAnswer;
-  const wordCount = getWordCount(ans.upload_text);
 
   if (ans.skor === null || ans.skor === undefined) {
-    Notify?.failure?.("Pilih tingkat skor/jawaban terlebih dahulu.");
+    Notify?.failure?.("Pilih tingkat terlebih dahulu.");
     return false;
   }
 
   if (currentFileCount.value === 0) {
-    Notify?.failure?.("Upload minimal 1 file bukti fisik sebelum menyimpan.");
+    Notify?.failure?.("Upload minimal 1 file bukti fisik.");
     return false;
   }
 
-  if (wordCount < 30) {
-    Notify?.failure?.(`Uraian deskripsi ringkas minimal 30 kata (saat ini ${wordCount} kata).`);
-    return false;
-  }
-
+  isSavingCurrent.value = true;
   isUploading.value = true;
   try {
     // ── Step 1: Process draft file uploads to R2 ──
@@ -1069,9 +1036,10 @@ const handleSaveCurrent = async (): Promise<boolean> => {
         k,
         myBagianId.value!,
         myGtkId.value ?? undefined,
+        { silent: true },
       );
       if (uploaded.length === 0 && filesToUpload.length > 0) {
-        Notify?.failure?.("Gagal mengunggah file baru. Coba lagi.");
+        Notify?.failure?.("Gagal mengunggah file. Coba lagi.");
         return false;
       }
     }
@@ -1079,37 +1047,39 @@ const handleSaveCurrent = async (): Promise<boolean> => {
     // ── Step 2: Process draft file deletions from R2/D1 ──
     const draftDel = getDraftDeleteIds(k);
     for (const fileId of draftDel) {
-      await deleteBuktiFile(fileId);
+      await deleteBuktiFile(fileId, { silent: true });
     }
 
     // ── Step 3: Save jawaban to D1 ──
-    const ok = await saveJawaban({
-      bagian_id: myBagianId.value ?? undefined,
-      gtk_id: myGtkId.value ?? undefined,
-      jawaban: [
-        {
-          kode_soal: k,
-          skor: ans.skor,
-          upload_text: ans.upload_text || "",
-        },
-      ],
-    });
+    const ok = await saveJawaban(
+      {
+        bagian_id: myBagianId.value ?? undefined,
+        gtk_id: myGtkId.value ?? undefined,
+        jawaban: [
+          {
+            kode_soal: k,
+            skor: ans.skor,
+          },
+        ],
+      },
+      { silent: true },
+    );
 
     if (ok) {
       savedAnswers[k] = {
         skor: ans.skor,
-        upload_text: ans.upload_text || "",
       };
 
       // Clear draft state and reload server files
       clearDraftState(k);
       await loadBuktiForIndikator(k);
 
-      Notify?.success?.(`Jawaban soal ${k} berhasil disimpan.`);
+      Notify?.success?.(`Soal ${k} tersimpan ✓`);
       return true;
     }
     return false;
   } finally {
+    isSavingCurrent.value = false;
     isUploading.value = false;
   }
 };
@@ -1185,13 +1155,7 @@ const currentDisplayFiles = computed(() => {
 const currentFileCount = computed<number>(() => currentDisplayFiles.value.length);
 
 // ── Kesiapan Simpan & Validasi Persyaratan ──
-const currentWordCount = computed<number>(() => {
-  if (!currentItem.value) return 0;
-  return getWordCount(localAnswers[currentItem.value.kode_soal]?.upload_text);
-});
-
 const hasProofRequirement = computed<boolean>(() => currentFileCount.value >= 1);
-const hasWordsRequirement = computed<boolean>(() => currentWordCount.value >= 30);
 const hasScoreRequirement = computed<boolean>(() => {
   if (!currentItem.value) return false;
   const ans = localAnswers[currentItem.value.kode_soal];
@@ -1201,7 +1165,6 @@ const hasScoreRequirement = computed<boolean>(() => {
 const completedRequirementsCount = computed<number>(() => {
   let count = 0;
   if (hasProofRequirement.value) count++;
-  if (hasWordsRequirement.value) count++;
   if (hasScoreRequirement.value) count++;
   return count;
 });
@@ -1210,7 +1173,6 @@ const canSaveCurrentItem = computed<boolean>(() => {
   if (!currentItem.value) return false;
   return isCurrentItemChanged.value &&
          hasProofRequirement.value &&
-         hasWordsRequirement.value &&
          hasScoreRequirement.value;
 });
 
@@ -1359,42 +1321,9 @@ const getPilihanCardClass = (skor: number | string, isSelected: boolean): string
 
 const deleteDialog = reactive<{ show: boolean; fileId: number | null; fileName: string }>({ show: false, fileId: null, fileName: '' });
 const teamInfoDialog = reactive<{ show: boolean }>({ show: false });
-const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
-const autoResize = (e?: Event): void => {
-  const el = (e?.target as HTMLTextAreaElement | undefined) || textareaRef.value;
-  if (!el) return;
-  el.style.height = "auto";
 
-  // Jika teks kosong, hitung scrollHeight dari teks placeholder agar terlihat utuh tanpa terpotong
-  if (!el.value && el.placeholder) {
-    const originalValue = el.value;
-    el.value = el.placeholder;
-    const placeholderHeight = el.scrollHeight;
-    el.value = originalValue;
-    el.style.height = `${placeholderHeight}px`;
-  } else {
-    el.style.height = `${el.scrollHeight}px`;
-  }
-};
 
-const adjustTextareaHeight = async (): Promise<void> => {
-  await nextTick();
-  autoResize();
-};
-
-// Resize saat value berubah dari luar (load data, pindah soal, selesai loading, atau input teks)
-watch(
-  [
-    () => isPageLoading.value,
-    () => currentItem.value?.kode_soal,
-    () => currentItem.value ? localAnswers[currentItem.value.kode_soal]?.upload_text : null
-  ],
-  () => {
-    adjustTextareaHeight();
-  },
-  { immediate: true, flush: 'post' }
-);
 
 const confirmDeleteFile = (file: BuktiFile): void => {
   deleteDialog.fileId = file.id;
@@ -1461,18 +1390,9 @@ onMounted(async () => {
     }
   } finally {
     isPageLoading.value = false;
-    await adjustTextareaHeight();
-  }
-
-  if (typeof window !== "undefined") {
-    window.addEventListener("resize", autoResize);
   }
 });
 
-onUnmounted(() => {
-  if (typeof window !== "undefined") {
-    window.removeEventListener("resize", autoResize);
-  }
-});
+
 </script>
 

@@ -311,7 +311,7 @@ export function useEdm() {
       skor?: number | null;
       upload_text?: string | null;
     }>;
-  }) => {
+  }, options?: { silent?: boolean }) => {
     isSaving.value = true;
     try {
       const token = getAuthToken();
@@ -334,7 +334,9 @@ export function useEdm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal menyimpan jawaban");
-      Notify?.success?.("Pengisian EDM berhasil disimpan");
+      if (!options?.silent) {
+        Notify?.success?.("Pengisian EDM berhasil disimpan");
+      }
       return true;
     } catch (err: any) {
       Notify?.failure?.(err.message || "Gagal menyimpan jawaban EDM");
@@ -374,6 +376,7 @@ export function useEdm() {
     kodeSoal: string | number,
     bagianId: number,
     gtkId?: number,
+    options?: { silent?: boolean },
   ): Promise<BuktiFile[]> => {
     try {
       const token = getAuthToken();
@@ -395,7 +398,9 @@ export function useEdm() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal mengupload file");
-      Notify?.success?.(data.message || "File berhasil diupload");
+      if (!options?.silent) {
+        Notify?.success?.(data.message || "File berhasil diupload");
+      }
       return data.files || [];
     } catch (err: any) {
       Notify?.failure?.(err.message || "Gagal mengupload file bukti");
@@ -429,7 +434,7 @@ export function useEdm() {
   /**
    * Hapus bukti file
    */
-  const deleteBuktiFile = async (fileId: number): Promise<boolean> => {
+  const deleteBuktiFile = async (fileId: number, options?: { silent?: boolean }): Promise<boolean> => {
     try {
       const token = getAuthToken();
       const res = await fetch(`/api/edm/bukti/${fileId}`, {
@@ -438,7 +443,9 @@ export function useEdm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.statusMessage || data.error || "Gagal menghapus file");
-      Notify?.success?.(data.message || "File berhasil dihapus");
+      if (!options?.silent) {
+        Notify?.success?.(data.message || "File berhasil dihapus");
+      }
       return true;
     } catch (err: any) {
       Notify?.failure?.(err.message || "Gagal menghapus file bukti");
