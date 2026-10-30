@@ -19,6 +19,9 @@ export const monthNames: string[] = [
   "Desember",
 ];
 
+// In-memory cache untuk menghemat D1 Rows Read (module-level agar persist saat navigasi internal)
+const rekapCache = new Map<string, RekapSiswa[]>();
+
 export function useRekapKehadiran(dataKelas: Ref<any[]>) {
   const { Notify } = useNotiflix();
 
@@ -110,9 +113,6 @@ export function useRekapKehadiran(dataKelas: Ref<any[]>) {
     const match = dataKelas.value?.find((k: any) => k.idKelas === selectedClass.value);
     return match ? match.namaKelas : selectedClass.value;
   });
-
-  // In-memory cache untuk menghemat D1 Rows Read
-  const rekapCache = new Map<string, RekapSiswa[]>();
 
   const fetchRekap = async (force: boolean = false) => {
     if (!selectedClass.value || !selectedTapel.value) {

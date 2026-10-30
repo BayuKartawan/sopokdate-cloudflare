@@ -168,47 +168,63 @@ export async function handleGetAbsensiRekap(
     let stmt;
     if (startDate && endDate) {
       query = `
+        WITH agg_absensi AS (
+          SELECT 
+            siswa_id,
+            SUM(CASE WHEN status = 'H' THEN 1 ELSE 0 END) as total_hadir,
+            SUM(CASE WHEN status = 'S' THEN 1 ELSE 0 END) as total_sakit,
+            SUM(CASE WHEN status = 'I' THEN 1 ELSE 0 END) as total_izin,
+            SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) as total_alpa,
+            COUNT(id) as total_hari_efektif
+          FROM absensi_siswa
+          WHERE kelas_id = ?1 AND tahun_pelajaran = ?2 AND tanggal >= ?3 AND tanggal <= ?4
+          GROUP BY siswa_id
+        )
         SELECT 
           s.id as siswa_id,
           s.nama,
           s.nisn,
           s.nis_lokal,
-          SUM(CASE WHEN a.status = 'H' THEN 1 ELSE 0 END) as total_hadir,
-          SUM(CASE WHEN a.status = 'S' THEN 1 ELSE 0 END) as total_sakit,
-          SUM(CASE WHEN a.status = 'I' THEN 1 ELSE 0 END) as total_izin,
-          SUM(CASE WHEN a.status = 'A' THEN 1 ELSE 0 END) as total_alpa,
-          COUNT(a.id) as total_hari_efektif
+          COALESCE(a.total_hadir, 0) as total_hadir,
+          COALESCE(a.total_sakit, 0) as total_sakit,
+          COALESCE(a.total_izin, 0) as total_izin,
+          COALESCE(a.total_alpa, 0) as total_alpa,
+          COALESCE(a.total_hari_efektif, 0) as total_hari_efektif
         FROM riwayat_kelas_siswa r
         INNER JOIN data_siswa s ON r.siswa_id = s.id
-        LEFT JOIN absensi_siswa a ON s.id = a.siswa_id
-          AND a.kelas_id = r.kelas_id
-          AND a.tanggal >= ?3
-          AND a.tanggal <= ?4
+        LEFT JOIN agg_absensi a ON r.siswa_id = a.siswa_id
         WHERE r.kelas_id = ?1 AND r.tahun_pelajaran = ?2
-        GROUP BY s.id, s.nama, s.nisn, s.nis_lokal
         ORDER BY s.nama ASC;
       `;
       stmt = env.DB.prepare(query).bind(kelasId, tahunPelajaran, startDate, endDate);
     } else {
       query = `
+        WITH agg_absensi AS (
+          SELECT 
+            siswa_id,
+            SUM(CASE WHEN status = 'H' THEN 1 ELSE 0 END) as total_hadir,
+            SUM(CASE WHEN status = 'S' THEN 1 ELSE 0 END) as total_sakit,
+            SUM(CASE WHEN status = 'I' THEN 1 ELSE 0 END) as total_izin,
+            SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) as total_alpa,
+            COUNT(id) as total_hari_efektif
+          FROM absensi_siswa
+          WHERE kelas_id = ?1 AND tahun_pelajaran = ?2 AND semester = ?3
+          GROUP BY siswa_id
+        )
         SELECT 
           s.id as siswa_id,
           s.nama,
           s.nisn,
           s.nis_lokal,
-          SUM(CASE WHEN a.status = 'H' THEN 1 ELSE 0 END) as total_hadir,
-          SUM(CASE WHEN a.status = 'S' THEN 1 ELSE 0 END) as total_sakit,
-          SUM(CASE WHEN a.status = 'I' THEN 1 ELSE 0 END) as total_izin,
-          SUM(CASE WHEN a.status = 'A' THEN 1 ELSE 0 END) as total_alpa,
-          COUNT(a.id) as total_hari_efektif
+          COALESCE(a.total_hadir, 0) as total_hadir,
+          COALESCE(a.total_sakit, 0) as total_sakit,
+          COALESCE(a.total_izin, 0) as total_izin,
+          COALESCE(a.total_alpa, 0) as total_alpa,
+          COALESCE(a.total_hari_efektif, 0) as total_hari_efektif
         FROM riwayat_kelas_siswa r
         INNER JOIN data_siswa s ON r.siswa_id = s.id
-        LEFT JOIN absensi_siswa a ON s.id = a.siswa_id
-          AND a.kelas_id = r.kelas_id
-          AND a.tahun_pelajaran = r.tahun_pelajaran 
-          AND a.semester = ?3
+        LEFT JOIN agg_absensi a ON r.siswa_id = a.siswa_id
         WHERE r.kelas_id = ?1 AND r.tahun_pelajaran = ?2
-        GROUP BY s.id, s.nama, s.nisn, s.nis_lokal
         ORDER BY s.nama ASC;
       `;
       stmt = env.DB.prepare(query).bind(kelasId, tahunPelajaran, semester);
@@ -251,15 +267,21 @@ export async function handleGetAbsensiRekapStatus(
 
   try {
     const query = `
+      WITH kelas_tanggal AS (
+        SELECT DISTINCT
+          kelas_id,
+          tanggal
+        FROM absensi_siswa
+        WHERE tahun_pelajaran = ?1 AND semester = ?2
+      )
       SELECT 
-        a.kelas_id,
-        COUNT(DISTINCT a.tanggal) as total_hari_diabsen,
-        MIN(a.tanggal) as tanggal_pertama,
-        MAX(a.tanggal) as tanggal_terakhir
-      FROM absensi_siswa a
-      WHERE a.tahun_pelajaran = ?1 AND a.semester = ?2
-      GROUP BY a.kelas_id
-      ORDER BY a.kelas_id ASC;
+        kelas_id,
+        COUNT(tanggal) as total_hari_diabsen,
+        MIN(tanggal) as tanggal_pertama,
+        MAX(tanggal) as tanggal_terakhir
+      FROM kelas_tanggal
+      GROUP BY kelas_id
+      ORDER BY kelas_id ASC;
     `;
 
     const stmt = env.DB.prepare(query).bind(tahunPelajaran, semester);
@@ -299,51 +321,69 @@ export async function handleGetAbsensiPeringkat(
 
     if (startDate && endDate) {
       query = `
+        WITH agg_absensi AS (
+          SELECT 
+            siswa_id,
+            SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) as total_alpa,
+            SUM(CASE WHEN status = 'S' THEN 1 ELSE 0 END) as total_sakit,
+            SUM(CASE WHEN status = 'I' THEN 1 ELSE 0 END) as total_izin,
+            SUM(CASE WHEN status = 'H' THEN 1 ELSE 0 END) as total_hadir,
+            SUM(CASE WHEN status IN ('A', 'S', 'I') THEN 1 ELSE 0 END) as total_tidak_hadir,
+            COUNT(id) as total_hari_efektif
+          FROM absensi_siswa
+          WHERE tahun_pelajaran = ?1 AND tanggal >= ?2 AND tanggal <= ?3
+          GROUP BY siswa_id
+        )
         SELECT 
           s.id as siswa_id,
           s.nama,
           s.nisn,
           s.nis_lokal,
           r.kelas_id,
-          SUM(CASE WHEN a.status = 'A' THEN 1 ELSE 0 END) as total_alpa,
-          SUM(CASE WHEN a.status = 'S' THEN 1 ELSE 0 END) as total_sakit,
-          SUM(CASE WHEN a.status = 'I' THEN 1 ELSE 0 END) as total_izin,
-          SUM(CASE WHEN a.status = 'H' THEN 1 ELSE 0 END) as total_hadir,
-          SUM(CASE WHEN a.status IN ('A', 'S', 'I') THEN 1 ELSE 0 END) as total_tidak_hadir,
-          COUNT(a.id) as total_hari_efektif
+          COALESCE(a.total_alpa, 0) as total_alpa,
+          COALESCE(a.total_sakit, 0) as total_sakit,
+          COALESCE(a.total_izin, 0) as total_izin,
+          COALESCE(a.total_hadir, 0) as total_hadir,
+          COALESCE(a.total_tidak_hadir, 0) as total_tidak_hadir,
+          COALESCE(a.total_hari_efektif, 0) as total_hari_efektif
         FROM riwayat_kelas_siswa r
         INNER JOIN data_siswa s ON r.siswa_id = s.id
-        LEFT JOIN absensi_siswa a ON s.id = a.siswa_id
-          AND a.kelas_id = r.kelas_id
-          AND a.tanggal >= ?2
-          AND a.tanggal <= ?3
+        LEFT JOIN agg_absensi a ON r.siswa_id = a.siswa_id
         WHERE r.tahun_pelajaran = ?1
-        GROUP BY s.id, s.nama, s.nisn, s.nis_lokal, r.kelas_id
         ORDER BY s.nama ASC;
       `;
       stmt = env.DB.prepare(query).bind(tahunPelajaran, startDate, endDate);
     } else {
       query = `
+        WITH agg_absensi AS (
+          SELECT 
+            siswa_id,
+            SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) as total_alpa,
+            SUM(CASE WHEN status = 'S' THEN 1 ELSE 0 END) as total_sakit,
+            SUM(CASE WHEN status = 'I' THEN 1 ELSE 0 END) as total_izin,
+            SUM(CASE WHEN status = 'H' THEN 1 ELSE 0 END) as total_hadir,
+            SUM(CASE WHEN status IN ('A', 'S', 'I') THEN 1 ELSE 0 END) as total_tidak_hadir,
+            COUNT(id) as total_hari_efektif
+          FROM absensi_siswa
+          WHERE tahun_pelajaran = ?1 AND semester = ?2
+          GROUP BY siswa_id
+        )
         SELECT 
           s.id as siswa_id,
           s.nama,
           s.nisn,
           s.nis_lokal,
           r.kelas_id,
-          SUM(CASE WHEN a.status = 'A' THEN 1 ELSE 0 END) as total_alpa,
-          SUM(CASE WHEN a.status = 'S' THEN 1 ELSE 0 END) as total_sakit,
-          SUM(CASE WHEN a.status = 'I' THEN 1 ELSE 0 END) as total_izin,
-          SUM(CASE WHEN a.status = 'H' THEN 1 ELSE 0 END) as total_hadir,
-          SUM(CASE WHEN a.status IN ('A', 'S', 'I') THEN 1 ELSE 0 END) as total_tidak_hadir,
-          COUNT(a.id) as total_hari_efektif
+          COALESCE(a.total_alpa, 0) as total_alpa,
+          COALESCE(a.total_sakit, 0) as total_sakit,
+          COALESCE(a.total_izin, 0) as total_izin,
+          COALESCE(a.total_hadir, 0) as total_hadir,
+          COALESCE(a.total_tidak_hadir, 0) as total_tidak_hadir,
+          COALESCE(a.total_hari_efektif, 0) as total_hari_efektif
         FROM riwayat_kelas_siswa r
         INNER JOIN data_siswa s ON r.siswa_id = s.id
-        LEFT JOIN absensi_siswa a ON s.id = a.siswa_id
-          AND a.kelas_id = r.kelas_id
-          AND a.tahun_pelajaran = r.tahun_pelajaran
-          AND a.semester = ?2
+        LEFT JOIN agg_absensi a ON r.siswa_id = a.siswa_id
         WHERE r.tahun_pelajaran = ?1
-        GROUP BY s.id, s.nama, s.nisn, s.nis_lokal, r.kelas_id
         ORDER BY s.nama ASC;
       `;
       stmt = env.DB.prepare(query).bind(tahunPelajaran, semester || "Ganjil");

@@ -4,6 +4,9 @@ import { authenticatedFetch } from "~/utils/api";
 import { exportStyledExcel } from "~/utils/excelExport";
 import type { PeringkatSiswaItem, KategoriPeringkat } from "~/types/absensi";
 
+// In-memory cache untuk data peringkat (module-level agar persist saat navigasi internal)
+const peringkatCache = new Map<string, PeringkatSiswaItem[]>();
+
 export function useRekapPeringkat(dataKelas: Ref<any[]>) {
   const { Notify } = useNotiflix();
 
@@ -107,9 +110,6 @@ export function useRekapPeringkat(dataKelas: Ref<any[]>) {
     const sorted = [...rawData.value].filter(s => s.total_izin > 0).sort((a, b) => b.total_izin - a.total_izin);
     return sorted[0] || null;
   });
-
-  // In-memory cache untuk data peringkat
-  const peringkatCache = new Map<string, PeringkatSiswaItem[]>();
 
   const fetchPeringkatData = async (force: boolean = false) => {
     if (!peringkatTapel.value) return;

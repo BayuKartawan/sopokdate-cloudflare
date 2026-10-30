@@ -127,7 +127,7 @@ export async function handleGetData(
         ag.created_at,
         ag.updated_at
       FROM akun_gtk ag 
-      LEFT JOIN aplikasi a ON (ag.aplikasi_id = a.id OR ag.aplikasi_id = a.title) 
+      LEFT JOIN aplikasi a ON ag.aplikasi_id = a.id 
       LEFT JOIN data_gtk g ON ag.gtk_id = g.id
     `;
   } else {
@@ -308,6 +308,14 @@ export async function handlePostData(
 
     if (d1Table === "akun_gtk") {
       delete cleanedData["nama"];
+      if (cleanedData["aplikasi_id"] && isNaN(Number(cleanedData["aplikasi_id"]))) {
+        const appRow = await env.DB.prepare("SELECT id FROM aplikasi WHERE title = ?")
+          .bind(cleanedData["aplikasi_id"])
+          .first<{ id: number }>();
+        if (appRow?.id) {
+          cleanedData["aplikasi_id"] = appRow.id;
+        }
+      }
     }
 
     if (["data_siswa", "alumni", "mutasi_siswa"].includes(d1Table)) {
@@ -422,6 +430,18 @@ export async function handlePutData(
       setClauses.push(`${snakeKey} = ?`);
       params.push(value !== undefined && value !== null ? String(value) : "");
       updates[snakeKey] = value;
+    }
+
+    if (d1Table === "akun_gtk" && updates["aplikasi_id"] && isNaN(Number(updates["aplikasi_id"]))) {
+      const appRow = await env.DB.prepare("SELECT id FROM aplikasi WHERE title = ?")
+        .bind(updates["aplikasi_id"])
+        .first<{ id: number }>();
+      if (appRow?.id) {
+        const appIdx = setClauses.findIndex((c) => c.startsWith("aplikasi_id ="));
+        if (appIdx !== -1) {
+          params[appIdx] = String(appRow.id);
+        }
+      }
     }
 
     if (["data_siswa", "alumni", "mutasi_siswa"].includes(d1Table)) {

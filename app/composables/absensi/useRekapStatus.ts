@@ -4,6 +4,11 @@ import { authenticatedFetch, fetchFromApi } from "~/utils/api";
 import { exportStyledExcel } from "~/utils/excelExport";
 import type { StatusRow } from "~/types/absensi";
 
+// In-memory cache untuk status, kalender, dan config tapel (module-level agar persist saat navigasi internal)
+const statusCache = new Map<string, any[]>();
+const kalenderCache = new Map<string, any[]>();
+const configCache = new Map<string, any[]>();
+
 export function useRekapStatus(dataKelas: Ref<any[]>) {
   const { Notify } = useNotiflix();
 
@@ -159,11 +164,6 @@ export function useRekapStatus(dataKelas: Ref<any[]>) {
     if (!semesterDateRange.value) return "-";
     return `${formatDateIndo(semesterDateRange.value.start)} s.d. ${formatDateIndo(semesterDateRange.value.end)}`;
   });
-
-  // In-memory cache untuk status, kalender, dan config tapel
-  const statusCache = new Map<string, any[]>();
-  const kalenderCache = new Map<string, any[]>();
-  const configCache = new Map<string, any[]>();
 
   const fetchStatusData = async (force: boolean = false) => {
     if (!statusTapel.value || !statusSemester.value) return;

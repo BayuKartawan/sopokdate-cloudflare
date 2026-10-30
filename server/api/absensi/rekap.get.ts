@@ -103,6 +103,12 @@ export default defineEventHandler(async (event) => {
       },
     });
 
+    setHeader(
+      event,
+      "Cache-Control",
+      "private, max-age=60, stale-while-revalidate=300",
+    );
+
     return response;
   } catch (error: any) {
     console.error(
